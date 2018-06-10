@@ -76,11 +76,11 @@ public class Rainbow extends LXPattern {
   }
 
   public void run(double deltaMs) {
-    int numPixelsPerRow = 420;
+    int numPixelsPerRow = ((RainbowBaseModel)lx.model).pointsWide;
     int pointNumber = 0;
     for (LXPoint p : model.points) {
       int rowNumber = pointNumber / numPixelsPerRow; // Ranges 0-29
-      float hue = map(rowNumber, 0, 29, 0, 360);
+      float hue = map(rowNumber, 0, ((RainbowBaseModel)lx.model).pointsHigh - 1, 0, 360);
       // We can get the position of this point via p.x, p.y, p.z
       colors[p.index] = LX.hsb(hue, 100, 100);
       ++pointNumber;
@@ -111,7 +111,7 @@ public class RainbowScannerPattern extends LXPattern {
   
   @Override
   public void run(double deltaMs) {
-    int numPixelsPerRow = 420;
+    int numPixelsPerRow = ((RainbowBaseModel)lx.model).pointsWide;
     double columnsPerSecond = speed.getValue();
     double scannerWidth = width.getValue();
     if (movingForward) {
@@ -153,8 +153,9 @@ public class RainbowEqualizerPattern extends LXPattern {
   @Override
   public void run(double deltaMs) {
     GraphicMeter eq = lx.engine.audio.meter;
-    int numPixelsPerRow = 420;
-    int numRows = 30;
+    int numPixelsPerRow = ((RainbowBaseModel)lx.model).pointsWide;
+    double numRows = ((RainbowBaseModel)lx.model).pointsHigh;
+    
     // We need to distribute eq.numBands across our 420 columns
     int pointsPerBand = ceil((float)numPixelsPerRow/ (float)eq.numBands);  // TODO(tracy): handle left over pixels
     int pointNumber = 0;
@@ -163,9 +164,11 @@ public class RainbowEqualizerPattern extends LXPattern {
       int rowNumber = pointNumber / numPixelsPerRow;  // Which row
       int columnPos = pointNumber - rowNumber * numPixelsPerRow;
       int equalizerColumnNumber = columnPos / pointsPerBand;
-      // NOTE(tracy): I made up the 150.0 number to scale to our 30 rows.  
-      // It is also dependent on the gain settings in the audio meter.
-      double value = 150.0 * eq.getBand(equalizerColumnNumber);
+      // NOTE(tracy): numRows * 2 is a hand-tuned number.  This is also dependent on the 'Range' field
+      // in the Audio Meter in the UI.  Might be better to just remove this and play with that range field.
+      // This works for 33.6dB in the UI.
+      double bandValueScale = numRows * 2;
+      double value = bandValueScale * eq.getBand(equalizerColumnNumber);
       if (value > rowNumber) {
         colors[p.index] = LXColor.gray(70 - rowNumber);
       } else {

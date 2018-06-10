@@ -24,11 +24,29 @@
 // Reference to top-level LX instance
 heronarts.lx.studio.LXStudio lx;
 
+static public final int ARTNET_PORT = 6454;
+static public final String LED_CONTROLLER_IP = "192.168.2.1";
+
+static public final int FULL_RAINBOW = 0;
+static public final int SRIKANTH_PANEL = 1;
+
 void setup() {
   // Processing setup, constructs the window and the LX instance
   size(800, 720, P3D);
-  lx = new heronarts.lx.studio.LXStudio(this, buildModel(), MULTITHREADED);
+ 
+  int modelType = FULL_RAINBOW; // FULL_RAINBOW;
+  
+  LXModel model = buildModel(modelType);
+  lx = new heronarts.lx.studio.LXStudio(this, model, MULTITHREADED);
   lx.ui.setResizable(RESIZABLE);
+  
+  if (modelType == FULL_RAINBOW) {
+    // Uncomment this to generate ArtNet packets. Also, you will need to configure
+    // the IP and Port in the method below.
+    // RainbowModel3D.configureOutput(lx);
+  } else if (modelType == SRIKANTH_PANEL) {
+    // SrikanthPanel.configureOutput(lx);
+  }
 }
 
 void initialize(final heronarts.lx.studio.LXStudio lx, heronarts.lx.studio.LXStudio.UI ui) {
