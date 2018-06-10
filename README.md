@@ -1,4 +1,6 @@
-LX Studio
+Rainbow Studio
+==
+Based on LX Studio, Prototype for [Rainbow Bridge](http://giantrainbow.com/)
 ==
 
 **BY DOWNLOADING OR USING THE LX STUDIO SOFTWARE OR ANY PART THEREOF, YOU AGREE TO THE TERMS AND CONDITIONS OF THE [LX STUDIO SOFTWARE LICENSE AND DISTRIBUTION AGREEMENT](http://lx.studio/license).**
@@ -7,18 +9,18 @@ Please note that LX Studio is not open-source software. The license grants permi
 
 ---
 
-![LX Studio](https://raw.github.com/heronarts/LXStudio/master/assets/screenshot.jpg)
+![Rainbow Studio](https://raw.github.com/tracyscott/RainbowStudio/master/assets/rainbowstudio.jpg)
 
 [LX Studio](http://lx.studio/) is a digital lighting workstation, bringing concepts from digital audio workstations and modular synthesis into the realm of LED lighting control. Generative patterns, interactive inputs, and flexible parameter-driven modulation — a rich environment for lighting composition and performance.
 
 ### Getting Started ###
 
-LX Studio runs on top of Processing. [Download and install Processing &rarr;](https://processing.org/download/)
+Rainbow Studio runs on top of Processing. [Download and install Processing &rarr;](https://processing.org/download/)
 
-Next, clone this project and open the LXStudio.pde project in Processing:
+Next, clone this project and open the RainbowStudio.pde project in Processing:
 ```
 $ cd ~/Documents/Processing
-$ git clone https://github.com/heronarts/LXStudio.git
+$ git clone https://github.com/tracyscott/RainbowStudio.git
 ```
 
 Consult the [LX Studio API reference &rarr;](http://lx.studio/api/)
