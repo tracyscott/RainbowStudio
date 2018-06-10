@@ -192,7 +192,7 @@
         "class": "heronarts.lx.LXChannel",
         "modulationColor": -65455,
         "parameters": {
-          "label": "Channel-5",
+          "label": "Scanner",
           "arm": false,
           "selected": true,
           "enabled": true,
@@ -236,7 +236,7 @@
         "class": "heronarts.lx.LXChannel",
         "modulationColor": -8453889,
         "parameters": {
-          "label": "Channel-6",
+          "label": "RainbowClr1",
           "arm": false,
           "selected": false,
           "enabled": true,
@@ -278,7 +278,7 @@
         "class": "heronarts.lx.LXChannel",
         "modulationColor": -2048,
         "parameters": {
-          "label": "Channel-7",
+          "label": "MovingLine",
           "arm": false,
           "selected": false,
           "enabled": true,
@@ -322,7 +322,7 @@
         "class": "heronarts.lx.LXChannel",
         "modulationColor": -65496,
         "parameters": {
-          "label": "Channel-8",
+          "label": "RainbowClr2",
           "arm": false,
           "selected": false,
           "enabled": true,
