@@ -45,7 +45,8 @@ public static class RainbowModel3D extends LXModel {
       int ledCount = 0;
       for (int rowNum = 0; rowNum < 30; rowNum++) {
         r += 2.75 / 12.0;  // Each strip is separated by 2.75 inches.  r is in units of feet.
-        for (float angle = 9.4165082; angle < 170.5834918; angle += 161.3669836 / pointsPerRow) {
+        //for (float angle = 9.4165082; angle < 170.5834918; angle += 161.3669836 / pointsPerRow) {
+        for (float angle = 170.5383491; angle > 9.4165082; angle -= 161.3669836 / pointsPerRow) {
           float x = r * cos(radians(angle));
           float y = r * sin(radians(angle));
           addPoint(new LXPoint(x, y, z));

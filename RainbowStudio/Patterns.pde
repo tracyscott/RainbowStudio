@@ -162,14 +162,9 @@ public class RainbowEqualizerPattern extends LXPattern {
     for (LXPoint p : model.points) {
       int rowNumber = pointNumber / numPixelsPerRow;  // Which row
       int columnPos = pointNumber - rowNumber * numPixelsPerRow;
-      // NOTE(tracy): We subtract from the number of bands here to change the orientation
-      // so that low frequencies (low band number) corresponds to the left side of the
-      // rainbow (where the point indices are greater).  Maybe it would be less confusing
-      // to change the order of the point creation in the Model.  
-      int equalizerColumnNumber = (eq.numBands - 1) - columnPos / pointsPerBand;
-      // NOTE(tracy): I made up the 150.0 number.  It is also dependent on the
-      // gain settings in the audio meter.
-      //System.out.println("band num " + equalizerColumnNumber);
+      int equalizerColumnNumber = columnPos / pointsPerBand;
+      // NOTE(tracy): I made up the 150.0 number to scale to our 30 rows.  
+      // It is also dependent on the gain settings in the audio meter.
       double value = 150.0 * eq.getBand(equalizerColumnNumber);
       if (value > rowNumber) {
         colors[p.index] = LXColor.gray(70 - rowNumber);
