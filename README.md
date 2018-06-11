@@ -23,7 +23,7 @@ $ cd ~/Documents/Processing
 $ git clone https://github.com/tracyscott/RainbowStudio.git
 ```
 
-The Animated GIF Pattern requires the Animated GIF Processing Library. You need to install it into your Processing libraries folder. You might need to mkdir ~/Documents/Processing/libraries.
+The Animated GIF Pattern requires the [GifAnimation](https://github.com/01010101/GifAnimation) Processing Library. You need to install it into your Processing libraries folder. You might need to mkdir ~/Documents/Processing/libraries.
 ```
 $ cd ~/Documents/Processing/libraries
 $ git clone https://github.com/01010101/GifAnimation.git
