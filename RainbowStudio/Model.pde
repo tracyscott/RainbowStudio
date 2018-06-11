@@ -7,6 +7,10 @@ LXModel buildModel(int modelType) {
     return new RainbowModel3D();
   } else if (modelType == SRIKANTH_PANEL) {
     return new SrikanthPanel();
+  } else if (modelType == RAINBOW_PANEL) {
+    return new SrikanthPanel(15, 30);
+  } else if (modelType == LARGE_PANEL) {
+    return new SrikanthPanel(100, 50);
   } else {
     return null;
   }
@@ -56,11 +60,25 @@ public static abstract class RainbowBaseModel extends LXModel {
   public int pointsHigh;
 }
 
+/*
+ * A Generic 2D grid model.  Defaults to dimensions of Srikanth's test panel.  Also,
+ * configureOutput is only implemented for Srikanth's specific wiring.  The Animated GIF
+ * pattern currently uses a 100x50 animated gif of the game of life.  The Animated GIF
+ * pattern will scale images to fit the points, but doesn't make sense for game of
+ * life so it will run but not look right if not run on the LARGE_PANEL modelType in
+ * buildModel (can be specified at the top of RainbowStudio.pde).
+ */
 public static class SrikanthPanel extends RainbowBaseModel {
   
-  public static final int LED_WIDTH = 10;
+  public static final int LED_WIDTH = 10;  // Defaults based on Srikanth's test panel
   public static final int LED_HEIGHT = 5;
   public static final int UNIVERSE = 0;
+  
+  public SrikanthPanel(int width, int height) {
+      super(new Fixture(width, height));
+      pointsWide = width;
+      pointsHigh = height;
+  }
   
   public SrikanthPanel() {
     super(new Fixture());
@@ -70,13 +88,18 @@ public static class SrikanthPanel extends RainbowBaseModel {
   
   public static class Fixture extends LXAbstractFixture {
     Fixture() {
-      // Scale the panel so that it fits into 3D space where
-      // the rainbow fits.  This will make switching between them
-      // easy without a bunch of camera fussing.
-      float worldWidth = 10.0;
-      float worldHeight = 5.0; 
-      int numRows = LED_HEIGHT;
-      int numCols = LED_WIDTH;
+      this(LED_WIDTH, LED_HEIGHT);
+    }
+    
+    Fixture(int width, int height) {
+      // Determine the size in 3D space with this factor.  1.0 looks a bit
+      // cramped, especially on the larger panel.  This should eventually account
+      // for the physical led spacing on a given panel.
+      float worldScaleFactor = 1.5;
+      float worldWidth = width/worldScaleFactor;
+      float worldHeight = height/worldScaleFactor;
+      int numRows = height;
+      int numCols = width;
       float widthPerColumn = worldWidth / numCols;
       float heightPerRow = worldHeight / numRows;
       for (int rowNum = 0; rowNum < numRows; rowNum++) {
@@ -97,6 +120,7 @@ public static class SrikanthPanel extends RainbowBaseModel {
    * left to right moving up the rows.  The points in 3D space start with
    * 0 at the bottom left. y=1, x=0 also starts from the left side (direction does not
    * alternate like the wiring)
+   * TODO(tracy): This only works for Srikanth's specific wiring.
    */
   public static void configureOutput(LX lx) {
 

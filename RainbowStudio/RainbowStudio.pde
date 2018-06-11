@@ -29,11 +29,16 @@ static public final String LED_CONTROLLER_IP = "192.168.2.1";
 
 static public final int FULL_RAINBOW = 0;
 static public final int SRIKANTH_PANEL = 1;
+static public final int RAINBOW_PANEL = 2;
+static public final int LARGE_PANEL = 3;
+
+static public PApplet pApplet;
 
 void setup() {
   // Processing setup, constructs the window and the LX instance
   size(800, 720, P3D);
- 
+  pApplet = this;
+  
   int modelType = FULL_RAINBOW; // FULL_RAINBOW;
   
   LXModel model = buildModel(modelType);

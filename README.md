@@ -23,6 +23,14 @@ $ cd ~/Documents/Processing
 $ git clone https://github.com/tracyscott/RainbowStudio.git
 ```
 
+The Animated GIF Pattern requires the Animated GIF Processing Library. You need to install it into your Processing libraries folder. You might need to mkdir ~/Documents/Processing/libraries.
+```
+$ cd ~/Documents/Processing/libraries
+$ git clone https://github.com/01010101/GifAnimation.git
+```
+
+Also, the code is currently set up to render the rainbow points.  In order to test animated GIFs, you will need to change it to modelType = LARGE_PANEL in RainbowStudio.pde.  You should also load the AnimatedGifLife.lxp file once Rainbow Studio is running.  Animated GIFs are currently only supported for 2D grid models.
+
 Consult the [LX Studio API reference &rarr;](http://lx.studio/api/)
 
 More and better documentation is coming soon!

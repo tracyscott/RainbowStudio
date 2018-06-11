@@ -1,3 +1,5 @@
+import gifAnimation.*;
+
 @LXCategory(LXCategory.FORM)
 public class Tutorial extends LXPattern {
 
@@ -83,6 +85,49 @@ public class Rainbow extends LXPattern {
       float hue = map(rowNumber, 0, ((RainbowBaseModel)lx.model).pointsHigh - 1, 0, 360);
       // We can get the position of this point via p.x, p.y, p.z
       colors[p.index] = LX.hsb(hue, 100, 100);
+      ++pointNumber;
+    }
+  }
+}
+
+@LXCategory(LXCategory.FORM)
+public class AnimatedGIF extends LXPattern {
+  
+  public final CompoundParameter fpsKnob =
+    new CompoundParameter("Fps", 1.0, 10.0)
+    .setDescription("Controls the frames per second.");
+  
+  private PImage[] images;
+  private String imagePrefix = "life";
+  private int numPointsPerRow = 0;
+  private int numPointsHigh = 0;
+  private double currentFrame = 0.0;
+  
+  public AnimatedGIF(LX lx) {
+    super(lx);
+    numPointsPerRow = ((RainbowBaseModel)(lx.model)).pointsWide;
+    numPointsHigh = ((RainbowBaseModel)(lx.model)).pointsHigh;
+    images = Gif.getPImages(RainbowStudio.pApplet, imagePrefix + ".gif");
+    for (int i = 0; i < images.length; i++) {
+      images[i].resize(numPointsPerRow, numPointsHigh);
+      images[i].loadPixels();
+    }
+    addParameter(fpsKnob);
+  }
+  
+  public void run(double deltaMs) {
+    int pointNumber = 0;
+
+    double fps = fpsKnob.getValue();
+    currentFrame += (deltaMs/1000.0) * fps;
+    if (currentFrame > images.length) {
+      currentFrame -= images.length;
+    }
+    
+    for (LXPoint p : model.points) {
+      int rowNumber = pointNumber / numPointsPerRow; 
+      int columnPos = pointNumber - rowNumber * numPointsPerRow;
+      colors[p.index] = images[(int)currentFrame].pixels[rowNumber * numPointsPerRow + columnPos]; 
       ++pointNumber;
     }
   }
