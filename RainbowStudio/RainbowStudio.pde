@@ -45,6 +45,17 @@ void setup() {
   lx = new heronarts.lx.studio.LXStudio(this, model, MULTITHREADED);
   lx.ui.setResizable(RESIZABLE);
   
+  // Output the model bounding box for reference.
+  System.out.println("minx, miny: " + model.xMin + "," + model.yMin);
+  System.out.println("maxx, maxy: " + model.xMax + "," + model.yMax);
+  System.out.println("bounds size: " + (model.xMax - model.xMin) + "," +
+    (model.yMax - model.yMin));
+  // FULL_RAINBOW is
+  // rectangle bounds size: 86.52052, 37.74478
+  // Roughly, 87, 38 feet with led's per 2 inch (highest density) = 87*6, 38*6 = 522x228
+  // NOTE(tracy): Using images at larger sizes reduces aliasing artifacts
+  // when not resorting to averaging neighbors in the pattern code.
+
   if (modelType == FULL_RAINBOW) {
     // Uncomment this to generate ArtNet packets. Also, you will need to configure
     // the IP and Port in the method below.

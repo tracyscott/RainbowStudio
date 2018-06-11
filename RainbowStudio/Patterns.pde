@@ -91,6 +91,45 @@ public class Rainbow extends LXPattern {
 }
 
 @LXCategory(LXCategory.FORM)
+public class ImagePattern extends LXPattern {
+
+  public final CompoundParameter fpsKnob =
+    new CompoundParameter("Fps", 1.0, 10.0)
+    .setDescription("Controls the frames per second.");
+
+  private PImage[] images;
+  private String filename = "life2.gif";
+  private int numPointsPerRow = 0;
+  private double currentFrame = 0.0;
+
+  public ImagePattern(LX lx) {
+    super(lx);
+    numPointsPerRow = ((RainbowBaseModel)(lx.model)).pointsWide;
+    int imageWidth = ceil(model.xMax - model.xMin) * 6;
+    int imageHeight = ceil(model.yMax - model.yMin) * 6;
+    images = Gif.getPImages(RainbowStudio.pApplet, filename);
+    for (int i = 0; i < images.length; i++) {
+      images[i].resize(imageWidth, imageHeight);
+      images[i].loadPixels();
+    }
+  }
+   public void run(double deltaMs) {
+    double fps = fpsKnob.getValue();
+    currentFrame += (deltaMs/1000.0) * fps;
+    if (currentFrame > images.length) {
+      currentFrame -= images.length;
+    }
+
+    for (LXPoint p : model.points) {
+      int xCoord = (int)round(p.x - model.xMin);
+      int yCoord = (int)round(p.y - model.yMin);
+      int xSpan = numPointsPerRow;
+      colors[p.index] = images[(int)currentFrame].pixels[yCoord * xSpan + xCoord];
+    }
+  }
+}
+
+@LXCategory(LXCategory.FORM)
 public class AnimatedGIF extends LXPattern {
   
   public final CompoundParameter fpsKnob =
@@ -117,13 +156,11 @@ public class AnimatedGIF extends LXPattern {
   
   public void run(double deltaMs) {
     int pointNumber = 0;
-
     double fps = fpsKnob.getValue();
     currentFrame += (deltaMs/1000.0) * fps;
     if (currentFrame > images.length) {
       currentFrame -= images.length;
     }
-    
     for (LXPoint p : model.points) {
       int rowNumber = pointNumber / numPointsPerRow; 
       int columnPos = pointNumber - rowNumber * numPointsPerRow;
