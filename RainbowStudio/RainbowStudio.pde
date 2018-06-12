@@ -26,7 +26,7 @@ heronarts.lx.studio.LXStudio lx;
 
 static public final boolean enableArtNet = false;
 static public final int ARTNET_PORT = 6454;
-static public final String LED_CONTROLLER_IP = "192.168.2.1";
+static public final String LED_CONTROLLER_IP = "192.168.1.63";
 
 static public final int FULL_RAINBOW = 0;
 static public final int SRIKANTH_PANEL = 1;

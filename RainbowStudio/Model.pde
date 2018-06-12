@@ -125,7 +125,7 @@ public static class SrikanthPanel extends RainbowBaseModel {
   public static void configureOutput(LX lx) {    
     int ledWidth = ((RainbowBaseModel)lx.model).pointsWide;
     int ledHeight = ((RainbowBaseModel)lx.model).pointsHigh;
-    int[] ledWiring = new int[ledWidth * ledHeight];
+    int[] ledWiring = new int[170];
     int currentUniverse = 0;
     List<ArtNetDatagram> datagrams = new ArrayList<ArtNetDatagram>();
     
@@ -158,6 +158,7 @@ public static class SrikanthPanel extends RainbowBaseModel {
         // the current universe number.  If it is the last point of the grid, we also
         // build the final datagram (after which the for loop ends).
         ledPos = ledPos % 170;
+        //System.out.println("rowNum " + rowNum + " colNum " + colNum + " ledPos: " + ledPos + " pointIndex: " + pointIndex + " univ: " + currentUniverse);
         ledWiring[ledPos] = pointIndex;
         // Either we are on DMX channel 170, or we are at the end of the panel.
         if (ledPos == 169 || pointIndex == ledWidth * ledHeight - 1) {
@@ -170,6 +171,7 @@ public static class SrikanthPanel extends RainbowBaseModel {
           }
           datagrams.add(datagram);
           currentUniverse++;
+          ledWiring = new int[170];
         }
       }
     }   

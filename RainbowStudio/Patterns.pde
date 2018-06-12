@@ -218,23 +218,38 @@ public class PGDraw extends LXPattern {
   private PGraphics pg;
   int imageWidth = 0;
   int imageHeight = 0;
+  int previousFrame = -1;
+  float angle = 0.0;
+
   public PGDraw(LX lx) {
     super(lx);
     imageWidth = ceil((model.xMax - model.xMin) * 6.0);
     imageHeight = ceil((model.yMax - model.yMin) * 6.0);
+    pg = createGraphics(imageWidth, imageHeight);
     addParameter(fpsKnob);
     addParameter(antialiasKnob);
   }
   
   public void run(double deltaMs) {    
     double fps = fpsKnob.getValue();
-    int previousFrame = (int)currentFrame;
     currentFrame += (deltaMs/1000.0) * fps;
     if ((int)currentFrame > previousFrame) {
       // Time for new frame.  Draw
-      pg = createGraphics(imageWidth, imageHeight);
-      
+      angle += 0.03;
+      pg.beginDraw();
+      pg.background(20);
+      pg.strokeWeight(10.0);
+      pg.stroke(255);
+      pg.translate(imageWidth/2.0, imageHeight/2.0);
+      pg.pushMatrix();
+      pg.rotate(angle);
+      pg.line(-imageWidth/2.0 + 10, -imageHeight/2.0 + 10, imageWidth/2.0 - 10, imageHeight/2.0 - 10);
+      pg.popMatrix();
+      pg.endDraw();
+      pg.loadPixels();
+      previousFrame = (int)currentFrame;
     }
+    ImageUtil.renderRainbowImage(lx, colors, pg, antialiasKnob.isOn());
   }
 }
 
