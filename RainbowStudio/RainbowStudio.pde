@@ -24,6 +24,7 @@
 // Reference to top-level LX instance
 heronarts.lx.studio.LXStudio lx;
 
+static public final boolean enableArtNet = false;
 static public final int ARTNET_PORT = 6454;
 static public final String LED_CONTROLLER_IP = "192.168.2.1";
 
@@ -39,7 +40,7 @@ void setup() {
   size(800, 720, P3D);
   pApplet = this;
   
-  int modelType = FULL_RAINBOW; // FULL_RAINBOW;
+  int modelType = RAINBOW_PANEL; // FULL_RAINBOW;
   
   LXModel model = buildModel(modelType);
   lx = new heronarts.lx.studio.LXStudio(this, model, MULTITHREADED);
@@ -53,15 +54,19 @@ void setup() {
   // FULL_RAINBOW is
   // rectangle bounds size: 86.52052, 37.74478
   // Roughly, 87, 38 feet with led's per 2 inch (highest density) = 87*6, 38*6 = 522x228
+  // 86.52052 * 6 = 519.12312
+  // 37.74478 * 6 = 226.46868
   // NOTE(tracy): Using images at larger sizes reduces aliasing artifacts
   // when not resorting to averaging neighbors in the pattern code.
 
-  if (modelType == FULL_RAINBOW) {
-    // Uncomment this to generate ArtNet packets. Also, you will need to configure
-    // the IP and Port in the method below.
-    // RainbowModel3D.configureOutput(lx);
-  } else if (modelType == SRIKANTH_PANEL) {
-    // SrikanthPanel.configureOutput(lx);
+  if (enableArtNet) {
+    if (modelType == FULL_RAINBOW) {
+      RainbowModel3D.configureOutput(lx);
+    } else if (modelType == SRIKANTH_PANEL) {
+      SrikanthPanel.configureOutput(lx);
+    } else if (modelType == RAINBOW_PANEL) {
+      SrikanthPanel.configureOutput(lx);
+    }
   }
 }
 

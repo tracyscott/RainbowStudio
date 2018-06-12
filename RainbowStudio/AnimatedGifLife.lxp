@@ -67,7 +67,7 @@
         "patterns": [
           {
             "id": 421,
-            "class": "RainbowStudio$AnimatedGIF",
+            "class": "RainbowStudio$GridAnimatedGIF",
             "modulationColor": -16711689,
             "parameters": {
               "label": "AnimatedGIF",
