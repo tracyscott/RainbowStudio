@@ -65,7 +65,7 @@ void setup() {
     } else if (modelType == SRIKANTH_PANEL) {
       SrikanthPanel.configureOutput(lx);
     } else if (modelType == RAINBOW_PANEL) {
-      SrikanthPanel.configureOutput(lx);
+      SrikanthPanel.configureOutputRainbowPanel(lx);
     }
   }
 }

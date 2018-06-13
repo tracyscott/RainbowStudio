@@ -1,5 +1,7 @@
 import java.util.List;
 
+static public final int LEDS_PER_UNIVERSE = 170;
+
 LXModel buildModel(int modelType) {
   // A three-dimensional grid model
   // return new GridModel3D();
@@ -114,6 +116,57 @@ public static class SrikanthPanel extends RainbowBaseModel {
     }
   }
   
+  public static void configureOutputRainbowPanel(LX lx) {
+    int pointsWide = ((RainbowBaseModel)lx.model).pointsWide;
+    int pointsHigh = ((RainbowBaseModel)lx.model).pointsHigh;
+    int maxColNum = pointsWide - 1;
+
+    int currentUniverse = 0;
+    List<ArtNetDatagram> datagrams = new ArrayList<ArtNetDatagram>();
+    int[] dmxChannelsForUniverse = new int[LEDS_PER_UNIVERSE];
+    for (int globalLedPos = 0; globalLedPos < pointsWide*pointsHigh; globalLedPos++) {
+      int colNumFromRight = globalLedPos / pointsHigh;
+      int colNumFromLeft = maxColNum - colNumFromRight;
+      int rowNumFromBottom;
+      if (colNumFromRight % 2 == 0)
+        rowNumFromBottom = globalLedPos % pointsHigh;
+      else
+        rowNumFromBottom = pointsHigh - globalLedPos % pointsHigh - 1;
+
+      // Chunk by 170 for each universe.
+      int universeLedPos = globalLedPos % LEDS_PER_UNIVERSE;
+      int pointIndex = rowNumFromBottom * pointsWide + colNumFromLeft;
+      // System.out.println(globalLedPos + " colNum:" +colNumFromLeft + " rowNum:" + rowNumFromBottom + " pointIndex: " + pointIndex);
+      dmxChannelsForUniverse[universeLedPos] = pointIndex;
+      // Either we are on DMX channel 170, or we are at the end of the panel.
+      if (universeLedPos == LEDS_PER_UNIVERSE - 1 || globalLedPos == pointsWide * pointsHigh - 1) {
+        ArtNetDatagram datagram = new ArtNetDatagram(dmxChannelsForUniverse, currentUniverse);
+        try {
+          datagram.setAddress(LED_CONTROLLER_IP).setPort(ARTNET_PORT);
+        } catch (java.net.UnknownHostException uhex) {
+          System.out.println("ERROR! UnknownHostException while configuring ArtNet: " + LED_CONTROLLER_IP);
+        }
+        datagrams.add(datagram);
+        currentUniverse++;
+        dmxChannelsForUniverse = new int[LEDS_PER_UNIVERSE];
+      }
+    }
+    // Now we have datagrams bound to all of our LEDs.  Create a LXDatagramOutput and register
+    // all datagrams with it.
+    try {
+      LXDatagramOutput datagramOutput = new LXDatagramOutput(lx);
+      for (ArtNetDatagram datagram : datagrams) {
+        datagramOutput.addDatagram(datagram);
+      }
+      // Finally, register our LXDatagramOutput with the engine.
+      lx.engine.output.addChild(datagramOutput);
+    } catch (java.net.SocketException sex) {
+      // This can happen for example if we run out of file handles because some code is opening
+      // files without closing them.
+      System.out.println("ERROR! SocketException when initializing DatagramOutput: " + sex.getMessage());
+    }
+  }
+
   /*
    * Based on photo from Srikanth. 0 led on his board is bottom right. 149 led is
    * on top left.  The wiring starts from right to left and then alternates to
@@ -123,19 +176,21 @@ public static class SrikanthPanel extends RainbowBaseModel {
    * TODO(tracy): This only works for Srikanth's specific wiring.
    */
   public static void configureOutput(LX lx) {    
-    int ledWidth = ((RainbowBaseModel)lx.model).pointsWide;
-    int ledHeight = ((RainbowBaseModel)lx.model).pointsHigh;
-    int[] ledWiring = new int[170];
+    int pointsWide = ((RainbowBaseModel)lx.model).pointsWide;
+    int pointsHigh = ((RainbowBaseModel)lx.model).pointsHigh;
+    int[] ledWiring = new int[LEDS_PER_UNIVERSE];
     int currentUniverse = 0;
     List<ArtNetDatagram> datagrams = new ArrayList<ArtNetDatagram>();
     
     // For each Point, we want to figure out which LED on the physical strip
     // corresponds to the 3D point.  We are technically mapping to DMX channels
     // here, but this is simple wiring on one universe.
-    for (int rowNum = 0; rowNum < ledHeight; rowNum++) {
-      for (int colNum = 0; colNum < ledWidth; colNum++) {
+    for (int rowNum = 0; rowNum < pointsWide; rowNum++) {
+      for (int colNum = 0; colNum < pointsHigh; colNum++) {
         // Points are stored in a 1D array.
-        int pointIndex = rowNum * ledWidth + colNum;
+        int pointIndex = rowNum * pointsWide + colNum;
+        // NOTE(tracy): For Srikanth's home wiring diagram;
+        // The end of the leds is at (rowNum-1, 0)
         // First row, third row, etc. goes from right to left.
         // Second row, fourth row goes from left to right.
         // (i.e. the wiring snakes back and forth).
@@ -148,21 +203,20 @@ public static class SrikanthPanel extends RainbowBaseModel {
         //     generic solution for 0,2,4 is LED_WIDTH * (rowNum + 1) - 1 - colNum
         int ledPos = 0;
         if (rowNum % 2 == 0) {
-          ledPos = ledWidth * (rowNum + 1) - 1 - colNum;
+          ledPos = pointsWide * (rowNum + 1) - 1 - colNum;
         } else {
-          ledPos = ledWidth * rowNum + colNum;
+          ledPos = pointsWide * rowNum + colNum;
         }
         // ledWiring should only by chunks of 170 LEDs.  ledPos above is the global led
         // position. Here we mod by 170 to produce a universe-local led number.  When
         // we see the last LED in a universe chunk we will build a datagram and increase
         // the current universe number.  If it is the last point of the grid, we also
         // build the final datagram (after which the for loop ends).
-        ledPos = ledPos % 170;
-        //System.out.println("rowNum " + rowNum + " colNum " + colNum + " ledPos: " + ledPos + " pointIndex: " + pointIndex + " univ: " + currentUniverse);
+        ledPos = ledPos % LEDS_PER_UNIVERSE;
+        //System.out.println("pointIndex: " + pointIndex + " rowNum " + rowNum + " colNum " + colNum + " ledChannel: " + ledPos +  " univ: " + currentUniverse);
         ledWiring[ledPos] = pointIndex;
         // Either we are on DMX channel 170, or we are at the end of the panel.
-        if (ledPos == 169 || pointIndex == ledWidth * ledHeight - 1) {
-            // All pixels fit in a single universe so we only need to create one datagram here.
+        if (ledPos == LEDS_PER_UNIVERSE - 1 || pointIndex == pointsWide * pointsHigh - 1) {
           ArtNetDatagram datagram = new ArtNetDatagram(ledWiring, currentUniverse);
           try {
              datagram.setAddress(LED_CONTROLLER_IP).setPort(ARTNET_PORT);
@@ -171,7 +225,7 @@ public static class SrikanthPanel extends RainbowBaseModel {
           }
           datagrams.add(datagram);
           currentUniverse++;
-          ledWiring = new int[170];
+          ledWiring = new int[LEDS_PER_UNIVERSE];
         }
       }
     }   
