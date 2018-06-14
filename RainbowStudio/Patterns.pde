@@ -91,16 +91,19 @@ public class Rainbow extends LXPattern {
 }
 
 /*
- * Abstract base class for Processing drawings.  Extend this
- * class and implement draw().   See PGDraw2 for a sample
- * implementation.  PGDraw is the original similar implementation.
- * This class is meant to cut down on duplicated code.  It calls
- * pg.beginDraw() before calling draw() and pg.endDraw() after draw().
- * It will also provide a FPS knob and manage FPS logic.
+ * Abstract base class for Processing drawings when painting the
+ * rainbow by sampling a large texture that bounds the top-half
+ * of the semi-circle defined by the Rainbow.  Use this class for
+ * an accurate 2D representation in physical space.  Because the
+ * texture size is bound to the radius of the rainbow, it is also
+ * easy to perform radial-based calculations in your texture rendering
+ * code (see AnimatedSprite). See PGDraw2 for a sample
+ * implementation. It provides a FPS knob and manages FPS logic.  It
+ * also provides an antialias toggle. For 1-1 pixel mapping, use PGPixelPerfect.
  */
-abstract public class PGDrawBase extends LXPattern {
+abstract public class PGTexture extends LXPattern {
   public final CompoundParameter fpsKnob =
-    new CompoundParameter("Fps", 1.0, 10.0)
+    new CompoundParameter("Fps", 1.0, 60.0)
     .setDescription("Controls the frames per second.");
 
   public final BooleanParameter antialiasKnob =
@@ -111,8 +114,9 @@ abstract public class PGDrawBase extends LXPattern {
   protected int imageWidth = 0;
   protected int imageHeight = 0;
   protected int previousFrame = -1;
+  protected double deltaDrawMs = 0.0;
 
-  public PGDrawBase(LX lx) {
+  public PGTexture(LX lx) {
     super(lx);
     float radiusInWorldPixels = RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot;
     imageWidth = ceil(radiusInWorldPixels * 2.0);
@@ -125,34 +129,42 @@ abstract public class PGDrawBase extends LXPattern {
   public void run(double deltaMs) {    
     double fps = fpsKnob.getValue();
     currentFrame += (deltaMs/1000.0) * fps;
+    // We don't call draw() every frame so track the accumulated deltaMs for them.
+    deltaDrawMs += deltaMs;
     if ((int)currentFrame > previousFrame) {
       // Time for new frame.  Draw
       pg.beginDraw();
-      draw(deltaMs);
+      draw(deltaDrawMs);
       pg.endDraw();
       pg.loadPixels();
       previousFrame = (int)currentFrame;
+      deltaDrawMs = 0.0;
+    }
+    // Don't let current frame increment forever.  Otherwise float will
+    // begin to lose precision and things get wonky.
+    if (currentFrame > 10000.0) {
+      currentFrame = 0.0;
+      previousFrame = -1;
     }
     RenderImageUtil.imageToPointsSemiCircle(lx, colors, pg, antialiasKnob.isOn());
   }
 
-  abstract protected void draw(double deltaMs);
+  // Implement PGGraphics drawing code here.  PGTexture handles beginDraw()/endDraw();
+  abstract protected void draw(double deltaDrawMs);
 }
 
 /*
- * PGDraw implementation by extending PGDrawBase.  Setup and FPS
- * management is done in PGDrawBase, making this much simpler
- * and less code.
+ * PGDraw implementation by extending PGTexture.
  */
 @LXCategory(LXCategory.FORM)
-public class PGDraw2 extends PGDrawBase {
+public class PGDraw2 extends PGTexture {
   float angle = 0.0;
   public PGDraw2(LX lx) {
     super(lx);
   }
 
   @Override
-  protected void draw(double deltaMs) {
+  protected void draw(double deltaDrawMs) {
       angle += 0.03;
       pg.background(0);
       pg.strokeWeight(10.0);
@@ -165,9 +177,50 @@ public class PGDraw2 extends PGDrawBase {
   }
 }
 
+/*
+ * A simple radial test.  It attempts to alternate one row of leds on and off.  Since
+ * it renders to a larger texture and is then sampled for the final output, it is not
+ * expected to be perfect because of aliasing issues.  It provides a visual representation
+ * of the aliasing.
+ */
+@LXCategory(LXCategory.FORM)
+public class PGRadiusTest extends PGTexture {
+
+  public final CompoundParameter thicknessKnob =
+    new CompoundParameter("thickness", 1.0, 10.0)
+    .setDescription("Thickness of each band");
+
+  public PGRadiusTest(LX lx) {
+    super(lx);
+    addParameter(thicknessKnob);
+    thicknessKnob.setValue(1);
+  }
+
+  public void draw(double deltaDrawMs) {
+    pg.background(0);
+    int xCenterImgSpace = round(RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot);
+    int yCenterImgSpace = round(RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot);
+    pg.ellipseMode(RADIUS);
+    pg.noSmooth();
+    pg.noFill();
+    // Adjust this to change the thickness of the bands.
+    int strokeWidth = (int)thicknessKnob.getValue();
+    if (strokeWidth < 1)
+      strokeWidth = 1;
+    pg.strokeWeight(strokeWidth);
+    for (int i = 0; i < 30; i += strokeWidth) {
+      float radius = round((RainbowBaseModel.innerRadius + i * RainbowBaseModel.radiusInc) *
+      RainbowBaseModel.pixelsPerFoot);
+      if (i % (2 * (int)strokeWidth) == 0) pg.stroke(255);
+      else pg.stroke(0);
+      pg.ellipse(xCenterImgSpace, yCenterImgSpace, radius, radius);
+    }
+  }
+}
+
 
 @LXCategory(LXCategory.FORM)
-public class AnimatedSprite extends PGDrawBase {
+public class AnimatedSprite extends PGTexture {
   public String filename = "smallcat.gif";
   float angle = 0.0;
   float maxAngle = PI;
@@ -183,7 +236,7 @@ public class AnimatedSprite extends PGDrawBase {
     }
   }
 
-  public void draw(double deltaMs) {
+  public void draw(double deltaDrawMs) {
      if (currentFrame >= images.length) {
        currentFrame = 0.0;
        previousFrame = -1;
@@ -220,12 +273,99 @@ public class AnimatedSprite extends PGDrawBase {
   }
 }
 
-@LXCategory(LXCategory.FORM)
-public class AnimatedSpritePP extends LXPattern {
-
+/*
+ * Abstract base class for pixel perfect Processing drawings.  Use this
+ * class for 1-1 pixel mapping with the rainbow.  The drawing will be
+ * a rectangle but in physical space it will be distorted by the bend of
+ * the rainbow. It provides a FPS knob and manages FPS logic.
+ */
+abstract public class PGPixelPerfect extends LXPattern {
   public final CompoundParameter fpsKnob =
-    new CompoundParameter("Fps", 1.0, 10.0)
+    new CompoundParameter("Fps", 1.0, 60.0)
     .setDescription("Controls the frames per second.");
+
+  protected double currentFrame = 0.0;
+  protected PGraphics pg;
+  protected int imageWidth = 0;
+  protected int imageHeight = 0;
+  protected int previousFrame = -1;
+  protected double deltaDrawMs = 0.0;
+
+  public PGPixelPerfect(LX lx) {
+    super(lx);
+    imageWidth = ((RainbowBaseModel)lx.model).pointsWide;
+    imageHeight = ((RainbowBaseModel)lx.model).pointsHigh;
+    pg = createGraphics(imageWidth, imageHeight);
+    addParameter(fpsKnob);
+    fpsKnob.setValue(5);
+  }
+
+  public void run(double deltaMs) {
+    double fps = fpsKnob.getValue();
+    currentFrame += (deltaMs/1000.0) * fps;
+    // We don't call draw() every frame so track the accumulated deltaMs for them.
+    deltaDrawMs += deltaMs;
+    if ((int)currentFrame > previousFrame) {
+      // Time for new frame.  Draw
+      pg.beginDraw();
+      draw(deltaDrawMs);
+      pg.endDraw();
+      pg.loadPixels();
+      previousFrame = (int)currentFrame;
+      deltaDrawMs = 0.0;
+    }
+    // Don't let current frame increment forever.  Otherwise float will
+    // begin to lose precision and things get wonky.
+    if (currentFrame > 10000.0) {
+      currentFrame = 0.0;
+      previousFrame = -1;
+    }
+
+    RenderImageUtil.imageToPointsPixelPerfect(lx, colors, pg);
+  }
+
+  // Implement PGGraphics drawing code here.  PGTexture handles beginDraw()/endDraw();
+  abstract protected void draw(double deltaMs);
+}
+
+@LXCategory(LXCategory.FORM)
+public class BasicMidiPP extends PGPixelPerfect {
+
+  float currentHue = 100.0;
+  float currentBrightness = 0.0;
+
+  public BasicMidiPP(LX lx) {
+    super(lx);
+    fpsKnob.setValue(60);
+  }
+
+  public void draw(double deltaDrawMs) {
+    pg.colorMode(HSB, 100);
+    pg.fill(currentHue, 100.0, currentBrightness);
+    pg.noStroke();
+    pg.rect(0, 0, imageWidth, imageHeight);
+  }
+
+  // Map a note to a hue
+   public void noteOnReceived(MidiNoteOn note) {
+     int pitch = note.getPitch();
+     int velocity = note.getVelocity();
+     // NOTE: my mini keyboard generates between 48 & 72 (small keyboard)
+     currentHue = map(pitch, 48.0, 72.0, 0.0, 100.0);
+     currentBrightness = map(velocity, 0.0, 127.0, 0.0, 100.0);
+  }
+
+  public void noteOffReceived(MidiNote note) {
+    // Releasing any note will turn it off.  Multiple notes can be
+    // on at once and to turn off when all notes are released we need
+    // to track the notes on and only go black once we have received
+    // note-off for all notes.
+    currentBrightness = 0.0;
+  }
+}
+
+@LXCategory(LXCategory.FORM)
+public class AnimatedSpritePP extends PGPixelPerfect {
 
   public final CompoundParameter xSpeed =
     new CompoundParameter("XSpd", 1, 20)
@@ -233,52 +373,28 @@ public class AnimatedSpritePP extends LXPattern {
 
   public String filename = "smallcat.gif";
   private PImage[] images;
-  protected PGraphics pg;
-  protected int imageWidth = 0;
-  protected int imageHeight = 0;
-  protected float currentFrame = 0.0;
-  protected int previousFrame = -1;
   protected int currentPos = 0;
 
   public AnimatedSpritePP(LX lx) {
     super(lx);
-    imageWidth = ((RainbowBaseModel)(lx.model)).pointsWide;
-    imageHeight = ((RainbowBaseModel)(lx.model)).pointsHigh;
-    pg = createGraphics(imageWidth, imageHeight);
     images = Gif.getPImages(RainbowStudio.pApplet, filename);
     for (int i = 0; i < images.length; i++) {
       images[i].loadPixels();
     }
     // Start off the screen to the right.
     currentPos = imageWidth + images[0].width + 1;
-    addParameter(fpsKnob);
-    fpsKnob.setValue(4);
     addParameter(xSpeed);
     xSpeed.setValue(5);
   }
 
-  public void run(double deltaMs) {
-    double fps = fpsKnob.getValue();
-    currentFrame += (deltaMs/1000.0) * fps;
-    if (currentFrame >= images.length) {
-      currentFrame = 0.0;
-      previousFrame = -1;
+  public void draw(double deltaMs) {
+    pg.background(0);
+    PImage frameImg = images[((int)currentFrame)%images.length];
+    if (currentPos < 0 - frameImg.width) {
+      currentPos = imageWidth + frameImg.width + 1;
     }
-
-    if ((int)currentFrame > previousFrame) {
-      pg.beginDraw();
-      pg.background(0);
-      PImage frameImg = images[(int)currentFrame];
-      if (currentPos < 0 - frameImg.width) {
-        currentPos = imageWidth + frameImg.width + 1;
-      }
-      pg.image(images[(int)currentFrame], currentPos, 0);
-      pg.endDraw();
-      pg.loadPixels();
-      previousFrame = (int)currentFrame;
-      currentPos -= xSpeed.getValue();
-    }
-    RenderImageUtil.imageToPointsPP(lx, colors, pg);
+    pg.image(frameImg, currentPos, 0);
+    currentPos -= xSpeed.getValue();
   }
 }
 
@@ -313,7 +429,7 @@ public class RainbowGIFPP extends LXPattern {
       currentFrame -= images.length;
     }
 
-    RenderImageUtil.imageToPointsPP(lx, colors, images[(int)currentFrame]);
+    RenderImageUtil.imageToPointsPixelPerfect(lx, colors, images[(int)currentFrame]);
   }
 }
 
@@ -504,7 +620,8 @@ public class RainbowEqualizerPattern extends LXPattern {
 
 /*
  * Original implemenation of PGDraw.  Left here for a full Processing drawing
- * example in case you need to do something not allowed by extending PGDrawBase.
+ * example in case you need to do something not allowed by extending PGTexture
+ * or PGPixelPerfect.
  */
 @LXCategory(LXCategory.FORM)
 public class PGDraw extends LXPattern {

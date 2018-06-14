@@ -28,7 +28,7 @@ static public class RenderImageUtil {
    * doesn't suffer from the aliasing caused by the led positions not being
    * perfectly cartesian.
    */
-  static public void imageToPointsPP(LX lx, int[] colors, PImage image) {
+  static public void imageToPointsPixelPerfect(LX lx, int[] colors, PImage image) {
     int pointsWide = ((RainbowBaseModel)lx.model).pointsWide;
     int pointsHigh = ((RainbowBaseModel)lx.model).pointsHigh;
     int pointNumber = 0;

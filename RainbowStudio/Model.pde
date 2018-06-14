@@ -288,13 +288,13 @@ public static class RainbowModel3D extends RainbowBaseModel {
       float r = innerRadius;  // Feet
       int ledCount = 0;
       for (int rowNum = 0; rowNum < LED_HEIGHT; rowNum++) {
-        r += radiusInc;  // Each strip is separated by 2.75 inches.  r is in units of feet.
         for (float angle = rainbowThetaFinish; angle > rainbowThetaStart; angle -= rainbowThetaInc) {
           float x = r * cos(radians(angle));
           float y = r * sin(radians(angle));
           addPoint(new LXPoint(x, y, z));
           ledCount++;
         }
+        r += radiusInc;  // Each strip is separated by 2.75 inches.  r is in units of feet.
       }
       outerRadius = r;
       System.out.println("ledCount: " + ledCount);
