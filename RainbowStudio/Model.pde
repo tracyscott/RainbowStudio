@@ -10,7 +10,7 @@ LXModel buildModel(int modelType) {
   } else if (modelType == SRIKANTH_PANEL) {
     return new SimplePanel();
   } else if (modelType == RAINBOW_PANEL) {
-    return new SimplePanel(15, 30);
+    return new RainbowModel3D(1);
   } else if (modelType == LARGE_PANEL) {
     return new SimplePanel(100, 50);
   } else {
@@ -62,6 +62,9 @@ public static abstract class RainbowBaseModel extends LXModel {
   }
   public int pointsWide;
   public int pointsHigh;
+  public float thetaStart;
+  public float thetaFinish;
+  
 
   // From CAD drawings.  Note that these numbers are off the mechanical dimensions, so
   // there might still be some small adjustments.  Also, the variables below have the
@@ -76,10 +79,10 @@ public static abstract class RainbowBaseModel extends LXModel {
   static public float radiusInc = 2.75 / 12.0;
   static public float innerRadius = 36.9879;
   static public float outerRadius = 0.0;
-  static public float rainbowThetaStart = 9.4165082;
-  static public float rainbowThetaFinish = 170.5383491;
+  static public float rainbowThetaStart = 9.41; //9.4165082;
+  static public float rainbowThetaFinish = 170.53; //170.5383491;
   static public float rainbowPointsPerRow = 420.0;
-  static public float rainbowThetaInc = 161.3669836 / rainbowPointsPerRow;
+  static public float rainbowThetaInc = (rainbowThetaFinish-rainbowThetaStart) / rainbowPointsPerRow;
   static public float radialPixelDensity = 2.75; // 2.75 inches between pixels radially
   static public float innerRadiusPixelDensity = 2.5;
   static public float outerRadiusPixelDensity = 3.0;
@@ -277,26 +280,39 @@ public static class RainbowModel3D extends RainbowBaseModel {
   static public final int LED_HEIGHT = 30;
   
   public RainbowModel3D() {
-    super(new Fixture());
-    pointsWide = LED_WIDTH;
-    pointsHigh = LED_HEIGHT;
+    this(28);
+  }
+    
+  public RainbowModel3D(int numPanels) {
+    super(new Fixture(numPanels));
+    float arc = numPanels * RainbowBaseModel.rainbowThetaInc * 15.0;
+    this.thetaStart = 90.0 - arc/2.0;
+    this.thetaFinish = 90.0 + arc/2.0;
+    pointsWide = numPanels * 15;
+    pointsHigh = 30;
   }
   
   public static class Fixture extends LXAbstractFixture {
-    Fixture() {
+    Fixture(int numPanels) {
+      float arc = numPanels * RainbowBaseModel.rainbowThetaInc * 15.0;
+      float thetaStart = 90.0 - arc/2.0;
+      float thetaFinish = 90.0 + arc/2.0;
+      int ledsHigh = 30;
       float z = 0;
       float r = innerRadius;  // Feet
       int ledCount = 0;
-      for (int rowNum = 0; rowNum < LED_HEIGHT; rowNum++) {
-        for (float angle = rainbowThetaFinish; angle > rainbowThetaStart; angle -= rainbowThetaInc) {
-          float x = r * cos(radians(angle));
-          float y = r * sin(radians(angle));
+      for (int rowNum = 0; rowNum < ledsHigh; rowNum++) {
+        for (float angle = thetaFinish; angle > thetaStart; angle -= RainbowBaseModel.rainbowThetaInc) {
+          double x = r * cos(radians(angle));
+          double y = r * sin(radians(angle));
           addPoint(new LXPoint(x, y, z));
           ledCount++;
         }
         r += radiusInc;  // Each strip is separated by 2.75 inches.  r is in units of feet.
       }
       outerRadius = r;
+      System.out.println("thetaStart: " + thetaStart);
+      System.out.println("thetaFinish: " + thetaFinish);
       System.out.println("ledCount: " + ledCount);
       System.out.println("outerRadius: " + outerRadius);
     }

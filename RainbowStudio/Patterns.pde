@@ -223,6 +223,7 @@ public class PGRadiusTest extends PGTexture {
 public class AnimatedSprite extends PGTexture {
   public String filename = "smallcat.gif";
   float angle = 0.0;
+  float minAngle = 0.0;
   float maxAngle = PI;
   private PImage[] images;
   int spriteWidth = 0;
@@ -233,6 +234,9 @@ public class AnimatedSprite extends PGTexture {
       images[i].loadPixels();
       // assume frames are the same size.
       spriteWidth = images[i].width;
+      minAngle = radians(((RainbowBaseModel)(lx.model)).thetaStart - 10.0);
+      maxAngle = radians(((RainbowBaseModel)(lx.model)).thetaFinish + 10.0);
+      angle = minAngle;
     }
   }
 
@@ -242,7 +246,7 @@ public class AnimatedSprite extends PGTexture {
        previousFrame = -1;
      }
       angle += 0.03;
-      if (angle > maxAngle) angle = 0.0;
+      if (angle > maxAngle) angle = minAngle;
 
       // Use this constant to fine tune where on the radius it should be. Each radiusInc should be
       // the physical distance between LEDs radially.  Here I picked 12.0 to put it in the middle.
@@ -473,6 +477,7 @@ public class RainbowGIF extends LXPattern {
     addParameter(fpsKnob);
     addParameter(antialiasKnob);
     addParameter(filenameKnob);
+    fpsKnob.setValue(10);
   }
 
   public void run(double deltaMs) {
@@ -546,6 +551,7 @@ public class RainbowScannerPattern extends LXPattern {
     addParameter(width);
     addParameter(speed);
     movingForward = true;
+    width.setValue(2.0);
   }
 
   @Override
@@ -648,6 +654,7 @@ public class PGDraw extends LXPattern {
     pg = createGraphics(imageWidth, imageHeight);
     addParameter(fpsKnob);
     addParameter(antialiasKnob);
+    fpsKnob.setValue(10.0);
   }
 
   public void run(double deltaMs) {
