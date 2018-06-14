@@ -90,154 +90,71 @@ public class Rainbow extends LXPattern {
   }
 }
 
-static public class ImageUtil {
-  
-  /*
-   * Compute a new RGB color based on a given weight.  Each
-   * RGB component is multiplied by the weight (range 0.0-1.0)
-   * and a new 32-bit color is returned.  Currently forces
-   * alpha to 0xFF.
-   */
-  static public int getWeightedColor(int clr, float weight) {
-    int red = LXColor.red(clr) & 0xFF; // & 0xFF to get byte value unsigned.
-    int green = LXColor.green(clr) & 0xFF;
-    int blue = LXColor.blue(clr) & 0xFF;
-  
-    int weightedRed = ((int)((float)red * weight))<< 16;
-    int weightedGreen = ((int)((float)green * weight))<<8;
-    int weightedBlue = (int)((float)blue * weight);
-    return  0xFF000000 | weightedRed | weightedGreen | weightedBlue;
-  }
-  
-  static public void renderRainbowImage(LX lx, int[] colors,
-  PImage image, boolean antialias) {
-    LXModel model = lx.model;
-    int imageWidth = image.width;
-    int imageHeight = image.height;
-    int numPointsPerRow = ((RainbowBaseModel)(lx.model)).pointsWide;
-     // Convert from world space to image coordinate space.
-    
-    for (LXPoint p : model.points) {
-      float pointX = (p.x - model.xMin)*6.0;
-      float pointY = (p.y - model.yMin)*6.0;
-      // The nearest image coordinate
-      int xCoord = (int)round(pointX);
-      int yCoord = (int)round(pointY);
-
-      // Don't allow rounding past the right or top of the image.
-      if (xCoord == imageWidth)
-        xCoord -= 1;
-      if (yCoord == imageHeight)
-        yCoord -= 1;
-        
-      if (!antialias) {
-        // NEAREST IMAGE PIXEL
-        int imgIndex = yCoord * imageWidth + xCoord;        
-        //System.out.println("yCoord
-        colors[p.index] = image.pixels[imgIndex];
-      } else {
-        // ANTIALIASING
-        float remainderX = pointX - floor(pointX);
-        float remainderY = pointY - floor(pointY);
-        
-        // The image coordinate to the left
-        int xLeft = floor(pointX);
-        // The image coordinate to the right
-        int xRight = ceil(pointX);
-        // The image coordinate above
-        int yAbove = ceil(pointY);
-        // The image coordinate below
-        int yBelow = floor(pointY);
-         
-        // The target pixel index in the image for the above.
-        int imgIndexLeft = image.width * yCoord + xLeft;
-        int imgIndexRight = image.width * yCoord + xRight;
-        int imgIndexAbove = image.width * yAbove + xCoord;
-        int imgIndexBelow = image.width * yBelow + xCoord;
-        
-        int leftColor = 0;
-        float leftWeight = 1.0 - remainderX;
-        int rightColor = 0;
-        float rightWeight = remainderX;
-        int aboveColor = 0;
-        float aboveWeight = remainderY;
-        int belowColor = 0;
-        float belowWeight = 1.0 - remainderY;
-        // When this is zero, we are on the left edge, so nothing to the left.
-        if ((p.index + 1)%numPointsPerRow == 0) {
-          leftWeight = 1.0;
-        }
-        if (p.index%numPointsPerRow != 0) {
-          leftColor = image.pixels[imgIndexLeft];
-          leftColor = ImageUtil.getWeightedColor(leftColor, leftWeight);
-        } else {
-          rightWeight = 1.0;
-        }
-        
-        // When this is zero, we are on the right edge
-        if ((p.index + 1)%numPointsPerRow != 0) {
-          rightColor = image.pixels[imgIndexRight];
-          rightColor = ImageUtil.getWeightedColor(rightColor, rightWeight);
-        }
-  
-        if (imgIndexAbove >= imageWidth * imageHeight) {
-          belowWeight = 1.0;
-        }
-        // When this is less than zero, we are on the bottom row.
-        if (imgIndexBelow >= 0 && imgIndexBelow < imageWidth * imageHeight) {
-          belowColor = image.pixels[imgIndexBelow];
-          belowColor = ImageUtil.getWeightedColor(belowColor, belowWeight);
-          //System.out.println("belowColorW " + String.format("0x%08X", 1));
-        } else {
-          aboveWeight = 1.0;
-        }
-        // When this is greater than our number of pixels we are in the top row
-        if (!(imgIndexAbove >= imageWidth * imageHeight)) {
-          aboveColor = image.pixels[imgIndexAbove];
-          aboveColor = ImageUtil.getWeightedColor(aboveColor, aboveWeight);
-        }
-        int horizontalColor = ImageUtil.getWeightedColor(LXColor.add(leftColor, rightColor), 0.5);
-        int verticalColor = ImageUtil.getWeightedColor(LXColor.add(aboveColor, belowColor), 0.5);
-        int totalColor = LXColor.add(horizontalColor, verticalColor);
-        colors[p.index] = totalColor;
-      }
-    }    
-  }
-}
-
-@LXCategory(LXCategory.FORM)
-public class PGDraw extends LXPattern {
+/*
+ * Abstract base class for Processing drawings.  Extend this
+ * class and implement draw().   See PGDraw2 for a sample
+ * implementation.  PGDraw is the original similar implementation.
+ * This class is meant to cut down on duplicated code.  It calls
+ * pg.beginDraw() before calling draw() and pg.endDraw() after draw().
+ * It will also provide a FPS knob and manage FPS logic.
+ */
+abstract public class PGDrawBase extends LXPattern {
   public final CompoundParameter fpsKnob =
     new CompoundParameter("Fps", 1.0, 10.0)
     .setDescription("Controls the frames per second.");
 
   public final BooleanParameter antialiasKnob =
     new BooleanParameter("antialias", true);
-  
-  private double currentFrame = 0.0;
-  private PGraphics pg;
-  int imageWidth = 0;
-  int imageHeight = 0;
-  int previousFrame = -1;
-  float angle = 0.0;
 
-  public PGDraw(LX lx) {
+  protected double currentFrame = 0.0;
+  protected PGraphics pg;
+  protected int imageWidth = 0;
+  protected int imageHeight = 0;
+  protected int previousFrame = -1;
+
+  public PGDrawBase(LX lx) {
     super(lx);
-    imageWidth = ceil((model.xMax - model.xMin) * 6.0);
-    imageHeight = ceil((model.yMax - model.yMin) * 6.0);
+    float radiusInWorldPixels = RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot;
+    imageWidth = ceil(radiusInWorldPixels * 2.0);
+    imageHeight = ceil(radiusInWorldPixels);
     pg = createGraphics(imageWidth, imageHeight);
     addParameter(fpsKnob);
     addParameter(antialiasKnob);
   }
-  
+
   public void run(double deltaMs) {    
     double fps = fpsKnob.getValue();
     currentFrame += (deltaMs/1000.0) * fps;
     if ((int)currentFrame > previousFrame) {
       // Time for new frame.  Draw
-      angle += 0.03;
       pg.beginDraw();
-      pg.background(20);
+      draw(deltaMs);
+      pg.endDraw();
+      pg.loadPixels();
+      previousFrame = (int)currentFrame;
+    }
+    RenderImageUtil.imageToPointsSemiCircle(lx, colors, pg, antialiasKnob.isOn());
+  }
+
+  abstract protected void draw(double deltaMs);
+}
+
+/*
+ * PGDraw implementation by extending PGDrawBase.  Setup and FPS
+ * management is done in PGDrawBase, making this much simpler
+ * and less code.
+ */
+@LXCategory(LXCategory.FORM)
+public class PGDraw2 extends PGDrawBase {
+  float angle = 0.0;
+  public PGDraw2(LX lx) {
+    super(lx);
+  }
+
+  @Override
+  protected void draw(double deltaMs) {
+      angle += 0.03;
+      pg.background(0);
       pg.strokeWeight(10.0);
       pg.stroke(255);
       pg.translate(imageWidth/2.0, imageHeight/2.0);
@@ -245,14 +162,169 @@ public class PGDraw extends LXPattern {
       pg.rotate(angle);
       pg.line(-imageWidth/2.0 + 10, -imageHeight/2.0 + 10, imageWidth/2.0 - 10, imageHeight/2.0 - 10);
       pg.popMatrix();
-      pg.endDraw();
-      pg.loadPixels();
-      previousFrame = (int)currentFrame;
-    }
-    ImageUtil.renderRainbowImage(lx, colors, pg, antialiasKnob.isOn());
   }
 }
 
+
+@LXCategory(LXCategory.FORM)
+public class AnimatedSprite extends PGDrawBase {
+  public String filename = "smallcat.gif";
+  float angle = 0.0;
+  float maxAngle = PI;
+  private PImage[] images;
+  int spriteWidth = 0;
+  public AnimatedSprite(LX lx) {
+    super(lx);
+    images = Gif.getPImages(RainbowStudio.pApplet, filename);
+    for (int i = 0; i < images.length; i++) {
+      images[i].loadPixels();
+      // assume frames are the same size.
+      spriteWidth = images[i].width;
+    }
+  }
+
+  public void draw(double deltaMs) {
+     if (currentFrame >= images.length) {
+       currentFrame = 0.0;
+       previousFrame = -1;
+     }
+      angle += 0.03;
+      if (angle > maxAngle) angle = 0.0;
+
+      // Use this constant to fine tune where on the radius it should be. Each radiusInc should be
+      // the physical distance between LEDs radially.  Here I picked 12.0 to put it in the middle.
+      // Computing and using middleRadiusInWorldPixels could also work.
+      float radialIncTune = 12.0 * RainbowBaseModel.radiusInc;
+      float tunedRadiusInWorldPixels = (RainbowBaseModel.innerRadius + radialIncTune) * RainbowBaseModel.pixelsPerFoot; 
+
+      // Mathematically, this should be the radius of the center strip of pixels.
+      // float radiiThickness = RainbowBaseModel.outerRadius - RainbowBaseModel.innerRadius;
+      // float middleRadiusInWorldPixels = (RainbowBaseModel.innerRadius + radiiThickness) * RainbowBaseModel.pixelsPerFoot;
+
+      float outerRadiusInWorldPixels = RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot;
+
+      // The rainbow is centered around 0,0 in world space, but x=0 in image space is actually
+      // the outer edge of the circle at -radius in world space. i.e. outerRadiusInWorldPixels.
+      // Also, up until now we are targeting the center of the image.  Since image coordinates
+      // start at 0,0 at the top left we need to change our coordinate space by half our width (center).
+      float xImagePos = tunedRadiusInWorldPixels*cos(angle) - spriteWidth/2.0
+                      + outerRadiusInWorldPixels; // account for render buffer x=0 maps to world x=-radius
+
+      // Image coordinates have Y inverted from our 3D world space coordinates.  Also, like above,
+      // adjust by half our width to change from middle-of-the-image coordinate space to
+      // top-left coordinate space.
+      float yImagePos = outerRadiusInWorldPixels - tunedRadiusInWorldPixels*sin(angle) - spriteWidth/2.0;
+
+      pg.background(0);
+      pg.image(images[(int)currentFrame], xImagePos, yImagePos);
+  }
+}
+
+@LXCategory(LXCategory.FORM)
+public class AnimatedSpritePP extends LXPattern {
+
+  public final CompoundParameter fpsKnob =
+    new CompoundParameter("Fps", 1.0, 10.0)
+    .setDescription("Controls the frames per second.");
+
+  public final CompoundParameter xSpeed =
+    new CompoundParameter("XSpd", 1, 20)
+    .setDescription("X speed in pixels per frame");
+
+  public String filename = "smallcat.gif";
+  private PImage[] images;
+  protected PGraphics pg;
+  protected int imageWidth = 0;
+  protected int imageHeight = 0;
+  protected float currentFrame = 0.0;
+  protected int previousFrame = -1;
+  protected int currentPos = 0;
+
+  public AnimatedSpritePP(LX lx) {
+    super(lx);
+    imageWidth = ((RainbowBaseModel)(lx.model)).pointsWide;
+    imageHeight = ((RainbowBaseModel)(lx.model)).pointsHigh;
+    pg = createGraphics(imageWidth, imageHeight);
+    images = Gif.getPImages(RainbowStudio.pApplet, filename);
+    for (int i = 0; i < images.length; i++) {
+      images[i].loadPixels();
+    }
+    // Start off the screen to the right.
+    currentPos = imageWidth + images[0].width + 1;
+    addParameter(fpsKnob);
+    fpsKnob.setValue(4);
+    addParameter(xSpeed);
+    xSpeed.setValue(5);
+  }
+
+  public void run(double deltaMs) {
+    double fps = fpsKnob.getValue();
+    currentFrame += (deltaMs/1000.0) * fps;
+    if (currentFrame >= images.length) {
+      currentFrame = 0.0;
+      previousFrame = -1;
+    }
+
+    if ((int)currentFrame > previousFrame) {
+      pg.beginDraw();
+      pg.background(0);
+      PImage frameImg = images[(int)currentFrame];
+      if (currentPos < 0 - frameImg.width) {
+        currentPos = imageWidth + frameImg.width + 1;
+      }
+      pg.image(images[(int)currentFrame], currentPos, 0);
+      pg.endDraw();
+      pg.loadPixels();
+      previousFrame = (int)currentFrame;
+      currentPos -= xSpeed.getValue();
+    }
+    RenderImageUtil.imageToPointsPP(lx, colors, pg);
+  }
+}
+
+@LXCategory(LXCategory.FORM)
+public class RainbowGIFPP extends LXPattern {
+  public final CompoundParameter fpsKnob =
+    new CompoundParameter("Fps", 1.0, 10.0)
+    .setDescription("Controls the frames per second.");
+
+  private PImage[] images;
+  private double currentFrame = 0.0;
+  private int imageWidth = 0;
+  private int imageHeight = 0;
+
+  public RainbowGIFPP(LX lx) {
+    super(lx);
+    String filename = "life2.gif";
+    imageWidth = ((RainbowBaseModel)lx.model).pointsWide;
+    imageHeight = ((RainbowBaseModel)lx.model).pointsHigh;
+    images = Gif.getPImages(RainbowStudio.pApplet, filename);
+    for (int i = 0; i < images.length; i++) {
+      images[i].resize(imageWidth, imageHeight);
+      images[i].loadPixels();
+    }
+    addParameter(fpsKnob);
+  }
+
+  public void run(double deltaMs) {
+    double fps = fpsKnob.getValue();
+    currentFrame += (deltaMs/1000.0) * fps;
+    if (currentFrame >= images.length) {
+      currentFrame -= images.length;
+    }
+
+    RenderImageUtil.imageToPointsPP(lx, colors, images[(int)currentFrame]);
+  }
+}
+
+/*
+ * Display an animated GIF on the rainbow.  Note that this code currently
+ * assumes an image size equal to the bounding box of the rainbow segment.
+ * If you need to generate your image with effects that care about the 
+ * circumference of the rainbow, it would be best to create a pattern that calls
+ * RenderImageUtil.imageToPointsSemiCircle().  imageToPointsBBox() is just
+ * more memory efficient since the image size is smaller.
+ */
 @LXCategory(LXCategory.FORM)
 public class RainbowGIF extends LXPattern {
 
@@ -262,19 +334,21 @@ public class RainbowGIF extends LXPattern {
 
   public final BooleanParameter antialiasKnob =
     new BooleanParameter("antialias", true);
-  
+
   public final StringParameter filenameKnob =
     new StringParameter("file", "out_b_beeple");
   private PImage[] images;
   private double currentFrame = 0.0;
   private int imageWidth = 0;
   private int imageHeight = 0;
-  
   public RainbowGIF(LX lx) {
     super(lx);
     String filename = filenameKnob.getString() + ".gif";
-    imageWidth = ceil((model.xMax - model.xMin) * 6.0);
-    imageHeight = ceil((model.yMax - model.yMin) * 6.0);
+    float radiusInWorldPixels = RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot;
+    imageWidth = ceil(radiusInWorldPixels * 2.0);
+    imageHeight = ceil(radiusInWorldPixels);
+    //imageWidth = ceil((model.xMax - model.xMin) * RainbowBaseModel.pixelsPerFoot);
+    //imageHeight = ceil((model.yMax - model.yMin) * RainbowBaseModel.pixelsPerFoot);
     images = Gif.getPImages(RainbowStudio.pApplet, filename);
     for (int i = 0; i < images.length; i++) {
       images[i].resize(imageWidth, imageHeight);
@@ -284,7 +358,7 @@ public class RainbowGIF extends LXPattern {
     addParameter(antialiasKnob);
     addParameter(filenameKnob);
   }
-     
+
   public void run(double deltaMs) {
     double fps = fpsKnob.getValue();
     currentFrame += (deltaMs/1000.0) * fps;
@@ -292,23 +366,23 @@ public class RainbowGIF extends LXPattern {
       currentFrame -= images.length;
     }
 
-    ImageUtil.renderRainbowImage(lx, colors, images[(int)currentFrame], antialiasKnob.isOn());
+    RenderImageUtil.imageToPointsSemiCircle(lx, colors, images[(int)currentFrame], antialiasKnob.isOn());
   }
 }
 
 @LXCategory(LXCategory.FORM)
 public class GridAnimatedGIF extends LXPattern {
-  
+
   public final CompoundParameter fpsKnob =
     new CompoundParameter("Fps", 1.0, 10.0)
     .setDescription("Controls the frames per second.");
-  
+
   private PImage[] images;
   private String imagePrefix = "life";
   private int numPointsPerRow = 0;
   private int numPointsHigh = 0;
   private double currentFrame = 0.0;
-  
+
   public GridAnimatedGIF(LX lx) {
     super(lx);
     numPointsPerRow = ((RainbowBaseModel)(lx.model)).pointsWide;
@@ -320,7 +394,7 @@ public class GridAnimatedGIF extends LXPattern {
     }
     addParameter(fpsKnob);
   }
-  
+
   public void run(double deltaMs) {
     int pointNumber = 0;
     double fps = fpsKnob.getValue();
@@ -340,7 +414,7 @@ public class GridAnimatedGIF extends LXPattern {
 @LXCategory(LXCategory.FORM)
 public class RainbowScannerPattern extends LXPattern {
 
-    public final CompoundParameter width =
+  public final CompoundParameter width =
     new CompoundParameter("Width", 0, 45)
     .setDescription("Controls the width of the scanner");
 
@@ -357,7 +431,7 @@ public class RainbowScannerPattern extends LXPattern {
     addParameter(speed);
     movingForward = true;
   }
-  
+
   @Override
   public void run(double deltaMs) {
     int numPixelsPerRow = ((RainbowBaseModel)lx.model).pointsWide;
@@ -368,15 +442,15 @@ public class RainbowScannerPattern extends LXPattern {
     } else {
       currentScannerColumn -= columnsPerSecond * deltaMs;
     }
-       
+
     if (currentScannerColumn > numPixelsPerRow) {
       movingForward = false;
     }
-    
+
     if (currentScannerColumn < 0) {
       movingForward = true;
     }
-    
+
     int pointNumber = 0;
     for (LXPoint p : model.points) {
         int pointColumnNumber = pointNumber % numPixelsPerRow;
@@ -404,11 +478,11 @@ public class RainbowEqualizerPattern extends LXPattern {
     GraphicMeter eq = lx.engine.audio.meter;
     int numPixelsPerRow = ((RainbowBaseModel)lx.model).pointsWide;
     double numRows = ((RainbowBaseModel)lx.model).pointsHigh;
-    
+
     // We need to distribute eq.numBands across our 420 columns
     int pointsPerBand = ceil((float)numPixelsPerRow/ (float)eq.numBands);  // TODO(tracy): handle left over pixels
     int pointNumber = 0;
-    
+
     for (LXPoint p : model.points) {
       int rowNumber = pointNumber / numPixelsPerRow;  // Which row
       int columnPos = pointNumber - rowNumber * numPixelsPerRow;
@@ -425,5 +499,61 @@ public class RainbowEqualizerPattern extends LXPattern {
       }
       pointNumber++;
     }
+  }
+}
+
+/*
+ * Original implemenation of PGDraw.  Left here for a full Processing drawing
+ * example in case you need to do something not allowed by extending PGDrawBase.
+ */
+@LXCategory(LXCategory.FORM)
+public class PGDraw extends LXPattern {
+  public final CompoundParameter fpsKnob =
+    new CompoundParameter("Fps", 1.0, 10.0)
+    .setDescription("Controls the frames per second.");
+
+  public final BooleanParameter antialiasKnob =
+    new BooleanParameter("antialias", true);
+
+  protected double currentFrame = 0.0;
+  protected PGraphics pg;
+  protected int imageWidth = 0;
+  protected int imageHeight = 0;
+  protected int previousFrame = -1;
+
+  float angle = 0.0;
+
+  public PGDraw(LX lx) {
+    super(lx);
+    float radiusInWorldPixels = RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot;
+    imageWidth = ceil(radiusInWorldPixels * 2.0);
+    imageHeight = ceil(radiusInWorldPixels);
+    pg = createGraphics(imageWidth, imageHeight);
+    addParameter(fpsKnob);
+    addParameter(antialiasKnob);
+  }
+
+  public void run(double deltaMs) {
+    double fps = fpsKnob.getValue();
+    currentFrame += (deltaMs/1000.0) * fps;
+    if ((int)currentFrame > previousFrame) {
+      // Time for new frame.  Draw
+      angle += 0.03;
+      pg.beginDraw();
+      pg.background(70);
+      pg.strokeWeight(10.0);
+      pg.stroke(255);
+      pg.translate(imageWidth/2.0, imageHeight/2.0);
+      pg.pushMatrix();
+      pg.rotate(angle);
+      pg.line(-imageWidth/2.0 + 10, -imageHeight/2.0 + 10, imageWidth/2.0 - 10, imageHeight/2.0 - 10);
+      pg.popMatrix();
+      pg.endDraw();
+      pg.loadPixels();
+      previousFrame = (int)currentFrame;
+    }
+    // Our bounding rectangle is the full half-circle so that Processing drawing operations
+    // can work with radial drawings without coordinate space transformation.
+    RenderImageUtil.imageToPointsSemiCircle(lx, colors, pg, antialiasKnob.isOn());
   }
 }

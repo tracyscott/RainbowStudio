@@ -40,7 +40,7 @@ void setup() {
   size(800, 720, P3D);
   pApplet = this;
   
-  int modelType = RAINBOW_PANEL; // FULL_RAINBOW;
+  int modelType = FULL_RAINBOW; // FULL_RAINBOW;
   
   LXModel model = buildModel(modelType);
   lx = new heronarts.lx.studio.LXStudio(this, model, MULTITHREADED);
@@ -63,9 +63,9 @@ void setup() {
     if (modelType == FULL_RAINBOW) {
       RainbowModel3D.configureOutput(lx);
     } else if (modelType == SRIKANTH_PANEL) {
-      SrikanthPanel.configureOutput(lx);
+      SimplePanel.configureOutputSrikanthPanel(lx);
     } else if (modelType == RAINBOW_PANEL) {
-      SrikanthPanel.configureOutputRainbowPanel(lx);
+      SimplePanel.configureOutputRainbowPanel(lx);
     }
   }
 }
@@ -87,9 +87,9 @@ final static boolean MULTITHREADED = true;
 final static boolean RESIZABLE = true;
 
 // Helpful global constants
-final static float INCHES = 1;
+final static float INCHES = 1.0/12.0;
 final static float IN = INCHES;
-final static float FEET = 12 * INCHES;
+final static float FEET = 1.0;
 final static float FT = FEET;
 final static float CM = IN / 2.54;
 final static float MM = CM * .1;

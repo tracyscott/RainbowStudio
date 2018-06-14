@@ -67,10 +67,10 @@
         "patterns": [
           {
             "id": 438,
-            "class": "RainbowStudio$PGDraw",
+            "class": "RainbowStudio$AnimatedSprite",
             "modulationColor": -39936,
             "parameters": {
-              "label": "PGDraw",
+              "label": "AnimatedSprite",
               "Fps": 10.0,
               "antialias": true
             },

@@ -8,11 +8,11 @@ LXModel buildModel(int modelType) {
   if (modelType == FULL_RAINBOW) {
     return new RainbowModel3D();
   } else if (modelType == SRIKANTH_PANEL) {
-    return new SrikanthPanel();
+    return new SimplePanel();
   } else if (modelType == RAINBOW_PANEL) {
-    return new SrikanthPanel(15, 30);
+    return new SimplePanel(15, 30);
   } else if (modelType == LARGE_PANEL) {
-    return new SrikanthPanel(100, 50);
+    return new SimplePanel(100, 50);
   } else {
     return null;
   }
@@ -41,17 +41,19 @@ public static class GridModel3D extends LXModel {
 
 /*
  * Abstract class for tracking things common to our models.
- * Currently, just the number of leds wide and leds high.  These
- * methods can be used by the Patterns so that a pattern can
+ * These can be used by the Patterns so that a pattern can
  * work on either the full rainbow or some subset of LEDs
- * for test panels.
+ * for test panels.  Also, knowing the radius and arc in
+ * degrees is important for some patterns.
+ *
  * TODO(tracy): Maybe it would be better to use the Metrics
- * class that the 2D GridModel uses.  Also, their standard
+ * class that the 2D GridModel uses.  But their standard
  * pixel coordinate system is 0,0 top left and max_x,max_y on
- * the bottom right. It would be better to migrate to that 
- * coordinate system so some of the existing patterns in 
+ * the bottom right. It might be better to migrate to that
+ * coordinate system so some of the existing patterns in
  * the LX library work.  It requires rewriting our existing
- * patterns so it should be done sooner rather than later.
+ * patterns. Although, Processing uses this coordinate space so
+ * probably less confusing to keep this.
  */
 public static abstract class RainbowBaseModel extends LXModel {
 
@@ -60,6 +62,28 @@ public static abstract class RainbowBaseModel extends LXModel {
   }
   public int pointsWide;
   public int pointsHigh;
+
+  // From CAD drawings.  Note that these numbers are off the mechanical dimensions, so
+  // there might still be some small adjustments.  Also, the variables below have the
+  // theta start and theta finish slightly adjusted so that the model generates the
+  // proper 12600 leds.
+  // Starts at 9.3165082 degrees
+  // arc is 161.3669836 degrees
+  // end point at 170.6834918
+  // radius is 36.9879  Based on a 73' chord of a circle with a perpendicular height to
+  // the circle of 31'.
+
+  static public float radiusInc = 2.75 / 12.0;
+  static public float innerRadius = 36.9879;
+  static public float outerRadius = 0.0;
+  static public float rainbowThetaStart = 9.4165082;
+  static public float rainbowThetaFinish = 170.5383491;
+  static public float rainbowPointsPerRow = 420.0;
+  static public float rainbowThetaInc = 161.3669836 / rainbowPointsPerRow;
+  static public float radialPixelDensity = 2.75; // 2.75 inches between pixels radially
+  static public float innerRadiusPixelDensity = 2.5;
+  static public float outerRadiusPixelDensity = 3.0;
+  static public float pixelsPerFoot = 6.0;  // Based on 2" pixel density.
 }
 
 /*
@@ -70,19 +94,19 @@ public static abstract class RainbowBaseModel extends LXModel {
  * life so it will run but not look right if not run on the LARGE_PANEL modelType in
  * buildModel (can be specified at the top of RainbowStudio.pde).
  */
-public static class SrikanthPanel extends RainbowBaseModel {
+public static class SimplePanel extends RainbowBaseModel {
   
   public static final int LED_WIDTH = 10;  // Defaults based on Srikanth's test panel
   public static final int LED_HEIGHT = 5;
   public static final int UNIVERSE = 0;
   
-  public SrikanthPanel(int width, int height) {
+  public SimplePanel(int width, int height) {
       super(new Fixture(width, height));
       pointsWide = width;
       pointsHigh = height;
   }
   
-  public SrikanthPanel() {
+  public SimplePanel() {
     super(new Fixture());
     pointsWide = LED_WIDTH;
     pointsHigh = LED_HEIGHT;
@@ -175,7 +199,7 @@ public static class SrikanthPanel extends RainbowBaseModel {
    * alternate like the wiring)
    * TODO(tracy): This only works for Srikanth's specific wiring.
    */
-  public static void configureOutput(LX lx) {    
+  public static void configureOutputSrikanthPanel(LX lx) {
     int pointsWide = ((RainbowBaseModel)lx.model).pointsWide;
     int pointsHigh = ((RainbowBaseModel)lx.model).pointsHigh;
     int[] ledWiring = new int[LEDS_PER_UNIVERSE];
@@ -249,7 +273,6 @@ public static class SrikanthPanel extends RainbowBaseModel {
 }
 
 public static class RainbowModel3D extends RainbowBaseModel {
-  
   static public final int LED_WIDTH = 420;
   static public final int LED_HEIGHT = 30;
   
@@ -261,28 +284,21 @@ public static class RainbowModel3D extends RainbowBaseModel {
   
   public static class Fixture extends LXAbstractFixture {
     Fixture() {
-      // add Points based on led position.
-      // Starts at 9.3165082 degrees
-      // arc is 161.3669836 degrees
-      // end point at 170.6834918
-      // radius is 36.9879
-      
-      // For each strip at the given radius, generate 420 points
-      float pointsPerRow = LED_WIDTH;
       float z = 0;
-      float r = 36.9879;  // Feet
+      float r = innerRadius;  // Feet
       int ledCount = 0;
       for (int rowNum = 0; rowNum < LED_HEIGHT; rowNum++) {
-        r += 2.75 / 12.0;  // Each strip is separated by 2.75 inches.  r is in units of feet.
-        //for (float angle = 9.4165082; angle < 170.5834918; angle += 161.3669836 / pointsPerRow) {
-        for (float angle = 170.5383491; angle > 9.4165082; angle -= 161.3669836 / pointsPerRow) {
+        r += radiusInc;  // Each strip is separated by 2.75 inches.  r is in units of feet.
+        for (float angle = rainbowThetaFinish; angle > rainbowThetaStart; angle -= rainbowThetaInc) {
           float x = r * cos(radians(angle));
           float y = r * sin(radians(angle));
           addPoint(new LXPoint(x, y, z));
           ledCount++;
         }
       }
+      outerRadius = r;
       System.out.println("ledCount: " + ledCount);
+      System.out.println("outerRadius: " + outerRadius);
     }
   }
   
@@ -290,6 +306,7 @@ public static class RainbowModel3D extends RainbowBaseModel {
    * Determine point to LED mapping.  This code is placed inside the model class because
    * it is very tightly coupled to the model generation.  For now, we will just put 170 pixel
    * chunks into each ArtNetDatagram, increasing the universe number each time.
+   * TODO(tracy): Fix this for final wiring.  Maybe it will be similar to RainbowPanel?
    * TODO(tracy): It would be nice to be able to configure this in the UI.  We would need to
    * call disable on the LXDatagramOutput, remove it, and then rebuild with the new IP/Port.
    */

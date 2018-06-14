@@ -29,7 +29,11 @@ $ cd ~/Documents/Processing/libraries
 $ git clone https://github.com/01010101/GifAnimation.git
 ```
 
-Also, the code is currently set up to render the rainbow points.  In order to test animated GIFs, you will need to change it to modelType = LARGE_PANEL in RainbowStudio.pde.  You should also load the AnimatedGifLife.lxp file once Rainbow Studio is running.  Animated GIFs are currently only supported for 2D grid models.
+The RainbowGIF pattern uses an 'out-b' animated gif from [beeple](https://vimeo.com/129881600)
+
+For Processing based drawing check out the PGDraw2, AnimatedSprite, or AnimatedSpritePP patterns.
+
+Pattern names ending in 'PP' are pixel-perfect patterns.  They render to a straight 420x30 image which is effectively bent along the rainbow.  For pixel-art type patterns, these work best.  It is also possible to sample from an image but these will have aliasing effects because the Rainbow LEDs are in polar coordinate space while images use cartesian coordinates.  Most image based patterns have an antialias button to enable and disable antialiasing.  Aliasing is especially bad on high frequency images with movement (lots of animated, overlapping geometric shapes).  For sampled-image based patterns, the image is scaled to match the dimensions of the entire top half-circle of the circle defined by the Rainbow.  This makes it easier to directly use the Radius in your image drawing code (see AnimatedSprite).  It is also useful for using existing renderings as a texture, such as the RainbowGIF pattern.
 
 Consult the [LX Studio API reference &rarr;](http://lx.studio/api/)
 
