@@ -337,10 +337,20 @@ public class BasicMidiPP extends PGPixelPerfect {
 
   float currentHue = 100.0;
   float currentBrightness = 0.0;
+  heronarts.lx.midi.LXMidiOutput midiThroughOutput;
 
   public BasicMidiPP(LX lx) {
     super(lx);
     fpsKnob.setValue(60);
+    // Find target output for passing MIDI through
+    heronarts.lx.midi.LXMidiEngine midi = lx.engine.midi;
+    for (heronarts.lx.midi.LXMidiOutput output : midi.outputs) {
+      System.out.println(output.getName() + ": " + output.getDescription());
+      if (output.getName().equals("rainbowStudioOut")) {
+           midiThroughOutput = output;
+           midiThroughOutput.open();
+      }
+    }
   }
 
   public void draw(double deltaDrawMs) {
@@ -357,6 +367,10 @@ public class BasicMidiPP extends PGPixelPerfect {
      // NOTE: my mini keyboard generates between 48 & 72 (small keyboard)
      currentHue = map(pitch, 48.0, 72.0, 0.0, 100.0);
      currentBrightness = map(velocity, 0.0, 127.0, 0.0, 100.0);
+     // Forward MIDI notes
+     if (midiThroughOutput != null) {
+       midiThroughOutput.send(note);
+     }
   }
 
   public void noteOffReceived(MidiNote note) {
@@ -365,6 +379,10 @@ public class BasicMidiPP extends PGPixelPerfect {
     // to track the notes on and only go black once we have received
     // note-off for all notes.
     currentBrightness = 0.0;
+     // Forward MIDI notes
+     if (midiThroughOutput != null) {
+       midiThroughOutput.send(note);
+     }
   }
 }
 

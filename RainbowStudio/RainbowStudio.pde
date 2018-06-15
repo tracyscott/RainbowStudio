@@ -78,6 +78,12 @@ void setup() {
       SimplePanel.configureOutputRainbowPanel(lx);
     }
   }
+
+  // Dump our MIDI device names for reference.
+  heronarts.lx.midi.LXMidiEngine midi = lx.engine.midi;
+  for (heronarts.lx.midi.LXMidiOutput output : midi.outputs) {
+    System.out.println(output.getName() + ": " + output.getDescription());
+  }
 }
 
 void initialize(final heronarts.lx.studio.LXStudio lx, heronarts.lx.studio.LXStudio.UI ui) {
