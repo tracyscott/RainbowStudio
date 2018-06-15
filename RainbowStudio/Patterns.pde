@@ -421,6 +421,47 @@ public class AnimatedSpritePP extends PGPixelPerfect {
 }
 
 @LXCategory(LXCategory.FORM)
+public class AnimatedTextPP extends PGPixelPerfect {
+  public final StringParameter textKnob = new StringParameter("str", "Hello!");
+
+  public final CompoundParameter xSpeed =
+    new CompoundParameter("XSpd", 1, 20)
+    .setDescription("X speed in pixels per frame");
+
+  int textWidth = 100;
+  PGraphics textImage;
+  int currentPos = 0;
+  
+  public AnimatedTextPP(LX lx) {
+    super(lx);
+    addParameter(textKnob);
+    addParameter(xSpeed);
+    
+    textImage = createGraphics(textWidth, 30);
+    currentPos = imageWidth + 1;
+    textImage.smooth();    
+    textImage.beginDraw();
+    textImage.background(0);
+    textImage.stroke(255);
+    //textImage.textFont(myFont, 10);
+    int textSize = 20;
+    textImage.textSize(textSize);
+    textImage.text("Hello!", 0, textSize + 5);
+    textImage.endDraw();
+    xSpeed.setValue(5);
+  }
+  
+  public void draw(double deltaDrawMs) {
+    if (currentPos < 0 - textWidth) {
+      currentPos = imageWidth + +1;
+    }
+    pg.background(0);
+    pg.image(textImage, currentPos, 0);
+    currentPos -= xSpeed.getValue();
+  }
+}
+
+@LXCategory(LXCategory.FORM)
 public class RainbowGIFPP extends LXPattern {
   public final CompoundParameter fpsKnob =
     new CompoundParameter("Fps", 1.0, 10.0)
