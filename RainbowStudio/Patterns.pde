@@ -375,7 +375,7 @@ public class AnimatedSpritePP extends PGPixelPerfect {
     new CompoundParameter("XSpd", 1, 20)
     .setDescription("X speed in pixels per frame");
 
-  public String filename = "PedoBear.gif";
+  public String filename = "smallcat.gif";
   private PImage[] images;
   protected int currentPos = 0;
 
