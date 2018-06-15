@@ -40,17 +40,27 @@ void setup() {
   size(800, 720, P3D);
   pApplet = this;
   
-  int modelType = FULL_RAINBOW; // FULL_RAINBOW;
+  int modelType = RAINBOW_PANEL; // RAINBOW_PANEL or FULL_RAINBOW
   
   LXModel model = buildModel(modelType);
   lx = new heronarts.lx.studio.LXStudio(this, model, MULTITHREADED);
   lx.ui.setResizable(RESIZABLE);
+  
+  if (modelType == RAINBOW_PANEL) {
+    // Manually force the camera settings for a single panel.  A single panel is
+    // way at the top of the world space and it is difficult to zoom in on it.
+    float cameraY = RainbowBaseModel.innerRadius + 
+        (RainbowBaseModel.outerRadius - RainbowBaseModel.innerRadius)/2.0;
+    lx.ui.preview.setCenter(0.0, cameraY, 0.0);
+    lx.ui.preview.setRadius(8.0);
+  }
   
   // Output the model bounding box for reference.
   System.out.println("minx, miny: " + model.xMin + "," + model.yMin);
   System.out.println("maxx, maxy: " + model.xMax + "," + model.yMax);
   System.out.println("bounds size: " + (model.xMax - model.xMin) + "," +
     (model.yMax - model.yMin));
+ 
   // FULL_RAINBOW is
   // rectangle bounds size: 86.52052, 37.74478
   // Roughly, 87, 38 feet with led's per 2 inch (highest density) = 87*6, 38*6 = 522x228
