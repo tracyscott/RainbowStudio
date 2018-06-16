@@ -40,7 +40,7 @@ void setup() {
   size(800, 720, P3D);
   pApplet = this;
   
-  int modelType = FULL_RAINBOW; // RAINBOW_PANEL or FULL_RAINBOW
+  int modelType = RAINBOW_PANEL; // RAINBOW_PANEL or FULL_RAINBOW
   
   LXModel model = buildModel(modelType);
   lx = new heronarts.lx.studio.LXStudio(this, model, MULTITHREADED);

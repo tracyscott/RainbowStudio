@@ -90,6 +90,64 @@ public class Rainbow extends LXPattern {
   }
 }
 
+// Flag colors
+// Top to bottom
+// LGBT 6 Bands  (228,3,3) (255,140,0) (255,237,0) (0,128,38) (0,77,255) (117,7,135)
+// Bisexual (214, 2, 12) 123p (155,79,150) 61p  (0,56,178) 123p, so 2:1
+//
+/*
+ * Flags
+ *
+ */
+
+public class Flags extends LXPattern {
+  
+  int[] lgbtFlag;
+  int[] biFlag;
+  int[][] flags;
+  int[] flag;
+  
+  public Flags(LX lx) {
+    super(lx);
+    flags = new int[][] {new int[1], new int[1]};
+    lgbtFlag = new int[6];
+    lgbtFlag[0] = LXColor.rgb(117, 7, 135);
+    lgbtFlag[1] = LXColor.rgb(0, 77, 255);
+    lgbtFlag[2] = LXColor.rgb(0, 128, 38);
+    lgbtFlag[3] = LXColor.rgb(255, 237, 0);
+    lgbtFlag[4] = LXColor.rgb(255, 140, 0);
+    lgbtFlag[5] = LXColor.rgb(228, 3, 3);
+    flags[0] = lgbtFlag;
+    biFlag = new int[3];
+    biFlag[0] = LXColor.rgb(0, 56, 178);
+    biFlag[1] = LXColor.rgb(155, 79, 150);
+    biFlag[2] = LXColor.rgb(214, 2, 12);
+    flags[1] = biFlag;
+    flag = lgbtFlag;
+  }
+  
+  public void run(double deltaMs) {
+    int numPixelsPerRow = ((RainbowBaseModel)lx.model).pointsWide;
+    int pointNumber = 0;
+    for (LXPoint p : model.points) {
+      int rowNumber = pointNumber / numPixelsPerRow;
+      if (flag == lgbtFlag) {
+        colors[p.index] = lgbtFlag[rowNumber / (lgbtFlag.length-1)];
+      } else if (flag == biFlag) {
+        // 2-1-2 ratio of thickness = 5 so each unit is 6 rows 12-6-12
+        if (rowNumber > 17) {
+          colors[p.index] = biFlag[2];
+        } else if (rowNumber < 12) {
+          colors[p.index] = biFlag[1];
+        } else {
+          colors[p.index] = biFlag[0];
+        }
+      }
+      ++pointNumber;
+    }
+  }
+}
+
 /*
  * Abstract base class for Processing drawings when painting the
  * rainbow by sampling a large texture that bounds the top-half
@@ -346,7 +404,7 @@ public class BasicMidiPP extends PGPixelPerfect {
     heronarts.lx.midi.LXMidiEngine midi = lx.engine.midi;
     for (heronarts.lx.midi.LXMidiOutput output : midi.outputs) {
       System.out.println(output.getName() + ": " + output.getDescription());
-      if (output.getName().equals("rainbowStudioOut")) {
+      if (output.getName().equalsIgnoreCase("rainbowStudioOut")) {
            midiThroughOutput = output;
            midiThroughOutput.open();
       }
