@@ -93,7 +93,7 @@ public class Rainbow extends LXPattern {
 // 1 colors
 // Top to bottom
 // LGBT 6 Bands  (228,3,3) (255,140,0) (255,237,0) (0,128,38) (0,77,255) (117,7,135)
-// Bisexual (214, 2, 12) 123p (155,79,150) 61p  (0,56,178) 123p, so 2:1
+// Bisexual (214, 2, 112) 123p (155,79,150) 61p  (0,56,168) 123p, so 2:1
 // Transgender (91, 206, 250) (245,169,184) (255, 255, 255) (245,169,184) (91,206, 250)
 /*
  * Flags
@@ -133,7 +133,7 @@ public class Flags extends LXPattern {
     biFlag = new int[3];
     biFlag[0] = LXColor.rgb(0, 56, 178);
     biFlag[1] = LXColor.rgb(155, 79, 150);
-    biFlag[2] = LXColor.rgb(214, 2, 12);
+    biFlag[2] = LXColor.rgb(214, 2, 112);
     flags[2] = biFlag;
     
     flagKnob.setValue(0);
