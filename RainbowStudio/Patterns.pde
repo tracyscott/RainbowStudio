@@ -428,35 +428,76 @@ public class AnimatedTextPP extends PGPixelPerfect {
     new CompoundParameter("XSpd", 1, 20)
     .setDescription("X speed in pixels per frame");
 
-  int textWidth = 100;
+  int textBufferWidth = 200;
   PGraphics textImage;
-  int currentPos = 0;
+  float currentPos = 0.0;
+  int lastPos = 0;
+  String[] texts = {
+    "City of orgies, walks and joys,      City whom that I have lived and sung in your midst will one day make      Not the pageants of you, not your shifting tableaus, your spectacles, repay me,      Not the interminable rows of your houses, nor the ships at the wharves,      Nor the processions in the streets, nor the bright windows with goods in them,      Nor to converse with learn'd persons, or bear my share in the soiree or feast;      Not those, but as I pass O Manhattan, your frequent and swift flash of eyes offering me love,      Offering response to my own—these repay me,      Lovers, continual lovers, only repay me.",
+    "What's up?",
+    "Hello!",        
+  };
+
+  int currentString = 0;
+  int renderedTextWidth = 0;
+  int textGapPixels = 10;
+  PFont font;
+  int fontSize = 20;
   
   public AnimatedTextPP(LX lx) {
     super(lx);
     addParameter(textKnob);
     addParameter(xSpeed);
-    
-    textImage = createGraphics(textWidth, 30);
+    String[] fontNames = PFont.list();
+    for (String fontName : fontNames) {
+      System.out.println("Font: " + fontName);
+    }
+    font = createFont("ComicSansMS", fontSize, true);  
+    redrawTextBuffer(textBufferWidth);
+    xSpeed.setValue(5);
+  }
+  
+  public void redrawTextBuffer(int bufferWidth) {
+    textImage = createGraphics(bufferWidth, 30);
     currentPos = imageWidth + 1;
+    lastPos = imageWidth + 2;
     textImage.smooth();    
     textImage.beginDraw();
     textImage.background(0);
     textImage.stroke(255);
-    //textImage.textFont(myFont, 10);
-    int textSize = 20;
-    textImage.textSize(textSize);
-    textImage.text("Hello!", 0, textSize + 5);
-    textImage.endDraw();
-    xSpeed.setValue(5);
+    if (font != null) 
+      textImage.textFont(font);
+    else
+      textImage.textSize(fontSize);
+    renderedTextWidth = ceil(textImage.textWidth(texts[currentString]));
+    // If the text was clipped, try again with a larger width.
+    if (renderedTextWidth + 1 >= bufferWidth) {
+      System.out.println("text clipped: renderedTextWidth=" + renderedTextWidth);
+      textImage.endDraw();
+      redrawTextBuffer(renderedTextWidth + 10);
+    } else {
+      textImage.text(texts[currentString], 0, fontSize + 2);
+      textImage.endDraw();
+    }
   }
   
   public void draw(double deltaDrawMs) {
-    if (currentPos < 0 - textWidth) {
+    if (currentPos < 0 - (renderedTextWidth + textGapPixels)) {
       currentPos = imageWidth + +1;
+      lastPos = imageWidth + 2;
+      currentString++;
+      if (currentString >= texts.length) {
+        currentString = 0;
+      }
+      redrawTextBuffer(renderedTextWidth);
     }
-    pg.background(0);
-    pg.image(textImage, currentPos, 0);
+    // Optimization to not re-render if we haven't moved far enough
+    // since last frame.
+    if (round(currentPos) != lastPos) {
+      pg.background(0);
+      pg.image(textImage, round(currentPos), 0);
+      lastPos = round(currentPos);
+    }
     currentPos -= xSpeed.getValue();
   }
 }
