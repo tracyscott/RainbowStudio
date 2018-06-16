@@ -94,7 +94,7 @@ public class Rainbow extends LXPattern {
 // Top to bottom
 // LGBT 6 Bands  (228,3,3) (255,140,0) (255,237,0) (0,128,38) (0,77,255) (117,7,135)
 // Bisexual (214, 2, 12) 123p (155,79,150) 61p  (0,56,178) 123p, so 2:1
-//
+// Transgender (91, 206, 250) (245,169,184) (255, 255, 255) (245,169,184) (91,206, 250)
 /*
  * Flags
  *
@@ -103,17 +103,18 @@ public class Rainbow extends LXPattern {
 public class Flags extends LXPattern {
 
     public final CompoundParameter flagKnob =
-    new CompoundParameter("Flag", 0, 1)
+    new CompoundParameter("Flag", 0, 2)
     .setDescription("Which flag.");
 
   int[] lgbtFlag;
   int[] biFlag;
+  int[] transFlag;
   int[][] flags;
   int[] flag;
   
   public Flags(LX lx) {
     super(lx);
-    flags = new int[][] {new int[1], new int[1]};
+    flags = new int[][] {new int[1], new int[1], new int[1]};
     lgbtFlag = new int[6];
     lgbtFlag[0] = LXColor.rgb(117, 7, 135);
     lgbtFlag[1] = LXColor.rgb(0, 77, 255);
@@ -122,24 +123,36 @@ public class Flags extends LXPattern {
     lgbtFlag[4] = LXColor.rgb(255, 140, 0);
     lgbtFlag[5] = LXColor.rgb(228, 3, 3);
     flags[0] = lgbtFlag;
+    transFlag = new int[5];
+    transFlag[0] = LXColor.rgb(91, 206, 250);
+    transFlag[1] = LXColor.rgb(245, 169, 184);
+    transFlag[2] = LXColor.rgb(255, 255, 255);
+    transFlag[3] = LXColor.rgb(245, 169, 184);
+    transFlag[4] = LXColor.rgb(91, 206, 250);
+    flags[1] = transFlag;
     biFlag = new int[3];
     biFlag[0] = LXColor.rgb(0, 56, 178);
     biFlag[1] = LXColor.rgb(155, 79, 150);
     biFlag[2] = LXColor.rgb(214, 2, 12);
-    flags[1] = biFlag;
+    flags[2] = biFlag;
+    
     flagKnob.setValue(0);
     addParameter(flagKnob);
     flag = flags[(int)round((float)(flagKnob.getValue()))]; 
   }
   
   public void run(double deltaMs) {
-    flag = flags[(int)round((float)(flagKnob.getValue()))]; 
+    int numRows = ((RainbowBaseModel)lx.model).pointsHigh;
+    int flagNum = (int)round((float)(flagKnob.getValue()));
+    if (flagNum < 0) flagNum = 0;
+    if (flagNum > flags.length - 1) flagNum = flags.length - 1;
+    flag = flags[flagNum]; 
     int numPixelsPerRow = ((RainbowBaseModel)lx.model).pointsWide;
     int pointNumber = 0;
     for (LXPoint p : model.points) {
       int rowNumber = pointNumber / numPixelsPerRow;
-      if (flag == lgbtFlag) {
-        colors[p.index] = lgbtFlag[rowNumber / (lgbtFlag.length-1)];
+      if (flag == lgbtFlag || flag == transFlag) {
+        colors[p.index] = flag[rowNumber / (numRows/flag.length)];
       } else if (flag == biFlag) {
         // 2-1-2 ratio of thickness = 5 so each unit is 6 rows 12-6-12
         if (rowNumber > 17) {
@@ -399,6 +412,14 @@ abstract public class PGPixelPerfect extends LXPattern {
 
 @LXCategory(LXCategory.FORM)
 public class BasicMidiPP extends LXPattern {
+  public final CompoundParameter brightnessKnob =
+    new CompoundParameter("bright", 1.0, 100.0)
+    .setDescription("Brightness");
+    
+  public final CompoundParameter barsKnob =
+    new CompoundParameter("bars", 5, 6)
+    .setDescription("Brightness");
+  
 
   float currentHue = 100.0;
   float currentBrightness = 0.0;
@@ -416,17 +437,24 @@ public class BasicMidiPP extends LXPattern {
            midiThroughOutput.open();
       }
     }
+    brightnessKnob.setValue(30);
+    barsKnob.setValue(6);
+    addParameter(brightnessKnob);
+    addParameter(barsKnob);
   }
 
   public void run(double deltaMs) {
     int numPixelsPerRow = ((RainbowBaseModel)lx.model).pointsWide;
+    int numRows = ((RainbowBaseModel)lx.model).pointsHigh;
     int pointNumber = 0;
+    int numBars = round((float)(barsKnob.getValue()));
     for (LXPoint p : model.points) {
       int rowNumber = pointNumber / numPixelsPerRow;
-      if ((rowNumber)/5 == bar) {
+      if (numBars < 1) numBars = 1;
+      if ((rowNumber)/(numRows/numBars) == bar) {
         colors[p.index] = LXColor.gray(100);
       } else {
-        colors[p.index] = LXColor.gray(30);
+        colors[p.index] = LXColor.gray(brightnessKnob.getValue());
       }
       ++pointNumber;
     }
@@ -436,8 +464,20 @@ public class BasicMidiPP extends LXPattern {
    public void noteOnReceived(MidiNoteOn note) {
      int pitch = note.getPitch();
      System.out.println("pitch: " + pitch);
-     // Start at note 60
-     bar = pitch - 60;
+     // Start at note 60, White keys
+     if (pitch == 60) {
+       bar = 0;
+     } else if (pitch == 62) {
+       bar = 1;
+     } else if (pitch == 64) {
+       bar = 2;
+     } else if (pitch == 65) {
+       bar = 3;
+     } else if (pitch == 67) {
+       bar = 4;
+     } else if (pitch == 69) {
+       bar = 5;
+     }
      int velocity = note.getVelocity();
      // NOTE: my mini keyboard generates between 48 & 72 (small keyboard)
      currentHue = map(pitch, 48.0, 72.0, 0.0, 100.0);

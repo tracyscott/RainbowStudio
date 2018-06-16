@@ -1,6 +1,6 @@
 {
   "version": "0.1",
-  "timestamp": 1529135325032,
+  "timestamp": 1529139349202,
   "engine": {
     "id": 1,
     "class": "heronarts.lx.LXEngine",
@@ -44,7 +44,7 @@
         "class": "heronarts.lx.LXChannel",
         "modulationColor": -65455,
         "parameters": {
-          "label": "Life",
+          "label": "MIDI",
           "arm": false,
           "selected": false,
           "enabled": true,
@@ -70,7 +70,9 @@
             "class": "RainbowStudio$BasicMidiPP",
             "modulationColor": -65353,
             "parameters": {
-              "label": "BasicMidiPP"
+              "label": "BasicMidiPP",
+              "bright": 36.999999172985554,
+              "bars": 6.0
             },
             "modulation": {
               "modulators": [],
@@ -86,7 +88,7 @@
         "class": "heronarts.lx.LXChannel",
         "modulationColor": -63232,
         "parameters": {
-          "label": "Channel-2",
+          "label": "TextureGIF",
           "arm": false,
           "selected": false,
           "enabled": true,
@@ -105,53 +107,8 @@
         },
         "effects": [],
         "clips": [],
-        "patternIndex": 3,
+        "patternIndex": 0,
         "patterns": [
-          {
-            "id": 464,
-            "class": "heronarts.lx.pattern.IteratorPattern",
-            "modulationColor": -3538689,
-            "parameters": {
-              "label": "Iterator",
-              "speed": 10.0
-            },
-            "modulation": {
-              "modulators": [],
-              "modulations": [],
-              "triggers": []
-            },
-            "autoCycleEnabled": false
-          },
-          {
-            "id": 468,
-            "class": "RainbowStudio$Flags",
-            "modulationColor": -4915456,
-            "parameters": {
-              "label": "Flags"
-            },
-            "modulation": {
-              "modulators": [],
-              "modulations": [],
-              "triggers": []
-            },
-            "autoCycleEnabled": true
-          },
-          {
-            "id": 486,
-            "class": "RainbowStudio$RainbowScannerPattern",
-            "modulationColor": -25856,
-            "parameters": {
-              "label": "RainbowScanner",
-              "Width": 2.0,
-              "Speed": 0.20000000298023224
-            },
-            "modulation": {
-              "modulators": [],
-              "modulations": [],
-              "triggers": []
-            },
-            "autoCycleEnabled": true
-          },
           {
             "id": 500,
             "class": "RainbowStudio$RainbowGIF",
@@ -176,7 +133,7 @@
         "class": "heronarts.lx.LXChannel",
         "modulationColor": -13238528,
         "parameters": {
-          "label": "Channel-3",
+          "label": "FlagColor",
           "arm": false,
           "selected": true,
           "enabled": true,
@@ -195,23 +152,8 @@
         },
         "effects": [],
         "clips": [],
-        "patternIndex": 2,
+        "patternIndex": 1,
         "patterns": [
-          {
-            "id": 488,
-            "class": "heronarts.lx.pattern.IteratorPattern",
-            "modulationColor": -65384,
-            "parameters": {
-              "label": "Iterator",
-              "speed": 10.0
-            },
-            "modulation": {
-              "modulators": [],
-              "modulations": [],
-              "triggers": []
-            },
-            "autoCycleEnabled": false
-          },
           {
             "id": 492,
             "class": "RainbowStudio$RainbowScannerPattern",
@@ -233,7 +175,8 @@
             "class": "RainbowStudio$Flags",
             "modulationColor": -12779265,
             "parameters": {
-              "label": "Flags"
+              "label": "Flags",
+              "Flag": 0.0
             },
             "modulation": {
               "modulators": [],
@@ -298,18 +241,18 @@
           "slope": 7.649999929592013,
           "Band-1": 0.0,
           "Band-2": 0.0,
-          "Band-3": 0.003423349267288045,
-          "Band-4": 0.156575377622575,
-          "Band-5": 0.2172472497745378,
-          "Band-6": 0.2765131762479638,
-          "Band-7": 0.2581684714225374,
-          "Band-8": 0.007756602330724727,
+          "Band-3": 0.0,
+          "Band-4": 0.0,
+          "Band-5": 0.0,
+          "Band-6": 0.0,
+          "Band-7": 0.0,
+          "Band-8": 0.0,
           "Band-9": 0.0,
-          "Band-10": 0.10820273033029315,
-          "Band-11": 0.10873635594332531,
-          "Band-12": 0.14180648109110516,
-          "Band-13": 0.11355111911924509,
-          "Band-14": 0.05177970887392758,
+          "Band-10": 0.0,
+          "Band-11": 0.0,
+          "Band-12": 0.0,
+          "Band-13": 0.0,
+          "Band-14": 0.0,
           "Band-15": 0.0,
           "Band-16": 0.0
         }
@@ -353,29 +296,6 @@
     "modulation": {
       "modulators": [
         {
-          "id": 133,
-          "class": "heronarts.lx.modulator.VariableLFO",
-          "modulationColor": -16728833,
-          "parameters": {
-            "label": "LFO 1",
-            "running": true,
-            "trigger": false,
-            "loop": true,
-            "tempoSync": false,
-            "tempoMultiplier": 5,
-            "tempoLock": true,
-            "clockMode": 0,
-            "periodFast": 482.00559322671114,
-            "periodSlow": 10000.0,
-            "wave": 0,
-            "skew": 0.0,
-            "shape": 0.0,
-            "phase": 0.41999999061226845,
-            "exp": 0.0
-          },
-          "basis": 0.08141426277648763
-        },
-        {
           "id": 485,
           "class": "heronarts.lx.audio.BandGate",
           "modulationColor": -65517,
@@ -394,7 +314,7 @@
             "minFreq": 29.901716232299805,
             "maxFreq": 22050.0,
             "gate": false,
-            "average": 0.4967425766055643,
+            "average": 0.0,
             "tap": false
           }
         }
@@ -420,136 +340,6 @@
         },
         {
           "source": {
-            "id": 485
-          },
-          "target": {
-            "componentId": 467,
-            "parameterPath": "fader"
-          },
-          "id": 497,
-          "class": "heronarts.lx.parameter.LXCompoundModulation",
-          "modulationColor": -65412,
-          "parameters": {
-            "label": "",
-            "enabled": true,
-            "Polarity": 0,
-            "Range": 0.0
-          }
-        },
-        {
-          "source": {
-            "id": 485
-          },
-          "target": {
-            "componentId": 486,
-            "parameterPath": "Width"
-          },
-          "id": 498,
-          "class": "heronarts.lx.parameter.LXCompoundModulation",
-          "modulationColor": -13568,
-          "parameters": {
-            "label": "",
-            "enabled": true,
-            "Polarity": 0,
-            "Range": -0.012500020675361156
-          }
-        },
-        {
-          "source": {
-            "id": 485
-          },
-          "target": {
-            "componentId": 467,
-            "parameterPath": "fader"
-          },
-          "id": 499,
-          "class": "heronarts.lx.parameter.LXCompoundModulation",
-          "modulationColor": -16738305,
-          "parameters": {
-            "label": "",
-            "enabled": true,
-            "Polarity": 0,
-            "Range": 0.0
-          }
-        },
-        {
-          "source": {
-            "componentId": 500,
-            "parameterPath": "Fps"
-          },
-          "target": {
-            "componentId": 467,
-            "parameterPath": "fader"
-          },
-          "id": 502,
-          "class": "heronarts.lx.parameter.LXCompoundModulation",
-          "modulationColor": -65346,
-          "parameters": {
-            "label": "",
-            "enabled": true,
-            "Polarity": 0,
-            "Range": 0.0
-          }
-        },
-        {
-          "source": {
-            "componentId": 500,
-            "parameterPath": "Fps"
-          },
-          "target": {
-            "componentId": 467,
-            "parameterPath": "fader"
-          },
-          "id": 503,
-          "class": "heronarts.lx.parameter.LXCompoundModulation",
-          "modulationColor": -65792,
-          "parameters": {
-            "label": "",
-            "enabled": true,
-            "Polarity": 0,
-            "Range": 0.0
-          }
-        },
-        {
-          "source": {
-            "componentId": 500,
-            "parameterPath": "Fps"
-          },
-          "target": {
-            "componentId": 467,
-            "parameterPath": "fader"
-          },
-          "id": 504,
-          "class": "heronarts.lx.parameter.LXCompoundModulation",
-          "modulationColor": -15204097,
-          "parameters": {
-            "label": "",
-            "enabled": true,
-            "Polarity": 0,
-            "Range": 0.0
-          }
-        },
-        {
-          "source": {
-            "componentId": 500,
-            "parameterPath": "Fps"
-          },
-          "target": {
-            "componentId": 467,
-            "parameterPath": "fader"
-          },
-          "id": 505,
-          "class": "heronarts.lx.parameter.LXCompoundModulation",
-          "modulationColor": -16737281,
-          "parameters": {
-            "label": "",
-            "enabled": true,
-            "Polarity": 0,
-            "Range": 0.0374999800696969
-          }
-        },
-        {
-          "source": {
             "id": 23
           },
           "target": {
@@ -563,7 +353,7 @@
             "label": "",
             "enabled": true,
             "Polarity": 0,
-            "Range": 0.4624999910593033
+            "Range": 0.7874999959021807
           }
         }
       ],
@@ -586,13 +376,13 @@
     "midi": {
       "inputs": [
         {
-          "name": "Akai MPK49",
+          "name": "CoreMIDI4J - LK Mini MIDI",
           "channel": true,
           "control": false,
           "sync": false
         },
         {
-          "name": "CoreMIDI4J - LK Mini MIDI",
+          "name": "Akai MPK49",
           "channel": true,
           "control": false,
           "sync": false
@@ -610,8 +400,6 @@
       "clipViewVisible": false,
       "modulatorExpanded": {
         "20": true,
-        "500": true,
-        "133": true,
         "485": true
       },
       "preview": {
@@ -625,7 +413,7 @@
         "centerPoint": false,
         "camera": {
           "active": false,
-          "radius": 11.021330821661866,
+          "radius": 8.0,
           "theta": -0.09599999999999961,
           "phi": -0.10500000000000112,
           "x": 0.0,
