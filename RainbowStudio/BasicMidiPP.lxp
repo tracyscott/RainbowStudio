@@ -1,6 +1,6 @@
 {
   "version": "0.1",
-  "timestamp": 1529008386901,
+  "timestamp": 1529132364837,
   "engine": {
     "id": 1,
     "class": "heronarts.lx.LXEngine",
@@ -15,7 +15,7 @@
       "crossfader": 0.5000000018626451,
       "crossfaderBlendMode": 0,
       "speed": 1.0,
-      "focusedChannel": 0,
+      "focusedChannel": 1,
       "cueA": false,
       "cueB": false,
       "multithreaded": true,
@@ -46,7 +46,7 @@
         "parameters": {
           "label": "Life",
           "arm": false,
-          "selected": true,
+          "selected": false,
           "enabled": true,
           "cue": false,
           "fader": 1.0,
@@ -70,8 +70,64 @@
             "class": "RainbowStudio$BasicMidiPP",
             "modulationColor": -65353,
             "parameters": {
-              "label": "BasicMidiPP",
-              "Fps": 60.0
+              "label": "BasicMidiPP"
+            },
+            "modulation": {
+              "modulators": [],
+              "modulations": [],
+              "triggers": []
+            },
+            "autoCycleEnabled": true
+          }
+        ]
+      },
+      {
+        "id": 467,
+        "class": "heronarts.lx.LXChannel",
+        "modulationColor": -63232,
+        "parameters": {
+          "label": "Channel-2",
+          "arm": false,
+          "selected": true,
+          "enabled": true,
+          "cue": false,
+          "fader": 1.0,
+          "crossfadeGroup": 0,
+          "blendMode": 1,
+          "midiMonitor": false,
+          "midiChannel": 16,
+          "autoCycleEnabled": false,
+          "autoCycleMode": 0,
+          "autoCycleTimeSecs": 60.0,
+          "transitionEnabled": false,
+          "transitionTimeSecs": 5.0,
+          "transitionBlendMode": 0
+        },
+        "effects": [],
+        "clips": [],
+        "patternIndex": 1,
+        "patterns": [
+          {
+            "id": 464,
+            "class": "heronarts.lx.pattern.IteratorPattern",
+            "modulationColor": -3538689,
+            "parameters": {
+              "label": "Iterator",
+              "speed": 10.0
+            },
+            "modulation": {
+              "modulators": [],
+              "modulations": [],
+              "triggers": []
+            },
+            "autoCycleEnabled": false
+          },
+          {
+            "id": 468,
+            "class": "RainbowStudio$Flags",
+            "modulationColor": -4915456,
+            "parameters": {
+              "label": "Flags"
             },
             "modulation": {
               "modulators": [],
@@ -135,21 +191,21 @@
           "release": 156.9964411456732,
           "slope": 7.649999929592013,
           "Band-1": 0.0,
-          "Band-2": 0.0,
-          "Band-3": 0.1131031088616743,
-          "Band-4": 0.37578940426527185,
-          "Band-5": 0.46994801934020547,
-          "Band-6": 0.4912269027786964,
-          "Band-7": 0.5332150495134159,
-          "Band-8": 0.6039236793236346,
-          "Band-9": 0.9411575832098473,
-          "Band-10": 0.9663802872543397,
-          "Band-11": 1.0,
-          "Band-12": 1.0,
-          "Band-13": 1.0,
-          "Band-14": 1.0,
-          "Band-15": 1.0,
-          "Band-16": 1.0
+          "Band-2": 0.014570654102602387,
+          "Band-3": 0.21420294034939447,
+          "Band-4": 0.39801908014606824,
+          "Band-5": 0.3172855882816684,
+          "Band-6": 0.22279096188255865,
+          "Band-7": 0.2614998578279313,
+          "Band-8": 0.24432383766164245,
+          "Band-9": 0.2812721921388235,
+          "Band-10": 0.3213562497272707,
+          "Band-11": 0.30363300930277337,
+          "Band-12": 0.4334717092152607,
+          "Band-13": 0.3208188441833355,
+          "Band-14": 0.17955979762899987,
+          "Band-15": 0.0,
+          "Band-16": 0.0
         }
       },
       "input": {
@@ -211,7 +267,7 @@
             "phase": 0.41999999061226845,
             "exp": 0.0
           },
-          "basis": 0.9372975884108683
+          "basis": 0.31646893389668035
         }
       ],
       "modulations": [],
@@ -233,6 +289,12 @@
     },
     "midi": {
       "inputs": [
+        {
+          "name": "Akai MPK49",
+          "channel": true,
+          "control": false,
+          "sync": false
+        },
         {
           "name": "CoreMIDI4J - LK Mini MIDI",
           "channel": true,
@@ -264,19 +326,19 @@
         "centerPoint": false,
         "camera": {
           "active": false,
-          "radius": 63.12781603260384,
-          "theta": -0.07799999999999967,
-          "phi": 0.0479999999999999,
-          "x": 9.5,
-          "y": 9.5,
-          "z": 9.5
+          "radius": 8.0,
+          "theta": -0.17399999999999968,
+          "phi": 0.7979999999999995,
+          "x": 0.0,
+          "y": 40.425418853759766,
+          "z": 0.0
         },
         "cue": [
           {
             "active": false,
             "radius": 63.12781603260384,
-            "theta": -0.07799999999999967,
-            "phi": 0.0479999999999999,
+            "theta": -0.17399999999999968,
+            "phi": 0.7979999999999995,
             "x": 9.5,
             "y": 9.5,
             "z": 9.5

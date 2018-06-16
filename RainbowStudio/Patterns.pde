@@ -90,7 +90,7 @@ public class Rainbow extends LXPattern {
   }
 }
 
-// Flag colors
+// 1 colors
 // Top to bottom
 // LGBT 6 Bands  (228,3,3) (255,140,0) (255,237,0) (0,128,38) (0,77,255) (117,7,135)
 // Bisexual (214, 2, 12) 123p (155,79,150) 61p  (0,56,178) 123p, so 2:1
@@ -101,7 +101,11 @@ public class Rainbow extends LXPattern {
  */
 
 public class Flags extends LXPattern {
-  
+
+    public final CompoundParameter flagKnob =
+    new CompoundParameter("Flag", 0, 1)
+    .setDescription("Which flag.");
+
   int[] lgbtFlag;
   int[] biFlag;
   int[][] flags;
@@ -123,10 +127,13 @@ public class Flags extends LXPattern {
     biFlag[1] = LXColor.rgb(155, 79, 150);
     biFlag[2] = LXColor.rgb(214, 2, 12);
     flags[1] = biFlag;
-    flag = lgbtFlag;
+    flagKnob.setValue(0);
+    addParameter(flagKnob);
+    flag = flags[(int)round((float)(flagKnob.getValue()))]; 
   }
   
   public void run(double deltaMs) {
+    flag = flags[(int)round((float)(flagKnob.getValue()))]; 
     int numPixelsPerRow = ((RainbowBaseModel)lx.model).pointsWide;
     int pointNumber = 0;
     for (LXPoint p : model.points) {
@@ -343,7 +350,7 @@ public class AnimatedSprite extends PGTexture {
  */
 abstract public class PGPixelPerfect extends LXPattern {
   public final CompoundParameter fpsKnob =
-    new CompoundParameter("Fps", 1.0, 60.0)
+    new CompoundParameter("Fps", 1.0, 61)
     .setDescription("Controls the frames per second.");
 
   protected double currentFrame = 0.0;
@@ -391,15 +398,15 @@ abstract public class PGPixelPerfect extends LXPattern {
 }
 
 @LXCategory(LXCategory.FORM)
-public class BasicMidiPP extends PGPixelPerfect {
+public class BasicMidiPP extends LXPattern {
 
   float currentHue = 100.0;
   float currentBrightness = 0.0;
   heronarts.lx.midi.LXMidiOutput midiThroughOutput;
-
+  int bar = -1;
+  
   public BasicMidiPP(LX lx) {
     super(lx);
-    fpsKnob.setValue(60);
     // Find target output for passing MIDI through
     heronarts.lx.midi.LXMidiEngine midi = lx.engine.midi;
     for (heronarts.lx.midi.LXMidiOutput output : midi.outputs) {
@@ -411,16 +418,26 @@ public class BasicMidiPP extends PGPixelPerfect {
     }
   }
 
-  public void draw(double deltaDrawMs) {
-    pg.colorMode(HSB, 100);
-    pg.fill(currentHue, 100.0, currentBrightness);
-    pg.noStroke();
-    pg.rect(0, 0, imageWidth, imageHeight);
+  public void run(double deltaMs) {
+    int numPixelsPerRow = ((RainbowBaseModel)lx.model).pointsWide;
+    int pointNumber = 0;
+    for (LXPoint p : model.points) {
+      int rowNumber = pointNumber / numPixelsPerRow;
+      if ((rowNumber)/5 == bar) {
+        colors[p.index] = LXColor.gray(100);
+      } else {
+        colors[p.index] = LXColor.gray(30);
+      }
+      ++pointNumber;
+    }
   }
-
+  
   // Map a note to a hue
    public void noteOnReceived(MidiNoteOn note) {
      int pitch = note.getPitch();
+     System.out.println("pitch: " + pitch);
+     // Start at note 60
+     bar = pitch - 60;
      int velocity = note.getVelocity();
      // NOTE: my mini keyboard generates between 48 & 72 (small keyboard)
      currentHue = map(pitch, 48.0, 72.0, 0.0, 100.0);
@@ -437,6 +454,7 @@ public class BasicMidiPP extends PGPixelPerfect {
     // to track the notes on and only go black once we have received
     // note-off for all notes.
     currentBrightness = 0.0;
+    bar = -1;
      // Forward MIDI notes
      if (midiThroughOutput != null) {
        midiThroughOutput.send(note);
@@ -483,7 +501,7 @@ public class AnimatedTextPP extends PGPixelPerfect {
   public final StringParameter textKnob = new StringParameter("str", "Hello!");
 
   public final CompoundParameter xSpeed =
-    new CompoundParameter("XSpd", 1, 20)
+    new CompoundParameter("XSpd", 0, 20)
     .setDescription("X speed in pixels per frame");
 
   int textBufferWidth = 200;
