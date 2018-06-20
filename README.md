@@ -21,14 +21,14 @@ To set up RainbowStudio, perform the following steps:
     - Rainbow Studio runs on top of Processing
 - Open Processing
 - Open its "Preference" and find out the "Sketchbook location"
-    - Example: `/home/todd/sketchbook`
+    - Example: `~/sketchbook`
 - [Download and install GifAnimation](https://github.com/01010101/GifAnimation) to `libraries/` in Sketchbook location
-    - Example: `cd /home/todd/sketchbook/libraries && git clone https://github.com/01010101/GifAnimation.git`
+    - Example: `cd ~/sketchbook/libraries && git clone https://github.com/01010101/GifAnimation.git`
 - Clone this project and open the `RainbowStudio.pde` project in Processing:
     - Example:
     - ```bash
       # Clone our repo
-      cd ~/github
+      cd ~/sketchbook
       git clone https://github.com/tracyscott/RainbowStudio.git
 
       # Open RainbowStudio in Processing (`xdg-open` is a Linux-specific command)
@@ -63,7 +63,7 @@ com.jogamp.opengl.GLException: Caught ThreadDeath: null on thread main-FPSAWTAni
     at com.jogamp.opengl.GLException.newGLException(GLException.java:76)
 ```
 
-Then we recommend wiping your `.lxstudio` file, selecting a `.lxp` file, and rebooting RainbowStudio twice. It was causing us issues, potentially due to odd-sized windows
+Then we recommend wiping your `.lxproject` file, selecting a `.lxp` file, and rebooting RainbowStudio twice. It was causing us issues, potentially due to odd-sized windows
 
 ### Contact and Collaboration ###
 
