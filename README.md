@@ -15,19 +15,34 @@ Please note that LX Studio is not open-source software. The license grants permi
 
 ### Getting Started ###
 
-Rainbow Studio runs on top of Processing. [Download and install Processing &rarr;](https://processing.org/download/)
+To set up RainbowStudio, perform the following steps:
 
-Next, clone this project and open the RainbowStudio.pde project in Processing:
-```
-$ cd ~/Documents/Processing
-$ git clone https://github.com/tracyscott/RainbowStudio.git
-```
+- [Download and install Processing](https://processing.org/download/)
+    - Rainbow Studio runs on top of Processing
+- Open Processing
+- Open its "Preference" and find out the "Sketchbook location"
+    - Example: `/home/todd/sketchbook`
+- [Download and install GifAnimation](https://github.com/01010101/GifAnimation) to `libraries/` in Sketchbook location
+    - Example: `cd /home/todd/sketchbook/libraries && git clone https://github.com/01010101/GifAnimation.git`
+- Clone this project and open the `RainbowStudio.pde` project in Processing:
+    - Example:
+    - ```bash
+      # Clone our repo
+      cd ~/github
+      git clone https://github.com/tracyscott/RainbowStudio.git
 
-The Animated GIF Pattern requires the [GifAnimation](https://github.com/01010101/GifAnimation) Processing Library. You need to install it into your Processing libraries folder. You might need to mkdir ~/Documents/Processing/libraries.
-```
-$ cd ~/Documents/Processing/libraries
-$ git clone https://github.com/01010101/GifAnimation.git
-```
+      # Open RainbowStudio in Processing (`xdg-open` is a Linux-specific command)
+      xdg-open RainbowStudio/RainbowStudio.pde
+      # For OS X: open RainbowStudio/RainbowStudio.pde
+      # A GUI double click should work as well
+      ```
+- Press "Play" button to launch RainbowStudio
+- RainbowStudio should launch with a side-scrolling white dot on a black grid
+- Click "Folder" icon in top-center and select a pattern (e.g. "RainbowGifLife.lxp")
+- RainbowStudio may show a blank screen. If it does, close it and reopen it
+- RainbowStudio should now show the desired pattern
+
+### Documentation ###
 
 The RainbowGIF pattern uses an 'out-b' animated gif from [beeple](https://vimeo.com/129881600)
 
@@ -38,6 +53,17 @@ Pattern names ending in 'PP' are pixel-perfect patterns.  They render to a strai
 Consult the [LX Studio API reference &rarr;](http://lx.studio/api/)
 
 More and better documentation is coming soon!
+
+### Troubleshooting ###
+
+If you encounter an issue like the following on Linux:
+
+```
+com.jogamp.opengl.GLException: Caught ThreadDeath: null on thread main-FPSAWTAnimator#00-Timer0
+    at com.jogamp.opengl.GLException.newGLException(GLException.java:76)
+```
+
+Then we recommend wiping your `.lxstudio` file, selecting a `.lxp` file, and rebooting RainbowStudio twice. It was causing us issues, potentially due to odd-sized windows
 
 ### Contact and Collaboration ###
 
