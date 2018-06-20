@@ -44,6 +44,8 @@ To set up RainbowStudio, perform the following steps:
 
 ### Documentation ###
 
+There is some minimal documentation on the [LX Studio Wiki](https://github.com/heronarts/LXStudio/wiki)
+
 The RainbowGIF pattern uses an 'out-b' animated gif from [beeple](https://vimeo.com/129881600)
 
 For Processing based drawing check out the PGDraw2, AnimatedSprite, or AnimatedSpritePP patterns.
