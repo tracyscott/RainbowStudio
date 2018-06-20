@@ -67,7 +67,7 @@ com.jogamp.opengl.GLException: Caught ThreadDeath: null on thread main-FPSAWTAni
 
 Then we recommend wiping your `.lxproject` file, selecting a `.lxp` file, and rebooting RainbowStudio twice. It was causing us issues, potentially due to odd-sized windows
 
-### Contact and Collaboration ###
+### LX Studio Contact and Collaboration ###
 
 Building a big cool project? I'm probably interested in hearing about it! Want to solicit some help, request new framework features, or just ask a random question? Open an issue on the project or drop me a line: mark@heronarts.com
 
