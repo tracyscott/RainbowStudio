@@ -16,7 +16,10 @@ Clicking and dragging in the Preview Window will rotate around your model.  Comm
 New Project
 -----------
 ![New Project](assets/newproject.jpg)
-Open LX Studio with empty file or select 'New Project' icon in top toolbar.  LX Studio will initialize with a single pattern called Iterator that iterates through your points, lighting up each point in sequence.  When creating a new project, LX Studio will create a single channel titled 'Channel-1' that contains the Iterator pattern.  A channel contains a list of patterns and has one active pattern running.  
+Open LX Studio with an empty file or select 'New Project' icon in top toolbar if you already have a file open.  The rest of this
+guide assumes that you are running with a new project.  LX Studio will initialize with a single channel named 'Channel-1' that
+contains a single pattern named 'Iterator'.  The Iterator pattern iterates through the points in your model, lighting up each
+point in sequence.
 
 Channel Details Component
 -------------------------
@@ -39,8 +42,8 @@ can also be specified in the input box immediately to the right of the Transitio
 Pattern Details Component
 -------------------------
 When you have selected a pattern, the Pattern Details component will be visible immediately to the right of the Channel Details
-component, labeled with the pattern name.  The Pattern Details component allow you to configure pattern parameters.  For Iterator,
-we can adjust the speed of the iteration.  The value in the speed knob can be increased or decreased by click-and-drag up or
+component, labeled with the pattern name.  The Pattern Details component allows you to configure pattern parameters.  For Iterator,
+we can adjust the speed of the iteration.  The value of the speed knob can be increased or decreased by click-and-drag up or
 click-and-drag down.  The value can also be set exactly by clicking the knob to select it and then typing a value and then pressing
 enter.
 
@@ -65,12 +68,14 @@ Multiple Channels
 ![Two Channels](assets/twochannels.jpg)
 
 LX Studio supports multiple channels.  Each channel is assigned to a channel bus.  By default, the channel will be combined with the
-main channel bus.  LX Studio also supports a Cross-fader Group A channel bus and a Cross-fader Group B channel bus.  For a given
-channel bus, the output of each channel is blended into the channel bus (from left to right).  To add a Channel, click on the '+'
+main channel bus.  LX Studio also supports a Cross-fader Group A channel bus and a Cross-fader Group B channel bus.  The Master channel
+has a fader for fading between the A & B channel groups.  An example application of fader groups and cueing is live editing visuals on Channel B
+while outputing to the LEDs the animations on Channel A.  Once you are happy with your work on Channel B, you can fade the Master to that channel.
+For a given channel bus, the output of each channel is blended into the channel bus (from left to right).  To add a channel, click on the '+'
 between the 'Channel-1' channel and the 'Master' channel.  You should now have a 'Channel-2' channel with an Iterator in it.  Click to
 select 'Channel-2' if it is not already selected and then double-click the 'Solid' pattern in the Pattern Browser to add it to 'Channel-2'.
-Patterns are organized by function.  'Solid' is in the Color category, so you might need to expand the 'Color' category in the Pattern Browser
-in order to find it.  Make sure 'Solid' is the active pattern in 'Channel-2'.  Note, you can delete the default Iterator pattern by
+Patterns in the Pattern Browser are organized by function.  'Solid' is in the Color category, so you might need to expand the 'Color' category
+in the Pattern Browser in order to find it.  Make sure 'Solid' is the active pattern in 'Channel-2'.  Note, you can delete the default Iterator pattern by
 clicking on it to select it and then pressing 'delete' (ctrl-backspace on Windows).  Set the Blend Mode to Multiply (located in the
 bottom part of the Channel-2 channel strip).  Finally, move the Fader for 'Channel-2' to maximum.  At this point your Iterator points
 should appear as red.
@@ -89,7 +94,7 @@ Modulation
 
 LX Studio supports parameter modulation.  Through modulation, you can map the output of a Modulator to many different elements in
 the UI.  A common type of Modulator is an LFO (Low Frequency Oscillator).  An LFO typically supports a variety of waveforms.  The
-default is a Sine wave.  The value of the modulator changes over time, ranging from 0 to 1 (-1 to 1 in bi-polar mode).  To create
+default waveform is a Sine wave.  The value of the modulator changes over time, ranging from 0 to 1 (-1 to 1 in bi-polar mode).  To create
 a mapping from a Modulator to a parameter in the UI, select the 'Map' arrow (highlighted pink in the image above).  Your interface
 should now highlight parts of the UI that can be effected by the Modulator.  Select the 'Speed' knob on your Iterator.  You
 should now have a modulator mapping from the LFO to your speed knob labeled Channel-1|Iterator|Speed.
