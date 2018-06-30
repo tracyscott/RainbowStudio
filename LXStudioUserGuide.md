@@ -16,7 +16,7 @@ Clicking and dragging in the Preview Window will rotate around your model.  Comm
 New Project
 -----------
 ![New Project](assets/newproject.jpg)
-Open LX Studio with an empty file or select 'New Project' icon in top toolbar if you already have a file open.  The rest of this
+Open LX Studio with an empty file or select the 'New Project' icon in top toolbar if you already have a file open.  The rest of this
 guide assumes that you are running with a new project.  LX Studio will initialize with a single channel named 'Channel-1' that
 contains a single pattern named 'Iterator'.  The Iterator pattern iterates through the points in your model, lighting up each
 point in sequence.
@@ -116,14 +116,15 @@ Let's Get Modular
 
 LX Studio has an extensively Modular UI.  Internally, anything defined as a Parameter can become a Modulator.  In this example,
 we will modulate the hue of the Iterator by the audio level.  Under 'Modulation' in the top right portion of the window,
-select the parameter mapping arrow (highlighted green in the image, above and to the right of LFO 1).  After selecting the parameter
-mapping arrow, the UI will highlight everything that can be a source for the modulator.  Select the Audio Level bar to the right of
-'AUDIO' on the left side of the window.  Note, you should make sure Audio monitoring is enabled by selecting the toggle immediately
-to the left of 'AUDIO'.  Also, make sure to select an audio device that has a mic input.  After selecting the modulator source,
-the UI highlights will change showing what is eligible as a destination for the modulation.  These will be the same as what
-was available when we set up our LFO modulator earlier.  Select 'Channel-2'.  The Pattern Details component should appear.
-Select 'Hue' as the modulator destination.  Adjust the slider to maximum for the Meter->Channel-2|Solid|Hue modulation.
-Now, the color of the Iterator should change with the audio level.
+select the parameter mapping arrow ![arrow](assets/parametermappingarrow.jpg)(highlighted green in the image, above and to the
+right of LFO 1).  After selecting the parameter mapping arrow, the UI will highlight everything that can be a source for the modulator.
+Select the Audio Level bar ![AudioBar](assets/audiobar.jpg) to the right of 'AUDIO' on the left side of the window.  Note, you should
+make sure Audio monitoring is enabled by selecting the toggle immediately to the left of 'AUDIO'.  Also, make sure to select an audio
+device that has a mic input.  After selecting the modulator source, the UI highlights will change showing what is eligible as a
+destination for the modulation.  These will be the same as what was available when we set up our LFO modulator earlier.
+Select 'Channel-2'.  The Pattern Details component should appear.  Select 'Hue' as the modulator destination.
+Adjust the slider to maximum for the Meter->Channel-2|Solid|Hue modulation.  Now, the color of the Iterator should change
+with the audio level.
 
 ![Modular2](assets/modular2.jpg)
 
