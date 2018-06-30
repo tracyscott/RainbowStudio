@@ -105,6 +105,23 @@ range of the modulation is 0 to 1 (i.e. always just add more) or -1 to 1 (altern
 by toggling between unipolar and bipolar mode (the highlighed arrow to the left of the modulation depth slider in the image
 above).
 
+Let's Get Modular
+-----------------
+![Modular1](assets/modular1.jpg)
+
+LX Studio has an extensively Modular UI.  Internally, anything defined as a Parameter can become a Modulator.  In this example,
+we will modulate the hue of the Iterator by the audio level.  Under 'Modulation' in the top right portion of the window,
+select the parameter mapping arrow (highlighted green in the image, above and to the right of LFO 1).  After selecting the parameter
+mapping arrow, the UI will highlight everything that can be a source for the modulator.  Select the Audio Level bar to the right of
+'AUDIO' on the left side of the window.  Note, you should make sure Audio monitoring is enabled by selecting the toggle immediately
+to the left of 'AUDIO'.  Also, make sure to select an audio device that has a mic input.  After selecting the modulator source,
+the UI highlights will change showing what is eligible as a destination for the modulation.  These will be the same as what
+was available when we set up our LFO modulator earlier.  Select 'Channel-2'.  The Pattern Details component should appear.
+Select 'Hue' as the modulator destination.  Adjust the slider to maximum for the Meter->Channel-2|Solid|Hue modulation.
+Now, the color of the Iterator should change with the audio level.
+
+![Modular2](assets/modular2.jpg)
+
 
 
 
