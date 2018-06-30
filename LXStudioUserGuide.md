@@ -11,7 +11,7 @@ you can use this to change channel names.  Knob values can be changed by a click
 You can also slick to select the knob, type a number, and then press Enter if you want to set an exact value.
 
 Clicking and dragging in the Preview Window will rotate around your model.  Command-click-drag will allow you to pan the scene around (like a hand icon in other
-3D programs).  The mouse wheel is for zooming in and out.
+3D programs).  The mouse wheel or shift-click-and-drag will zoom in and out.
 
 New Project
 -----------
