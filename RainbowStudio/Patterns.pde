@@ -424,6 +424,7 @@ public class BasicMidiPP extends LXPattern {
   float currentHue = 100.0;
   float currentBrightness = 0.0;
   heronarts.lx.midi.LXMidiOutput midiThroughOutput;
+  heronarts.lx.midi.LXMidiInput midiThroughInput;
   int bar = -1;
   
   public BasicMidiPP(LX lx) {
@@ -437,6 +438,18 @@ public class BasicMidiPP extends LXPattern {
            midiThroughOutput.open();
       }
     }
+    
+    //Louisa: hopefully this is where MIDI input can be initialized too 
+    for (heronarts.lx.midi.LXMidiInput input : midi.inputs) {
+      System.out.println(input.getName() + ": " + input.getDescription());
+      if (input.getName().equalsIgnoreCase("CoreMIDI4J - MPKmini2")) {
+           midiThroughInput = input;
+           midiThroughInput.open();
+           midiThroughInput.addListener(this); 
+           System.out.println("Midi Input Activated!!");
+      }
+    }
+    
     brightnessKnob.setValue(30);
     barsKnob.setValue(6);
     addParameter(brightnessKnob);
