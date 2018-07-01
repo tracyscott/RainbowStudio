@@ -537,8 +537,12 @@ public class AnimatedSpritePP extends PGPixelPerfect {
 }
 
 @LXCategory(LXCategory.FORM)
-public class AnimatedTextPP extends PGPixelPerfect {
-  public final StringParameter textKnob = new StringParameter("str", "Hello!");
+public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
+  public final StringParameter textKnob = new StringParameter("str", "");
+  List<TextItem> textItems = new ArrayList<TextItem>();
+  UIItemList.ScrollList textItemList;
+  
+  private static final int MIN_WIDTH = 120;
 
   public final CompoundParameter xSpeed =
     new CompoundParameter("XSpd", 0, 20)
@@ -548,7 +552,7 @@ public class AnimatedTextPP extends PGPixelPerfect {
   PGraphics textImage;
   float currentPos = 0.0;
   int lastPos = 0;
-  String[] texts = {
+  String[] defaultTexts = {
     "City of orgies, walks and joys,      City whom that I have lived and sung in your midst will one day make      Not the pageants of you, not your shifting tableaus, your spectacles, repay me,      Not the interminable rows of your houses, nor the ships at the wharves,      Nor the processions in the streets, nor the bright windows with goods in them,      Nor to converse with learn'd persons, or bear my share in the soiree or feast;      Not those, but as I pass O Manhattan, your frequent and swift flash of eyes offering me love,      Offering response to my own—these repay me,      Lovers, continual lovers, only repay me.",
     "What's up?",
     "Hello!",        
@@ -568,7 +572,11 @@ public class AnimatedTextPP extends PGPixelPerfect {
     for (String fontName : fontNames) {
       System.out.println("Font: " + fontName);
     }
-    font = createFont("ComicSansMS", fontSize, true);  
+    font = createFont("ComicSansMS", fontSize, true);
+    for (int i = 0; i < defaultTexts.length; i++) {
+      textItems.add(new TextItem(defaultTexts[i]));
+    }
+
     redrawTextBuffer(textBufferWidth);
     xSpeed.setValue(5);
   }
@@ -585,14 +593,15 @@ public class AnimatedTextPP extends PGPixelPerfect {
       textImage.textFont(font);
     else
       textImage.textSize(fontSize);
-    renderedTextWidth = ceil(textImage.textWidth(texts[currentString]));
+    String currentText = textItems.get(currentString).getLabel();
+    renderedTextWidth = ceil(textImage.textWidth(currentText));
     // If the text was clipped, try again with a larger width.
     if (renderedTextWidth + 1 >= bufferWidth) {
       System.out.println("text clipped: renderedTextWidth=" + renderedTextWidth);
       textImage.endDraw();
       redrawTextBuffer(renderedTextWidth + 10);
     } else {
-      textImage.text(texts[currentString], 0, fontSize + 2);
+      textImage.text(currentText, 0, fontSize + 2);
       textImage.endDraw();
     }
   }
@@ -602,7 +611,7 @@ public class AnimatedTextPP extends PGPixelPerfect {
       currentPos = imageWidth + +1;
       lastPos = imageWidth + 2;
       currentString++;
-      if (currentString >= texts.length) {
+      if (currentString >= textItems.size()) {
         currentString = 0;
       }
       redrawTextBuffer(renderedTextWidth);
@@ -615,6 +624,75 @@ public class AnimatedTextPP extends PGPixelPerfect {
       lastPos = round(currentPos);
     }
     currentPos -= xSpeed.getValue();
+  }
+  
+  /*
+   * Animated Text has some custom UI components that allow us to add and delete
+   * strings at run time.  This is a moderately complex example of custom Pattern UI.
+   */
+  @Override
+  public void buildDeviceUI(UI ui, final UI2dContainer device) {
+    device.setContentWidth(MIN_WIDTH);
+    device.setLayout(UI2dContainer.Layout.VERTICAL);
+    device.setPadding(3, 3, 3, 3);
+    
+    UI2dContainer knobsContainer = new UI2dContainer(0, 30, device.getWidth(), 45);
+    knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
+    knobsContainer.setPadding(3, 3, 3, 3);
+    new UIKnob(xSpeed).addToContainer(knobsContainer);
+    new UIKnob(fpsKnob).addToContainer(knobsContainer);
+    knobsContainer.addToContainer(device);
+    
+    UI2dContainer textEntryLine = new UI2dContainer(0, 0, device.getWidth(), 30);
+    textEntryLine.setLayout(UI2dContainer.Layout.HORIZONTAL);
+    
+    new UITextBox(0, 0, device.getContentWidth() - 22, 20)
+    .setParameter(textKnob)
+    .setTextAlignment(PConstants.LEFT)
+    .addToContainer(textEntryLine);
+
+    textItemList =  new UIItemList.ScrollList(ui, 0, 5, MIN_WIDTH, 80);
+    
+    new UIButton(device.getContentWidth() - 20, 0, 20, 20) {
+      @Override
+      public void onToggle(boolean on) {
+        if (on) {
+          textItems.add(new TextItem(textKnob.getString()));
+          textItemList.setItems(textItems);
+          textKnob.setValue("");
+        }
+      }
+    }
+    .setLabel("+")
+    .setMomentary(true)
+    .addToContainer(textEntryLine);
+
+    textEntryLine.addToContainer(device);
+    
+    textItemList.setShowCheckboxes(false);
+    textItemList.setItems(textItems);
+    textItemList.addToContainer(device);
+  }
+  
+  public class TextItem extends UIItemList.Item {
+    private final String text;
+    
+    public TextItem(String str) {
+      this.text = str;
+    }
+    public boolean isActive() {
+      return false;
+    }
+    public int getActiveColor(UI ui) {
+      return ui.theme.getAttentionColor();
+    }            
+    public String getLabel() {
+      return text;
+    }
+    public void onDelete() {
+      textItems.remove(this);
+      textItemList.removeItem(this);
+    }
   }
 }
 
