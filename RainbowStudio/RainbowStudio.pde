@@ -43,7 +43,7 @@ void setup() {
   int modelType = RAINBOW_PANEL; // RAINBOW_PANEL or FULL_RAINBOW
   
   LXModel model = buildModel(modelType);
-  lx = new heronarts.lx.studio.LXStudio(this, model, MULTITHREADED);
+  lx = new heronarts.lx.studio.LXStudio(this, model, false);  /* MULTITHREADED disabled for P3D */
   lx.ui.setResizable(RESIZABLE);
   
   if (modelType == RAINBOW_PANEL) {
@@ -61,6 +61,13 @@ void setup() {
   System.out.println("bounds size: " + (model.xMax - model.xMin) + "," +
     (model.yMax - model.yMin));
  
+  int texturePixelsWide = ceil(((RainbowBaseModel)model).outerRadius * 
+  ((RainbowBaseModel)model).pixelsPerFoot) * 2;
+  int texturePixelsHigh = ceil(((RainbowBaseModel)model).outerRadius * 
+  ((RainbowBaseModel)model).pixelsPerFoot);
+  System.out.println("texture image size: " + texturePixelsWide + "x" +
+  texturePixelsHigh);
+     
   // FULL_RAINBOW is
   // rectangle bounds size: 86.52052, 37.74478
   // Roughly, 87, 38 feet with led's per 2 inch (highest density) = 87*6, 38*6 = 522x228

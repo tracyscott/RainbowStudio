@@ -102,8 +102,8 @@ public class Rainbow extends LXPattern {
 
 public class Flags extends LXPattern {
 
-    public final CompoundParameter flagKnob =
-    new CompoundParameter("Flag", 0, 2)
+    public final DiscreteParameter flagKnob =
+    new DiscreteParameter("Flag", 0, 2)
     .setDescription("Which flag.");
 
   int[] lgbtFlag;
@@ -194,12 +194,16 @@ abstract public class PGTexture extends LXPattern {
   protected int previousFrame = -1;
   protected double deltaDrawMs = 0.0;
 
-  public PGTexture(LX lx) {
+  public PGTexture(LX lx, String drawMode) {
     super(lx);
     float radiusInWorldPixels = RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot;
     imageWidth = ceil(radiusInWorldPixels * 2.0);
     imageHeight = ceil(radiusInWorldPixels);
-    pg = createGraphics(imageWidth, imageHeight);
+    if (P3D.equals(drawMode) || P2D.equals(drawMode)) {
+      pg = createGraphics(imageWidth, imageHeight, drawMode);
+    } else {
+      pg = createGraphics(imageWidth, imageHeight);
+    }
     addParameter(fpsKnob);
     addParameter(antialiasKnob);
   }
@@ -238,7 +242,7 @@ abstract public class PGTexture extends LXPattern {
 public class PGDraw2 extends PGTexture {
   float angle = 0.0;
   public PGDraw2(LX lx) {
-    super(lx);
+    super(lx, P2D);
   }
 
   @Override
@@ -269,7 +273,7 @@ public class PGRadiusTest extends PGTexture {
     .setDescription("Thickness of each band");
 
   public PGRadiusTest(LX lx) {
-    super(lx);
+    super(lx, P2D);
     addParameter(thicknessKnob);
     thicknessKnob.setValue(1);
   }
@@ -296,6 +300,32 @@ public class PGRadiusTest extends PGTexture {
   }
 }
 
+@LXCategory(LXCategory.FORM)
+public class PG3DSimple extends PGTexture {
+  public final CompoundParameter sizeKnob =
+    new CompoundParameter("size", 1.0, 30.0)
+    .setDescription("Size");
+
+  public PG3DSimple(LX lx) {
+    super(lx, P3D);
+    fpsKnob.setValue(30);
+    sizeKnob.setValue(20);
+    addParameter(sizeKnob);
+  }
+  
+  public void draw(double deltaDrawMs) {
+    pg.background(0);
+    float radiiThickness = RainbowBaseModel.outerRadius - RainbowBaseModel.innerRadius;
+    float middleRadiusInWorldPixels = (RainbowBaseModel.innerRadius + radiiThickness) * RainbowBaseModel.pixelsPerFoot;
+    pg.lights();
+    pg.rectMode(CENTER);
+    pg.fill(190);
+    pg.noStroke();
+    pg.translate(middleRadiusInWorldPixels, 20, 0);
+    pg.rotateY(((int)currentFrame%16) * PI/16.0);
+    pg.box((int)(sizeKnob.getValue()));    
+  }
+}
 
 @LXCategory(LXCategory.FORM)
 public class AnimatedSprite extends PGTexture {
@@ -306,7 +336,7 @@ public class AnimatedSprite extends PGTexture {
   private PImage[] images;
   int spriteWidth = 0;
   public AnimatedSprite(LX lx) {
-    super(lx);
+    super(lx, P2D);
     images = Gif.getPImages(RainbowStudio.pApplet, filename);
     for (int i = 0; i < images.length; i++) {
       images[i].loadPixels();
@@ -373,11 +403,14 @@ abstract public class PGPixelPerfect extends LXPattern {
   protected int previousFrame = -1;
   protected double deltaDrawMs = 0.0;
 
-  public PGPixelPerfect(LX lx) {
+  public PGPixelPerfect(LX lx, String drawMode) {
     super(lx);
     imageWidth = ((RainbowBaseModel)lx.model).pointsWide;
     imageHeight = ((RainbowBaseModel)lx.model).pointsHigh;
-    pg = createGraphics(imageWidth, imageHeight);
+    if (P3D.equals(drawMode) || P2D.equals(drawMode))
+      pg = createGraphics(imageWidth, imageHeight, drawMode);
+    else
+      pg = createGraphics(imageWidth, imageHeight);
     addParameter(fpsKnob);
     fpsKnob.setValue(5);
   }
@@ -407,7 +440,7 @@ abstract public class PGPixelPerfect extends LXPattern {
   }
 
   // Implement PGGraphics drawing code here.  PGTexture handles beginDraw()/endDraw();
-  abstract protected void draw(double deltaMs);
+  abstract protected void draw(double deltaDrawMs);
 }
 
 @LXCategory(LXCategory.FORM)
@@ -503,6 +536,32 @@ public class BasicMidiPP extends LXPattern {
   }
 }
 
+/*
+ * Simple Processing 3D example.  Note, due to threading limitations with
+ * OpenGL and Processing/Java to run P3D patterns, you MUST NOT enable the
+ * separate thread for the Engine in the UI.  Only a single thread may perform
+ * OpenGL operations and since the UI is already using OpenGL to render the
+ * interface, this drawing code must run in the same thread as the UI.
+ */
+@LXCategory(LXCategory.FORM)
+public class PG3DSimplePP extends PGPixelPerfect {
+  public PG3DSimplePP(LX lx) {
+    super(lx, P3D);
+  }
+  
+  public void draw(double deltaDrawMs) {
+    pg.background(0);
+    pg.lights();
+    pg.rectMode(CENTER);
+    pg.fill(190);
+    pg.noStroke();
+    pg.translate(100, 10, 0);
+    pg.rotateY(((int)currentFrame%16) * PI/16.0);
+    pg.rotateX(-0.3);
+    pg.box(10);
+  }
+}
+
 @LXCategory(LXCategory.FORM)
 public class AnimatedSpritePP extends PGPixelPerfect {
 
@@ -515,7 +574,7 @@ public class AnimatedSpritePP extends PGPixelPerfect {
   protected int currentPos = 0;
 
   public AnimatedSpritePP(LX lx) {
-    super(lx);
+    super(lx, "");
     images = Gif.getPImages(RainbowStudio.pApplet, filename);
     for (int i = 0; i < images.length; i++) {
       images[i].loadPixels();
@@ -566,7 +625,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   int fontSize = 20;
   
   public AnimatedTextPP(LX lx) {
-    super(lx);
+    super(lx, "");
     addParameter(textKnob);
     addParameter(xSpeed);
     String[] fontNames = PFont.list();
