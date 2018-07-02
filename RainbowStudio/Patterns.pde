@@ -169,23 +169,13 @@ public class Flags extends LXPattern {
 }
 
 /*
- * Abstract base class for Processing drawings when painting the
- * rainbow by sampling a large texture that bounds the top-half
- * of the semi-circle defined by the Rainbow.  Use this class for
- * an accurate 2D representation in physical space.  Because the
- * texture size is bound to the radius of the rainbow, it is also
- * easy to perform radial-based calculations in your texture rendering
- * code (see AnimatedSprite). See PGDraw2 for a sample
- * implementation. It provides a FPS knob and manages FPS logic.  It
- * also provides an antialias toggle. For 1-1 pixel mapping, use PGPixelPerfect.
+ * Abstract base class for all Processing PGraphics drawing and mapping
+ * to the Rainbow.
  */
-abstract public class PGTexture extends LXPattern {
+abstract public class PGBase extends LXPattern {
   public final CompoundParameter fpsKnob =
     new CompoundParameter("Fps", 1.0, 60.0)
     .setDescription("Controls the frames per second.");
-
-  public final BooleanParameter antialiasKnob =
-    new BooleanParameter("antialias", true);
 
   protected double currentFrame = 0.0;
   protected PGraphics pg;
@@ -194,18 +184,24 @@ abstract public class PGTexture extends LXPattern {
   protected int previousFrame = -1;
   protected double deltaDrawMs = 0.0;
 
-  public PGTexture(LX lx, String drawMode) {
+  // For P3D, we need to be on the UI/GL Thread.  We should always be on the GL thread
+  // during initialization because we start with Multithreading off.  If somebody enables
+  // the Engine thread in the UI we don't want to crash so we will keep track of the GL
+  // thread and if the current thread in our run() method doesn't match glThread we will just
+  // skip our GL render (image will freeze).
+  protected Thread glThread;
+  
+  public PGBase(LX lx, int width, int height, String drawMode) {
     super(lx);
-    float radiusInWorldPixels = RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot;
-    imageWidth = ceil(radiusInWorldPixels * 2.0);
-    imageHeight = ceil(radiusInWorldPixels);
+    imageWidth = width;
+    imageHeight = height;
     if (P3D.equals(drawMode) || P2D.equals(drawMode)) {
+      glThread = Thread.currentThread();
       pg = createGraphics(imageWidth, imageHeight, drawMode);
     } else {
       pg = createGraphics(imageWidth, imageHeight);
     }
     addParameter(fpsKnob);
-    addParameter(antialiasKnob);
   }
 
   public void run(double deltaMs) {    
@@ -214,11 +210,16 @@ abstract public class PGTexture extends LXPattern {
     // We don't call draw() every frame so track the accumulated deltaMs for them.
     deltaDrawMs += deltaMs;
     if ((int)currentFrame > previousFrame) {
-      // Time for new frame.  Draw
-      pg.beginDraw();
-      draw(deltaDrawMs);
-      pg.endDraw();
-      pg.loadPixels();
+      // if glThread == null this is the default Processing renderer so it is always
+      // okay to draw.  If it is not-null, we need to make sure the pattern is
+      // executing on the glThread or else Processing will crash.
+      if (glThread == null || Thread.currentThread() == glThread) {
+        // Time for new frame.  Draw
+        pg.beginDraw();
+        draw(deltaDrawMs);
+        pg.endDraw();
+        pg.loadPixels();
+      }
       previousFrame = (int)currentFrame;
       deltaDrawMs = 0.0;
     }
@@ -228,9 +229,45 @@ abstract public class PGTexture extends LXPattern {
       currentFrame = 0.0;
       previousFrame = -1;
     }
-    RenderImageUtil.imageToPointsSemiCircle(lx, colors, pg, antialiasKnob.isOn());
+    imageToPoints();
   }
 
+  // Responsible for calling RenderImageUtil.imageToPointsSemiCircle to 
+  // RenderImageUtil.imageToPointsPixelPerfect.
+  abstract protected void imageToPoints();
+  
+  // Implement PGGraphics drawing code here.  PGTexture handles beginDraw()/endDraw();
+  abstract protected void draw(double deltaDrawMs);
+  
+}
+/*
+ * Abstract base class for Processing drawings when painting the
+ * rainbow by sampling a large texture that bounds the top-half
+ * of the semi-circle defined by the Rainbow.  Use this class for
+ * an accurate 2D representation in physical space.  Because the
+ * texture size is bound to the radius of the rainbow, it is also
+ * easy to perform radial-based calculations in your texture rendering
+ * code (see AnimatedSprite). See PGDraw2 for a sample
+ * implementation. Gets FPS knob from PGBase.  It
+ * provides an antialias toggle. For 1-1 pixel mapping, use PGPixelPerfect.
+ */
+abstract public class PGTexture extends PGBase {
+  public final BooleanParameter antialiasKnob =
+    new BooleanParameter("antialias", true);
+
+
+  public PGTexture(LX lx, String drawMode) {
+    super(lx, ceil(RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot * 2.0),
+              ceil(RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot),
+              drawMode);
+    addParameter(antialiasKnob);
+  }
+
+  protected void imageToPoints()
+  {
+    RenderImageUtil.imageToPointsSemiCircle(lx, colors, pg, antialiasKnob.isOn());
+  }
+  
   // Implement PGGraphics drawing code here.  PGTexture handles beginDraw()/endDraw();
   abstract protected void draw(double deltaDrawMs);
 }
@@ -389,57 +426,20 @@ public class AnimatedSprite extends PGTexture {
  * Abstract base class for pixel perfect Processing drawings.  Use this
  * class for 1-1 pixel mapping with the rainbow.  The drawing will be
  * a rectangle but in physical space it will be distorted by the bend of
- * the rainbow. It provides a FPS knob and manages FPS logic.
+ * the rainbow. Gets FPS knob from PGBase.
  */
-abstract public class PGPixelPerfect extends LXPattern {
-  public final CompoundParameter fpsKnob =
-    new CompoundParameter("Fps", 1.0, 61)
-    .setDescription("Controls the frames per second.");
-
-  protected double currentFrame = 0.0;
-  protected PGraphics pg;
-  protected int imageWidth = 0;
-  protected int imageHeight = 0;
-  protected int previousFrame = -1;
-  protected double deltaDrawMs = 0.0;
-
+abstract public class PGPixelPerfect extends PGBase {
   public PGPixelPerfect(LX lx, String drawMode) {
-    super(lx);
-    imageWidth = ((RainbowBaseModel)lx.model).pointsWide;
-    imageHeight = ((RainbowBaseModel)lx.model).pointsHigh;
-    if (P3D.equals(drawMode) || P2D.equals(drawMode))
-      pg = createGraphics(imageWidth, imageHeight, drawMode);
-    else
-      pg = createGraphics(imageWidth, imageHeight);
-    addParameter(fpsKnob);
-    fpsKnob.setValue(5);
+    super(lx, ((RainbowBaseModel)lx.model).pointsWide,
+              ((RainbowBaseModel)lx.model).pointsHigh,
+              drawMode);
   }
 
-  public void run(double deltaMs) {
-    double fps = fpsKnob.getValue();
-    currentFrame += (deltaMs/1000.0) * fps;
-    // We don't call draw() every frame so track the accumulated deltaMs for them.
-    deltaDrawMs += deltaMs;
-    if ((int)currentFrame > previousFrame) {
-      // Time for new frame.  Draw
-      pg.beginDraw();
-      draw(deltaDrawMs);
-      pg.endDraw();
-      pg.loadPixels();
-      previousFrame = (int)currentFrame;
-      deltaDrawMs = 0.0;
-    }
-    // Don't let current frame increment forever.  Otherwise float will
-    // begin to lose precision and things get wonky.
-    if (currentFrame > 10000.0) {
-      currentFrame = 0.0;
-      previousFrame = -1;
-    }
-
+  protected void imageToPoints() {
     RenderImageUtil.imageToPointsPixelPerfect(lx, colors, pg);
   }
 
-  // Implement PGGraphics drawing code here.  PGTexture handles beginDraw()/endDraw();
+  // Implement PGGraphics drawing code here.  PGPixelPerfect handles beginDraw()/endDraw();
   abstract protected void draw(double deltaDrawMs);
 }
 
