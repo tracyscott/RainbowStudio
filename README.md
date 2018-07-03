@@ -24,6 +24,7 @@ To set up RainbowStudio, perform the following steps:
     - Example: `~/sketchbook`
 - [Download and install GifAnimation](https://github.com/01010101/GifAnimation) to `libraries/` in Sketchbook location
     - Example: `cd ~/sketchbook/libraries && git clone https://github.com/01010101/GifAnimation.git`
+- [Download and install PixelFlow](https://github.com/diwi/PixelFlow/releases) to `libraries/` in Sketchbook location
 - Clone this project and open the `RainbowStudio.pde` project in Processing:
     - Example:
     - ```bash
