@@ -1,6 +1,6 @@
 {
   "version": "0.1",
-  "timestamp": 1530590300643,
+  "timestamp": 1530692145192,
   "engine": {
     "id": 1,
     "class": "heronarts.lx.LXEngine",
@@ -62,7 +62,7 @@
         },
         "effects": [],
         "clips": [],
-        "patternIndex": 0,
+        "patternIndex": 2,
         "patterns": [
           {
             "id": 101,
@@ -86,6 +86,78 @@
             "parameters": {
               "label": "ShaderToy",
               "Fps": 60.0
+            },
+            "modulation": {
+              "modulators": [],
+              "modulations": [],
+              "triggers": []
+            },
+            "autoCycleEnabled": true
+          },
+          {
+            "id": 117,
+            "class": "RainbowStudio$ShaderToyAudio",
+            "modulationColor": -16737281,
+            "parameters": {
+              "label": "ShaderToyAudio",
+              "Fps": 60.0
+            },
+            "modulation": {
+              "modulators": [],
+              "modulations": [],
+              "triggers": []
+            },
+            "autoCycleEnabled": true
+          }
+        ]
+      },
+      {
+        "id": 131,
+        "class": "heronarts.lx.LXChannel",
+        "modulationColor": -14680320,
+        "parameters": {
+          "label": "Channel-2",
+          "arm": false,
+          "selected": false,
+          "enabled": false,
+          "cue": false,
+          "fader": 0.3285714350640774,
+          "crossfadeGroup": 0,
+          "blendMode": 0,
+          "midiMonitor": false,
+          "midiChannel": 16,
+          "autoCycleEnabled": false,
+          "autoCycleMode": 0,
+          "autoCycleTimeSecs": 60.0,
+          "transitionEnabled": false,
+          "transitionTimeSecs": 5.0,
+          "transitionBlendMode": 0
+        },
+        "effects": [],
+        "clips": [],
+        "patternIndex": 1,
+        "patterns": [
+          {
+            "id": 128,
+            "class": "heronarts.lx.pattern.IteratorPattern",
+            "modulationColor": -16711806,
+            "parameters": {
+              "label": "Iterator",
+              "speed": 10.0
+            },
+            "modulation": {
+              "modulators": [],
+              "modulations": [],
+              "triggers": []
+            },
+            "autoCycleEnabled": false
+          },
+          {
+            "id": 132,
+            "class": "RainbowStudio$RainbowEqualizerPattern",
+            "modulationColor": -16711779,
+            "parameters": {
+              "label": "RainbowEqualizer"
             },
             "modulation": {
               "modulators": [],
@@ -143,17 +215,17 @@
           "label": "Meter",
           "running": true,
           "trigger": false,
-          "gain": 0.0,
-          "range": 48.0,
-          "attack": 10.0,
-          "release": 100.0,
-          "slope": 4.5,
+          "gain": 24.959999442100525,
+          "range": 52.800000965595245,
+          "attack": 9.999999776482582,
+          "release": 18.5580048226244,
+          "slope": -3.0,
           "Band-1": 0.0,
           "Band-2": 0.0,
-          "Band-3": 0.0,
-          "Band-4": 0.0,
-          "Band-5": 0.0,
-          "Band-6": 0.0,
+          "Band-3": 0.0066232543080658735,
+          "Band-4": 0.07374794677147145,
+          "Band-5": 0.1366563361131934,
+          "Band-6": 0.07488378705510457,
           "Band-7": 0.0,
           "Band-8": 0.0,
           "Band-9": 0.0,
@@ -233,7 +305,7 @@
       "audioExpanded": true,
       "paletteExpanded": true,
       "cameraExpanded": true,
-      "clipViewVisible": true,
+      "clipViewVisible": false,
       "modulatorExpanded": {},
       "preview": {
         "mode": 0,
@@ -246,9 +318,9 @@
         "centerPoint": false,
         "camera": {
           "active": false,
-          "radius": 42.32211900480815,
-          "theta": 0.027000000000000236,
-          "phi": 0.03899999999999993,
+          "radius": 57.44744343158969,
+          "theta": -0.0029999999999998604,
+          "phi": 0.048000000000000015,
           "x": -0.9988076686859131,
           "y": 21.425418853759766,
           "z": 0.05698511749505997
@@ -256,9 +328,9 @@
         "cue": [
           {
             "active": false,
-            "radius": 42.32211900480815,
-            "theta": 0.027000000000000236,
-            "phi": 0.03899999999999993,
+            "radius": 57.44744343158969,
+            "theta": -0.0029999999999998604,
+            "phi": 0.048000000000000015,
             "x": -0.9988076686859131,
             "y": 21.425418853759766,
             "z": 0.05698511749505997
