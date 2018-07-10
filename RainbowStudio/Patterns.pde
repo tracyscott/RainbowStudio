@@ -885,38 +885,44 @@ public class AnimatedSpritePP extends PGPixelPerfect {
 @LXCategory(LXCategory.FORM)
 public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
   public final StringParameter shaderFileKnob = new StringParameter("frag", "VoronoiDistances");
-  
+
   List<FileItem> fileItems = new ArrayList<FileItem>();
   UIItemList.ScrollList fileItemList;
-  
+  List<String> shaderFiles;
+
   DwPixelFlow context;
   DwShadertoy toy;
   DwGLTexture tex0 = new DwGLTexture();
   PGraphics toyGraphics;
   private static final int CONTROLS_MIN_WIDTH = 120;
-  
+
   public ShaderToy(LX lx) {
     super(lx, "");
     fpsKnob.setValue(60);
     toyGraphics = createGraphics(imageWidth, imageHeight, P2D);
     loadShader(shaderFileKnob.getString());
     // context initialized in loadShader, print the GL hardware once when loading
-    // the pattern.  left in for now while testing performance on different 
+    // the pattern.  left in for now while testing performance on different
     // graphics hardware.
     context.print();
     context.printGL();
-    
+
+    shaderFiles = getShaderFiles();
+    for (String filename : shaderFiles) {
+      fileItems.add(new FileItem(filename));
+    }
+
     // TODO(tracy):  This is Voronoi-specific data.  ShaderToy shaders
     // that rely on inputs might need custom implemented patterns.
     // Some inputs are standard like Audio data
     // so that can be enabled with a toggle.  Actually, each Channel0..3
     // should have a dropdown to select the input as on shadertoy.com.
-    
-    // create noise texture.  
+
+    // create noise texture.
     int wh = 256;
     byte[] bdata = new byte[wh * wh * 4];
     ByteBuffer bbuffer = ByteBuffer.wrap(bdata);
-    for(int i = 0; i < bdata.length;){
+    for (int i = 0; i < bdata.length; ) {
       bdata[i++] = (byte) random(0, 255);
       bdata[i++] = (byte) random(0, 255);
       bdata[i++] = (byte) random(0, 255);
@@ -925,14 +931,14 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
     // Noise data texture passsed as a texture.
     tex0.resize(context, GL2.GL_RGBA8, wh, wh, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 4, 1, bbuffer);
   }
-  
+
   protected void loadShader(String shaderFile) {
     if (toy != null) toy.release();  // release existing shader texture
     if (context != null) context.release();
     context = new DwPixelFlow(RainbowStudio.pApplet);
     toy = new DwShadertoy(context, "data/" + shaderFile + ".frag");
   }
-  
+
   public void draw(double drawDeltaMs) {
     pg.background(0);
     toy.set_iChannel(0, tex0);
@@ -942,11 +948,33 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
     pg.image(toyGraphics, 0, 0);
     pg.loadPixels();
   }
-  
+
   protected File getFile() {
     return new File(dataPath(this.shaderFileKnob.getString() + ".frag"));
   }
-  
+
+  private String stripExtension (String str) {
+    if (str == null) return null;
+    int pos = str.lastIndexOf(".");
+    if (pos == -1) return str;
+    return str.substring(0, pos);
+  }
+
+  protected List<String> getShaderFiles() {
+    List<String> results = new ArrayList<String>();
+
+    File[] files = new File(dataPath("./")).listFiles();
+    //If this pathname does not denote a directory, then listFiles() returns null.
+    for (File file : files) {
+      if (file.isFile()) {
+        if (file.getName().endsWith(".frag")) {
+          results.add(stripExtension(file.getName()));
+        }
+      }
+    }
+    return results;
+  }
+
   //
   // Custom UI to allow for the selection of the shader file
   //
@@ -955,64 +983,62 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
     device.setContentWidth(CONTROLS_MIN_WIDTH);
     device.setLayout(UI2dContainer.Layout.VERTICAL);
     device.setPadding(3, 3, 3, 3);
-    
+
     new UIKnob(fpsKnob).addToContainer(device);
-    
+
     UI2dContainer filenameEntry = new UI2dContainer(0, 0, device.getWidth(), 30);
     filenameEntry.setLayout(UI2dContainer.Layout.HORIZONTAL);
-    
+
     fileItemList =  new UIItemList.ScrollList(ui, 0, 5, CONTROLS_MIN_WIDTH, 80);
     new UITextBox(0, 0, device.getContentWidth() - 22, 20)
-    .setParameter(shaderFileKnob)
-    .setTextAlignment(PConstants.LEFT)
-    .addToContainer(filenameEntry);
+      .setParameter(shaderFileKnob)
+      .setTextAlignment(PConstants.LEFT)
+      .addToContainer(filenameEntry);
 
-    
+
+    // Button for reloading shader.
     new UIButton(device.getContentWidth() - 20, 0, 20, 20) {
       @Override
-      public void onToggle(boolean on) {
+        public void onToggle(boolean on) {
         if (on) {
           loadShader(shaderFileKnob.getString());
-          System.out.println("reloaded shader");
         }
       }
     }
-    .setLabel("\u21BA")
-    .setMomentary(true)
-    .addToContainer(filenameEntry);
-
+    .setLabel("\u21BA").setMomentary(true).addToContainer(filenameEntry);
     filenameEntry.addToContainer(device);
-    
+
+    // Button for editing a file.
     new UIButton(0, 24, device.getContentWidth(), 16) {
       @Override
-      public void onToggle(boolean on) {
+        public void onToggle(boolean on) {
         if (on) {
           try {
             File shaderFile = getFile();
             if (!shaderFile.exists()) {
               // For new files, copy the template in.
-              java.nio.file.Files.copy(new File(dataPath("basic.frag")).toPath(), 
-                                       shaderFile.toPath(), 
-                            java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-              //shaderFile.createNewFile();
+              java.nio.file.Files.copy(new File(dataPath("basic.frag")).toPath(),
+                shaderFile.toPath(),
+                java.nio.file.StandardCopyOption.REPLACE_EXISTING);
             }
             java.awt.Desktop.getDesktop().edit(shaderFile);
-          } catch (java.io.FileNotFoundException fnfex) {
-            
           } catch (Throwable t) {
             System.err.println(t.getLocalizedMessage());
           }
         }
       }
     }
-    .setLabel("Edit")
-    .setMomentary(true)
-    .addToContainer(device);
-  }  
-  
-    public class FileItem extends UIItemList.Item {
+    .setLabel("Edit").setMomentary(true).addToContainer(device);
+
+    fileItemList =  new UIItemList.ScrollList(ui, 0, 5, CONTROLS_MIN_WIDTH, 80);
+    fileItemList.setShowCheckboxes(false);
+    fileItemList.setItems(fileItems);
+    fileItemList.addToContainer(device);
+  }
+
+  public class FileItem extends UIItemList.Item {
     private final String filename;
-    
+
     public FileItem(String str) {
       this.filename = str;
     }
@@ -1021,13 +1047,13 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
     }
     public int getActiveColor(UI ui) {
       return ui.theme.getAttentionColor();
-    }            
+    }
     public String getLabel() {
       return filename;
     }
-    public void onDelete() {
-      fileItems.remove(this);
-      fileItemList.removeItem(this);
+    public void onActivate() {
+      shaderFileKnob.setValue(filename);
+      loadShader(filename);
     }
   }
 }
