@@ -91,6 +91,16 @@ void setup() {
   for (heronarts.lx.midi.LXMidiOutput output : midi.outputs) {
     System.out.println(output.getName() + ": " + output.getDescription());
   }
+  
+  /*
+  lx.ui.leftPane.toggleVisible();
+  lx.ui.rightPane.toggleVisible();
+  lx.ui.helpBar.toggleVisible();
+  lx.ui.bottomTray.toggleVisible();
+  lx.ui.toolBar.toggleVisible();
+  */
+  
+  lx.ui.setBackgroundColor(0);
 }
 
 void initialize(final heronarts.lx.studio.LXStudio lx, heronarts.lx.studio.LXStudio.UI ui) {

@@ -167,7 +167,9 @@ public static class SimplePanel extends RainbowBaseModel {
       dmxChannelsForUniverse[universeLedPos] = pointIndex;
       // Either we are on DMX channel 170, or we are at the end of the panel.
       if (universeLedPos == LEDS_PER_UNIVERSE - 1 || globalLedPos == pointsWide * pointsHigh - 1) {
-        ArtNetDatagram datagram = new ArtNetDatagram(dmxChannelsForUniverse, currentUniverse);
+        // Construct with our custom datagram class that has lookup table Gamma corrrection and
+        // rainbow background color correction.
+        ArtNetDatagram datagram = new RainbowDatagram(lx, dmxChannelsForUniverse, currentUniverse);
         try {
           datagram.setAddress(LED_CONTROLLER_IP).setPort(ARTNET_PORT);
         } catch (java.net.UnknownHostException uhex) {

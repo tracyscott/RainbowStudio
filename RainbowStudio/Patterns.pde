@@ -883,21 +883,36 @@ public class AnimatedSpritePP extends PGPixelPerfect {
 }
 
 @LXCategory(LXCategory.FORM)
-public class ShaderToy extends PGPixelPerfect {
+public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
+  public final StringParameter shaderFileKnob = new StringParameter("frag", "VoronoiDistances");
+  
+  List<FileItem> fileItems = new ArrayList<FileItem>();
+  UIItemList.ScrollList fileItemList;
+  
   DwPixelFlow context;
   DwShadertoy toy;
   DwGLTexture tex0 = new DwGLTexture();
   PGraphics toyGraphics;
+  private static final int CONTROLS_MIN_WIDTH = 120;
   
   public ShaderToy(LX lx) {
     super(lx, "");
     fpsKnob.setValue(60);
-    context = new DwPixelFlow(RainbowStudio.pApplet);
+    toyGraphics = createGraphics(imageWidth, imageHeight, P2D);
+    loadShader(shaderFileKnob.getString());
+    // context initialized in loadShader, print the GL hardware once when loading
+    // the pattern.  left in for now while testing performance on different 
+    // graphics hardware.
     context.print();
     context.printGL();
-    toyGraphics = createGraphics(imageWidth, imageHeight, P2D);
-    toy = new DwShadertoy(context, "data/VoronoiDistances.frag");
-    // create noise texture
+    
+    // TODO(tracy):  This is Voronoi-specific data.  ShaderToy shaders
+    // that rely on inputs might need custom implemented patterns.
+    // Some inputs are standard like Audio data
+    // so that can be enabled with a toggle.  Actually, each Channel0..3
+    // should have a dropdown to select the input as on shadertoy.com.
+    
+    // create noise texture.  
     int wh = 256;
     byte[] bdata = new byte[wh * wh * 4];
     ByteBuffer bbuffer = ByteBuffer.wrap(bdata);
@@ -907,7 +922,15 @@ public class ShaderToy extends PGPixelPerfect {
       bdata[i++] = (byte) random(0, 255);
       bdata[i++] = (byte) 255;
     }
+    // Noise data texture passsed as a texture.
     tex0.resize(context, GL2.GL_RGBA8, wh, wh, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 4, 1, bbuffer);
+  }
+  
+  protected void loadShader(String shaderFile) {
+    if (toy != null) toy.release();  // release existing shader texture
+    if (context != null) context.release();
+    context = new DwPixelFlow(RainbowStudio.pApplet);
+    toy = new DwShadertoy(context, "data/" + shaderFile + ".frag");
   }
   
   public void draw(double drawDeltaMs) {
@@ -918,6 +941,84 @@ public class ShaderToy extends PGPixelPerfect {
     toyGraphics.updatePixels();
     pg.image(toyGraphics, 0, 0);
     pg.loadPixels();
+  }
+  
+  protected File getFile() {
+    return new File(dataPath(this.shaderFileKnob.getString() + ".frag"));
+  }
+  
+  //
+  // Custom UI to allow for the selection of the shader file
+  //
+  @Override
+  public void buildDeviceUI(UI ui, final UI2dContainer device) {
+    device.setContentWidth(CONTROLS_MIN_WIDTH);
+    device.setLayout(UI2dContainer.Layout.VERTICAL);
+    device.setPadding(3, 3, 3, 3);
+    
+    new UIKnob(fpsKnob).addToContainer(device);
+    
+    UI2dContainer filenameEntry = new UI2dContainer(0, 0, device.getWidth(), 30);
+    filenameEntry.setLayout(UI2dContainer.Layout.HORIZONTAL);
+    
+    fileItemList =  new UIItemList.ScrollList(ui, 0, 5, CONTROLS_MIN_WIDTH, 80);
+    new UITextBox(0, 0, device.getContentWidth() - 22, 20)
+    .setParameter(shaderFileKnob)
+    .setTextAlignment(PConstants.LEFT)
+    .addToContainer(filenameEntry);
+
+    
+    new UIButton(device.getContentWidth() - 20, 0, 20, 20) {
+      @Override
+      public void onToggle(boolean on) {
+        if (on) {
+          loadShader(shaderFileKnob.getString());
+          System.out.println("reloaded shader");
+        }
+      }
+    }
+    .setLabel("\u21BA")
+    .setMomentary(true)
+    .addToContainer(filenameEntry);
+
+    filenameEntry.addToContainer(device);
+    
+    new UIButton(0, 24, device.getContentWidth(), 16) {
+      @Override
+      public void onToggle(boolean on) {
+        if (on) {
+          try {
+            java.awt.Desktop.getDesktop().edit(getFile());
+          } catch (Throwable t) {
+            System.err.println(t.getLocalizedMessage());
+          }
+        }
+      }
+    }
+    .setLabel("Edit")
+    .setMomentary(true)
+    .addToContainer(device);
+  }  
+  
+    public class FileItem extends UIItemList.Item {
+    private final String filename;
+    
+    public FileItem(String str) {
+      this.filename = str;
+    }
+    public boolean isActive() {
+      return false;
+    }
+    public int getActiveColor(UI ui) {
+      return ui.theme.getAttentionColor();
+    }            
+    public String getLabel() {
+      return filename;
+    }
+    public void onDelete() {
+      fileItems.remove(this);
+      fileItemList.removeItem(this);
+    }
   }
 }
 
@@ -969,14 +1070,16 @@ public class ShaderToyAudio extends PGPixelPerfect {
   }
 }
 
+// TODO(Tracy): Move this to UIUtils.pde.  This is used by a couple different
+// patterns.
+  
 @LXCategory(LXCategory.FORM)
 public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   public final StringParameter textKnob = new StringParameter("str", "");
+  
   List<TextItem> textItems = new ArrayList<TextItem>();
   UIItemList.ScrollList textItemList;
-  
-  private static final int MIN_WIDTH = 120;
-
+  private static final int CONTROLS_MIN_WIDTH = 120;
   public final CompoundParameter xSpeed =
     new CompoundParameter("XSpd", 0, 20)
     .setDescription("X speed in pixels per frame");
@@ -1065,7 +1168,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
    */
   @Override
   public void buildDeviceUI(UI ui, final UI2dContainer device) {
-    device.setContentWidth(MIN_WIDTH);
+    device.setContentWidth(CONTROLS_MIN_WIDTH);
     device.setLayout(UI2dContainer.Layout.VERTICAL);
     device.setPadding(3, 3, 3, 3);
     
@@ -1084,7 +1187,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     .setTextAlignment(PConstants.LEFT)
     .addToContainer(textEntryLine);
 
-    textItemList =  new UIItemList.ScrollList(ui, 0, 5, MIN_WIDTH, 80);
+    textItemList =  new UIItemList.ScrollList(ui, 0, 5, CONTROLS_MIN_WIDTH, 80);
     
     new UIButton(device.getContentWidth() - 20, 0, 20, 20) {
       @Override
@@ -1107,7 +1210,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     textItemList.addToContainer(device);
   }
   
-  public class TextItem extends UIItemList.Item {
+    public class TextItem extends UIItemList.Item {
     private final String text;
     
     public TextItem(String str) {
@@ -1127,6 +1230,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
       textItemList.removeItem(this);
     }
   }
+
 }
 
 @LXCategory(LXCategory.FORM)
