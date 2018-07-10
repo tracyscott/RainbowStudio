@@ -988,7 +988,17 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
       public void onToggle(boolean on) {
         if (on) {
           try {
-            java.awt.Desktop.getDesktop().edit(getFile());
+            File shaderFile = getFile();
+            if (!shaderFile.exists()) {
+              // For new files, copy the template in.
+              java.nio.file.Files.copy(new File(dataPath("basic.frag")).toPath(), 
+                                       shaderFile.toPath(), 
+                            java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+              //shaderFile.createNewFile();
+            }
+            java.awt.Desktop.getDesktop().edit(shaderFile);
+          } catch (java.io.FileNotFoundException fnfex) {
+            
           } catch (Throwable t) {
             System.err.println(t.getLocalizedMessage());
           }
