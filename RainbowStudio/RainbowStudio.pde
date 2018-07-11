@@ -33,7 +33,12 @@ static public final int SRIKANTH_PANEL = 1;
 static public final int RAINBOW_PANEL = 2;
 static public final int LARGE_PANEL = 3;
 
+// Used for PixelFlow.  Needs a reference to pApplet for setting up
+// OpenGL Context.
 static public PApplet pApplet;
+
+static public boolean fullscreenMode = false;
+UI3dContext fullscreenContext;
 
 void setup() {
   // Processing setup, constructs the window and the LX instance
@@ -92,17 +97,58 @@ void setup() {
     System.out.println(output.getName() + ": " + output.getDescription());
   }
   
-  /*
-  lx.ui.leftPane.toggleVisible();
-  lx.ui.rightPane.toggleVisible();
-  lx.ui.helpBar.toggleVisible();
-  lx.ui.bottomTray.toggleVisible();
-  lx.ui.toolBar.toggleVisible();
-  */
+  // Support Fullscreen Mode.  We create a second UIGLPointCloud and
+  // add it to a LXStudio.UI layer.  When entering fullscreen mode,
+  // toggleFullscreen() will set the
+  // standard UI components visibility to false and the larger
+  // fullscreenContext visibility to true.
+  UIGLPointCloud fullScreenPointCloud = new UIGLPointCloud(lx);
+  fullscreenContext = new UI3dContext(lx.ui);
+  fullscreenContext.addComponent(fullScreenPointCloud);
+  lx.ui.addLayer(fullscreenContext);
+  fullscreenContext.setVisible(false);
   
+  lx.ui.setTopLevelKeyEventHandler(new TopLevelKeyEventHandler());
   lx.ui.setBackgroundColor(0);
 }
 
+public class TopLevelKeyEventHandler extends UIEventHandler {
+  public TopLevelKeyEventHandler() {
+    super();
+  }
+  protected void onKeyPressed(KeyEvent keyEvent, char keyChar, int keyCode) {
+    super.onKeyPressed(keyEvent, keyChar, keyCode);
+    if (keyCode == 70) {
+      toggleFullscreen();
+    }
+  }
+}
+
+void toggleFullscreen() {
+  if (fullscreenMode == false) {
+      lx.ui.leftPane.setVisible(false);
+      lx.ui.rightPane.setVisible(false);
+      lx.ui.helpBar.setVisible(false);
+      lx.ui.bottomTray.setVisible(false);
+      lx.ui.toolBar.setVisible(false);
+      lx.ui.preview.setVisible(false);
+      
+      fullscreenContext.setVisible(true);
+      fullscreenMode = true;
+  } else {
+      fullscreenContext.setVisible(false);
+      
+      lx.ui.leftPane.setVisible(true);
+      lx.ui.rightPane.setVisible(true);
+      lx.ui.helpBar.setVisible(true);
+      lx.ui.bottomTray.setVisible(true);
+      lx.ui.toolBar.setVisible(true);
+      lx.ui.preview.setVisible(true);
+      fullscreenMode = false;
+  }
+}
+      
+    
 void initialize(final heronarts.lx.studio.LXStudio lx, heronarts.lx.studio.LXStudio.UI ui) {
   // Add custom components or output drivers here
 }
