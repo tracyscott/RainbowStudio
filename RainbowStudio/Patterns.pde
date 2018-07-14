@@ -624,9 +624,9 @@ public class KeyboardMidiPP extends LXPattern {
     for (int note : keysPlayed){
       int litKeys;
       if (padding != 0){
-        litKeys = ((MIDDLEC - note)+centerkeyboard)*padding; 
+        litKeys = ((note - MIDDLEC)+centerkeyboard)*padding; 
       } else {
-        litKeys = (MIDDLEC - note)+centerRainbow; 
+        litKeys = (note - MIDDLEC)+centerRainbow; 
       }
       litColumns.add(litKeys);
       for (int i = 0; i < padding; i++){
@@ -644,7 +644,7 @@ public class KeyboardMidiPP extends LXPattern {
       
       // Light it up!
       if (litColumns.contains(colNumber)){
-        colors[p.index] = LXColor.hsb(200,100,100);
+        colors[p.index] = LXColor.hsb(colNumber,100,100);
       } else {
         colors[p.index] = LXColor.gray(brightnessKnob.getValue());
       }
