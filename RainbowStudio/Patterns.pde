@@ -860,8 +860,8 @@ public class AnimatedSpritePP extends PGPixelPerfect implements CustomDeviceUI {
   UIItemList.ScrollList fileItemList;
   List<String> spriteFiles;
   private static final int CONTROLS_MIN_WIDTH = 120;
-  
-  //public String filename = "smallcat.gif";
+  public String filename = "smallcat.gif";
+
   private PImage[] images;
   protected int currentPos = 0;
 
@@ -1601,8 +1601,12 @@ public class RainbowEqualizerPattern extends LXPattern {
 
 @LXCategory(LXCategory.FORM)
 public class RainbowSort extends LXPattern {
-  public final DiscreteParameter swapsKnob =
-    new DiscreteParameter("Swaps", 1, 20).setDescription("Swaps per frame.");
+  public final CompoundParameter swapsKnob =
+    new CompoundParameter("Swaps", 1, 20).setDescription("Swaps per frame.");
+  public final CompoundParameter brightnessKnob =
+    new CompoundParameter("Bright", 1, 100).setDescription("Brightness.");
+  public final CompoundParameter saturationKnob =
+    new CompoundParameter("Sat", 1, 100).setDescription("Saturation");
     
   float hues[];
   boolean sortDone;
@@ -1615,6 +1619,10 @@ public class RainbowSort extends LXPattern {
     sortDone = true;
     resetSort();
     addParameter(swapsKnob);
+    addParameter(brightnessKnob);
+    addParameter(saturationKnob);
+    brightnessKnob.setValue(100);
+    saturationKnob.setValue(100);
     swapsKnob.setValue(5);
   }
   
@@ -1634,7 +1642,8 @@ public class RainbowSort extends LXPattern {
     int pointNumber = 0;
     for (LXPoint p : model.points) {
         int pointCol = pointNumber % ((RainbowBaseModel)lx.model).pointsWide;
-        colors[p.index] = LXColor.hsb(sortedHues[pointCol], 100, 100);
+        colors[p.index] = LXColor.hsb(sortedHues[pointCol], saturationKnob.getValue(), 
+          brightnessKnob.getValue());
         ++pointNumber;
     }    
   }
