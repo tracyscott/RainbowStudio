@@ -1591,10 +1591,76 @@ public class RainbowSort extends LXPattern {
       sortedHues[index] = hues[i];
     }
   }
-  
-  
 }
 
+@LXCategory(LXCategory.COLOR)
+public class RainbowRecursion extends LXPattern {
+  public final CompoundParameter depthKnob =
+    new CompoundParameter("Depth", 0, 10).setDescription("Max recursion depth.");
+  public final CompoundParameter thicknessKnob =
+    new CompoundParameter("Thick", 1, 10).setDescription("Thickness");
+  public final CompoundParameter hueOffsetKnob =
+    new CompoundParameter("hOffset", 0, 360).setDescription("Hue offset");
+    
+  int maxDepth = 9;
+  int currentMaxDepth = 0;
+  int pointsWide;
+  int pointsHigh;
+  int bandHeight = 3;
+  boolean forward = true;
+  double hueOffset = 0.0;
+  
+  public RainbowRecursion(LX lx) {
+    super(lx);
+    pointsWide = ((RainbowBaseModel)(lx.model)).pointsWide;
+    pointsHigh = ((RainbowBaseModel)(lx.model)).pointsHigh;
+    addParameter(depthKnob);
+    addParameter(thicknessKnob);
+    addParameter(hueOffsetKnob);
+    depthKnob.setValue(9);
+    thicknessKnob.setValue(3);
+    hueOffsetKnob.setValue(0);
+  }
+  
+  void run(double drawDeltaMs) {
+    currentMaxDepth = ((int) depthKnob.getValue()) - 1;
+    bandHeight = (int) thicknessKnob.getValue();
+    for (LXPoint p : model.points) {
+      colors[p.index] = 0;
+    }
+    colorRecursive(0, 0);
+  }
+  
+  void colorRecursive(int thisDepth, int xOffset) {
+    // Draw a band of full hue across points at this level and this chunk. Based on our recursion depth and
+    // the xOffset we can compute the batch of points that we need to color.
+    if (thisDepth > currentMaxDepth) return;
+    int chunkSize = pointsWide / (int)pow(2, thisDepth); 
+    int startLedRow = xOffset;
+    int endLedRow = startLedRow + (int)thicknessKnob.getValue() * pointsWide;
+
+    for (int currentLed = startLedRow; currentLed < endLedRow; currentLed++) {
+      // Some combination of depths and band thickness can go past our available # leds
+      if (currentLed >= model.points.length) return;
+      
+      // If we are at the end of a chunk, jump up to the next row of LEDs      
+      if (currentLed > startLedRow + chunkSize) {
+        startLedRow = startLedRow + pointsWide;
+        currentLed = startLedRow - 1;  // account for the for loop doing currentLed++
+        continue;
+      }
+      int xpos = currentLed - startLedRow;
+      float hue = 360.0 * (float)xpos/(float)chunkSize;
+      hue = (float)hueOffsetKnob.getValue() + hue;
+      if (hue > 360.0) hue = hue - 360.0;
+      LXPoint p = model.points[currentLed];
+      colors[p.index] = LXColor.hsb(hue, 100, 100);
+    }
+    colorRecursive(thisDepth + 1, endLedRow);
+    colorRecursive(thisDepth + 1, endLedRow + chunkSize/2);
+  }
+}
+  
 /*
  * Original implemenation of PGDraw.  Left here for a full Processing drawing
  * example in case you need to do something not allowed by extending PGTexture
