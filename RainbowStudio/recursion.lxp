@@ -1,6 +1,6 @@
 {
   "version": "0.1",
-  "timestamp": 1531623087117,
+  "timestamp": 1531642820671,
   "engine": {
     "id": 1,
     "class": "heronarts.lx.LXEngine",
@@ -72,7 +72,7 @@
               "label": "RainbowRecursion",
               "Depth": 0.0,
               "Thick": 3.0000000000000004,
-              "hOffset": 0.0
+              "hOffset": 7.199999839067459
             },
             "modulation": {
               "modulators": [],
@@ -192,8 +192,8 @@
           "attack": 9.999999776482582,
           "release": 18.5580048226244,
           "slope": -3.0,
-          "Band-1": 0.0,
-          "Band-2": 0.0,
+          "Band-1": 0.11735791319470301,
+          "Band-2": 0.04346818419631793,
           "Band-3": 0.0,
           "Band-4": 0.0,
           "Band-5": 0.0,
@@ -261,15 +261,38 @@
             "tempoMultiplier": 5,
             "tempoLock": true,
             "clockMode": 0,
-            "periodFast": 2347.3456386552953,
+            "periodFast": 4483.34876193566,
             "periodSlow": 10000.0,
             "wave": 0,
             "skew": 0.0,
-            "shape": 0.019999999552965164,
+            "shape": 0.6799999848008156,
             "phase": 0.0,
             "exp": 0.0
           },
-          "basis": 0.43341237010791
+          "basis": 0.9561606983930183
+        },
+        {
+          "id": 216,
+          "class": "heronarts.lx.modulator.VariableLFO",
+          "modulationColor": -16711935,
+          "parameters": {
+            "label": "LFO 1",
+            "running": true,
+            "trigger": false,
+            "loop": true,
+            "tempoSync": false,
+            "tempoMultiplier": 5,
+            "tempoLock": true,
+            "clockMode": 0,
+            "periodFast": 468.7553398669917,
+            "periodSlow": 10000.0,
+            "wave": 0,
+            "skew": 0.0,
+            "shape": 0.0,
+            "phase": 0.0,
+            "exp": 0.0
+          },
+          "basis": 0.7932259965368182
         }
       ],
       "modulations": [
@@ -324,6 +347,24 @@
             "label": "",
             "enabled": true,
             "Polarity": 0,
+            "Range": 0.012499978765845299
+          }
+        },
+        {
+          "source": {
+            "id": 216
+          },
+          "target": {
+            "componentId": 152,
+            "parameterPath": "hOffset"
+          },
+          "id": 217,
+          "class": "heronarts.lx.parameter.LXCompoundModulation",
+          "modulationColor": -65499,
+          "parameters": {
+            "label": "",
+            "enabled": true,
+            "Polarity": 0,
             "Range": 1.0
           }
         }
@@ -359,7 +400,8 @@
       "clipViewVisible": false,
       "modulatorExpanded": {
         "20": true,
-        "174": true
+        "174": true,
+        "216": true
       },
       "preview": {
         "mode": 0,

@@ -1,3 +1,4 @@
+
 import gifAnimation.*;
 import java.util.*; 
 
@@ -849,26 +850,30 @@ private class MyFluidData implements DwFluid2D.FluidData{
 }
 
 @LXCategory(LXCategory.FORM)
-public class AnimatedSpritePP extends PGPixelPerfect {
-
+public class AnimatedSpritePP extends PGPixelPerfect implements CustomDeviceUI {
+  public final StringParameter spriteFileKnob = new StringParameter("sprite", "smallcat");
   public final CompoundParameter xSpeed =
     new CompoundParameter("XSpd", 1, 20)
     .setDescription("X speed in pixels per frame");
 
-  public String filename = "smallcat.gif";
+  List<FileItem> fileItems = new ArrayList<FileItem>();
+  UIItemList.ScrollList fileItemList;
+  List<String> spriteFiles;
+  private static final int CONTROLS_MIN_WIDTH = 120;
+  
+  //public String filename = "smallcat.gif";
   private PImage[] images;
   protected int currentPos = 0;
 
   public AnimatedSpritePP(LX lx) {
     super(lx, "");
-    images = Gif.getPImages(RainbowStudio.pApplet, filename);
-    for (int i = 0; i < images.length; i++) {
-      images[i].loadPixels();
-    }
-    // Start off the screen to the right.
-    currentPos = imageWidth + images[0].width + 1;
     addParameter(xSpeed);
     xSpeed.setValue(5);
+    loadSprite(spriteFileKnob.getString());
+    spriteFiles = getSpriteFiles();
+    for (String filename : spriteFiles) {
+      fileItems.add(new FileItem(filename));
+    }
   }
 
   public void draw(double deltaMs) {
@@ -879,6 +884,109 @@ public class AnimatedSpritePP extends PGPixelPerfect {
     }
     pg.image(frameImg, currentPos, 0);
     currentPos -= xSpeed.getValue();
+  }
+  
+  protected void loadSprite(String spritename) {
+    String filename = dataPath("./spritepp/" + spritename + ".gif");
+    images = Gif.getPImages(RainbowStudio.pApplet, filename);
+    for (int i = 0; i < images.length; i++) {
+      images[i].loadPixels();
+    }
+    // Start off the screen to the right.
+    currentPos = imageWidth + images[0].width + 1;  
+  }
+  
+  protected File getFile() {
+    return new File(dataPath("./spritepp/" + this.spriteFileKnob.getString() + ".gif"));
+  }
+
+  private String stripExtension (String str) {
+    if (str == null) return null;
+    int pos = str.lastIndexOf(".");
+    if (pos == -1) return str;
+    return str.substring(0, pos);
+  }
+
+  protected List<String> getSpriteFiles() {
+    List<String> results = new ArrayList<String>();
+
+    File[] files = new File(dataPath("./spritepp/")).listFiles();
+    //If this pathname does not denote a directory, then listFiles() returns null.
+    System.out.println("About to list files.");
+    for (File file : files) {
+      if (file.isFile()) {
+        System.out.println("Found file: " + file.getName());
+        if (file.getName().endsWith(".gif")) {
+          results.add(stripExtension(file.getName()));
+        }
+      }
+    }
+    return results;
+  }
+
+  //
+  // Custom UI to allow for the selection of the shader file
+  //
+  @Override
+  public void buildDeviceUI(UI ui, final UI2dContainer device) {
+    device.setContentWidth(CONTROLS_MIN_WIDTH);
+    device.setLayout(UI2dContainer.Layout.VERTICAL);
+    device.setPadding(3, 3, 3, 3);
+
+    UI2dContainer knobsContainer = new UI2dContainer(0, 30, device.getWidth(), 45);
+    knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
+    knobsContainer.setPadding(3, 3, 3, 3);
+    new UIKnob(xSpeed).addToContainer(knobsContainer);
+    new UIKnob(fpsKnob).addToContainer(knobsContainer);
+    knobsContainer.addToContainer(device);
+    
+    UI2dContainer filenameEntry = new UI2dContainer(0, 0, device.getWidth(), 30);
+    filenameEntry.setLayout(UI2dContainer.Layout.HORIZONTAL);
+
+    fileItemList =  new UIItemList.ScrollList(ui, 0, 5, CONTROLS_MIN_WIDTH, 80);
+    new UITextBox(0, 0, device.getContentWidth() - 22, 20)
+      .setParameter(spriteFileKnob)
+      .setTextAlignment(PConstants.LEFT)
+      .addToContainer(filenameEntry);
+
+
+    // Button for reloading shader.
+    new UIButton(device.getContentWidth() - 20, 0, 20, 20) {
+      @Override
+        public void onToggle(boolean on) {
+        if (on) {
+          loadSprite(spriteFileKnob.getString());
+        }
+      }
+    }
+    .setLabel("\u21BA").setMomentary(true).addToContainer(filenameEntry);
+    filenameEntry.addToContainer(device);
+
+    fileItemList =  new UIItemList.ScrollList(ui, 0, 5, CONTROLS_MIN_WIDTH, 80);
+    fileItemList.setShowCheckboxes(false);
+    fileItemList.setItems(fileItems);
+    fileItemList.addToContainer(device);
+  }
+
+  public class FileItem extends UIItemList.Item {
+    private final String filename;
+
+    public FileItem(String str) {
+      this.filename = str;
+    }
+    public boolean isActive() {
+      return false;
+    }
+    public int getActiveColor(UI ui) {
+      return ui.theme.getAttentionColor();
+    }
+    public String getLabel() {
+      return filename;
+    }
+    public void onActivate() {
+      spriteFileKnob.setValue(filename);
+      loadSprite(filename);
+    }
   }
 }
 
@@ -1600,7 +1708,7 @@ public class RainbowRecursion extends LXPattern {
   public final CompoundParameter thicknessKnob =
     new CompoundParameter("Thick", 1, 10).setDescription("Thickness");
   public final CompoundParameter hueOffsetKnob =
-    new CompoundParameter("hOffset", 0, 360).setDescription("Hue offset");
+    new CompoundParameter("hOffset", -360, 360).setDescription("Hue offset");
     
   int maxDepth = 9;
   int currentMaxDepth = 0;
@@ -1653,6 +1761,7 @@ public class RainbowRecursion extends LXPattern {
       float hue = 360.0 * (float)xpos/(float)chunkSize;
       hue = (float)hueOffsetKnob.getValue() + hue;
       if (hue > 360.0) hue = hue - 360.0;
+      if (hue < 0.0) hue = hue + 360.0;
       LXPoint p = model.points[currentLed];
       colors[p.index] = LXColor.hsb(hue, 100, 100);
     }
