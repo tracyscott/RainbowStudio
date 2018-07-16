@@ -1490,38 +1490,50 @@ abstract public class PGPixelPerfect extends PGBase {
  * more memory efficient since the image size is smaller.
  */
 @LXCategory(LXCategory.FORM)
-  public class RainbowGIF extends LXPattern {
+  public class RainbowGIF extends LXPattern implements CustomDeviceUI {
 
   public final CompoundParameter fpsKnob =
-    new CompoundParameter("Fps", 1.0, 10.0)
+    new CompoundParameter("Fps", 1.0, 60.0)
     .setDescription("Controls the frames per second.");
-
   public final BooleanParameter antialiasKnob =
     new BooleanParameter("antialias", true);
+  public final StringParameter gifKnob = new StringParameter("gif", "out_b_beeple")
+    .setDescription("Animated gif");
 
-  public final StringParameter filenameKnob =
-    new StringParameter("file", "out_b_beeple");
+  List<FileItem> fileItems = new ArrayList<FileItem>();
+  UIItemList.ScrollList fileItemList;
+  List<String> gifFiles;
+  private static final int CONTROLS_MIN_WIDTH = 120;
+
   private PImage[] images;
   private double currentFrame = 0.0;
   private int imageWidth = 0;
   private int imageHeight = 0;
   public RainbowGIF(LX lx) {
     super(lx);
-    String filename = filenameKnob.getString() + ".gif";
     float radiusInWorldPixels = RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot;
     imageWidth = ceil(radiusInWorldPixels * 2.0);
     imageHeight = ceil(radiusInWorldPixels);
-    //imageWidth = ceil((model.xMax - model.xMin) * RainbowBaseModel.pixelsPerFoot);
-    //imageHeight = ceil((model.yMax - model.yMin) * RainbowBaseModel.pixelsPerFoot);
+    
+    loadGif(gifKnob.getString());
+    gifFiles = getGifFiles();
+    for (String filename : gifFiles) {
+      fileItems.add(new FileItem(filename));
+    }
+    
+    addParameter(fpsKnob);
+    addParameter(antialiasKnob);
+    addParameter(gifKnob);
+    fpsKnob.setValue(10);
+  }
+
+  protected void loadGif(String gifname) {
+    String filename = dataPath("./giftex/" + gifname + ".gif");
     images = Gif.getPImages(RainbowStudio.pApplet, filename);
     for (int i = 0; i < images.length; i++) {
       images[i].resize(imageWidth, imageHeight);
       images[i].loadPixels();
     }
-    addParameter(fpsKnob);
-    addParameter(antialiasKnob);
-    addParameter(filenameKnob);
-    fpsKnob.setValue(10);
   }
 
   public void run(double deltaMs) {
@@ -1533,10 +1545,92 @@ abstract public class PGPixelPerfect extends PGBase {
 
     RenderImageUtil.imageToPointsSemiCircle(lx, colors, images[(int)currentFrame], antialiasKnob.isOn());
   }
+  
+  protected File getFile() {
+    return new File(dataPath("./giftex/" + this.gifKnob.getString() + ".gif"));
+  }
+
+  private String stripExtension (String str) {
+    if (str == null) return null;
+    int pos = str.lastIndexOf(".");
+    if (pos == -1) return str;
+    return str.substring(0, pos);
+  }
+
+  protected List<String> getGifFiles() {
+    List<String> results = new ArrayList<String>();
+
+    File[] files = new File(dataPath("./giftex/")).listFiles();
+    //If this pathname does not denote a directory, then listFiles() returns null.
+    for (File file : files) {
+      if (file.isFile()) {
+        if (file.getName().endsWith(".gif")) {
+          results.add(stripExtension(file.getName()));
+        }
+      }
+    }
+    return results;
+  }
+
+  //
+  // Custom UI to allow for the selection of the shader file
+  //
+  @Override
+    public void buildDeviceUI(UI ui, final UI2dContainer device) {
+    device.setContentWidth(CONTROLS_MIN_WIDTH);
+    device.setLayout(UI2dContainer.Layout.VERTICAL);
+    device.setPadding(3, 3, 3, 3);
+
+    UI2dContainer knobsContainer = new UI2dContainer(0, 30, device.getWidth(), 45);
+    knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
+    knobsContainer.setPadding(3, 3, 3, 3);
+    new UIKnob(fpsKnob).addToContainer(knobsContainer);
+    UISwitch antialiasButton = new UISwitch(0, 0);
+    antialiasButton.setParameter(antialiasKnob);
+    antialiasButton.setMomentary(false);
+    antialiasButton.addToContainer(knobsContainer);
+    knobsContainer.addToContainer(device);
+
+    UI2dContainer filenameEntry = new UI2dContainer(0, 0, device.getWidth(), 30);
+    filenameEntry.setLayout(UI2dContainer.Layout.HORIZONTAL);
+
+    fileItemList =  new UIItemList.ScrollList(ui, 0, 5, CONTROLS_MIN_WIDTH, 80);
+    new UITextBox(0, 0, device.getContentWidth() - 22, 20)
+      .setParameter(gifKnob)
+      .setTextAlignment(PConstants.LEFT)
+      .addToContainer(filenameEntry);
+
+    // Button for reloading shader.
+    new UIButton(device.getContentWidth() - 20, 0, 20, 20) {
+      @Override
+        public void onToggle(boolean on) {
+        if (on) {
+          loadGif(gifKnob.getString());
+        }
+      }
+    }
+    .setLabel("\u21BA").setMomentary(true).addToContainer(filenameEntry);
+    filenameEntry.addToContainer(device);
+
+    fileItemList =  new UIItemList.ScrollList(ui, 0, 5, CONTROLS_MIN_WIDTH, 80);
+    fileItemList.setShowCheckboxes(false);
+    fileItemList.setItems(fileItems);
+    fileItemList.addToContainer(device);
+  }
+
+  public class FileItem extends FileItemBase {
+    public FileItem(String filename) {
+      super(filename);
+    }
+    public void onActivate() {
+      gifKnob.setValue(filename);
+      loadGif(filename);
+    }
+  }
 }
 
 @LXCategory(LXCategory.FORM)
-  public class GridAnimatedGIF extends LXPattern {
+public class GridAnimatedGIF extends LXPattern {
 
   public final CompoundParameter fpsKnob =
     new CompoundParameter("Fps", 1.0, 10.0)
