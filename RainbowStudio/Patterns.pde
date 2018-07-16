@@ -904,13 +904,6 @@ abstract public class PGPixelPerfect extends PGBase {
     return new File(dataPath("./spritepp/" + this.spriteFileKnob.getString() + ".gif"));
   }
 
-  private String stripExtension (String str) {
-    if (str == null) return null;
-    int pos = str.lastIndexOf(".");
-    if (pos == -1) return str;
-    return str.substring(0, pos);
-  }
-
   protected List<String> getSpriteFiles() {
     List<String> results = new ArrayList<String>();
 
@@ -919,7 +912,7 @@ abstract public class PGPixelPerfect extends PGBase {
     for (File file : files) {
       if (file.isFile()) {
         if (file.getName().endsWith(".gif")) {
-          results.add(stripExtension(file.getName()));
+          results.add(ImgUtil.stripExtension(file.getName()));
         }
       }
     }
@@ -1052,13 +1045,6 @@ abstract public class PGPixelPerfect extends PGBase {
     return new File(dataPath(this.shaderFileKnob.getString() + ".frag"));
   }
 
-  private String stripExtension (String str) {
-    if (str == null) return null;
-    int pos = str.lastIndexOf(".");
-    if (pos == -1) return str;
-    return str.substring(0, pos);
-  }
-
   protected List<String> getShaderFiles() {
     List<String> results = new ArrayList<String>();
 
@@ -1067,7 +1053,7 @@ abstract public class PGPixelPerfect extends PGBase {
     for (File file : files) {
       if (file.isFile()) {
         if (file.getName().endsWith(".frag")) {
-          results.add(stripExtension(file.getName()));
+          results.add(ImgUtil.stripExtension(file.getName()));
         }
       }
     }
@@ -1414,13 +1400,6 @@ abstract public class PGPixelPerfect extends PGBase {
     return new File(dataPath("./gifpp/" + this.gifKnob.getString() + ".gif"));
   }
 
-  private String stripExtension (String str) {
-    if (str == null) return null;
-    int pos = str.lastIndexOf(".");
-    if (pos == -1) return str;
-    return str.substring(0, pos);
-  }
-
   protected List<String> getGifFiles() {
     List<String> results = new ArrayList<String>();
 
@@ -1429,7 +1408,7 @@ abstract public class PGPixelPerfect extends PGBase {
     for (File file : files) {
       if (file.isFile()) {
         if (file.getName().endsWith(".gif")) {
-          results.add(stripExtension(file.getName()));
+          results.add(ImgUtil.stripExtension(file.getName()));
         }
       }
     }
@@ -1564,13 +1543,6 @@ abstract public class PGPixelPerfect extends PGBase {
     return new File(dataPath("./giftex/" + this.gifKnob.getString() + ".gif"));
   }
 
-  private String stripExtension (String str) {
-    if (str == null) return null;
-    int pos = str.lastIndexOf(".");
-    if (pos == -1) return str;
-    return str.substring(0, pos);
-  }
-
   protected List<String> getGifFiles() {
     List<String> results = new ArrayList<String>();
 
@@ -1579,7 +1551,7 @@ abstract public class PGPixelPerfect extends PGBase {
     for (File file : files) {
       if (file.isFile()) {
         if (file.getName().endsWith(".gif")) {
-          results.add(stripExtension(file.getName()));
+          results.add(ImgUtil.stripExtension(file.getName()));
         }
       }
     }
