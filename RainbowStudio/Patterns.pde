@@ -17,7 +17,7 @@ import com.thomasdiewald.pixelflow.java.imageprocessing.DwShadertoy;
 // End ShaderToy
 
 @LXCategory(LXCategory.FORM)
-public class Tutorial extends LXPattern {
+  public class Tutorial extends LXPattern {
 
   // This is a parameter, it has a label, an intial value and a range.  We use
   // this to allow the UI to adjust the height limits of the oscillating line.
@@ -78,7 +78,6 @@ public class Tutorial extends LXPattern {
         //
         // Note that we do *NOT* use Processing's color() function. That
         // function employs global state and is not thread safe!
-        
       } else {
         colors[p.index] = 0;
       }
@@ -87,7 +86,7 @@ public class Tutorial extends LXPattern {
 }
 
 @LXCategory(LXCategory.COLOR)
-public class Rainbow extends LXPattern {
+  public class Rainbow extends LXPattern {
 
   public Rainbow(LX lx) {
     super(lx);
@@ -118,7 +117,7 @@ public class Rainbow extends LXPattern {
 
 public class Flags extends LXPattern {
 
-    public final DiscreteParameter flagKnob =
+  public final DiscreteParameter flagKnob =
     new DiscreteParameter("Flag", 0, 2)
     .setDescription("Which flag.");
 
@@ -127,7 +126,7 @@ public class Flags extends LXPattern {
   int[] transFlag;
   int[][] flags;
   int[] flag;
-  
+
   public Flags(LX lx) {
     super(lx);
     flags = new int[][] {new int[1], new int[1], new int[1]};
@@ -151,12 +150,12 @@ public class Flags extends LXPattern {
     biFlag[1] = LXColor.rgb(155, 79, 150);
     biFlag[2] = LXColor.rgb(214, 2, 112);
     flags[2] = biFlag;
-    
+
     flagKnob.setValue(0);
     addParameter(flagKnob);
-    flag = flags[(int)round((float)(flagKnob.getValue()))]; 
+    flag = flags[(int)round((float)(flagKnob.getValue()))];
   }
-  
+
   public void run(double deltaMs) {
     int numRows = ((RainbowBaseModel)lx.model).pointsHigh;
     int flagNum = (int)round((float)(flagKnob.getValue()));
@@ -206,7 +205,7 @@ abstract public class PGBase extends LXPattern {
   // thread and if the current thread in our run() method doesn't match glThread we will just
   // skip our GL render (image will freeze).
   protected Thread glThread;
-  
+
   public PGBase(LX lx, int width, int height, String drawMode) {
     super(lx);
     imageWidth = width;
@@ -251,10 +250,9 @@ abstract public class PGBase extends LXPattern {
   // Responsible for calling RenderImageUtil.imageToPointsSemiCircle to 
   // RenderImageUtil.imageToPointsPixelPerfect.
   abstract protected void imageToPoints();
-  
+
   // Implement PGGraphics drawing code here.  PGTexture handles beginDraw()/endDraw();
   abstract protected void draw(double deltaDrawMs);
-  
 }
 /*
  * Abstract base class for Processing drawings when painting the
@@ -273,9 +271,9 @@ abstract public class PGTexture extends PGBase {
 
 
   public PGTexture(LX lx, String drawMode) {
-    super(lx, ceil(RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot * 2.0),
-              ceil(RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot),
-              drawMode);
+    super(lx, ceil(RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot * 2.0), 
+      ceil(RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot), 
+      drawMode);
     addParameter(antialiasKnob);
   }
 
@@ -283,7 +281,7 @@ abstract public class PGTexture extends PGBase {
   {
     RenderImageUtil.imageToPointsSemiCircle(lx, colors, pg, antialiasKnob.isOn());
   }
-  
+
   // Implement PGGraphics drawing code here.  PGTexture handles beginDraw()/endDraw();
   abstract protected void draw(double deltaDrawMs);
 }
@@ -292,23 +290,23 @@ abstract public class PGTexture extends PGBase {
  * PGDraw implementation by extending PGTexture.
  */
 @LXCategory(LXCategory.FORM)
-public class PGDraw2 extends PGTexture {
+  public class PGDraw2 extends PGTexture {
   float angle = 0.0;
   public PGDraw2(LX lx) {
     super(lx, P2D);
   }
 
   @Override
-  protected void draw(double deltaDrawMs) {
-      angle += 0.03;
-      pg.background(0);
-      pg.strokeWeight(10.0);
-      pg.stroke(255);
-      pg.translate(imageWidth/2.0, imageHeight/2.0);
-      pg.pushMatrix();
-      pg.rotate(angle);
-      pg.line(-imageWidth/2.0 + 10, -imageHeight/2.0 + 10, imageWidth/2.0 - 10, imageHeight/2.0 - 10);
-      pg.popMatrix();
+    protected void draw(double deltaDrawMs) {
+    angle += 0.03;
+    pg.background(0);
+    pg.strokeWeight(10.0);
+    pg.stroke(255);
+    pg.translate(imageWidth/2.0, imageHeight/2.0);
+    pg.pushMatrix();
+    pg.rotate(angle);
+    pg.line(-imageWidth/2.0 + 10, -imageHeight/2.0 + 10, imageWidth/2.0 - 10, imageHeight/2.0 - 10);
+    pg.popMatrix();
   }
 }
 
@@ -319,7 +317,7 @@ public class PGDraw2 extends PGTexture {
  * of the aliasing.
  */
 @LXCategory(LXCategory.FORM)
-public class PGRadiusTest extends PGTexture {
+  public class PGRadiusTest extends PGTexture {
 
   public final CompoundParameter thicknessKnob =
     new CompoundParameter("thickness", 1.0, 10.0)
@@ -345,7 +343,7 @@ public class PGRadiusTest extends PGTexture {
     pg.strokeWeight(strokeWidth);
     for (int i = 0; i < 30; i += strokeWidth) {
       float radius = round((RainbowBaseModel.innerRadius + i * RainbowBaseModel.radiusInc) *
-      RainbowBaseModel.pixelsPerFoot);
+        RainbowBaseModel.pixelsPerFoot);
       if (i % (2 * (int)strokeWidth) == 0) pg.stroke(255);
       else pg.stroke(0);
       pg.ellipse(xCenterImgSpace, yCenterImgSpace, radius, radius);
@@ -354,7 +352,7 @@ public class PGRadiusTest extends PGTexture {
 }
 
 @LXCategory(LXCategory.FORM)
-public class PG3DSimple extends PGTexture {
+  public class PG3DSimple extends PGTexture {
   public final CompoundParameter sizeKnob =
     new CompoundParameter("size", 1.0, 30.0)
     .setDescription("Size");
@@ -365,7 +363,7 @@ public class PG3DSimple extends PGTexture {
     sizeKnob.setValue(20);
     addParameter(sizeKnob);
   }
-  
+
   public void draw(double deltaDrawMs) {
     pg.background(0);
     float radiiThickness = RainbowBaseModel.outerRadius - RainbowBaseModel.innerRadius;
@@ -376,12 +374,12 @@ public class PG3DSimple extends PGTexture {
     pg.noStroke();
     pg.translate(middleRadiusInWorldPixels, 20, 0);
     pg.rotateY(((int)currentFrame%16) * PI/16.0);
-    pg.box((int)(sizeKnob.getValue()));    
+    pg.box((int)(sizeKnob.getValue()));
   }
 }
 
 @LXCategory(LXCategory.FORM)
-public class AnimatedSprite extends PGTexture {
+  public class AnimatedSprite extends PGTexture {
   public String filename = "smallcat.gif";
   float angle = 0.0;
   float minAngle = 0.0;
@@ -402,39 +400,39 @@ public class AnimatedSprite extends PGTexture {
   }
 
   public void draw(double deltaDrawMs) {
-     if (currentFrame >= images.length) {
-       currentFrame = 0.0;
-       previousFrame = -1;
-     }
-      angle += 0.03;
-      if (angle > maxAngle) angle = minAngle;
+    if (currentFrame >= images.length) {
+      currentFrame = 0.0;
+      previousFrame = -1;
+    }
+    angle += 0.03;
+    if (angle > maxAngle) angle = minAngle;
 
-      // Use this constant to fine tune where on the radius it should be. Each radiusInc should be
-      // the physical distance between LEDs radially.  Here I picked 12.0 to put it in the middle.
-      // Computing and using middleRadiusInWorldPixels could also work.
-      float radialIncTune = 12.0 * RainbowBaseModel.radiusInc;
-      float tunedRadiusInWorldPixels = (RainbowBaseModel.innerRadius + radialIncTune) * RainbowBaseModel.pixelsPerFoot; 
+    // Use this constant to fine tune where on the radius it should be. Each radiusInc should be
+    // the physical distance between LEDs radially.  Here I picked 12.0 to put it in the middle.
+    // Computing and using middleRadiusInWorldPixels could also work.
+    float radialIncTune = 12.0 * RainbowBaseModel.radiusInc;
+    float tunedRadiusInWorldPixels = (RainbowBaseModel.innerRadius + radialIncTune) * RainbowBaseModel.pixelsPerFoot; 
 
-      // Mathematically, this should be the radius of the center strip of pixels.
-      // float radiiThickness = RainbowBaseModel.outerRadius - RainbowBaseModel.innerRadius;
-      // float middleRadiusInWorldPixels = (RainbowBaseModel.innerRadius + radiiThickness) * RainbowBaseModel.pixelsPerFoot;
+    // Mathematically, this should be the radius of the center strip of pixels.
+    // float radiiThickness = RainbowBaseModel.outerRadius - RainbowBaseModel.innerRadius;
+    // float middleRadiusInWorldPixels = (RainbowBaseModel.innerRadius + radiiThickness) * RainbowBaseModel.pixelsPerFoot;
 
-      float outerRadiusInWorldPixels = RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot;
+    float outerRadiusInWorldPixels = RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot;
 
-      // The rainbow is centered around 0,0 in world space, but x=0 in image space is actually
-      // the outer edge of the circle at -radius in world space. i.e. outerRadiusInWorldPixels.
-      // Also, up until now we are targeting the center of the image.  Since image coordinates
-      // start at 0,0 at the top left we need to change our coordinate space by half our width (center).
-      float xImagePos = tunedRadiusInWorldPixels*cos(angle) - spriteWidth/2.0
-                      + outerRadiusInWorldPixels; // account for render buffer x=0 maps to world x=-radius
+    // The rainbow is centered around 0,0 in world space, but x=0 in image space is actually
+    // the outer edge of the circle at -radius in world space. i.e. outerRadiusInWorldPixels.
+    // Also, up until now we are targeting the center of the image.  Since image coordinates
+    // start at 0,0 at the top left we need to change our coordinate space by half our width (center).
+    float xImagePos = tunedRadiusInWorldPixels*cos(angle) - spriteWidth/2.0
+      + outerRadiusInWorldPixels; // account for render buffer x=0 maps to world x=-radius
 
-      // Image coordinates have Y inverted from our 3D world space coordinates.  Also, like above,
-      // adjust by half our width to change from middle-of-the-image coordinate space to
-      // top-left coordinate space.
-      float yImagePos = outerRadiusInWorldPixels - tunedRadiusInWorldPixels*sin(angle) - spriteWidth/2.0;
+    // Image coordinates have Y inverted from our 3D world space coordinates.  Also, like above,
+    // adjust by half our width to change from middle-of-the-image coordinate space to
+    // top-left coordinate space.
+    float yImagePos = outerRadiusInWorldPixels - tunedRadiusInWorldPixels*sin(angle) - spriteWidth/2.0;
 
-      pg.background(0);
-      pg.image(images[(int)currentFrame], xImagePos, yImagePos);
+    pg.background(0);
+    pg.image(images[(int)currentFrame], xImagePos, yImagePos);
   }
 }
 
@@ -446,9 +444,9 @@ public class AnimatedSprite extends PGTexture {
  */
 abstract public class PGPixelPerfect extends PGBase {
   public PGPixelPerfect(LX lx, String drawMode) {
-    super(lx, ((RainbowBaseModel)lx.model).pointsWide,
-              ((RainbowBaseModel)lx.model).pointsHigh,
-              drawMode);
+    super(lx, ((RainbowBaseModel)lx.model).pointsWide, 
+      ((RainbowBaseModel)lx.model).pointsHigh, 
+      drawMode);
   }
 
   protected void imageToPoints() {
@@ -460,21 +458,21 @@ abstract public class PGPixelPerfect extends PGBase {
 }
 
 @LXCategory(LXCategory.FORM)
-public class BasicMidiPP extends LXPattern {
+  public class BasicMidiPP extends LXPattern {
   public final CompoundParameter brightnessKnob =
     new CompoundParameter("bright", 1.0, 100.0)
     .setDescription("Brightness");
-    
+
   public final CompoundParameter barsKnob =
     new CompoundParameter("bars", 5, 6)
     .setDescription("Brightness");
-  
+
 
   float currentHue = 100.0;
   float currentBrightness = 0.0;
   heronarts.lx.midi.LXMidiOutput midiThroughOutput;
   int bar = -1;
-  
+
   public BasicMidiPP(LX lx) {
     super(lx);
     // Find target output for passing MIDI through
@@ -482,11 +480,11 @@ public class BasicMidiPP extends LXPattern {
     for (heronarts.lx.midi.LXMidiOutput output : midi.outputs) {
       System.out.println(output.getName() + ": " + output.getDescription());
       if (output.getName().equalsIgnoreCase("rainbowStudioOut")) {
-           midiThroughOutput = output;
-           midiThroughOutput.open();
+        midiThroughOutput = output;
+        midiThroughOutput.open();
       }
     }
-    
+
     brightnessKnob.setValue(30);
     barsKnob.setValue(6);
     addParameter(brightnessKnob);
@@ -509,33 +507,33 @@ public class BasicMidiPP extends LXPattern {
       ++pointNumber;
     }
   }
-  
+
   // Map a note to a hue
-   public void noteOnReceived(MidiNoteOn note) {
-     int pitch = note.getPitch();
-     System.out.println("pitch: " + pitch);
-     // Start at note 60, White keys
-     if (pitch == 60) {
-       bar = 0;
-     } else if (pitch == 62) {
-       bar = 1;
-     } else if (pitch == 64) {
-       bar = 2;
-     } else if (pitch == 65) {
-       bar = 3;
-     } else if (pitch == 67) {
-       bar = 4;
-     } else if (pitch == 69) {
-       bar = 5;
-     }
-     int velocity = note.getVelocity();
-     // NOTE: my mini keyboard generates between 48 & 72 (small keyboard)
-     currentHue = map(pitch, 48.0, 72.0, 0.0, 100.0);
-     currentBrightness = map(velocity, 0.0, 127.0, 0.0, 100.0);
-     // Forward MIDI notes
-     if (midiThroughOutput != null) {
-       midiThroughOutput.send(note);
-     }
+  public void noteOnReceived(MidiNoteOn note) {
+    int pitch = note.getPitch();
+    System.out.println("pitch: " + pitch);
+    // Start at note 60, White keys
+    if (pitch == 60) {
+      bar = 0;
+    } else if (pitch == 62) {
+      bar = 1;
+    } else if (pitch == 64) {
+      bar = 2;
+    } else if (pitch == 65) {
+      bar = 3;
+    } else if (pitch == 67) {
+      bar = 4;
+    } else if (pitch == 69) {
+      bar = 5;
+    }
+    int velocity = note.getVelocity();
+    // NOTE: my mini keyboard generates between 48 & 72 (small keyboard)
+    currentHue = map(pitch, 48.0, 72.0, 0.0, 100.0);
+    currentBrightness = map(velocity, 0.0, 127.0, 0.0, 100.0);
+    // Forward MIDI notes
+    if (midiThroughOutput != null) {
+      midiThroughOutput.send(note);
+    }
   }
 
   public void noteOffReceived(MidiNote note) {
@@ -545,43 +543,43 @@ public class BasicMidiPP extends LXPattern {
     // note-off for all notes.
     currentBrightness = 0.0;
     bar = -1;
-     // Forward MIDI notes
-     if (midiThroughOutput != null) {
-       midiThroughOutput.send(note);
-     }
+    // Forward MIDI notes
+    if (midiThroughOutput != null) {
+      midiThroughOutput.send(note);
+    }
   }
 }
 
 @LXCategory(LXCategory.FORM)
-public class KeyboardMidiPP extends LXPattern {
+  public class KeyboardMidiPP extends LXPattern {
   public final CompoundParameter brightnessKnob =
     new CompoundParameter("bright", 1.0, 100.0)
     .setDescription("Brightness");
-    
+
   public final CompoundParameter keysKnob =
     new CompoundParameter("bars", 25, 88)
     .setDescription("Musical Keys");
-  
+
   final int MIDDLEC = 60;  
   heronarts.lx.midi.LXMidiOutput midiThroughOutput;
   heronarts.lx.midi.LXMidiInput midiThroughInput;
-  
+
   Queue<Integer> keysPlayed = new LinkedList<Integer>();
   ArrayList<Integer> litColumns = new ArrayList<Integer>(); 
-  
+
   public KeyboardMidiPP(LX lx) {
     super(lx);
     // Find target output for passing MIDI through
     heronarts.lx.midi.LXMidiEngine midi = lx.engine.midi;
-    
+
     for (heronarts.lx.midi.LXMidiOutput output : midi.outputs) {
       System.out.println(output.getName() + ": " + output.getDescription());
       if (output.getName().equalsIgnoreCase("rainbowStudioOut")) {
-           midiThroughOutput = output;
-           midiThroughOutput.open();
+        midiThroughOutput = output;
+        midiThroughOutput.open();
       }
     }
-    
+
     brightnessKnob.setValue(30);
     keysKnob.setValue(25);
     addParameter(brightnessKnob);
@@ -589,84 +587,84 @@ public class KeyboardMidiPP extends LXPattern {
   }
 
   public void run(double deltaMs) {
-    
+
     int numCol = ((RainbowBaseModel)lx.model).pointsWide;
     int centerRainbow; 
     int centerkeyboard; 
-    
+
     // Find center based on parity (odd/even)
     // To align cente of keyboard and rainbow
     // Note: Even centers are aligned to the left
-    
+
     // Center of Rainbow
-    if (numCol %2 == 0){
-      centerRainbow = (numCol/2); 
-    }else{
-      centerRainbow = (numCol/2)+1; 
+    if (numCol %2 == 0) {
+      centerRainbow = (numCol/2);
+    } else {
+      centerRainbow = (numCol/2)+1;
     }
-    
+
     // Center of Keyboard
     int numMidiKeys= (int)keysKnob.getValue();
-    if (numMidiKeys %2 == 0){
-      centerkeyboard = (int)(numMidiKeys/2); 
-    } else{
-      centerkeyboard = (int)(numMidiKeys/2)+1; 
+    if (numMidiKeys %2 == 0) {
+      centerkeyboard = (int)(numMidiKeys/2);
+    } else {
+      centerkeyboard = (int)(numMidiKeys/2)+1;
     }
-    
+
     // Padding needed to fill up the rainbow
     int padding = 0; 
-    
-    if (numMidiKeys < numCol){
-       padding = numCol/numMidiKeys;
+
+    if (numMidiKeys < numCol) {
+      padding = numCol/numMidiKeys;
     }
-    
+
     // Find out which keys are displayed on the rainbow
     // And add any padding necessary
-    for (int note : keysPlayed){
+    for (int note : keysPlayed) {
       int litKeys;
-      if (padding != 0){
-        litKeys = ((note - MIDDLEC)+centerkeyboard)*padding; 
+      if (padding != 0) {
+        litKeys = ((note - MIDDLEC)+centerkeyboard)*padding;
       } else {
-        litKeys = (note - MIDDLEC)+centerRainbow; 
+        litKeys = (note - MIDDLEC)+centerRainbow;
       }
       litColumns.add(litKeys);
-      for (int i = 0; i < padding; i++){
+      for (int i = 0; i < padding; i++) {
         litColumns.add(litKeys + i);
       }
     }
-    
+
     // Scan and light up points
     int pointNumber = 0; 
-    for (LXPoint p : model.points){
+    for (LXPoint p : model.points) {
       int colNumber = pointNumber % numCol;
-      
+
       // Check for bad values
       if (numMidiKeys < 1) numMidiKeys = 1;
-      
+
       // Light it up!
-      if (litColumns.contains(colNumber)){
-        colors[p.index] = LXColor.hsb(colNumber,100,100);
+      if (litColumns.contains(colNumber)) {
+        colors[p.index] = LXColor.hsb(colNumber, 100, 100);
       } else {
         colors[p.index] = LXColor.gray(brightnessKnob.getValue());
       }
       ++pointNumber;
     }
-    
+
     // Refresh Columns to Light up for next round 
     litColumns.clear();
   }
-  
+
   // Map a note to a hue
-   public void noteOnReceived(MidiNoteOn note) {
-     
-     // Collect all the Midi notes played 
-     int midiNote = note.getPitch();
-     if ( midiNote >= 0 && midiNote <= 127){
-       keysPlayed.offer(midiNote); 
-     }
-     if (midiThroughOutput != null) {
-       midiThroughOutput.send(note);
-     }
+  public void noteOnReceived(MidiNoteOn note) {
+
+    // Collect all the Midi notes played 
+    int midiNote = note.getPitch();
+    if ( midiNote >= 0 && midiNote <= 127) {
+      keysPlayed.offer(midiNote);
+    }
+    if (midiThroughOutput != null) {
+      midiThroughOutput.send(note);
+    }
   }
 
   public void noteOffReceived(MidiNote note) {
@@ -674,20 +672,21 @@ public class KeyboardMidiPP extends LXPattern {
     // on at once and to turn off when all notes are released we need
     // to track the notes on and only go black once we have received
     // note-off for all notes.
-    
+
     // Remove all the Midi notes played 
-     int midiNote = note.getPitch();
-     if ( midiNote >= 0 && midiNote <= 127){
-       try {  
-         keysPlayed.remove(midiNote); 
-       }catch (Exception e){
-         // Do nothing, keep operation going
-       }
-     }
-     // Forward MIDI notes
-     if (midiThroughOutput != null) {
-       midiThroughOutput.send(note);
-     }
+    int midiNote = note.getPitch();
+    if ( midiNote >= 0 && midiNote <= 127) {
+      try {  
+        keysPlayed.remove(midiNote);
+      }
+      catch (Exception e) {
+        // Do nothing, keep operation going
+      }
+    }
+    // Forward MIDI notes
+    if (midiThroughOutput != null) {
+      midiThroughOutput.send(note);
+    }
   }
 }
 
@@ -699,11 +698,11 @@ public class KeyboardMidiPP extends LXPattern {
  * interface, this drawing code must run in the same thread as the UI.
  */
 @LXCategory(LXCategory.FORM)
-public class PG3DSimplePP extends PGPixelPerfect {
+  public class PG3DSimplePP extends PGPixelPerfect {
   public PG3DSimplePP(LX lx) {
     super(lx, P3D);
   }
-  
+
   public void draw(double deltaDrawMs) {
     pg.background(0);
     pg.lights();
@@ -723,69 +722,69 @@ public class PG3DSimplePP extends PGPixelPerfect {
  */
 
 @LXCategory(LXCategory.FORM)
-public class FluidPP extends PGPixelPerfect {
-  
-private class MyFluidData implements DwFluid2D.FluidData{
-  
-  // update() is called during the fluid-simulation update step.
-  @Override
-  public void update(DwFluid2D fluid) {
-  
-    float px, py, radius, r, g, b, intensity, temperature;
-    
-    // LGBT 6 Bands  (228,3,3) (255,140,0) (255,237,0) (0,128,38) (0,77,255) (117,7,135)
-    py = 5;
-    radius = 5;
-    intensity = 1.0f;
-    // add impulse: density + temperature
-    float animator = abs(sin(fluid.simulation_step*0.01f));
-    temperature = animator * 10f;
-    
-    // add impulse: density + temperature
-    px = 5;
-    r = 228.0/255.0;
-    g = 3.0/255.0;
-    b = 3.0/255.0;
-    fluid.addDensity(px, py, radius, r, g, b, intensity);
-    fluid.addTemperature(px, py, radius, temperature);
-        
-    px = 1.0 * imageWidth/5.0;
-    r = 255.0/255.0;
-    g = 140.0/255.0;
-    b = 0.0;
-    fluid.addDensity(px, py, radius, r, g, b, intensity);
-    fluid.addTemperature(px, py, radius, temperature);
-    
-    px = 2.0 * imageWidth/5.0;
-    r = 255.0/255.0;
-    g = 237.0/255.0;
-    b = 0.0;
-    fluid.addDensity(px, py, radius, r, g, b, intensity);
-    fluid.addTemperature(px, py, radius, temperature);
-    
-    px = 3.0 * imageWidth/5.0;
-    r = 0.0;
-    g = 128.0/255.0;
-    b = 38.0/255.0;
-    fluid.addDensity(px, py, radius, r, g, b, intensity);
-    fluid.addTemperature(px, py, radius, temperature);
-    
-    px = 4*imageWidth/5.0f;
-    r = 0.0f;
-    g = 77.0/255.0;
-    b = 1.0;
-    fluid.addDensity(px, py, radius, r, g, b, intensity);
-    fluid.addTemperature(px, py, radius, temperature);
-    
-    px = imageWidth - 5;
-    r = 117.0 / 255.0;
-    g = 7.0 / 255.0;
-    b = 135.0 / 255.0;
-    fluid.addDensity(px, py, radius, r, g, b, intensity);
-    fluid.addTemperature(px, py, radius, temperature);
+  public class FluidPP extends PGPixelPerfect {
+
+  private class MyFluidData implements DwFluid2D.FluidData {
+
+    // update() is called during the fluid-simulation update step.
+    @Override
+      public void update(DwFluid2D fluid) {
+
+      float px, py, radius, r, g, b, intensity, temperature;
+
+      // LGBT 6 Bands  (228,3,3) (255,140,0) (255,237,0) (0,128,38) (0,77,255) (117,7,135)
+      py = 5;
+      radius = 5;
+      intensity = 1.0f;
+      // add impulse: density + temperature
+      float animator = abs(sin(fluid.simulation_step*0.01f));
+      temperature = animator * 10f;
+
+      // add impulse: density + temperature
+      px = 5;
+      r = 228.0/255.0;
+      g = 3.0/255.0;
+      b = 3.0/255.0;
+      fluid.addDensity(px, py, radius, r, g, b, intensity);
+      fluid.addTemperature(px, py, radius, temperature);
+
+      px = 1.0 * imageWidth/5.0;
+      r = 255.0/255.0;
+      g = 140.0/255.0;
+      b = 0.0;
+      fluid.addDensity(px, py, radius, r, g, b, intensity);
+      fluid.addTemperature(px, py, radius, temperature);
+
+      px = 2.0 * imageWidth/5.0;
+      r = 255.0/255.0;
+      g = 237.0/255.0;
+      b = 0.0;
+      fluid.addDensity(px, py, radius, r, g, b, intensity);
+      fluid.addTemperature(px, py, radius, temperature);
+
+      px = 3.0 * imageWidth/5.0;
+      r = 0.0;
+      g = 128.0/255.0;
+      b = 38.0/255.0;
+      fluid.addDensity(px, py, radius, r, g, b, intensity);
+      fluid.addTemperature(px, py, radius, temperature);
+
+      px = 4*imageWidth/5.0f;
+      r = 0.0f;
+      g = 77.0/255.0;
+      b = 1.0;
+      fluid.addDensity(px, py, radius, r, g, b, intensity);
+      fluid.addTemperature(px, py, radius, temperature);
+
+      px = imageWidth - 5;
+      r = 117.0 / 255.0;
+      g = 7.0 / 255.0;
+      b = 135.0 / 255.0;
+      fluid.addDensity(px, py, radius, r, g, b, intensity);
+      fluid.addTemperature(px, py, radius, temperature);
+    }
   }
-}
-  
+
   int fluidgrid_scale = 1;
   DwFluid2D fluid;
   PGraphics2D pg_fluid;
@@ -795,7 +794,7 @@ private class MyFluidData implements DwFluid2D.FluidData{
   boolean DISPLAY_FLUID_TEXTURES     = true;
   boolean DISPLAY_FLUID_VECTORS      = false;
   int     DISPLAY_fluid_texture_mode = 0;
-  
+
   public FluidPP(LX lx) {
     super(lx, "");
     fpsKnob.setValue(60);
@@ -824,14 +823,14 @@ private class MyFluidData implements DwFluid2D.FluidData{
     pg_obstacles.smooth(0);
     pg_obstacles.beginDraw();
     pg_obstacles.clear();
-        // border-obstacle
+    // border-obstacle
     pg_obstacles.strokeWeight(1);
     pg_obstacles.stroke(100);
     pg_obstacles.noFill();
     pg_obstacles.rect(0, 0, pg_obstacles.width, pg_obstacles.height);
     pg_obstacles.endDraw();
   }
-  
+
   public void draw(double deltaDrawMs) {
     pg.background(0);
     fluid.addObstacles(pg_obstacles);
@@ -850,7 +849,7 @@ private class MyFluidData implements DwFluid2D.FluidData{
 }
 
 @LXCategory(LXCategory.FORM)
-public class AnimatedSpritePP extends PGPixelPerfect implements CustomDeviceUI {
+  public class AnimatedSpritePP extends PGPixelPerfect implements CustomDeviceUI {
   public final StringParameter spriteFileKnob = new StringParameter("sprite", "smallcat");
   public final CompoundParameter xSpeed =
     new CompoundParameter("XSpd", 1, 20)
@@ -885,7 +884,7 @@ public class AnimatedSpritePP extends PGPixelPerfect implements CustomDeviceUI {
     pg.image(frameImg, currentPos, 0);
     currentPos -= xSpeed.getValue();
   }
-  
+
   protected void loadSprite(String spritename) {
     String filename = dataPath("./spritepp/" + spritename + ".gif");
     images = Gif.getPImages(RainbowStudio.pApplet, filename);
@@ -893,9 +892,9 @@ public class AnimatedSpritePP extends PGPixelPerfect implements CustomDeviceUI {
       images[i].loadPixels();
     }
     // Start off the screen to the right.
-    currentPos = imageWidth + images[0].width + 1;  
+    currentPos = imageWidth + images[0].width + 1;
   }
-  
+
   protected File getFile() {
     return new File(dataPath("./spritepp/" + this.spriteFileKnob.getString() + ".gif"));
   }
@@ -912,10 +911,8 @@ public class AnimatedSpritePP extends PGPixelPerfect implements CustomDeviceUI {
 
     File[] files = new File(dataPath("./spritepp/")).listFiles();
     //If this pathname does not denote a directory, then listFiles() returns null.
-    System.out.println("About to list files.");
     for (File file : files) {
       if (file.isFile()) {
-        System.out.println("Found file: " + file.getName());
         if (file.getName().endsWith(".gif")) {
           results.add(stripExtension(file.getName()));
         }
@@ -928,7 +925,7 @@ public class AnimatedSpritePP extends PGPixelPerfect implements CustomDeviceUI {
   // Custom UI to allow for the selection of the shader file
   //
   @Override
-  public void buildDeviceUI(UI ui, final UI2dContainer device) {
+    public void buildDeviceUI(UI ui, final UI2dContainer device) {
     device.setContentWidth(CONTROLS_MIN_WIDTH);
     device.setLayout(UI2dContainer.Layout.VERTICAL);
     device.setPadding(3, 3, 3, 3);
@@ -939,7 +936,7 @@ public class AnimatedSpritePP extends PGPixelPerfect implements CustomDeviceUI {
     new UIKnob(xSpeed).addToContainer(knobsContainer);
     new UIKnob(fpsKnob).addToContainer(knobsContainer);
     knobsContainer.addToContainer(device);
-    
+
     UI2dContainer filenameEntry = new UI2dContainer(0, 0, device.getWidth(), 30);
     filenameEntry.setLayout(UI2dContainer.Layout.HORIZONTAL);
 
@@ -968,20 +965,9 @@ public class AnimatedSpritePP extends PGPixelPerfect implements CustomDeviceUI {
     fileItemList.addToContainer(device);
   }
 
-  public class FileItem extends UIItemList.Item {
-    private final String filename;
-
-    public FileItem(String str) {
-      this.filename = str;
-    }
-    public boolean isActive() {
-      return false;
-    }
-    public int getActiveColor(UI ui) {
-      return ui.theme.getAttentionColor();
-    }
-    public String getLabel() {
-      return filename;
+  public class FileItem extends FileItemBase {
+    public FileItem(String filename) {
+      super(filename);
     }
     public void onActivate() {
       spriteFileKnob.setValue(filename);
@@ -991,7 +977,7 @@ public class AnimatedSpritePP extends PGPixelPerfect implements CustomDeviceUI {
 }
 
 @LXCategory(LXCategory.FORM)
-public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
+  public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
   public final StringParameter shaderFileKnob = new StringParameter("frag", "VoronoiDistances");
 
   List<FileItem> fileItems = new ArrayList<FileItem>();
@@ -1087,7 +1073,7 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
   // Custom UI to allow for the selection of the shader file
   //
   @Override
-  public void buildDeviceUI(UI ui, final UI2dContainer device) {
+    public void buildDeviceUI(UI ui, final UI2dContainer device) {
     device.setContentWidth(CONTROLS_MIN_WIDTH);
     device.setLayout(UI2dContainer.Layout.VERTICAL);
     device.setPadding(3, 3, 3, 3);
@@ -1125,12 +1111,13 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
             File shaderFile = getFile();
             if (!shaderFile.exists()) {
               // For new files, copy the template in.
-              java.nio.file.Files.copy(new File(dataPath("basic.frag")).toPath(),
-                shaderFile.toPath(),
+              java.nio.file.Files.copy(new File(dataPath("basic.frag")).toPath(), 
+                shaderFile.toPath(), 
                 java.nio.file.StandardCopyOption.REPLACE_EXISTING);
             }
             java.awt.Desktop.getDesktop().edit(shaderFile);
-          } catch (Throwable t) {
+          } 
+          catch (Throwable t) {
             System.err.println(t.getLocalizedMessage());
           }
         }
@@ -1144,20 +1131,9 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
     fileItemList.addToContainer(device);
   }
 
-  public class FileItem extends UIItemList.Item {
-    private final String filename;
-
-    public FileItem(String str) {
-      this.filename = str;
-    }
-    public boolean isActive() {
-      return false;
-    }
-    public int getActiveColor(UI ui) {
-      return ui.theme.getAttentionColor();
-    }
-    public String getLabel() {
-      return filename;
+  public class FileItem extends FileItemBase {
+    public FileItem(String filename) {
+      super(filename);
     }
     public void onActivate() {
       shaderFileKnob.setValue(filename);
@@ -1167,11 +1143,11 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
 }
 
 @LXCategory(LXCategory.FORM)
-public class ShaderToyAudio extends PGPixelPerfect {
+  public class ShaderToyAudio extends PGPixelPerfect {
   DwPixelFlow context;
   DwShadertoy toy;
   PGraphics toyGraphics;
-  
+
   public ShaderToyAudio(LX lx) {
     super(lx, "");
     fpsKnob.setValue(60);
@@ -1179,9 +1155,9 @@ public class ShaderToyAudio extends PGPixelPerfect {
     context.print();
     context.printGL();
     toyGraphics = createGraphics(imageWidth, imageHeight, P2D);
-    toy = new DwShadertoy(context, "data/audio.frag");    
+    toy = new DwShadertoy(context, "data/audio.frag");
   }
-  
+
   public void draw(double drawDeltaMs) {
     // Create Audio FFT texture
     GraphicMeter eq = lx.engine.audio.meter;
@@ -1202,7 +1178,7 @@ public class ShaderToyAudio extends PGPixelPerfect {
     ByteBuffer fftBuf = ByteBuffer.wrap(fft);
     DwGLTexture tex0 = new DwGLTexture();
     tex0.resize(context, GL2.GL_R8, 512, 2, GL2.GL_RED, GL2.GL_UNSIGNED_BYTE, 
-                GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 1, 1, fftBuf);
+      GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 1, 1, fftBuf);
     toy.set_iChannel(0, tex0);
     pg.background(0);
     toy.apply(toyGraphics);
@@ -1216,11 +1192,11 @@ public class ShaderToyAudio extends PGPixelPerfect {
 
 // TODO(Tracy): Move this to UIUtils.pde.  This is used by a couple different
 // patterns.
-  
+
 @LXCategory(LXCategory.FORM)
-public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
+  public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   public final StringParameter textKnob = new StringParameter("str", "");
-  
+
   List<TextItem> textItems = new ArrayList<TextItem>();
   UIItemList.ScrollList textItemList;
   private static final int CONTROLS_MIN_WIDTH = 120;
@@ -1233,9 +1209,9 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   float currentPos = 0.0;
   int lastPos = 0;
   String[] defaultTexts = {
-    "City of orgies, walks and joys,      City whom that I have lived and sung in your midst will one day make      Not the pageants of you, not your shifting tableaus, your spectacles, repay me,      Not the interminable rows of your houses, nor the ships at the wharves,      Nor the processions in the streets, nor the bright windows with goods in them,      Nor to converse with learn'd persons, or bear my share in the soiree or feast;      Not those, but as I pass O Manhattan, your frequent and swift flash of eyes offering me love,      Offering response to my own—these repay me,      Lovers, continual lovers, only repay me.",
-    "What's up?",
-    "Hello!",        
+    "City of orgies, walks and joys,      City whom that I have lived and sung in your midst will one day make      Not the pageants of you, not your shifting tableaus, your spectacles, repay me,      Not the interminable rows of your houses, nor the ships at the wharves,      Nor the processions in the streets, nor the bright windows with goods in them,      Nor to converse with learn'd persons, or bear my share in the soiree or feast;      Not those, but as I pass O Manhattan, your frequent and swift flash of eyes offering me love,      Offering response to my own—these repay me,      Lovers, continual lovers, only repay me.", 
+    "What's up?", 
+    "Hello!", 
   };
 
   int currentString = 0;
@@ -1243,7 +1219,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   int textGapPixels = 10;
   PFont font;
   int fontSize = 20;
-  
+
   public AnimatedTextPP(LX lx) {
     super(lx, "");
     addParameter(textKnob);
@@ -1260,7 +1236,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     redrawTextBuffer(textBufferWidth);
     xSpeed.setValue(5);
   }
-  
+
   public void redrawTextBuffer(int bufferWidth) {
     textImage = createGraphics(bufferWidth, 30);
     currentPos = imageWidth + 1;
@@ -1285,7 +1261,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
       textImage.endDraw();
     }
   }
-  
+
   public void draw(double deltaDrawMs) {
     if (currentPos < 0 - (renderedTextWidth + textGapPixels)) {
       currentPos = imageWidth + +1;
@@ -1305,37 +1281,37 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     }
     currentPos -= xSpeed.getValue();
   }
-  
+
   /*
    * Animated Text has some custom UI components that allow us to add and delete
    * strings at run time.  This is a moderately complex example of custom Pattern UI.
    */
   @Override
-  public void buildDeviceUI(UI ui, final UI2dContainer device) {
+    public void buildDeviceUI(UI ui, final UI2dContainer device) {
     device.setContentWidth(CONTROLS_MIN_WIDTH);
     device.setLayout(UI2dContainer.Layout.VERTICAL);
     device.setPadding(3, 3, 3, 3);
-    
+
     UI2dContainer knobsContainer = new UI2dContainer(0, 30, device.getWidth(), 45);
     knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
     knobsContainer.setPadding(3, 3, 3, 3);
     new UIKnob(xSpeed).addToContainer(knobsContainer);
     new UIKnob(fpsKnob).addToContainer(knobsContainer);
     knobsContainer.addToContainer(device);
-    
+
     UI2dContainer textEntryLine = new UI2dContainer(0, 0, device.getWidth(), 30);
     textEntryLine.setLayout(UI2dContainer.Layout.HORIZONTAL);
-    
+
     new UITextBox(0, 0, device.getContentWidth() - 22, 20)
-    .setParameter(textKnob)
-    .setTextAlignment(PConstants.LEFT)
-    .addToContainer(textEntryLine);
+      .setParameter(textKnob)
+      .setTextAlignment(PConstants.LEFT)
+      .addToContainer(textEntryLine);
 
     textItemList =  new UIItemList.ScrollList(ui, 0, 5, CONTROLS_MIN_WIDTH, 80);
-    
+
     new UIButton(device.getContentWidth() - 20, 0, 20, 20) {
       @Override
-      public void onToggle(boolean on) {
+        public void onToggle(boolean on) {
         if (on) {
           textItems.add(new TextItem(textKnob.getString()));
           textItemList.setItems(textItems);
@@ -1344,19 +1320,19 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
       }
     }
     .setLabel("+")
-    .setMomentary(true)
-    .addToContainer(textEntryLine);
+      .setMomentary(true)
+      .addToContainer(textEntryLine);
 
     textEntryLine.addToContainer(device);
-    
+
     textItemList.setShowCheckboxes(false);
     textItemList.setItems(textItems);
     textItemList.addToContainer(device);
   }
-  
-    public class TextItem extends UIItemList.Item {
+
+  public class TextItem extends UIItemList.Item {
     private final String text;
-    
+
     public TextItem(String str) {
       this.text = str;
     }
@@ -1374,14 +1350,20 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
       textItemList.removeItem(this);
     }
   }
-
 }
 
 @LXCategory(LXCategory.FORM)
-public class RainbowGIFPP extends LXPattern {
+  public class RainbowGIFPP extends LXPattern implements CustomDeviceUI {
   public final CompoundParameter fpsKnob =
     new CompoundParameter("Fps", 1.0, 10.0)
     .setDescription("Controls the frames per second.");
+  public final StringParameter gifKnob = new StringParameter("gif", "life2")
+    .setDescription("420x30 Pixel perfect animated gif.");
+
+  List<FileItem> fileItems = new ArrayList<FileItem>();
+  UIItemList.ScrollList fileItemList;
+  List<String> gifFiles;
+  private static final int CONTROLS_MIN_WIDTH = 120;
 
   private PImage[] images;
   private double currentFrame = 0.0;
@@ -1390,15 +1372,23 @@ public class RainbowGIFPP extends LXPattern {
 
   public RainbowGIFPP(LX lx) {
     super(lx);
-    String filename = "life2.gif";
     imageWidth = ((RainbowBaseModel)lx.model).pointsWide;
     imageHeight = ((RainbowBaseModel)lx.model).pointsHigh;
+    addParameter(fpsKnob);
+    loadGif(gifKnob.getString());
+    gifFiles = getGifFiles();
+    for (String filename : gifFiles) {
+      fileItems.add(new FileItem(filename));
+    }
+  }
+
+  protected void loadGif(String gifname) {
+    String filename = dataPath("./gifpp/" + gifname + ".gif");
     images = Gif.getPImages(RainbowStudio.pApplet, filename);
     for (int i = 0; i < images.length; i++) {
       images[i].resize(imageWidth, imageHeight);
       images[i].loadPixels();
     }
-    addParameter(fpsKnob);
   }
 
   public void run(double deltaMs) {
@@ -1409,6 +1399,85 @@ public class RainbowGIFPP extends LXPattern {
     }
 
     RenderImageUtil.imageToPointsPixelPerfect(lx, colors, images[(int)currentFrame]);
+  }
+
+  protected File getFile() {
+    return new File(dataPath("./gifpp/" + this.gifKnob.getString() + ".gif"));
+  }
+
+  private String stripExtension (String str) {
+    if (str == null) return null;
+    int pos = str.lastIndexOf(".");
+    if (pos == -1) return str;
+    return str.substring(0, pos);
+  }
+
+  protected List<String> getGifFiles() {
+    List<String> results = new ArrayList<String>();
+
+    File[] files = new File(dataPath("./gifpp/")).listFiles();
+    //If this pathname does not denote a directory, then listFiles() returns null.
+    for (File file : files) {
+      if (file.isFile()) {
+        if (file.getName().endsWith(".gif")) {
+          results.add(stripExtension(file.getName()));
+        }
+      }
+    }
+    return results;
+  }
+
+  //
+  // Custom UI to allow for the selection of the shader file
+  //
+  @Override
+    public void buildDeviceUI(UI ui, final UI2dContainer device) {
+    device.setContentWidth(CONTROLS_MIN_WIDTH);
+    device.setLayout(UI2dContainer.Layout.VERTICAL);
+    device.setPadding(3, 3, 3, 3);
+
+    UI2dContainer knobsContainer = new UI2dContainer(0, 30, device.getWidth(), 45);
+    knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
+    knobsContainer.setPadding(3, 3, 3, 3);
+    new UIKnob(fpsKnob).addToContainer(knobsContainer);
+    knobsContainer.addToContainer(device);
+
+    UI2dContainer filenameEntry = new UI2dContainer(0, 0, device.getWidth(), 30);
+    filenameEntry.setLayout(UI2dContainer.Layout.HORIZONTAL);
+
+    fileItemList =  new UIItemList.ScrollList(ui, 0, 5, CONTROLS_MIN_WIDTH, 80);
+    new UITextBox(0, 0, device.getContentWidth() - 22, 20)
+      .setParameter(gifKnob)
+      .setTextAlignment(PConstants.LEFT)
+      .addToContainer(filenameEntry);
+
+
+    // Button for reloading shader.
+    new UIButton(device.getContentWidth() - 20, 0, 20, 20) {
+      @Override
+        public void onToggle(boolean on) {
+        if (on) {
+          loadGif(gifKnob.getString());
+        }
+      }
+    }
+    .setLabel("\u21BA").setMomentary(true).addToContainer(filenameEntry);
+    filenameEntry.addToContainer(device);
+
+    fileItemList =  new UIItemList.ScrollList(ui, 0, 5, CONTROLS_MIN_WIDTH, 80);
+    fileItemList.setShowCheckboxes(false);
+    fileItemList.setItems(fileItems);
+    fileItemList.addToContainer(device);
+  }
+
+  public class FileItem extends FileItemBase {
+    public FileItem(String filename) {
+      super(filename);
+    }
+    public void onActivate() {
+      gifKnob.setValue(filename);
+      loadGif(filename);
+    }
   }
 }
 
@@ -1421,7 +1490,7 @@ public class RainbowGIFPP extends LXPattern {
  * more memory efficient since the image size is smaller.
  */
 @LXCategory(LXCategory.FORM)
-public class RainbowGIF extends LXPattern {
+  public class RainbowGIF extends LXPattern {
 
   public final CompoundParameter fpsKnob =
     new CompoundParameter("Fps", 1.0, 10.0)
@@ -1467,7 +1536,7 @@ public class RainbowGIF extends LXPattern {
 }
 
 @LXCategory(LXCategory.FORM)
-public class GridAnimatedGIF extends LXPattern {
+  public class GridAnimatedGIF extends LXPattern {
 
   public final CompoundParameter fpsKnob =
     new CompoundParameter("Fps", 1.0, 10.0)
@@ -1508,7 +1577,7 @@ public class GridAnimatedGIF extends LXPattern {
 }
 
 @LXCategory(LXCategory.FORM)
-public class RainbowScannerPattern extends LXPattern {
+  public class RainbowScannerPattern extends LXPattern {
 
   public final CompoundParameter width =
     new CompoundParameter("Width", 0, 45)
@@ -1516,11 +1585,11 @@ public class RainbowScannerPattern extends LXPattern {
 
   // In columns per second, 0.2 is 5 columns per second
   public final CompoundParameter speed = new CompoundParameter("Speed", 0.2, 4)
-  .setDescription("Controls the speed of the scanner");
-  
+    .setDescription("Controls the speed of the scanner");
+
   private double currentScannerColumn = 0.0;
   private boolean movingForward = true;
-  
+
   public RainbowScannerPattern(LX lx) {
     super(lx);
     addParameter(width);
@@ -1530,7 +1599,7 @@ public class RainbowScannerPattern extends LXPattern {
   }
 
   @Override
-  public void run(double deltaMs) {
+    public void run(double deltaMs) {
     int numPixelsPerRow = ((RainbowBaseModel)lx.model).pointsWide;
     double columnsPerSecond = speed.getValue();
     double scannerWidth = width.getValue();
@@ -1550,28 +1619,28 @@ public class RainbowScannerPattern extends LXPattern {
 
     int pointNumber = 0;
     for (LXPoint p : model.points) {
-        int pointColumnNumber = pointNumber % numPixelsPerRow;
-        if (pointColumnNumber < (int)currentScannerColumn + scannerWidth 
+      int pointColumnNumber = pointNumber % numPixelsPerRow;
+      if (pointColumnNumber < (int)currentScannerColumn + scannerWidth 
         && pointColumnNumber >= currentScannerColumn - scannerWidth) {
-          colors[p.index] = LXColor.gray(100);
-        } else {
-          // Set to black
-          colors[p.index] = 0;
-        }
-        ++pointNumber;
+        colors[p.index] = LXColor.gray(100);
+      } else {
+        // Set to black
+        colors[p.index] = 0;
+      }
+      ++pointNumber;
     }
   }
 }
 
 @LXCategory(LXCategory.FORM)
-public class RainbowEqualizerPattern extends LXPattern {
+  public class RainbowEqualizerPattern extends LXPattern {
 
   public RainbowEqualizerPattern(LX lx) {
     super(lx);
   }
 
   @Override
-  public void run(double deltaMs) {
+    public void run(double deltaMs) {
     GraphicMeter eq = lx.engine.audio.meter;
     int numPixelsPerRow = ((RainbowBaseModel)lx.model).pointsWide;
     double numRows = ((RainbowBaseModel)lx.model).pointsHigh;
@@ -1600,18 +1669,18 @@ public class RainbowEqualizerPattern extends LXPattern {
 }
 
 @LXCategory(LXCategory.FORM)
-public class RainbowSort extends LXPattern {
+  public class RainbowSort extends LXPattern {
   public final CompoundParameter swapsKnob =
     new CompoundParameter("Swaps", 1, 20).setDescription("Swaps per frame.");
   public final CompoundParameter brightnessKnob =
     new CompoundParameter("Bright", 1, 100).setDescription("Brightness.");
   public final CompoundParameter saturationKnob =
     new CompoundParameter("Sat", 1, 100).setDescription("Saturation");
-    
+
   float hues[];
   boolean sortDone;
   float sortedHues[];
-  
+
   public RainbowSort(LX lx) {
     super(lx);
     hues = new float[420];
@@ -1625,39 +1694,40 @@ public class RainbowSort extends LXPattern {
     saturationKnob.setValue(100);
     swapsKnob.setValue(5);
   }
-  
+
   // For each iteration of the run, do one sorting step.  If sortDone==true,
   // re-randomize the hues.
   public void run(double deltaMs) {
     if (isSortDone()) {
       resetSort();
     }
-    
+
     for (int j = 0; j < swapsKnob.getValue(); j++) {
-      while (!swap()) {}
+      while (!swap()) {
+      }
       if (isSortDone()) 
         break;
     }
-    
+
     int pointNumber = 0;
     for (LXPoint p : model.points) {
-        int pointCol = pointNumber % ((RainbowBaseModel)lx.model).pointsWide;
-        colors[p.index] = LXColor.hsb(sortedHues[pointCol], saturationKnob.getValue(), 
-          brightnessKnob.getValue());
-        ++pointNumber;
-    }    
+      int pointCol = pointNumber % ((RainbowBaseModel)lx.model).pointsWide;
+      colors[p.index] = LXColor.hsb(sortedHues[pointCol], saturationKnob.getValue(), 
+        brightnessKnob.getValue());
+      ++pointNumber;
+    }
   }
-  
+
   protected boolean swap() {
     int indexA = -1;
     int indexB = -1;
-    
+
     // Pick to random indexes, compare and swap.
     while (indexA == indexB) {
       indexA = (int)(Math.random() * sortedHues.length);
       indexB = (int)(Math.random() * sortedHues.length);
     }
-    
+
     float hueA = sortedHues[indexA];
     float hueB = sortedHues[indexB];
     if (indexA < indexB) {
@@ -1677,9 +1747,9 @@ public class RainbowSort extends LXPattern {
       } else {
         return false;
       }
-    }    
+    }
   }
-  
+
   protected boolean isSortDone() {
     for (int i = 0; i < sortedHues.length; i++) {
       if (i == 0) continue;
@@ -1688,7 +1758,7 @@ public class RainbowSort extends LXPattern {
     }
     return true;
   }
-  
+
   protected void resetSort() {
     for (int i = 0; i < sortedHues.length; i++)
       sortedHues[i] = -2.0;
@@ -1711,14 +1781,14 @@ public class RainbowSort extends LXPattern {
 }
 
 @LXCategory(LXCategory.COLOR)
-public class RainbowRecursion extends LXPattern {
+  public class RainbowRecursion extends LXPattern {
   public final CompoundParameter depthKnob =
     new CompoundParameter("Depth", 0, 10).setDescription("Max recursion depth.");
   public final CompoundParameter thicknessKnob =
     new CompoundParameter("Thick", 1, 10).setDescription("Thickness");
   public final CompoundParameter hueOffsetKnob =
     new CompoundParameter("hOffset", -360, 360).setDescription("Hue offset");
-    
+
   int maxDepth = 9;
   int currentMaxDepth = 0;
   int pointsWide;
@@ -1726,7 +1796,7 @@ public class RainbowRecursion extends LXPattern {
   int bandHeight = 3;
   boolean forward = true;
   double hueOffset = 0.0;
-  
+
   public RainbowRecursion(LX lx) {
     super(lx);
     pointsWide = ((RainbowBaseModel)(lx.model)).pointsWide;
@@ -1738,7 +1808,7 @@ public class RainbowRecursion extends LXPattern {
     thicknessKnob.setValue(3);
     hueOffsetKnob.setValue(0);
   }
-  
+
   void run(double drawDeltaMs) {
     currentMaxDepth = ((int) depthKnob.getValue()) - 1;
     bandHeight = (int) thicknessKnob.getValue();
@@ -1747,7 +1817,7 @@ public class RainbowRecursion extends LXPattern {
     }
     colorRecursive(0, 0);
   }
-  
+
   void colorRecursive(int thisDepth, int xOffset) {
     // Draw a band of full hue across points at this level and this chunk. Based on our recursion depth and
     // the xOffset we can compute the batch of points that we need to color.
@@ -1759,9 +1829,9 @@ public class RainbowRecursion extends LXPattern {
     for (int currentLed = startLedRow; currentLed < endLedRow; currentLed++) {
       // Some combination of depths and band thickness can go past our available # leds
       if (currentLed >= model.points.length) return;
-      
+
       // If we are at the end of a chunk, jump up to the next row of LEDs      
-      if (currentLed > startLedRow + chunkSize) {
+     if (currentLed > startLedRow + chunkSize) {
         startLedRow = startLedRow + pointsWide;
         currentLed = startLedRow - 1;  // account for the for loop doing currentLed++
         continue;
@@ -1778,14 +1848,14 @@ public class RainbowRecursion extends LXPattern {
     colorRecursive(thisDepth + 1, endLedRow + chunkSize/2);
   }
 }
-  
+
 /*
  * Original implemenation of PGDraw.  Left here for a full Processing drawing
  * example in case you need to do something not allowed by extending PGTexture
  * or PGPixelPerfect.
  */
 @LXCategory(LXCategory.FORM)
-public class PGDraw extends LXPattern {
+  public class PGDraw extends LXPattern {
   public final CompoundParameter fpsKnob =
     new CompoundParameter("Fps", 1.0, 10.0)
     .setDescription("Controls the frames per second.");
