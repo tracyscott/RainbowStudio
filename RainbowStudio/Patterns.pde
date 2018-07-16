@@ -877,20 +877,25 @@ abstract public class PGPixelPerfect extends PGBase {
 
   public void draw(double deltaMs) {
     pg.background(0);
-    PImage frameImg = images[((int)currentFrame)%images.length];
-    if (currentPos < 0 - frameImg.width) {
-      currentPos = imageWidth + frameImg.width + 1;
+    try {
+      PImage frameImg = images[((int)currentFrame)%images.length];
+      if (currentPos < 0 - frameImg.width) {
+        currentPos = imageWidth + frameImg.width + 1;
+      }
+      pg.image(frameImg, currentPos, 0);
+      currentPos -= xSpeed.getValue();
+    } catch (ArrayIndexOutOfBoundsException ex) {
+      // handle race condition when reloading images.
     }
-    pg.image(frameImg, currentPos, 0);
-    currentPos -= xSpeed.getValue();
   }
 
   protected void loadSprite(String spritename) {
     String filename = dataPath("./spritepp/" + spritename + ".gif");
-    images = Gif.getPImages(RainbowStudio.pApplet, filename);
-    for (int i = 0; i < images.length; i++) {
-      images[i].loadPixels();
+    PImage[] newImages = Gif.getPImages(RainbowStudio.pApplet, filename);
+    for (int i = 0; i < newImages.length; i++) {
+      newImages[i].loadPixels();
     }
+    images = newImages;
     // Start off the screen to the right.
     currentPos = imageWidth + images[0].width + 1;
   }
@@ -1384,11 +1389,12 @@ abstract public class PGPixelPerfect extends PGBase {
 
   protected void loadGif(String gifname) {
     String filename = dataPath("./gifpp/" + gifname + ".gif");
-    images = Gif.getPImages(RainbowStudio.pApplet, filename);
-    for (int i = 0; i < images.length; i++) {
-      images[i].resize(imageWidth, imageHeight);
-      images[i].loadPixels();
+    PImage[] newImages = Gif.getPImages(RainbowStudio.pApplet, filename);
+    for (int i = 0; i < newImages.length; i++) {
+      newImages[i].resize(imageWidth, imageHeight);
+      newImages[i].loadPixels();
     }
+    images = newImages;
   }
 
   public void run(double deltaMs) {
@@ -1397,8 +1403,11 @@ abstract public class PGPixelPerfect extends PGBase {
     if (currentFrame >= images.length) {
       currentFrame -= images.length;
     }
-
-    RenderImageUtil.imageToPointsPixelPerfect(lx, colors, images[(int)currentFrame]);
+    try {
+      RenderImageUtil.imageToPointsPixelPerfect(lx, colors, images[(int)currentFrame]);
+    } catch (ArrayIndexOutOfBoundsException ex) {
+      // handle race condition while reloading animated gif.
+    }
   }
 
   protected File getFile() {
@@ -1529,11 +1538,13 @@ abstract public class PGPixelPerfect extends PGBase {
 
   protected void loadGif(String gifname) {
     String filename = dataPath("./giftex/" + gifname + ".gif");
-    images = Gif.getPImages(RainbowStudio.pApplet, filename);
-    for (int i = 0; i < images.length; i++) {
-      images[i].resize(imageWidth, imageHeight);
-      images[i].loadPixels();
+    PImage[] newImages = Gif.getPImages(RainbowStudio.pApplet, filename);
+    for (int i = 0; i < newImages.length; i++) {
+      newImages[i].resize(imageWidth, imageHeight);
+      newImages[i].loadPixels();
     }
+    // minimize race condition when reloading.
+    images = newImages;
   }
 
   public void run(double deltaMs) {
@@ -1542,8 +1553,11 @@ abstract public class PGPixelPerfect extends PGBase {
     if (currentFrame >= images.length) {
       currentFrame -= images.length;
     }
-
-    RenderImageUtil.imageToPointsSemiCircle(lx, colors, images[(int)currentFrame], antialiasKnob.isOn());
+    try {
+      RenderImageUtil.imageToPointsSemiCircle(lx, colors, images[(int)currentFrame], antialiasKnob.isOn());
+    } catch (ArrayIndexOutOfBoundsException ex) {
+      // Sometimes caused by race condition when reloading, just skip a frame.
+    }
   }
   
   protected File getFile() {
