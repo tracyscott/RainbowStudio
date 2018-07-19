@@ -1181,9 +1181,6 @@ abstract public class PGPixelPerfect extends PGBase {
   }
 }
 
-// TODO(Tracy): Move this to UIUtils.pde.  This is used by a couple different
-// patterns.
-
 @LXCategory(LXCategory.FORM)
   public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   public final StringParameter textKnob = new StringParameter("str", "");
@@ -1343,43 +1340,58 @@ abstract public class PGPixelPerfect extends PGBase {
   }
 }
 
-@LXCategory(LXCategory.FORM)
-  public class RainbowGIFPP extends LXPattern implements CustomDeviceUI {
+/*
+ * Display an animated GIF on the rainbow.  This base class is used by both
+ * the larger texture with antialias sampling and the pixel perfect renderings
+ * with direct 1:1 pixel mappings (with bend distortion in physical space).
+ */
+abstract public class RainbowGIFBase extends LXPattern implements CustomDeviceUI {
   public final CompoundParameter fpsKnob =
-    new CompoundParameter("Fps", 1.0, 10.0)
+    new CompoundParameter("Fps", 1.0, 60.0)
     .setDescription("Controls the frames per second.");
-  public final StringParameter gifKnob = new StringParameter("gif", "life2")
-    .setDescription("420x30 Pixel perfect animated gif.");
+  public final BooleanParameter antialiasKnob =
+    new BooleanParameter("antialias", true);
+  public final StringParameter gifKnob = new StringParameter("gif", "")
+    .setDescription("Animated gif");
 
-  List<FileItem> fileItems = new ArrayList<FileItem>();
-  UIItemList.ScrollList fileItemList;
-  List<String> gifFiles;
-  private static final int CONTROLS_MIN_WIDTH = 120;
+  protected List<FileItem> fileItems = new ArrayList<FileItem>();
+  protected UIItemList.ScrollList fileItemList;
+  protected List<String> gifFiles;
+  protected static final int CONTROLS_MIN_WIDTH = 160;
 
-  private PImage[] images;
-  private double currentFrame = 0.0;
-  private int imageWidth = 0;
-  private int imageHeight = 0;
-
-  public RainbowGIFPP(LX lx) {
+  protected PImage[] images;
+  protected double currentFrame = 0.0;
+  protected int imageWidth = 0;
+  protected int imageHeight = 0;
+  protected String filesDir;
+  boolean includeAntialias;
+  
+  public RainbowGIFBase(LX lx, int imageWidth, int imageHeight, String dir, 
+    String defaultFile, boolean includeAntialias) {
     super(lx);
-    imageWidth = ((RainbowBaseModel)lx.model).pointsWide;
-    imageHeight = ((RainbowBaseModel)lx.model).pointsHigh;
-    addParameter(fpsKnob);
+    this.imageWidth = imageWidth;
+    this.imageHeight = imageHeight;
+    this.includeAntialias = includeAntialias;
+    gifKnob.setValue(defaultFile);
+    
+    filesDir = dir;
     loadGif(gifKnob.getString());
-    gifFiles = getGifFiles();
-    for (String filename : gifFiles) {
-      fileItems.add(new FileItem(filename));
-    }
+    reloadFileList();
+    
+    addParameter(fpsKnob);
+    if (includeAntialias) addParameter(antialiasKnob);
+    addParameter(gifKnob);
+    fpsKnob.setValue(10);
   }
 
   protected void loadGif(String gifname) {
-    String filename = dataPath("./gifpp/" + gifname + ".gif");
+    String filename = dataPath(filesDir + gifname + ".gif");
     PImage[] newImages = Gif.getPImages(RainbowStudio.pApplet, filename);
     for (int i = 0; i < newImages.length; i++) {
       newImages[i].resize(imageWidth, imageHeight);
       newImages[i].loadPixels();
     }
+    // minimize race condition when reloading.
     images = newImages;
   }
 
@@ -1390,20 +1402,31 @@ abstract public class PGPixelPerfect extends PGBase {
       currentFrame -= images.length;
     }
     try {
-      RenderImageUtil.imageToPointsPixelPerfect(lx, colors, images[(int)currentFrame]);
+      renderToPoints();
     } catch (ArrayIndexOutOfBoundsException ex) {
-      // handle race condition while reloading animated gif.
+      // Sometimes caused by race condition when reloading, just skip a frame.
     }
   }
-
+  
+  abstract protected void renderToPoints();
+  
+  protected void reloadFileList() {
+    gifFiles = getGifFiles();
+    fileItems.clear();
+    for (String filename : gifFiles) {
+      fileItems.add(new FileItem(filename));
+    }
+    if (fileItemList != null) fileItemList.setItems(fileItems);
+  }
+  
   protected File getFile() {
-    return new File(dataPath("./gifpp/" + this.gifKnob.getString() + ".gif"));
+    return new File(dataPath(filesDir + this.gifKnob.getString() + ".gif"));
   }
 
   protected List<String> getGifFiles() {
     List<String> results = new ArrayList<String>();
 
-    File[] files = new File(dataPath("./gifpp/")).listFiles();
+    File[] files = new File(dataPath(filesDir)).listFiles();
     //If this pathname does not denote a directory, then listFiles() returns null.
     for (File file : files) {
       if (file.isFile()) {
@@ -1426,8 +1449,24 @@ abstract public class PGPixelPerfect extends PGBase {
 
     UI2dContainer knobsContainer = new UI2dContainer(0, 30, device.getWidth(), 45);
     knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
-    knobsContainer.setPadding(3, 3, 3, 3);
+    knobsContainer.setPadding(8, 8, 8, 8);
     new UIKnob(fpsKnob).addToContainer(knobsContainer);
+    if (includeAntialias) {
+      UISwitch antialiasButton = new UISwitch(0, 0);
+      antialiasButton.setParameter(antialiasKnob);
+      antialiasButton.setMomentary(false);
+      antialiasButton.addToContainer(knobsContainer);
+    }
+    new UIButton(CONTROLS_MIN_WIDTH, 10, 60, 20) {
+      @Override
+      public void onToggle(boolean on) {
+        if (on) {
+          reloadFileList();
+        }
+      }
+    }
+    .setLabel("rescan dir").setMomentary(true).addToContainer(knobsContainer);
+    
     knobsContainer.addToContainer(device);
 
     UI2dContainer filenameEntry = new UI2dContainer(0, 0, device.getWidth(), 30);
@@ -1439,8 +1478,6 @@ abstract public class PGPixelPerfect extends PGBase {
       .setTextAlignment(PConstants.LEFT)
       .addToContainer(filenameEntry);
 
-
-    // Button for reloading shader.
     new UIButton(device.getContentWidth() - 20, 0, 20, 20) {
       @Override
         public void onToggle(boolean on) {
@@ -1451,7 +1488,7 @@ abstract public class PGPixelPerfect extends PGBase {
     }
     .setLabel("\u21BA").setMomentary(true).addToContainer(filenameEntry);
     filenameEntry.addToContainer(device);
-
+    
     fileItemList =  new UIItemList.ScrollList(ui, 0, 5, CONTROLS_MIN_WIDTH, 80);
     fileItemList.setShowCheckboxes(false);
     fileItemList.setItems(fileItems);
@@ -1470,189 +1507,39 @@ abstract public class PGPixelPerfect extends PGBase {
 }
 
 /*
- * Display an animated GIF on the rainbow.  Note that this code currently
- * assumes an image size equal to the bounding box of the rainbow segment.
- * If you need to generate your image with effects that care about the 
- * circumference of the rainbow, it would be best to create a pattern that calls
- * RenderImageUtil.imageToPointsSemiCircle().  imageToPointsBBox() is just
- * more memory efficient since the image size is smaller.
+ * Bounding texture based animated GIFs.  These should be 528x264.  Rainbow points will be sampled
+ * out of the texture.  Includes support for an anti-alias toggle.
  */
 @LXCategory(LXCategory.FORM)
-  public class RainbowGIF extends LXPattern implements CustomDeviceUI {
-
-  public final CompoundParameter fpsKnob =
-    new CompoundParameter("Fps", 1.0, 60.0)
-    .setDescription("Controls the frames per second.");
-  public final BooleanParameter antialiasKnob =
-    new BooleanParameter("antialias", true);
-  public final StringParameter gifKnob = new StringParameter("gif", "out_b_beeple")
-    .setDescription("Animated gif");
-
-  List<FileItem> fileItems = new ArrayList<FileItem>();
-  UIItemList.ScrollList fileItemList;
-  List<String> gifFiles;
-  private static final int CONTROLS_MIN_WIDTH = 120;
-
-  private PImage[] images;
-  private double currentFrame = 0.0;
-  private int imageWidth = 0;
-  private int imageHeight = 0;
+public class RainbowGIF extends RainbowGIFBase {
   public RainbowGIF(LX lx) {
-    super(lx);
-    float radiusInWorldPixels = RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot;
-    imageWidth = ceil(radiusInWorldPixels * 2.0);
-    imageHeight = ceil(radiusInWorldPixels);
-    
-    loadGif(gifKnob.getString());
-    gifFiles = getGifFiles();
-    for (String filename : gifFiles) {
-      fileItems.add(new FileItem(filename));
-    }
-    
-    addParameter(fpsKnob);
-    addParameter(antialiasKnob);
-    addParameter(gifKnob);
-    fpsKnob.setValue(10);
-  }
-
-  protected void loadGif(String gifname) {
-    String filename = dataPath("./giftex/" + gifname + ".gif");
-    PImage[] newImages = Gif.getPImages(RainbowStudio.pApplet, filename);
-    for (int i = 0; i < newImages.length; i++) {
-      newImages[i].resize(imageWidth, imageHeight);
-      newImages[i].loadPixels();
-    }
-    // minimize race condition when reloading.
-    images = newImages;
-  }
-
-  public void run(double deltaMs) {
-    double fps = fpsKnob.getValue();
-    currentFrame += (deltaMs/1000.0) * fps;
-    if (currentFrame >= images.length) {
-      currentFrame -= images.length;
-    }
-    try {
-      RenderImageUtil.imageToPointsSemiCircle(lx, colors, images[(int)currentFrame], antialiasKnob.isOn());
-    } catch (ArrayIndexOutOfBoundsException ex) {
-      // Sometimes caused by race condition when reloading, just skip a frame.
-    }
+    super(lx, ceil(RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot * 2.0),
+          ceil(RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot), 
+          "./giftex/",
+          "out_b_beeple",
+          true);
   }
   
-  protected File getFile() {
-    return new File(dataPath("./giftex/" + this.gifKnob.getString() + ".gif"));
-  }
-
-  protected List<String> getGifFiles() {
-    List<String> results = new ArrayList<String>();
-
-    File[] files = new File(dataPath("./giftex/")).listFiles();
-    //If this pathname does not denote a directory, then listFiles() returns null.
-    for (File file : files) {
-      if (file.isFile()) {
-        if (file.getName().endsWith(".gif")) {
-          results.add(ImgUtil.stripExtension(file.getName()));
-        }
-      }
-    }
-    return results;
-  }
-
-  //
-  // Custom UI to allow for the selection of the shader file
-  //
-  @Override
-    public void buildDeviceUI(UI ui, final UI2dContainer device) {
-    device.setContentWidth(CONTROLS_MIN_WIDTH);
-    device.setLayout(UI2dContainer.Layout.VERTICAL);
-    device.setPadding(3, 3, 3, 3);
-
-    UI2dContainer knobsContainer = new UI2dContainer(0, 30, device.getWidth(), 45);
-    knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
-    knobsContainer.setPadding(3, 3, 3, 3);
-    new UIKnob(fpsKnob).addToContainer(knobsContainer);
-    UISwitch antialiasButton = new UISwitch(0, 0);
-    antialiasButton.setParameter(antialiasKnob);
-    antialiasButton.setMomentary(false);
-    antialiasButton.addToContainer(knobsContainer);
-    knobsContainer.addToContainer(device);
-
-    UI2dContainer filenameEntry = new UI2dContainer(0, 0, device.getWidth(), 30);
-    filenameEntry.setLayout(UI2dContainer.Layout.HORIZONTAL);
-
-    fileItemList =  new UIItemList.ScrollList(ui, 0, 5, CONTROLS_MIN_WIDTH, 80);
-    new UITextBox(0, 0, device.getContentWidth() - 22, 20)
-      .setParameter(gifKnob)
-      .setTextAlignment(PConstants.LEFT)
-      .addToContainer(filenameEntry);
-
-    // Button for reloading shader.
-    new UIButton(device.getContentWidth() - 20, 0, 20, 20) {
-      @Override
-        public void onToggle(boolean on) {
-        if (on) {
-          loadGif(gifKnob.getString());
-        }
-      }
-    }
-    .setLabel("\u21BA").setMomentary(true).addToContainer(filenameEntry);
-    filenameEntry.addToContainer(device);
-
-    fileItemList =  new UIItemList.ScrollList(ui, 0, 5, CONTROLS_MIN_WIDTH, 80);
-    fileItemList.setShowCheckboxes(false);
-    fileItemList.setItems(fileItems);
-    fileItemList.addToContainer(device);
-  }
-
-  public class FileItem extends FileItemBase {
-    public FileItem(String filename) {
-      super(filename);
-    }
-    public void onActivate() {
-      gifKnob.setValue(filename);
-      loadGif(filename);
-    }
+  protected void renderToPoints() {
+    RenderImageUtil.imageToPointsSemiCircle(lx, colors, images[(int)currentFrame], antialiasKnob.isOn());
   }
 }
 
+/*
+ * Pixel perfect animated GIFs.  Uses base class with directory data/gifpp, default file of life2.gif, and
+ * no antialias toggle.
+ */
 @LXCategory(LXCategory.FORM)
-public class GridAnimatedGIF extends LXPattern {
-
-  public final CompoundParameter fpsKnob =
-    new CompoundParameter("Fps", 1.0, 10.0)
-    .setDescription("Controls the frames per second.");
-
-  private PImage[] images;
-  private String imagePrefix = "life";
-  private int numPointsPerRow = 0;
-  private int numPointsHigh = 0;
-  private double currentFrame = 0.0;
-
-  public GridAnimatedGIF(LX lx) {
-    super(lx);
-    numPointsPerRow = ((RainbowBaseModel)(lx.model)).pointsWide;
-    numPointsHigh = ((RainbowBaseModel)(lx.model)).pointsHigh;
-    images = Gif.getPImages(RainbowStudio.pApplet, imagePrefix + ".gif");
-    for (int i = 0; i < images.length; i++) {
-      images[i].resize(numPointsPerRow, numPointsHigh);
-      images[i].loadPixels();
-    }
-    addParameter(fpsKnob);
+public class RainbowGIFPP extends RainbowGIFBase {
+  public RainbowGIFPP(LX lx) {
+    super(lx, ((RainbowBaseModel)lx.model).pointsWide, ((RainbowBaseModel)lx.model).pointsHigh,
+    "./gifpp/",
+    "life2",
+    false);
   }
-
-  public void run(double deltaMs) {
-    int pointNumber = 0;
-    double fps = fpsKnob.getValue();
-    currentFrame += (deltaMs/1000.0) * fps;
-    if (currentFrame > images.length) {
-      currentFrame -= images.length;
-    }
-    for (LXPoint p : model.points) {
-      int rowNumber = pointNumber / numPointsPerRow; 
-      int columnPos = pointNumber - rowNumber * numPointsPerRow;
-      colors[p.index] = images[(int)currentFrame].pixels[rowNumber * numPointsPerRow + columnPos]; 
-      ++pointNumber;
-    }
+  
+  protected void renderToPoints() {
+    RenderImageUtil.imageToPointsPixelPerfect(lx, colors, images[(int)currentFrame]);  
   }
 }
 
