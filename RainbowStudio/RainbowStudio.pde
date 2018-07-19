@@ -48,9 +48,13 @@ void setup() {
   int modelType = FULL_RAINBOW; // RAINBOW_PANEL or FULL_RAINBOW
   
   LXModel model = buildModel(modelType);
-  lx = new heronarts.lx.studio.LXStudio(this, model, false);  /* MULTITHREADED disabled for P3D */
+  /* MULTITHREADED disabled for P3D, GL, Hardware Acceleration */
+  boolean multithreaded = false;
+  lx = new heronarts.lx.studio.LXStudio(this, model, multithreaded);
   lx.ui.setResizable(RESIZABLE);
   
+  new UIModeSelector(lx.ui, lx).setExpanded(true).addToContainer(lx.ui.leftPane.global);
+    
   if (modelType == RAINBOW_PANEL) {
     // Manually force the camera settings for a single panel.  A single panel is
     // way at the top of the world space and it is difficult to zoom in on it.
@@ -72,6 +76,11 @@ void setup() {
   ((RainbowBaseModel)model).pixelsPerFoot);
   System.out.println("texture image size: " + texturePixelsWide + "x" +
   texturePixelsHigh);
+  
+  int innerRadiusPixels = floor(RainbowBaseModel.innerRadius * RainbowBaseModel.pixelsPerFoot);
+  int outerRadiusPixels = ceil(RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot);
+  System.out.println("innerRadiusPixels = " + innerRadiusPixels);
+  System.out.println("outerRadiusPixels = " + outerRadiusPixels);
      
   // FULL_RAINBOW is
   // rectangle bounds size: 86.52052, 37.74478
@@ -111,7 +120,7 @@ void setup() {
   lx.ui.setTopLevelKeyEventHandler(new TopLevelKeyEventHandler());
   lx.ui.setBackgroundColor(0);
 }
-
+  
 public class TopLevelKeyEventHandler extends UIEventHandler {
   public TopLevelKeyEventHandler() {
     super();

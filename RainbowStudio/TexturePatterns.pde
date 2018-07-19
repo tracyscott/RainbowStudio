@@ -1,4 +1,4 @@
-@LXCategory(LXCategory.FORM)
+@LXCategory(LXCategory.TEXTURE)
 public class Lines extends LXPattern {
   public final CompoundParameter posKnob =
     new CompoundParameter("Pos", 0, 0, ((RainbowBaseModel)lx.model).pointsHigh)
@@ -33,7 +33,7 @@ public class Lines extends LXPattern {
       if (brightness > 0) {
         colors[p.index] = LXColor.gray(brightness);
       } else {
-        colors[p.index] = 0;
+        colors[p.index] = 0xff000000;
       }
       pointNumber++;
     }

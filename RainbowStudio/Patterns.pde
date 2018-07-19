@@ -79,7 +79,7 @@ import com.thomasdiewald.pixelflow.java.imageprocessing.DwShadertoy;
         // Note that we do *NOT* use Processing's color() function. That
         // function employs global state and is not thread safe!
       } else {
-        colors[p.index] = 0;
+        colors[p.index] = 0xff000000;
       }
     }
   }
@@ -1592,7 +1592,7 @@ public class RainbowGIFPP extends RainbowGIFBase {
         colors[p.index] = LXColor.gray(100);
       } else {
         // Set to black
-        colors[p.index] = 0;
+        colors[p.index] = 0xff000000;
       }
       ++pointNumber;
     }
@@ -1628,7 +1628,7 @@ public class RainbowGIFPP extends RainbowGIFBase {
       if (value > rowNumber) {
         colors[p.index] = LXColor.gray(70 - rowNumber);
       } else {
-        colors[p.index] = 0;
+        colors[p.index] = 0xff000000;
       }
       pointNumber++;
     }
@@ -1780,7 +1780,7 @@ public class RainbowGIFPP extends RainbowGIFBase {
     currentMaxDepth = ((int) depthKnob.getValue()) - 1;
     bandHeight = (int) thicknessKnob.getValue();
     for (LXPoint p : model.points) {
-      colors[p.index] = 0;
+      colors[p.index] = 0xff000000;
     }
     colorRecursive(0, 0);
   }
