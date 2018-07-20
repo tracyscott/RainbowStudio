@@ -1516,7 +1516,7 @@ public class RainbowGIF extends RainbowGIFBase {
     super(lx, ceil(RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot * 2.0),
           ceil(RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot), 
           "./giftex/",
-          "out_b_beeple",
+          "hx_ripple",
           true);
   }
   
