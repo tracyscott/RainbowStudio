@@ -86,6 +86,8 @@ public class UIModeSelector extends UICollapsibleSection {
     .addToContainer(this);
     
     this.standardMode.setActive(true);
+    lx.engine.audio.enabled.setValue(true);
+    this.addLoopTask(new AudioMonitor());
   }
   
   // TODO(tracy): We need to bring down everybody else's faders while bringing
@@ -147,10 +149,38 @@ public class UIModeSelector extends UICollapsibleSection {
   public LXChannel getChannelByLabel(LX lx, String label) {
     for (LXChannelBus channelBus : lx.engine.channels) {
       LXChannel channel = (LXChannel) channelBus;
-      System.out.println("channel name: " + channel.getLabel());
       if (label.equalsIgnoreCase(channel.getLabel()))
         return channel;
     }
     return null;
+  }
+  
+  public class AudioMonitor implements LXLoopTask {
+    public double deltaLastModeSwap = 0.0;
+    public boolean audioMode = false;
+    
+    public void loop(double deltaMs) {
+      // TODO(tracy): We need a number of samples over time and then decide if we should switch
+      // based on that.
+      if (lx.engine.audio.meter.getDecibels() > 0.0 && deltaLastModeSwap > 5000.0 && !audioMode) {
+        System.out.println(lx.engine.audio.meter.getDecibels());
+        UIModeSelector.this.standardMode.setActive(false);
+        UIModeSelector.this.interactiveMode.setActive(false);
+        UIModeSelector.this.instrumentMode.setActive(false);
+        UIModeSelector.this.setAudioChannelEnabled(true);
+        audioMode = true;
+        deltaLastModeSwap = 0.0;
+      } else if (lx.engine.audio.meter.getDecibels() < 0.0 && deltaLastModeSwap > 5000.0 && audioMode) {
+        System.out.println("Disabling audio mode.");
+        UIModeSelector.this.interactiveMode.setActive(false);
+        UIModeSelector.this.instrumentMode.setActive(false);
+        UIModeSelector.this.setAudioChannelEnabled(false);
+        UIModeSelector.this.standardMode.setActive(true);
+        audioMode = false;
+        deltaLastModeSwap = 0.0;     
+      } else {
+        deltaLastModeSwap += deltaMs;
+      }
+    }
   }
 }
