@@ -32,7 +32,8 @@ public class RainbowBiasEffect extends LXEffect {
       } else if (rowNumber >= 25 && rowNumber < 30) {
         src = LXColor.rgb((int)(117 * amt), (int)(7 * amt), (int)(135 * amt));
       }
-      this.colors[i] = LXColor.add(this.colors[i], src, 0x100);
+      src = LXColor.multiply(this.colors[i], src);
+      this.colors[i] = LXColor.add(this.colors[i], src);
     }
   }
 }
