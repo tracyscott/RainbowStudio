@@ -976,8 +976,16 @@ abstract public class PGPixelPerfect extends PGBase {
 
 @LXCategory(LXCategory.FORM)
   public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
-  public final StringParameter shaderFileKnob = new StringParameter("frag", "VoronoiDistances");
-
+  public final StringParameter shaderFileKnob = new StringParameter("frag", "sparkles");
+  public final CompoundParameter knob1 =
+    new CompoundParameter("K1", 0, 1).setDescription("Mapped to iMouse.x");
+  public final CompoundParameter knob2 =
+    new CompoundParameter("K2", 0, 1).setDescription("Mapped to iMouse.y");
+  public final CompoundParameter knob3 =
+    new CompoundParameter("K3", 0, 1).setDescription("Mapped to iMouse.z");
+  public final CompoundParameter knob4 =
+    new CompoundParameter("K4", 0, 1).setDescription("Mapped to iMouse.w");
+    
   List<FileItem> fileItems = new ArrayList<FileItem>();
   UIItemList.ScrollList fileItemList;
   List<String> shaderFiles;
@@ -986,11 +994,16 @@ abstract public class PGPixelPerfect extends PGBase {
   DwShadertoy toy;
   DwGLTexture tex0 = new DwGLTexture();
   PGraphics toyGraphics;
-  private static final int CONTROLS_MIN_WIDTH = 120;
+  private static final int CONTROLS_MIN_WIDTH = 200;
 
   public ShaderToy(LX lx) {
     super(lx, "");
     fpsKnob.setValue(60);
+    addParameter(knob1);
+    addParameter(knob2);
+    addParameter(knob3);
+    addParameter(knob4);
+    addParameter(shaderFileKnob);
     toyGraphics = createGraphics(imageWidth, imageHeight, P2D);
     loadShader(shaderFileKnob.getString());
     // context initialized in loadShader, print the GL hardware once when loading
@@ -1028,12 +1041,14 @@ abstract public class PGPixelPerfect extends PGBase {
     if (toy != null) toy.release();  // release existing shader texture
     if (context != null) context.release();
     context = new DwPixelFlow(RainbowStudio.pApplet);
+    // TODO(tracy): Handle file not found issue.
     toy = new DwShadertoy(context, "data/" + shaderFile + ".frag");
   }
 
   public void draw(double drawDeltaMs) {
     pg.background(0);
     toy.set_iChannel(0, tex0);
+    toy.set_iMouse(knob1.getValuef(), knob2.getValuef(), knob3.getValuef(), knob4.getValuef());
     toy.apply(toyGraphics);
     toyGraphics.loadPixels();
     toyGraphics.updatePixels();
@@ -1069,8 +1084,16 @@ abstract public class PGPixelPerfect extends PGBase {
     device.setLayout(UI2dContainer.Layout.VERTICAL);
     device.setPadding(3, 3, 3, 3);
 
-    new UIKnob(fpsKnob).addToContainer(device);
-
+    UI2dContainer knobsContainer = new UI2dContainer(0, 30, device.getWidth(), 45);
+    knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
+    knobsContainer.setPadding(0, 0, 0, 0);
+    new UIKnob(fpsKnob).addToContainer(knobsContainer);
+    new UIKnob(knob1).addToContainer(knobsContainer);
+    new UIKnob(knob2).addToContainer(knobsContainer);
+    new UIKnob(knob3).addToContainer(knobsContainer);
+    new UIKnob(knob4).addToContainer(knobsContainer);
+    knobsContainer.addToContainer(device);
+    
     UI2dContainer filenameEntry = new UI2dContainer(0, 0, device.getWidth(), 30);
     filenameEntry.setLayout(UI2dContainer.Layout.HORIZONTAL);
 
