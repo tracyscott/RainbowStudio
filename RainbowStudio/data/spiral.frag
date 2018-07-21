@@ -23,18 +23,19 @@ uniform vec3  iChannelResolution[4]; // image/buffer/sound    Input texture reso
 
 float texture(vec2 co) {
 	float leftTravelDistance = 2.0;  // Try 20.0
+	// Make it dynamic by making it dependent on iMouse.x, which is bound to an LFO in spiral.lxp
 	co.x += leftTravelDistance * iMouse.x;
 	// This is expected to be hooked to a bipolar modulator centered on 0.5
 	// If iMouse.y = 0.5, bend amount is 0.  Negative bend amount bends right,
 	// positive bends left.  Try commenting out the co.x += leftTravelDistance * iMouse.x
-	// above to see bend action independentally. 
+	// above to see bend action independent of other movement.
 	float bendAmt = iMouse.y - 0.5;
 	float dotVectorXCoord =  1.0; 
-	// Try commenting out the line above and commenting this line below. iMouse.x is moving dynamically
-	// between 0.0 and 1.0.
-	//float something = iMouse.x ;
+	// Try un-commenting this line below. iMouse.x is moving dynamically between 0.0 and 1.0 in
+	// spiral.lxp since it is bound to an LFO.
+	// dotVectorXCoord = iMouse.x ;
 	float dotVectorYCoord = iMouse.y - 0.5;
-	// Perform a dot product of our x,y coordinate and (1.0, y)
+	// Perform a dot product of our x,y coordinate and (dotVectorXCoord, dotVectorYCord)
     float dotty = dot(co.xy , vec2(dotVectorXCoord, dotVectorYCoord));
 
     // Increasing this increases the number of blades.  Try changing this number.
