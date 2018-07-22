@@ -1,6 +1,6 @@
 {
   "version": "0.1",
-  "timestamp": 1531696120895,
+  "timestamp": 1532159884111,
   "engine": {
     "id": 1,
     "class": "heronarts.lx.LXEngine",
@@ -66,10 +66,10 @@
         "patterns": [
           {
             "id": 152,
-            "class": "RainbowStudio$RainbowRecursion",
+            "class": "RainbowStudio$RainbowMeans",
             "modulationColor": -65442,
             "parameters": {
-              "label": "RainbowRecursion",
+              "label": "RainbowMeans",
               "Depth": 0.9999999776482582,
               "Thick": 3.0000000000000004,
               "hOffset": 7.199999839067459
@@ -192,7 +192,7 @@
           "attack": 9.999999776482582,
           "release": 18.5580048226244,
           "slope": -3.0,
-          "Band-1": 0.05301576848764189,
+          "Band-1": 0.0,
           "Band-2": 0.0,
           "Band-3": 0.0,
           "Band-4": 0.0,
@@ -269,7 +269,7 @@
             "phase": 0.0,
             "exp": 0.0
           },
-          "basis": 0.8288941792645307
+          "basis": 0.18502334138106125
         },
         {
           "id": 216,
@@ -292,7 +292,7 @@
             "phase": 0.0,
             "exp": 0.0
           },
-          "basis": 0.6058965896704375
+          "basis": 0.5764154998660789
         }
       ],
       "modulations": [

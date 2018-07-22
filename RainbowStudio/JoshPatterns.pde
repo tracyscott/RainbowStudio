@@ -1,5 +1,7 @@
 import java.util.*;
 
+import com.virtuozzo.*;
+
 import com.chroma.*;
 
 @LXCategory(LXCategory.FORM)
@@ -24,7 +26,7 @@ public class RainbowMeans extends LXPattern {
     public RainbowMeans(LX lx) {
 	super(lx);
 
-	balls = new Ball[3];
+	balls = new Ball[10];
 	rnd = new Random();
 
 	int i;
@@ -50,13 +52,15 @@ public class RainbowMeans extends LXPattern {
     }
 
     void set(int x, int y) {
+
 	if (x < 0 || x >= width()) {
 	    return;
 	}
 	if (y < 0 || y >= height()) {
 	    return;
 	}
-	int idx = y * height() + x;
+
+	int idx = y * width() + x;
 	colors[idx] = new Chroma(ColorSpace.LCH, 50.0, 100.0, 40.0, 255).get();
     }
 
@@ -66,28 +70,35 @@ public class RainbowMeans extends LXPattern {
 	int R;
 
 	void draw() {
-	    // https://rosettacode.org/wiki/Bitmap/Midpoint_circle_algorithm#Java
-	    int d = (5 - R * 4)/4;
-	    int x = 0;
-	    int y = R;
- 
-	    do {
-		set(X + x, Y + y);
-		set(X + x, Y - y);
-		set(X - x, Y + y);
-		set(X - x, Y - y);
-		set(X + y, Y + x);
-		set(X + y, Y - x);
-		set(X - y, Y + x);
-		set(X - y, Y - x);
-		if (d < 0) {
-		    d += 2 * x + 1;
-		} else {
-		    d += 2 * (x - y) + 1;
-		    y--;
+    	    // Bresenham algorithm
+	    // https://rosettacode.org/wiki/Bitmap/Midpoint_circle_algorithm#Go
+	    int r = R;
+	    if (r < 0) {
+		return;
+	    }
+	    int x1 = -r;
+	    int y1 = 0;
+	    int err = 2-2*r;
+	    // Bresenham algorithm
+
+	    for (;;) {
+		set(X-x1, Y+y1);
+		set(X-y1, Y-x1);
+		set(X+x1, Y-y1);
+		set(X+y1, Y+x1);
+		r = err;
+		if (r > x1) {
+		    x1++;
+		    err += x1*2 + 1;
 		}
-		x++;
-	    } while (x <= y);
+		if (r <= y1) {
+		    y1++;
+		    err += y1*2 + 1;
+		}
+		if (x1 >= 0) {
+		    break;
+		}
+	    }
 	}
     };
 }
