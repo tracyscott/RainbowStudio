@@ -1037,6 +1037,12 @@ abstract public class PGPixelPerfect extends PGBase {
     tex0.resize(context, GL2.GL_RGBA8, wh, wh, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 4, 1, bbuffer);
   }
 
+  @Override
+  public void load(LX lx, JsonObject obj) {
+    super.load(lx, obj);
+    loadShader(shaderFileKnob.getString());
+  }
+  
   protected void loadShader(String shaderFile) {
     if (toy != null) toy.release();  // release existing shader texture
     if (context != null) context.release();
