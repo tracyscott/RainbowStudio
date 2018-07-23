@@ -1,5 +1,7 @@
 import java.util.List;
 
+import com.virtuozzo.KdTree;
+
 static public final int LEDS_PER_UNIVERSE = 170;
 
 LXModel buildModel(int modelType) {
@@ -59,12 +61,19 @@ public static abstract class RainbowBaseModel extends LXModel {
 
   public RainbowBaseModel(LXFixture fixture) {
     super(fixture);
+    pointsTree = new KdTree();
+    ArrayList<Node<LXPoint>> lpoints = new ArrayList();
+    for (LXPoint point : fixture.getPoints()) {
+	lpoints.add(new Node(point, point.xn, point.yn));
+    }
+    pointsTree.buildTree(lpoints);
   }
   public int pointsWide;
   public int pointsHigh;
   public float thetaStart;
   public float thetaFinish;
-  
+
+  public KdTree<LXPoint> pointsTree;
 
   // From CAD drawings.  Note that these numbers are off the mechanical dimensions, so
   // there might still be some small adjustments.  Also, the variables below have the
