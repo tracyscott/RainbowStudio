@@ -457,8 +457,61 @@ abstract public class PGPixelPerfect extends PGBase {
   abstract protected void draw(double deltaDrawMs);
 }
 
+/*
+ * Base class for MIDI patterns.  This class implements some MIDI Through logic that
+ * is necessary on Windows.  Relies on a virtual MIDI port created in 'loopmidi' program.
+ */
+abstract class MidiBase extends LXPattern {
+  heronarts.lx.midi.LXMidiOutput midiThroughOutput;
+  
+  public MidiBase(LX lx) {
+    super(lx);
+    // Find target output for passing MIDI through
+    heronarts.lx.midi.LXMidiEngine midi = lx.engine.midi;
+    for (heronarts.lx.midi.LXMidiOutput output : midi.outputs) {
+      System.out.println(output.getName() + ": " + output.getDescription());
+      if (output.getName().equalsIgnoreCase("rainbowStudioOut")) {
+        midiThroughOutput = output;
+        midiThroughOutput.open();
+      }
+    }    
+  }
+  
+  public void noteOnReceived(MidiNoteOn note) {
+    if (midiThroughOutput != null)
+      midiThroughOutput.send(note);
+  }
+  
+  public void noteOffReceived(MidiNoteOff note) {
+    if (midiThroughOutput != null)
+      midiThroughOutput.send(note);
+  }
+  
+  public void afterTouchReceived(MidiAftertouch aftertouch) {
+    if (midiThroughOutput != null)
+      midiThroughOutput.send(aftertouch);
+  }
+  
+  public void controlChangeReceived(MidiControlChange cc) {
+    if (midiThroughOutput != null)
+      midiThroughOutput.send(cc);
+  }
+  
+  public void pitchBendReceived(MidiPitchBend pitchBend) {
+    if (midiThroughOutput != null)
+      midiThroughOutput.send(pitchBend);
+  }
+  
+  public void programChangeReceived(MidiProgramChange pc) {
+    if (midiThroughOutput != null)
+      midiThroughOutput.send(pc);
+  }
+}
+  
+  
+  
 @LXCategory(LXCategory.FORM)
-  public class BasicMidiPP extends LXPattern {
+  public class BasicMidiPP extends MidiBase {
   public final CompoundParameter brightnessKnob =
     new CompoundParameter("bright", 1.0, 100.0)
     .setDescription("Brightness");
@@ -475,16 +528,6 @@ abstract public class PGPixelPerfect extends PGBase {
 
   public BasicMidiPP(LX lx) {
     super(lx);
-    // Find target output for passing MIDI through
-    heronarts.lx.midi.LXMidiEngine midi = lx.engine.midi;
-    for (heronarts.lx.midi.LXMidiOutput output : midi.outputs) {
-      System.out.println(output.getName() + ": " + output.getDescription());
-      if (output.getName().equalsIgnoreCase("rainbowStudioOut")) {
-        midiThroughOutput = output;
-        midiThroughOutput.open();
-      }
-    }
-
     brightnessKnob.setValue(30);
     barsKnob.setValue(6);
     addParameter(brightnessKnob);
@@ -530,10 +573,9 @@ abstract public class PGPixelPerfect extends PGBase {
     // NOTE: my mini keyboard generates between 48 & 72 (small keyboard)
     currentHue = map(pitch, 48.0, 72.0, 0.0, 100.0);
     currentBrightness = map(velocity, 0.0, 127.0, 0.0, 100.0);
-    // Forward MIDI notes
-    if (midiThroughOutput != null) {
-      midiThroughOutput.send(note);
-    }
+    
+    // Necessary to call for MIDI Through note forwarding.
+    super.noteOnReceived(note);
   }
 
   public void noteOffReceived(MidiNote note) {
@@ -543,10 +585,9 @@ abstract public class PGPixelPerfect extends PGBase {
     // note-off for all notes.
     currentBrightness = 0.0;
     bar = -1;
-    // Forward MIDI notes
-    if (midiThroughOutput != null) {
-      midiThroughOutput.send(note);
-    }
+    
+    // Necessary to call for MIDI Through note forwarding.
+    super.noteOffReceived(note);
   }
 }
 
