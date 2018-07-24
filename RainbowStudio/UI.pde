@@ -1,10 +1,61 @@
+public class UIGammaSelector extends UICollapsibleSection {
+  public BoundedParameter redGamma = new BoundedParameter("Red", 1.8, 1.0, 2.0);
+  public BoundedParameter greenGamma = new BoundedParameter("Green", 1.8, 1.0, 2.0);
+  public BoundedParameter blueGamma = new BoundedParameter("Blue", 1.8, 1.0, 2.0);
+  public UISlider redSlider;
+  public UISlider greenSlider;
+  public UISlider blueSlider;
+  
+  public UIGammaSelector(final LXStudio.UI ui) {
+    super(ui, 0, 0, ui.leftPane.global.getContentWidth(), 200);
+    setTitle("GAMMA");
+    setLayout(UI2dContainer.Layout.VERTICAL);
+    setChildMargin(2);
+    redSlider = new UISlider(0, 0, ui.leftPane.global.getContentWidth() - 10, 20) {
+      @Override
+      public void onParameterChanged(LXParameter parameter) {  
+        super.onParameterChanged(parameter);
+        // Rebuild Red Gamma
+        Gamma.buildRedGammaLUT(parameter.getValuef());
+      }
+    };
+    redSlider.addToContainer(this);
+    redSlider.setParameter(redGamma);
+    greenSlider = new UISlider(0, 0, ui.leftPane.global.getContentWidth() - 10, 20) {
+      @Override
+      public void onParameterChanged(LXParameter parameter) {
+        Gamma.buildGreenGammaLUT(parameter.getValuef());
+      }
+    };
+    greenSlider.setParameter(greenGamma);
+    greenSlider.addToContainer(this);
+    
+    blueSlider = new UISlider(0, 0, ui.leftPane.global.getContentWidth() - 10, 20) {
+      @Override
+      public void onParameterChanged(LXParameter parameter) {
+        Gamma.buildBlueGammaLUT(parameter.getValuef());
+      }
+    };
+    blueSlider.setParameter(blueGamma);
+    blueSlider.addToContainer(this);
+  }
+}
+
+    
+    
 public class UIModeSelector extends UICollapsibleSection {
   
+  public final UIButton autoMode;
   public final UIButton audioMode;
   public final UIButton standardMode;
   public final UIButton interactiveMode;
   public final UIButton instrumentMode;
   protected LX lx;
+  public BooleanParameter autoAudioModeP = new BooleanParameter("autoaudio", false);
+  public BooleanParameter audioModeP = new BooleanParameter("audio", false);
+  public BooleanParameter standardModeP = new BooleanParameter("standard", false);
+  public BooleanParameter interactiveModeP = new BooleanParameter("interactive", false);
+  public BooleanParameter instrumentModeP = new BooleanParameter("instrument", false);
   
   public UIModeSelector(final LXStudio.UI ui, LX lx) {
     super(ui, 0, 0, ui.leftPane.global.getContentWidth(), 200);
@@ -13,20 +64,30 @@ public class UIModeSelector extends UICollapsibleSection {
     setChildMargin(2);
     this.lx = lx;
     
+    // When enabled, audio monitoring can trigger automatic channel switching.
+    this.autoMode = (UIButton) new UIButton(0, 0, getContentWidth(), 18)
+    .setParameter(autoAudioModeP)
+    .setLabel("Auto Audio Detect")
+    .setActive(false)
+    .addToContainer(this);
+    
     this.audioMode = (UIButton) new UIButton(0, 0, getContentWidth(), 18) {
       public void onToggle(boolean on) {
         if (on) {
-          UIModeSelector.this.standardMode.setActive(false);
-          UIModeSelector.this.interactiveMode.setActive(false);
-          UIModeSelector.this.instrumentMode.setActive(false);
+          standardModeP.setValue(false);
+          interactiveModeP.setValue(false);
+          instrumentModeP.setValue(false);
           // Enable AUDIO channel
           setAudioChannelEnabled(true);
+          //audioModeP.setValue(true);
         } else {
           // Disable AUDIO channel
           setAudioChannelEnabled(false);
+          audioModeP.setValue(false);
         }
       }
     }
+    .setParameter(audioModeP)
     .setLabel("Audio")
     .setActive(false)
     .addToContainer(this);
@@ -40,11 +101,13 @@ public class UIModeSelector extends UICollapsibleSection {
           // Enable Standard Channels
           setStandardChannelsEnabled(true);
         } else {
+          System.out.println("Disabling standard mode.");
           // Disable Standard Channels
           setStandardChannelsEnabled(false);
         }
       }
     }
+    .setParameter(standardModeP)
     .setLabel("Standard")
     .setActive(false)
     .addToContainer(this);
@@ -63,6 +126,7 @@ public class UIModeSelector extends UICollapsibleSection {
         }
       }
     }
+    .setParameter(interactiveModeP)
     .setLabel("Interactive")
     .setActive(false)
     .addToContainer(this);
@@ -81,6 +145,7 @@ public class UIModeSelector extends UICollapsibleSection {
         }
       }
     }
+    .setParameter(instrumentModeP)
     .setLabel("Instrument")
     .setActive(false)
     .addToContainer(this);
@@ -162,6 +227,8 @@ public class UIModeSelector extends UICollapsibleSection {
     public void loop(double deltaMs) {
       // TODO(tracy): We need a number of samples over time and then decide if we should switch
       // based on that.
+      if (!autoAudioModeP.isOn()) return;
+      
       if (lx.engine.audio.meter.getDecibels() > 0.0 && deltaLastModeSwap > 5000.0 && !audioMode) {
         System.out.println(lx.engine.audio.meter.getDecibels());
         UIModeSelector.this.standardMode.setActive(false);
