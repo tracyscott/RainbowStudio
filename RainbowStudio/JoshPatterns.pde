@@ -1,7 +1,5 @@
 import java.util.*;
 
-import com.virtuozzo.*;
-
 import com.chroma.*;
 
 @LXCategory(LXCategory.FORM)
@@ -15,6 +13,7 @@ public class RainbowMeans extends LXPattern {
 
     Ball balls[];
     Random rnd;
+    RainbowCanvas canvas;
 
     int width() {
 	return ((RainbowBaseModel)lx.model).pointsWide;
@@ -24,9 +23,9 @@ public class RainbowMeans extends LXPattern {
     }
 
     public RainbowMeans(LX lx) {
-	super(lx);
-
-	balls = new Ball[10];
+ 	super(lx);
+        canvas = new RainbowCanvas(lx);
+	balls = new Ball[100];
 	rnd = new Random();
 
 	int i;
@@ -101,4 +100,54 @@ public class RainbowMeans extends LXPattern {
 	    }
 	}
     };
+
+    public class RainbowCanvas {
+
+        public class RGB {
+            float R, G, B;
+
+            RGB(float r, float g, float b) {
+                this.R = r;
+                this.G = g;
+                this.B = b;
+            }
+        }
+
+        private LX lx;
+        private int width;
+        private int height;
+        private RGB samples[];
+
+        // Units are in feet, here.  Sample one inch pixels.
+        public final float unit = 1.0f / 12.0f;
+
+        public RainbowCanvas(LX lx) {
+            lx = lx;
+            width = (int)((lx.model.xMax - lx.model.xMin) / unit);
+            height = (int)((lx.model.yMax - lx.model.yMin) / unit);
+            samples = new RGB[height * width];
+        }
+
+        public int toPix(float val) {
+            return (int)(val / unit);
+        }
+
+        public void circle(float x, float y, float r) {
+            int xbegin = toPix(x-r);
+            int xend = toPix(x+r);
+
+            int ybegin = toPix(y-r);
+            int yend = toPix(y+r);
+
+            float r2 = r * r;
+
+            for (int xi = xbegin; xi <= xend; xi += unit) {
+                for (int yi = ybegin; yi <= yend; yi += unit) {
+                    if ((x - xi) * (x - xi) + (y - yi) * (y - yi) < r2) {
+                        samples[width*yi+xi] = new RGB(1, 1, 1);
+                    }
+                }
+            }
+        }
+    }
 }
