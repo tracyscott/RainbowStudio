@@ -39,6 +39,8 @@ static public PApplet pApplet;
 
 static public boolean fullscreenMode = false;
 UI3dContext fullscreenContext;
+UIGammaSelector gammaControls;
+
 
 void setup() {
   // Processing setup, constructs the window and the LX instance
@@ -51,10 +53,16 @@ void setup() {
   /* MULTITHREADED disabled for P3D, GL, Hardware Acceleration */
   boolean multithreaded = false;
   lx = new heronarts.lx.studio.LXStudio(this, model, multithreaded);
+  
   lx.ui.setResizable(RESIZABLE);
   
   new UIModeSelector(lx.ui, lx).setExpanded(true).addToContainer(lx.ui.leftPane.global);
-    
+  gammaControls = (UIGammaSelector) new UIGammaSelector(lx.ui)
+    .setExpanded(false).addToContainer(lx.ui.leftPane.global);
+  
+  // Register settings
+  lx.engine.registerComponent("rainbowSettings", new Settings(lx, lx.ui));
+  
   if (modelType == RAINBOW_PANEL) {
     // Manually force the camera settings for a single panel.  A single panel is
     // way at the top of the world space and it is difficult to zoom in on it.
@@ -157,7 +165,53 @@ void toggleFullscreen() {
   }
 }
       
-    
+private class Settings extends LXComponent {
+
+  private final LXStudio.UI ui;
+
+  private Settings(LX lx, LXStudio.UI ui) {
+    super(lx);
+    this.ui = ui;
+  }
+
+  private static final String KEY_GAMMA_RED = "gammaRed";
+  private static final String KEY_GAMMA_GREEN = "gammaGreen";
+  private static final String KEY_GAMMA_BLUE = "gammaBlue";
+  
+  private static final String KEY_POINTS_VISIBLE = "pointsVisible";
+  private static final String KEY_LEAVES_VISIBLE = "leavesVisible";
+  private static final String KEY_STRUCTURE_VISIBLE = "structureVisible";
+  private static final String KEY_CONTROLS_EXPANDED = "controlsExpanded";
+  private static final String KEY_SENSORS_EXPANDED = "sensorsExpanded";
+  private static final String KEY_SOURCES_EXPANDED = "sourcesExpanded";
+  private static final String KEY_OUTPUT_EXPANDED = "outputExpanded";
+
+  @Override
+  public void save(LX lx, JsonObject obj) {
+    obj.addProperty(KEY_GAMMA_RED, gammaControls.redGamma.getValue());
+    obj.addProperty(KEY_GAMMA_GREEN, gammaControls.greenGamma.getValue());
+    obj.addProperty(KEY_GAMMA_BLUE, gammaControls.blueGamma.getValue());
+  }
+
+  @Override
+  public void load(LX lx, JsonObject obj) {
+    System.out.println("Loading settings....");
+    System.out.println("Loading settings....");
+    System.out.println("Loading settings....");
+    System.out.println("Loading settings....");    
+    if (obj.has(KEY_GAMMA_RED)) {
+      gammaControls.redGamma.setValue(obj.get(KEY_GAMMA_RED).getAsDouble());
+    }
+    if (obj.has(KEY_GAMMA_GREEN)) {
+      gammaControls.greenGamma.setValue(obj.get(KEY_GAMMA_GREEN).getAsDouble());
+    }
+    if (obj.has(KEY_GAMMA_BLUE)) {
+      gammaControls.blueGamma.setValue(obj.get(KEY_GAMMA_BLUE).getAsDouble());
+    }
+  }
+}
+
+
 void initialize(final heronarts.lx.studio.LXStudio lx, heronarts.lx.studio.LXStudio.UI ui) {
   // Add custom components or output drivers here
 }
