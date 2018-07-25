@@ -1,6 +1,9 @@
 import java.util.*;
 
-import com.chroma.*;
+import com.github.davidmoten.rtree.RTree;
+
+import com.chroma.Chroma;
+import com.chroma.ColorSpace;
 
 @LXCategory(LXCategory.FORM)
 public class RainbowMeans extends LXPattern {
@@ -14,6 +17,7 @@ public class RainbowMeans extends LXPattern {
     Ball balls[];
     Random rnd;
     RainbowCanvas canvas;
+    Chroma placeholder;
 
     int width() {
 	return ((RainbowBaseModel)lx.model).pointsWide;
@@ -27,6 +31,8 @@ public class RainbowMeans extends LXPattern {
         canvas = new RainbowCanvas(lx);
 	balls = new Ball[100];
 	rnd = new Random();
+
+        placeholder = new Chroma(ColorSpace.LCH, 50.0, 100.0, 40.0, 255);
 
 	int i;
 	for (i = 0; i < balls.length; i++) {
@@ -48,6 +54,7 @@ public class RainbowMeans extends LXPattern {
 	for (Ball ball : balls) {
 	    ball.draw();
 	}
+	canvas.render();
     }
 
     void set(int x, int y) {
@@ -60,7 +67,7 @@ public class RainbowMeans extends LXPattern {
 	}
 
 	int idx = y * width() + x;
-	colors[idx] = new Chroma(ColorSpace.LCH, 50.0, 100.0, 40.0, 255).get();
+	colors[idx] = placeholder.get();
     }
 
     public class Ball {
@@ -69,6 +76,10 @@ public class RainbowMeans extends LXPattern {
 	int R;
 
 	void draw() {
+            canvas.circle(X, Y, R);
+	}
+
+	void bresenham() {
     	    // Bresenham algorithm
 	    // https://rosettacode.org/wiki/Bitmap/Midpoint_circle_algorithm#Go
 	    int r = R;
@@ -78,7 +89,6 @@ public class RainbowMeans extends LXPattern {
 	    int x1 = -r;
 	    int y1 = 0;
 	    int err = 2-2*r;
-	    // Bresenham algorithm
 
 	    for (;;) {
 		set(X-x1, Y+y1);
@@ -103,37 +113,89 @@ public class RainbowMeans extends LXPattern {
 
     public class RainbowCanvas {
 
-        public class RGB {
-            float R, G, B;
+        public class Sub {
+            float R, G, B, X, Y;
 
-            RGB(float r, float g, float b) {
-                this.R = r;
-                this.G = g;
-                this.B = b;
+            Sub(float x, float y) {
+		this.X = x;
+		this.Y = y;
             }
+
+	    void set() {
+		this.R = 1;
+		this.G = 1;
+		this.B = 1;
+	    }
         }
+
+	public class Pixel {
+	    Sub subs;
+	}
 
         private LX lx;
         private int width;
         private int height;
-        private RGB samples[];
+        private Sub samples[];
+	private Pixel pixels[];
+	private RTree<LXPoint, Point> tree;
 
         // Units are in feet, here.  Sample one inch pixels.
         public final float unit = 1.0f / 12.0f;
+	public final float foot = 12.0f;
 
         public RainbowCanvas(LX lx) {
-            lx = lx;
-            width = (int)((lx.model.xMax - lx.model.xMin) / unit);
-            height = (int)((lx.model.yMax - lx.model.yMin) / unit);
-            samples = new RGB[height * width];
-        }
+            this.lx = lx;
+            this.width = (int)((lx.model.xMax - lx.model.xMin) / unit);
+	    this.height = (int)((lx.model.yMax - lx.model.yMin) / unit);
+            this.samples = new Sub[height * width];
+	    
+	    createTree();
+	}
+
+	void createTree() {
+	    tree = RTree.create();
+
+	    if (lx == null) {
+		return;
+	    }
+	    if (lx.model == null) {
+		return;
+	    }
+	    if (lx.model.points == null) {
+		return;
+	    }
+	    for (LXPoint lxp : lx.model.points) {
+		tree.add(lxp, Geometries.point(lxp.x, lxp.y));
+	    }
+
+	    for (int xi = 0; xi < width; xi++) {
+		float x = toPos(xi);
+		for (int yi = 0; yi < height; yi++) {
+		    float y = toPos(yi);
+		    int idx = yi*width+xi;
+		    samples[idx] = new Sub(x, y);
+		    int count = 0;
+		    for (List<Entry<LXPoint, Point>> p : tree.nearest(Geometries.point(x, y), foot, 1).toList().toBlocking().toIterable()) {
+			for (Entry<LXPoint, Point> entry : p) {
+			    System.err.printf("WTF %d\n", p.size());
+			}
+			System.err.printf("Size %d\n", p.size());
+			count++;
+		    }
+		}
+	    }
+	}
 
         public int toPix(float val) {
             return (int)(val / unit);
         }
 
+        public float toPos(int idx) {
+            return idx * unit;
+        }
+
         public void circle(float x, float y, float r) {
-            int xbegin = toPix(x-r);
+	    int xbegin = toPix(x-r);
             int xend = toPix(x+r);
 
             int ybegin = toPix(y-r);
@@ -141,13 +203,26 @@ public class RainbowMeans extends LXPattern {
 
             float r2 = r * r;
 
-            for (int xi = xbegin; xi <= xend; xi += unit) {
-                for (int yi = ybegin; yi <= yend; yi += unit) {
-                    if ((x - xi) * (x - xi) + (y - yi) * (y - yi) < r2) {
-                        samples[width*yi+xi] = new RGB(1, 1, 1);
+            for (int xi = xbegin; xi <= xend; xi += 1) {
+                float xd = toPos(xi) - x;
+                float xd2 = xd * xd;
+                for (int yi = ybegin; yi <= yend; yi += 1) {
+                    float yd = toPos(yi) - y;
+                    float yd2 = yd * yd;
+
+		    if (xi < 0 || yi < 0 || xi >= width || yi >= height) {
+			continue;
+		    }
+		    
+                    if (xd2 + yd2 < r2) {
+                        samples[width*yi+xi].set();
                     }
                 }
             }
         }
+
+	public void render() {
+	    
+	}
     }
 }
