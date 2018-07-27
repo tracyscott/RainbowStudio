@@ -59,12 +59,14 @@ public static abstract class RainbowBaseModel extends LXModel {
 
   public RainbowBaseModel(LXFixture fixture) {
     super(fixture);
+
+    System.out.println("X: " + xMin + " - " + xMax);
+    System.out.println("Y: " + yMin + " - " + yMax);
   }
   public int pointsWide;
   public int pointsHigh;
   public float thetaStart;
   public float thetaFinish;
-  
 
   // From CAD drawings.  Note that these numbers are off the mechanical dimensions, so
   // there might still be some small adjustments.  Also, the variables below have the
