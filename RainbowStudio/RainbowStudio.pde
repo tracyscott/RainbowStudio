@@ -40,7 +40,8 @@ static public PApplet pApplet;
 static public boolean fullscreenMode = false;
 UI3dContext fullscreenContext;
 UIGammaSelector gammaControls;
-
+UIModeSelector modeSelector;
+UIAudioMonitorLevels audioMonitorLevels;
 
 void setup() {
   // Processing setup, constructs the window and the LX instance
@@ -56,12 +57,10 @@ void setup() {
   
   lx.ui.setResizable(RESIZABLE);
   
-  new UIModeSelector(lx.ui, lx).setExpanded(true).addToContainer(lx.ui.leftPane.global);
+  modeSelector = (UIModeSelector) new UIModeSelector(lx.ui, lx).setExpanded(true).addToContainer(lx.ui.leftPane.global);
   gammaControls = (UIGammaSelector) new UIGammaSelector(lx.ui)
     .setExpanded(false).addToContainer(lx.ui.leftPane.global);
-  
-  // Register settings
-  lx.engine.registerComponent("rainbowSettings", new Settings(lx, lx.ui));
+  audioMonitorLevels = (UIAudioMonitorLevels) new UIAudioMonitorLevels(lx.ui).setExpanded(false).addToContainer(lx.ui.leftPane.global);
   
   if (modelType == RAINBOW_PANEL) {
     // Manually force the camera settings for a single panel.  A single panel is
@@ -106,6 +105,15 @@ void setup() {
     } else if (modelType == RAINBOW_PANEL) {
       SimplePanel.configureOutputRainbowPanel(lx);
     }
+  }
+
+  // Check for data/PLAYASIDE
+  if (new File(dataPath("PLAYASIDE")).exists()) {
+    System.out.println("PLAYASIDE");
+    modeSelector.autoAudioModeP.setValue(true);
+  } else {
+    System.out.println(dataPath("PLAYASIDE") + " does not exist.");
+    modeSelector.autoAudioModeP.setValue(false);
   }
 
   // Dump our MIDI device names for reference.
@@ -178,14 +186,6 @@ private class Settings extends LXComponent {
   private static final String KEY_GAMMA_GREEN = "gammaGreen";
   private static final String KEY_GAMMA_BLUE = "gammaBlue";
   
-  private static final String KEY_POINTS_VISIBLE = "pointsVisible";
-  private static final String KEY_LEAVES_VISIBLE = "leavesVisible";
-  private static final String KEY_STRUCTURE_VISIBLE = "structureVisible";
-  private static final String KEY_CONTROLS_EXPANDED = "controlsExpanded";
-  private static final String KEY_SENSORS_EXPANDED = "sensorsExpanded";
-  private static final String KEY_SOURCES_EXPANDED = "sourcesExpanded";
-  private static final String KEY_OUTPUT_EXPANDED = "outputExpanded";
-
   @Override
   public void save(LX lx, JsonObject obj) {
     obj.addProperty(KEY_GAMMA_RED, gammaControls.redGamma.getValue());
@@ -214,6 +214,8 @@ private class Settings extends LXComponent {
 
 void initialize(final heronarts.lx.studio.LXStudio lx, heronarts.lx.studio.LXStudio.UI ui) {
   // Add custom components or output drivers here
+    // Register settings
+  lx.engine.registerComponent("rainbowSettings", new Settings(lx, ui));
 }
 
 void onUIReady(heronarts.lx.studio.LXStudio lx, heronarts.lx.studio.LXStudio.UI ui) {
