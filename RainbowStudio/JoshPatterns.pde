@@ -28,7 +28,9 @@ public class RainbowMeans extends LXPattern {
 
     public RainbowMeans(LX lx) {
  	super(lx);
+
         canvas = new RainbowCanvas(lx);
+
 	balls = new Ball[100];
 	rnd = new Random();
 
@@ -129,7 +131,7 @@ public class RainbowMeans extends LXPattern {
         }
 
 	public class Pixel {
-	    Sub subs;
+	    ArrayList<Sub> subs;
 	}
 
         private LX lx;
@@ -148,6 +150,21 @@ public class RainbowMeans extends LXPattern {
             this.width = (int)((lx.model.xMax - lx.model.xMin) / unit);
 	    this.height = (int)((lx.model.yMax - lx.model.yMin) / unit);
             this.samples = new Sub[height * width];
+	    this.pixels = new Pixel[lx.model.points.length];
+	    
+	    for (int xi = 0; xi < width; xi++) {
+	    	float x = toPos(xi);
+	    	for (int yi = 0; yi < height; yi++) {
+	    	    float y = toPos(yi);
+	    	    int idx = yi*width+xi;
+	    	    samples[idx] = new Sub(x, y);
+		}
+	    }
+
+	    for (int i = 0; i < lx.model.points.length; i++) {
+		pixels[i] = new Pixel();
+		pixels[i].subs = new ArrayList<Sub>();
+	    }
 	    
 	    createTree();
 	}
@@ -164,25 +181,26 @@ public class RainbowMeans extends LXPattern {
 	    if (lx.model.points == null) {
 		return;
 	    }
+
+	    
 	    for (LXPoint lxp : lx.model.points) {
-		tree.add(lxp, Geometries.point(lxp.x, lxp.y));
+	    	tree = tree.add(lxp, Geometries.point(lxp.x, lxp.y));
 	    }
 
 	    for (int xi = 0; xi < width; xi++) {
-		float x = toPos(xi);
-		for (int yi = 0; yi < height; yi++) {
-		    float y = toPos(yi);
-		    int idx = yi*width+xi;
-		    samples[idx] = new Sub(x, y);
-		    int count = 0;
-		    for (List<Entry<LXPoint, Point>> p : tree.nearest(Geometries.point(x, y), foot, 1).toList().toBlocking().toIterable()) {
-			for (Entry<LXPoint, Point> entry : p) {
-			    System.err.printf("WTF %d\n", p.size());
-			}
-			System.err.printf("Size %d\n", p.size());
-			count++;
-		    }
-		}
+	    	float x = toPos(xi);
+	    	for (int yi = 0; yi < height; yi++) {
+	    	    float y = toPos(yi);
+	    	    int idx = yi*width+xi;
+
+		    Entry<LXPoint, Point> near =
+			tree.nearest(Geometries.point(x, y), foot/2., 1).toBlocking().first();
+		    
+	    	    // if (near != null) {
+		    // 	pixels[near.value().index].subs.add(samples[idx]);
+	    	    // }
+
+	    	}
 	    }
 	}
 
