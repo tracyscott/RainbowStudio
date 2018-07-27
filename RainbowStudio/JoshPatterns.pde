@@ -3,6 +3,7 @@ import java.util.*;
 import com.github.davidmoten.rtree.RTree;
 
 import com.chroma.Chroma;
+import com.chroma.ChromaLCH;
 import com.chroma.ColorSpace;
 
 @LXCategory(LXCategory.FORM)
@@ -19,6 +20,7 @@ public class RainbowMeans extends LXPattern {
     RainbowCanvas canvas;
     Chroma placeholder;
 
+
     int width() {
 	return ((RainbowBaseModel)lx.model).pointsWide;
     }
@@ -29,6 +31,8 @@ public class RainbowMeans extends LXPattern {
     public RainbowMeans(LX lx) {
  	super(lx);
 
+        try {
+            
         canvas = new RainbowCanvas(lx);
 
 	balls = new Ball[100];
@@ -50,6 +54,13 @@ public class RainbowMeans extends LXPattern {
 	brightnessKnob.setValue(100);
 	saturationKnob.setValue(100);
 	swapsKnob.setValue(5);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            
+            System.err.println("EXCEPTION: " + e);
+        }
+        
     }
 
     public void run(double deltaMs) {
@@ -116,17 +127,19 @@ public class RainbowMeans extends LXPattern {
     public class RainbowCanvas {
 
         public class Sub {
-            float R, G, B, X, Y;
+            float X;
+            float Y;
+            float L,C,H;
 
             Sub(float x, float y) {
 		this.X = x;
 		this.Y = y;
             }
 
-	    void set() {
-		this.R = 1;
-		this.G = 1;
-		this.B = 1;
+	    void set(float l, float c, float h) {
+                L = l;
+                C = c;
+                H = h;
 	    }
         }
 
@@ -193,13 +206,10 @@ public class RainbowMeans extends LXPattern {
 	    	    float y = toPos(yi);
 	    	    int idx = yi*width+xi;
 
-		    Entry<LXPoint, Point> near =
-			tree.nearest(Geometries.point(x, y), foot/2., 1).toBlocking().first();
-		    
-	    	    // if (near != null) {
-		    // 	pixels[near.value().index].subs.add(samples[idx]);
-	    	    // }
-
+                    for (Entry<LXPoint, Point> point :
+                             tree.nearest(Geometries.point(x, y), foot/2., 1).toBlocking().toIterable()) {
+                        pixels[point.value().index].subs.add(samples[idx]);
+                    }
 	    	}
 	    }
 	}
@@ -232,15 +242,44 @@ public class RainbowMeans extends LXPattern {
 			continue;
 		    }
 		    
-                    if (xd2 + yd2 < r2) {
-                        samples[width*yi+xi].set();
+                    if (xd2 + yd2 > r2) {
+                        continue;
                     }
+
+                    float theta = (float)Math.atan(yd / xd);
+
+                    if (theta < 0) {
+                        theta += 2 * Math.PI;
+                    }
+
+                    if (xi < x) {
+                        theta -= 180; 
+                    }
+                    
+                    float hue = (float)(theta * 180 / Math.PI);
+                    float chroma = xd / x;
+                    float level = 1.0;
+
+                    samples[width*yi+xi].set(level, chroma, hue);
                 }
             }
         }
 
 	public void render() {
-	    
-	}
+	    for (LXPoint lxp : lx.model.points) {
+                float la = 0, ca = 0 , ha = 0;
+                int cnt = 0;
+                // Note: these are unweighted. Not so right...
+                for (Sub s : pixels[lxp.index].subs) {
+                    cnt++;
+                    la += s.L;
+                    ca += s.C;
+                    ha += s.H;
+                }
+                colors[lxp.index] = LXColor.hsb(ha/(float)cnt,
+                                                ca/(float)cnt * 100,
+                                                la/(float)cnt) * 100;
+            }
+        }
     }
 }
