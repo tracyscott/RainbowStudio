@@ -1,8 +1,14 @@
 import java.util.*;
 
-import java.awt.Color;
+import java.io.File;
 
 import com.github.davidmoten.rtree.RTree;
+
+import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
 
 import com.chroma.Chroma;
 import com.chroma.ChromaLCH;
@@ -21,7 +27,7 @@ public class RainbowMeans extends LXPattern {
     Random rnd;
     RainbowCanvas canvas;
     Chroma placeholder;
-
+    double elapsed;
 
     int trueWidth() {
 	return ((RainbowBaseModel)lx.model).pointsWide;
@@ -35,16 +41,16 @@ public class RainbowMeans extends LXPattern {
 
         try {
 	    canvas = new RainbowCanvas(lx);
-
+	    elapsed = 0;
 	    balls = new Ball[100];
 	    rnd = new Random();
 
 	    int i;
 	    for (i = 0; i < balls.length; i++) {
 		balls[i] = new Ball();
-		balls[i].X = rnd.nextInt(canvas.width);
-		balls[i].Y = rnd.nextInt(canvas.height);
-		balls[i].R = rnd.nextInt(canvas.height/2);
+		balls[i].X = lx.model.xMin + (lx.model.xMax - lx.model.xMin) * rnd.nextFloat();
+		balls[i].Y = lx.model.yMin + (lx.model.yMax - lx.model.yMin) * rnd.nextFloat();
+		balls[i].R = (lx.model.yMax - lx.model.yMin) * rnd.nextFloat() / 5;
 	    }
 
 	    addParameter(swapsKnob);
@@ -63,10 +69,10 @@ public class RainbowMeans extends LXPattern {
     }
 
     public void run(double deltaMs) {
-	// for (Ball ball : balls) {
-	//     ball.draw();
-	// }
-	silly();
+	elapsed += deltaMs;
+	for (Ball ball : balls) {
+	    ball.draw();
+	}
 	canvas.render();
     }
 
@@ -74,15 +80,15 @@ public class RainbowMeans extends LXPattern {
 	for (int yi = 0; yi < canvas.height; yi++) {
 	    for (int xi = 0; xi < canvas.width; xi++) {
 		int idx = yi*canvas.width+xi;
-		canvas.samples[idx].setHSB((float)xi/(float)canvas.width, (float)yi/(float)canvas.height, 1);
+		canvas.samples[idx].setHSB((float)yi/(float)canvas.height, 1, 1);
 	    }
 	}
     }
 
     public class Ball {
-	int X;
-	int Y;
-	int R;
+	float X;
+	float Y;
+	float R;
 
 	void draw() {
             canvas.circle(X, Y, R);
@@ -104,6 +110,10 @@ public class RainbowMeans extends LXPattern {
 	    void setHSB(float h, float s, float b) {
 		C = Color.HSBtoRGB(h, s, b);
 	    }
+
+	    void setRGB(int r, int g, int b) {
+		C = new Color(r, g, b).getRGB();
+	    }
         }
 
 	public class Pixel {
@@ -118,7 +128,7 @@ public class RainbowMeans extends LXPattern {
 	private RTree<LXPoint, Point> tree;
 
         // Units are in feet, here.  Sample one inch pixels.
-        public final float unit = 1.0f / 12.0f;
+	public final float unit = 1.0f / 12.0f;
 	public final float foot = 12.0f;
 
         public RainbowCanvas(LX lx) {
@@ -176,12 +186,6 @@ public class RainbowMeans extends LXPattern {
                     }
 	    	}
 	    }
-
-	    for (Pixel p : pixels) {
-		if (p.subs.size() < 5) {
-		    System.err.println("Pixel with " + p.subs.size() + " sub-pixels");
-		}
-	    }
 	}
 
         public int subXi(float val) {
@@ -214,7 +218,7 @@ public class RainbowMeans extends LXPattern {
                     float yd = iY(yi) - y;
                     float yd2 = yd * yd;
 
-		    if (xi < 0 || yi < 0 || xi >= width || yi >= height) {
+		    if (xi < 0 || yi < 0 || xi >= canvas.width || yi >= canvas.height) {
 			continue;
 		    }
 		    
@@ -222,18 +226,14 @@ public class RainbowMeans extends LXPattern {
                         continue;
                     }
 
-                    float theta = (float)Math.atan(yd / xd);
+                    float theta = (float)(Math.atan(yd / xd) + (Math.PI / 2));
 
-                    if (theta < 0) {
-                        theta += 2 * Math.PI;
-                    }
-
-                    if (xi < x) {
-                        theta -= Math.PI; 
-                    }
+		    if (xd < 0) {
+			theta += Math.PI;
+		    }
                     
-                    float hue = (float)(theta / Math.PI / 2);
-                    float chroma = xd / x;
+		    float hue = (float)(theta / (2 * Math.PI)) + (float)(elapsed/1000);
+                    float chroma = 1.0;
                     float level = 1.0;
 
                     samples[width*yi+xi].setHSB(hue, chroma, level);
@@ -242,21 +242,43 @@ public class RainbowMeans extends LXPattern {
         }
 
 	public void render() {
+	    // dump();
 
 	    for (LXPoint lxp : lx.model.points) {
                 float r = 0, g = 0, b = 0;
                 int cnt = 0;
-                // Note: these are unweighted. Not so right...
+                // Note: these are unweighted.
                 for (Sub s : pixels[lxp.index].subs) {
                     cnt++;
 		    r += LXColor.red(s.C);
 		    g += LXColor.green(s.C);
 		    b += LXColor.blue(s.C);
                 }
-                colors[lxp.index] = LXColor.rgb((int)(r/(float)cnt + 0.5),
-						(int)(g/(float)cnt + 0.5),
-						(int)(b/(float)cnt + 0.5));
+                colors[lxp.index] = LXColor.rgb((int)(r/(float)cnt),
+						(int)(g/(float)cnt),
+						(int)(b/(float)cnt));
             }
         }
+
+	public void dump() {
+	    final BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+	    final Graphics2D g = (Graphics2D) image.getGraphics();
+	    g.setBackground(Color.white);
+	    g.clearRect(0, 0, width, height);
+	    
+	    for (int yi = 0; yi < canvas.height; yi++) {
+		for (int xi = 0; xi < canvas.width; xi++) {
+		    int idx = yi*canvas.width+xi;
+		    image.setRGB(xi, canvas.height-yi-1, canvas.samples[idx].C);
+		}
+	    }
+
+	    try {
+		ImageIO.write(image, "PNG", new File("/Users/jmacd/Desktop/image.png"));
+	    } catch (IOException e) {
+		System.err.println("IO exception" + e);
+		throw new RuntimeException("BLAH");
+	    }
+	}
     }
 }
