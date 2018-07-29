@@ -24,31 +24,36 @@
 // Reference to top-level LX instance
 heronarts.lx.studio.LXStudio lx;
 
-static public final boolean enableArtNet = false;
+static public final int GLOBAL_FRAME_RATE = 60;
+static public final boolean enableArtNet = true;
 static public final int ARTNET_PORT = 6454;
-static public final String LED_CONTROLLER_IP = "192.168.1.63";
+static public final String LED_CONTROLLER_IP = "192.168.2.134";
 
 static public final int FULL_RAINBOW = 0;
 static public final int SRIKANTH_PANEL = 1;
 static public final int RAINBOW_PANEL = 2;
 static public final int LARGE_PANEL = 3;
+static public final int RAINBOW_PANEL_4 = 4;
+static public final int RAINBOW_PANEL_2 = 5;
 
 // Used for PixelFlow.  Needs a reference to pApplet for setting up
 // OpenGL Context.
 static public PApplet pApplet;
 
 static public boolean fullscreenMode = false;
-UI3dContext fullscreenContext;
-UIGammaSelector gammaControls;
-UIModeSelector modeSelector;
-UIAudioMonitorLevels audioMonitorLevels;
+static UI3dContext fullscreenContext;
+static UIGammaSelector gammaControls;
+static UIModeSelector modeSelector;
+static UIAudioMonitorLevels audioMonitorLevels;
+static UIPixliteConfig pixliteConfig;
 
 void setup() {
   // Processing setup, constructs the window and the LX instance
   size(800, 720, P3D);
   pApplet = this;
+  frameRate(GLOBAL_FRAME_RATE);
   
-  int modelType = FULL_RAINBOW; // RAINBOW_PANEL or FULL_RAINBOW
+  int modelType = FULL_RAINBOW; // RAINBOW_PANEL, RAINBOW_PANEL_4 or FULL_RAINBOW
   
   LXModel model = buildModel(modelType);
   /* MULTITHREADED disabled for P3D, GL, Hardware Acceleration */
@@ -61,6 +66,7 @@ void setup() {
   gammaControls = (UIGammaSelector) new UIGammaSelector(lx.ui)
     .setExpanded(false).addToContainer(lx.ui.leftPane.global);
   audioMonitorLevels = (UIAudioMonitorLevels) new UIAudioMonitorLevels(lx.ui).setExpanded(false).addToContainer(lx.ui.leftPane.global);
+  pixliteConfig = (UIPixliteConfig) new UIPixliteConfig(lx.ui).setExpanded(false).addToContainer(lx.ui.leftPane.global);
   
   if (modelType == RAINBOW_PANEL) {
     // Manually force the camera settings for a single panel.  A single panel is
@@ -99,11 +105,15 @@ void setup() {
 
   if (enableArtNet) {
     if (modelType == FULL_RAINBOW) {
-      RainbowModel3D.configureOutput(lx);
+      SimplePanel.configureOutputMultiPanel(lx);
     } else if (modelType == SRIKANTH_PANEL) {
       SimplePanel.configureOutputSrikanthPanel(lx);
     } else if (modelType == RAINBOW_PANEL) {
       SimplePanel.configureOutputRainbowPanel(lx);
+    } else if (modelType == RAINBOW_PANEL_4) {
+      SimplePanel.configureOutputMultiPanel(lx);
+    } else if (modelType == RAINBOW_PANEL_2) {
+      SimplePanel.configureOutputMultiPanel(lx);
     }
   }
 
@@ -135,6 +145,19 @@ void setup() {
   
   lx.ui.setTopLevelKeyEventHandler(new TopLevelKeyEventHandler());
   lx.ui.setBackgroundColor(0);
+  
+  /*
+  Locale currentLocale = Locale.getDefault();
+ 
+System.out.println(currentLocale.getDisplayLanguage());
+System.out.println(currentLocale.getDisplayCountry());
+ 
+System.out.println(currentLocale.getLanguage());
+System.out.println(currentLocale.getCountry());
+ 
+System.out.println(System.getProperty("user.country"));
+System.out.println(System.getProperty("user.language"));
+*/
 }
   
 public class TopLevelKeyEventHandler extends UIEventHandler {
@@ -186,19 +209,25 @@ private class Settings extends LXComponent {
   private static final String KEY_GAMMA_GREEN = "gammaGreen";
   private static final String KEY_GAMMA_BLUE = "gammaBlue";
   
+  private static final String KEY_PIXLITE1_IP = "pixlite1Ip";
+  private static final String KEY_PIXLITE1_PORT = "pixlite1Port";
+  private static final String KEY_PIXLITE2_IP = "pixlite2Ip";
+  private static final String KEY_PIXLITE2_PORT = "pixlite2Port";
+  
   @Override
   public void save(LX lx, JsonObject obj) {
     obj.addProperty(KEY_GAMMA_RED, gammaControls.redGamma.getValue());
     obj.addProperty(KEY_GAMMA_GREEN, gammaControls.greenGamma.getValue());
     obj.addProperty(KEY_GAMMA_BLUE, gammaControls.blueGamma.getValue());
+    obj.addProperty(KEY_PIXLITE1_IP, pixliteConfig.pixlite1IpP.getString());
+    obj.addProperty(KEY_PIXLITE1_PORT, pixliteConfig.pixlite1PortP.getString());
+    obj.addProperty(KEY_PIXLITE2_IP, pixliteConfig.pixlite2IpP.getString());
+    obj.addProperty(KEY_PIXLITE2_PORT, pixliteConfig.pixlite2PortP.getString());
   }
 
   @Override
   public void load(LX lx, JsonObject obj) {
-    System.out.println("Loading settings....");
-    System.out.println("Loading settings....");
-    System.out.println("Loading settings....");
-    System.out.println("Loading settings....");    
+    System.out.println("Loading settings....");  
     if (obj.has(KEY_GAMMA_RED)) {
       gammaControls.redGamma.setValue(obj.get(KEY_GAMMA_RED).getAsDouble());
     }
@@ -207,6 +236,18 @@ private class Settings extends LXComponent {
     }
     if (obj.has(KEY_GAMMA_BLUE)) {
       gammaControls.blueGamma.setValue(obj.get(KEY_GAMMA_BLUE).getAsDouble());
+    }
+    if (obj.has(KEY_PIXLITE1_IP)) {
+      pixliteConfig.pixlite1IpP.setValue(obj.get(KEY_PIXLITE1_IP).getAsString());
+    }
+    if (obj.has(KEY_PIXLITE1_PORT)) {
+      pixliteConfig.pixlite1PortP.setValue(obj.get(KEY_PIXLITE1_PORT).getAsString());
+    }
+    if (obj.has(KEY_PIXLITE2_IP)) {
+      pixliteConfig.pixlite2IpP.setValue(obj.get(KEY_PIXLITE2_IP).getAsString());
+    }
+    if (obj.has(KEY_PIXLITE2_PORT)) {
+      pixliteConfig.pixlite2PortP.setValue(obj.get(KEY_PIXLITE2_PORT).getAsString());
     }
   }
 }

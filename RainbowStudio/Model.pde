@@ -13,6 +13,10 @@ LXModel buildModel(int modelType) {
     return new RainbowModel3D(1);
   } else if (modelType == LARGE_PANEL) {
     return new SimplePanel(100, 50);
+  } else if (modelType == RAINBOW_PANEL_4) {
+    return new RainbowModel3D(4);
+  } else if (modelType == RAINBOW_PANEL_2) {
+    return new RainbowModel3D(2);
   } else {
     return null;
   }
@@ -152,18 +156,26 @@ public static class SimplePanel extends RainbowBaseModel {
    * 450 leds each, 5400 leds.
    */
   public static void configureOutputMultiPanel(LX lx) {
-    int panelsPerPixlite1 = 16;
-    int panelsPerPixlite2 = 12;
-    int universesPerPanel = 3;
-    int currentLogicalPanel = 0;
-    int pointsPerPanel = 450;
-    int pointsPerUniverse = 170;
+    // Config for panel size, number of panels, number of universes per panel, number of led controllers
+    // and number of panels per controller.
     int pointsWidePerPanel = 15;
     int pointsHighPerPanel = 30;
+    int pointsPerPanel = pointsWidePerPanel * pointsHighPerPanel;
+    int pointsPerUniverse = 170;
     int pointsWide = ((RainbowBaseModel)lx.model).pointsWide;
-    int pointsHigh = ((RainbowBaseModel)lx.model).pointsHigh;
-    int maxColNumPerPanel = pointsWidePerPanel - 1;
+    int pointsHigh = ((RainbowBaseModel)lx.model).pointsHigh;    
     int numPanels = pointsWide / pointsWidePerPanel;
+    int numLedControllers = 2;
+    // TODO(tracy): Use numPanels here for testing with fewer panels.  Use actual values for installation.
+    int panelsPerLedController1 = 16;  // Production values
+    int panelsPerLedController2 = 12;
+    int universesPerPanel = ceil((float)pointsPerPanel/(float)pointsPerUniverse);
+    
+    int maxColNumPerPanel = pointsWidePerPanel - 1;
+    int currentLogicalPanel = 0;
+    System.out.println("numPanels= " + numPanels);
+    System.out.println("controller 1 panels: " + panelsPerLedController1);
+    System.out.println("controller 2 panels: " + panelsPerLedController2);
     
     Map<Integer, List<Integer>> panelMap = new HashMap<Integer, List<Integer>>();
     // First, just build this in a straightforward way.
@@ -172,10 +184,10 @@ public static class SimplePanel extends RainbowBaseModel {
       for (int j = 0; j < universesPerPanel; j++) {
         int universeNum = i * universesPerPanel + j;
         // Reset universe numbers for second pixlite
-        if (i >= panelsPerPixlite1) {
-          universeNum = (i - panelsPerPixlite1) * universesPerPanel + j;
+        if (i >= panelsPerLedController1) {
+          universeNum = (i - panelsPerLedController1) * universesPerPanel + j;
         }
-        universesThisPanel.add(new Integer(i*universesPerPanel + j));
+        universesThisPanel.add(new Integer(universeNum));
       }
       panelMap.put(i, universesThisPanel);
     }
@@ -184,17 +196,27 @@ public static class SimplePanel extends RainbowBaseModel {
     // panelMap.put(0, (15, 16, 17));
     // panelMap.put(5, (0, 1, 2));
 
-    List<ArtNetDatagram> datagrams = new ArrayList<ArtNetDatagram>();
-    int[] dmxChannelsForUniverse = new int[pointsPerUniverse];
+
     // This iterates through all our points.  We also need to track our current logical
     // panel (which should just be globalLedPos / pointsPerPanel;
-    for (int globalLedPos = 0; globalLedPos < pointsWide*pointsHigh; globalLedPos++) {
-      currentLogicalPanel = globalLedPos / pointsPerPanel;
-      int panelLedPos = globalLedPos - currentLogicalPanel * pointsPerPanel;
-      int colNumFromRight = globalLedPos / pointsHighPerPanel;
+    // We need to iterate through panels and build datagrams that way.
+    int globalLedPos = 0;
+    
+    // Each controller gets a list of ArtNetDatagrams that it is responsible for.
+    List<List<ArtNetDatagram>> ledControllersDatagrams = new ArrayList<List<ArtNetDatagram>>(numLedControllers);
+    List<ArtNetDatagram> pixlite1Datagrams = new ArrayList<ArtNetDatagram>();
+    ledControllersDatagrams.add(pixlite1Datagrams);
+    List<ArtNetDatagram> pixlite2Datagrams = new ArrayList<ArtNetDatagram>();
+    ledControllersDatagrams.add(pixlite2Datagrams);
+    
+    for (currentLogicalPanel = 0; currentLogicalPanel < numPanels; currentLogicalPanel++) {
+      
+      int[] dmxChannelsForUniverse = new int[pointsPerUniverse];
+      
+    for (int panelLedPos = 0; panelLedPos < pointsWidePerPanel*pointsHighPerPanel; panelLedPos++) {
+      int colNumFromRight = panelLedPos / pointsHighPerPanel;
       int colNumFromLeft = maxColNumPerPanel - colNumFromRight;
       int rowNumFromBottom;
-      // Argh, this stuff needs perPanelLedPos
       if (colNumFromRight % 2 == 0)
         rowNumFromBottom = panelLedPos % pointsHighPerPanel;
       else
@@ -202,43 +224,63 @@ public static class SimplePanel extends RainbowBaseModel {
 
       
       List<Integer> panelUniverses = panelMap.get(currentLogicalPanel);
-      // Which universe are we in?  Depends on our perPanelLedPos.
+      // Which Panel-local universe are we in? 0,1,2?  Depends on our panelLedPos.  Then we also need to
+      // check the Panel-Universe map in case something was wired up incorrectly and we need to 
+      // account for it in software.
       int universeOffset = panelLedPos / pointsPerUniverse;
       int currentPanelUniverse = panelUniverses.get(universeOffset);
       
-      // TODO(tracy): LEDS_PER_UNIVERSE might be configurable in UI.
-      // START_UNIVERSE is OUTPUT channel dependent.  If panels are swapped at build time, we need to
-      // make sure that we use the correct universes.  We don't deal with Pixlite output channels, we
-      // only work with universes, so a bad wiring hookup needs to be fixed with universe swapping.
-      // Create a map where the key is our logical virtual panel and the value is a set of universes.
-      // To fix a build time issue, we would modify the building of that map.
-      
+      // TODO(tracy): pointsPerUniverse might be configurable in UI.
+     
       // Chunk by 170 for each universe.      
       int universeLedPos = panelLedPos % pointsPerUniverse;
-      int pointIndex = rowNumFromBottom * pointsWidePerPanel + colNumFromLeft;
+      // TODO(tracy): This needs to change from panel-local coordinates to global led coordinates.
+      //int pointIndex = rowNumFromBottom * pointsWidePerPanel + colNumFromLeft;
+      // Convert from Panel-local coordinates to global point coordinates.  Point 1,2 in Panel 2 is 420 * 2 + 1 + 2*30 = 901
+      int globalPointIndex = rowNumFromBottom * pointsWide + colNumFromLeft + currentLogicalPanel * pointsWidePerPanel;
       // System.out.println(globalLedPos + " colNum:" +colNumFromLeft + " rowNum:" + rowNumFromBottom + " pointIndex: " + pointIndex);
-      dmxChannelsForUniverse[universeLedPos] = pointIndex;
+      dmxChannelsForUniverse[universeLedPos] = globalPointIndex;
       // Either we are on DMX channel 170, or we are at the end of the panel.
-      if (universeLedPos == pointsPerUniverse - 1 || globalLedPos == pointsWide * pointsHigh - 1) {
+      if (universeLedPos == pointsPerUniverse - 1 || panelLedPos == pointsWidePerPanel * pointsHighPerPanel - 1) {
         // Construct with our custom datagram class that has lookup table Gamma corrrection and
-        // rainbow background color correction.
-        ArtNetDatagram datagram = new RainbowDatagram(lx, dmxChannelsForUniverse, currentPanelUniverse);
-        String ledControllerIp = LED_CONTROLLER_IP;        
+        // rainbow background color correction.  Also, the last chunk of LEDs on a panel do not fill up an entire universe,
+        // so set the datagram size based on the last universeLedPos.
+        if (universeLedPos != pointsPerUniverse -1) {
+          // We came up short, we need to resize our dmxChannelsForUniverse array because RainbowDatagram and LXDatagram in general
+          // just iterate through the length of the passed in dmxChannelsForUniverse, regardless of the dataLength we have constructed
+          // it with.  This causes IndexOutOfBounds exceptions because the data buffer size is determined by dataLength, but the
+          // buffer filling loop is determined by dmxChannelsForUniverse.length
+          // I added a hack to RainbowDatagram to stop at the buffer length so we can pass in a larger int[] without blowing
+          // up.
+        }
+        ArtNetDatagram datagram = new RainbowDatagram(lx, dmxChannelsForUniverse, (universeLedPos+1)*3, currentPanelUniverse);
+        String ledControllerIp = "";
+        int ledControllerPort = 0;
+        List<ArtNetDatagram> whichLedControllerDatagrams = null;
+        
         try {
           // LED_CONTROLLER_IP needs to be changed to a list, configurable in UI.  See Tenere.
           // Leave ARTNET port hardcoded.
-          if (currentLogicalPanel < panelsPerPixlite1) {
-            ledControllerIp = LED_CONTROLLER_IP; // UIPixliteConfig.pixlite1IpP.getString();
+          if (currentLogicalPanel < panelsPerLedController1) {
+            // System.out.println("Creating datagram for panel: " + currentLogicalPanel);
+            ledControllerIp = pixliteConfig.pixlite1IpP.getString(); // UIPixliteConfig.pixlite1IpP.getString();
+            ledControllerPort = Integer.parseInt(pixliteConfig.pixlite1PortP.getString());
+            whichLedControllerDatagrams = ledControllersDatagrams.get(0);
           } else {
-            ledControllerIp = LED_CONTROLLER_IP; // UIPixliteConfig.pixlite2IpP.getString();
+            ledControllerIp = pixliteConfig.pixlite2IpP.getString(); // UIPixliteConfig.pixlite2IpP.getString();
+            ledControllerPort = Integer.parseInt(pixliteConfig.pixlite2PortP.getString());
+            whichLedControllerDatagrams = ledControllersDatagrams.get(1);
           }
-          datagram.setAddress(ledControllerIp).setPort(ARTNET_PORT);
+          datagram.setAddress(ledControllerIp).setPort(ledControllerPort);
         } catch (java.net.UnknownHostException uhex) {
           System.out.println("ERROR! UnknownHostException while configuring ArtNet: " + ledControllerIp);
         }
-        datagrams.add(datagram);
+        // whichLedControllerDatagrams == null should only happen if UnknownHostException is thrown. 
+        // Go ahead and crash because it is at startup and error message should help debug.
+        whichLedControllerDatagrams.add(datagram);
         dmxChannelsForUniverse = new int[pointsPerUniverse];
       }
+    }
     }
     // TODO(tracy): Add 2 ArtNet sync packet datagrams at the end, one for each controller.
     
@@ -246,11 +288,20 @@ public static class SimplePanel extends RainbowBaseModel {
     // all datagrams with it.
     try {
       LXDatagramOutput datagramOutput = new LXDatagramOutput(lx);
-      for (ArtNetDatagram datagram : datagrams) {
-        datagramOutput.addDatagram(datagram);
+      for (List<ArtNetDatagram> ledControllerDatagrams : ledControllersDatagrams) {
+        for (ArtNetDatagram datagram : ledControllerDatagrams) {
+          datagramOutput.addDatagram(datagram);
+        }
+      }
+      try {
+        datagramOutput.addDatagram(new ArtSyncDatagram(Integer.parseInt(pixliteConfig.pixlite1PortP.getString())).setAddress(pixliteConfig.pixlite1IpP.getString()));
+        datagramOutput.addDatagram(new ArtSyncDatagram(Integer.parseInt(pixliteConfig.pixlite2PortP.getString())).setAddress(pixliteConfig.pixlite2IpP.getString()));
+      } catch (java.net.UnknownHostException uhex) {
+        System.out.println("ArtNet Sync: UnknownHostException: " + uhex.getMessage());
       }
       // Finally, register our LXDatagramOutput with the engine.
       lx.engine.output.addChild(datagramOutput);
+      //lx.engine.output.framesPerSecond.setValue(GLOBAL_FRAME_RATE + 20);
     } catch (java.net.SocketException sex) {
       // This can happen for example if we run out of file handles because some code is opening
       // files without closing them.
@@ -258,6 +309,7 @@ public static class SimplePanel extends RainbowBaseModel {
     }    
   }
   
+  // TODO(tracy): Make configureMultiPanelOutput work with one controller and one panel;
   public static void configureOutputRainbowPanel(LX lx) {
     int pointsWide = ((RainbowBaseModel)lx.model).pointsWide;
     int pointsHigh = ((RainbowBaseModel)lx.model).pointsHigh;
@@ -284,7 +336,7 @@ public static class SimplePanel extends RainbowBaseModel {
       if (universeLedPos == LEDS_PER_UNIVERSE - 1 || globalLedPos == pointsWide * pointsHigh - 1) {
         // Construct with our custom datagram class that has lookup table Gamma corrrection and
         // rainbow background color correction.
-        ArtNetDatagram datagram = new RainbowDatagram(lx, dmxChannelsForUniverse, currentUniverse);
+        ArtNetDatagram datagram = new RainbowDatagram(lx, dmxChannelsForUniverse, (universeLedPos+1)*3, currentUniverse);
         try {
           datagram.setAddress(LED_CONTROLLER_IP).setPort(ARTNET_PORT);
         } catch (java.net.UnknownHostException uhex) {
@@ -302,8 +354,14 @@ public static class SimplePanel extends RainbowBaseModel {
       for (ArtNetDatagram datagram : datagrams) {
         datagramOutput.addDatagram(datagram);
       }
+      try {
+        datagramOutput.addDatagram(new ArtSyncDatagram(ARTNET_PORT).setAddress(LED_CONTROLLER_IP));
+      } catch (java.net.UnknownHostException uhex) {
+        System.out.println("ARTNET Sync: UnknownHostException: " + uhex.getMessage());
+      }
       // Finally, register our LXDatagramOutput with the engine.
       lx.engine.output.addChild(datagramOutput);
+      // lx.engine.output.framesPerSecond.setValue(GLOBAL_FRAME_RATE);
     } catch (java.net.SocketException sex) {
       // This can happen for example if we run out of file handles because some code is opening
       // files without closing them.

@@ -1,3 +1,35 @@
+static public class UIPixliteConfig extends UICollapsibleSection {
+  static public StringParameter pixlite1IpP = new StringParameter("Pixlite 1 IP", "192.168.2.134");
+  static public StringParameter pixlite1PortP = new StringParameter("Pixlite 1 Port", "6454");
+  static public StringParameter pixlite2IpP = new StringParameter("Pixlite 2 IP", "192.168.2.134");
+  static public StringParameter pixlite2PortP = new StringParameter("Pixlite 2 Port", "6455");
+  
+  static public UITextBox pixlite1Ip;
+  static public UITextBox pixlite1Port;
+  static public UITextBox pixlite2Ip;
+  static public UITextBox pixlite2Port;
+  
+  public UIPixliteConfig(final LXStudio.UI ui) {
+    super(ui, 0, 0, ui.leftPane.global.getContentWidth(), 200);
+    int contentWidth = (int)ui.leftPane.global.getContentWidth();
+    setTitle("Pixlite Config");
+    setLayout(UI2dContainer.Layout.VERTICAL);
+    setChildMargin(2);
+    pixlite1Ip = new UITextBox(0,0, contentWidth - 10, 20 );
+    pixlite1Ip.setParameter(pixlite1IpP);
+    pixlite1Ip.addToContainer(this);
+    pixlite1Port = new UITextBox(0, 0, contentWidth - 10, 20);
+    pixlite1Port.setParameter(pixlite1PortP);
+    pixlite1Port.addToContainer(this);
+    pixlite2Ip = new UITextBox(0, 0, contentWidth - 10, 20);
+    pixlite2Ip.setParameter(pixlite2IpP);
+    pixlite2Ip.addToContainer(this);
+    pixlite2Port = new UITextBox(0, 0, contentWidth - 10, 20);
+    pixlite2Port.setParameter(pixlite2PortP);
+    pixlite2Port.addToContainer(this);
+  }
+}
+
 static public class UIAudioMonitorLevels extends UICollapsibleSection {
   static public BoundedParameter minThresholdP = new BoundedParameter("MinThreshold", 10.0, 0.0, 40.0);
   static public BoundedParameter quietTimeP = new BoundedParameter("Quiet Time", 60.0, 0.0, 180.0);
