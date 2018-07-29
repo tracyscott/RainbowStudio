@@ -466,7 +466,8 @@ public static class RainbowModel3D extends RainbowBaseModel {
     this.thetaStart = 90.0 - arc/2.0;
     this.thetaFinish = 90.0 + arc/2.0;
     pointsWide = numPanels * 15;
-
+    pointsHigh = 30;
+    
     perimeter = new ArrayList<LXPoint>();
 
     // Left edge & right perimeters
