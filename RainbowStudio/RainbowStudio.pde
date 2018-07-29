@@ -25,7 +25,7 @@
 heronarts.lx.studio.LXStudio lx;
 
 static public final int GLOBAL_FRAME_RATE = 60;
-static public final boolean enableArtNet = true;
+static public final boolean enableArtNet = false;
 static public final int ARTNET_PORT = 6454;
 static public final String LED_CONTROLLER_IP = "192.168.2.134";
 
