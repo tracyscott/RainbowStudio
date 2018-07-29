@@ -501,7 +501,7 @@ public static class RainbowModel3D extends RainbowBaseModel {
   
   public static class Fixture extends LXAbstractFixture {
     Fixture(int numPanels) {
-      float columns = numPanels * 15.0;
+      int columns = numPanels * 15;
       float arc = (numPanels * 15.0 - 1) * RainbowBaseModel.rainbowThetaInc;
       float thetaStart = 90.0 - arc/2.0;
       float thetaFinish = 90.0 + arc/2.0;
@@ -509,8 +509,8 @@ public static class RainbowModel3D extends RainbowBaseModel {
       float r = innerRadius;  // Feet
       int ledCount = 0;
       for (int rowNum = 0; rowNum < LED_HEIGHT; rowNum++) {
-	for (int colNum = 0; colNum < columns; colNum++) {
-	  float angle = thetaStart + colNum * RainbowBaseModel.rainbowThetaInc;
+	      for (int colNum = columns - 1; colNum >= 0; colNum--) {
+	        float angle = thetaStart + colNum * RainbowBaseModel.rainbowThetaInc;
           double x = r * cos(radians(angle));
           double y = r * sin(radians(angle));
           addPoint(new LXPoint(x, y, z));
