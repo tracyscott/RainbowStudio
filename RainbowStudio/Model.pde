@@ -84,7 +84,7 @@ public static abstract class RainbowBaseModel extends LXModel {
   static public float rainbowThetaStart = 9.41; //9.4165082;
   static public float rainbowThetaFinish = 170.53; //170.5383491;
   static public float rainbowPointsPerRow = 420.0;
-  static public float rainbowThetaInc = (rainbowThetaFinish-rainbowThetaStart) / rainbowPointsPerRow;
+  static public float rainbowThetaInc = (rainbowThetaFinish-rainbowThetaStart) / (rainbowPointsPerRow-1);
   static public float radialPixelDensity = 2.75; // 2.75 inches between pixels radially
   static public float innerRadiusPixelDensity = 2.5;
   static public float outerRadiusPixelDensity = 3.0;
@@ -399,27 +399,59 @@ public static class RainbowModel3D extends RainbowBaseModel {
   public RainbowModel3D() {
     this(28);
   }
-    
+
+  public ArrayList<LXPoint> perimeter;
+
   public RainbowModel3D(int numPanels) {
     super(new Fixture(numPanels));
-    float arc = numPanels * RainbowBaseModel.rainbowThetaInc * 15.0;
+    float arc = (numPanels * 15.0 - 1) * RainbowBaseModel.rainbowThetaInc;
     this.thetaStart = 90.0 - arc/2.0;
     this.thetaFinish = 90.0 + arc/2.0;
     pointsWide = numPanels * 15;
-    pointsHigh = 30;
+
+    perimeter = new ArrayList<LXPoint>();
+
+    // Left edge & right perimeters
+    double z = 0;
+    for (int rowNum = 0; rowNum < LED_HEIGHT; rowNum++) {
+	double r = innerRadius + rowNum * radiusInc;
+	double rx = r * cos(radians(thetaFinish + RainbowBaseModel.rainbowThetaInc));
+	double ry = r * sin(radians(thetaFinish + RainbowBaseModel.rainbowThetaInc));
+	double lx = r * cos(radians(thetaStart - RainbowBaseModel.rainbowThetaInc));
+	double ly = r * sin(radians(thetaStart - RainbowBaseModel.rainbowThetaInc));
+	perimeter.add(new LXPoint(lx, ly, z));	
+	perimeter.add(new LXPoint(rx, ry, z));
+    }
+
+    for (int colNum = 0; colNum < pointsWide; colNum++) {
+	float angle = thetaStart + colNum * RainbowBaseModel.rainbowThetaInc;
+	
+	double br = innerRadius - radiusInc;
+	double tr = innerRadius + (LED_HEIGHT+1) * radiusInc;
+
+	double bx = br * cos(radians(angle));
+	double by = br * sin(radians(angle));
+
+	double tx = tr * cos(radians(angle));
+	double ty = tr * sin(radians(angle));
+	
+	perimeter.add(new LXPoint(bx, by, z));
+	perimeter.add(new LXPoint(tx, ty, z));
+    }
   }
   
   public static class Fixture extends LXAbstractFixture {
     Fixture(int numPanels) {
-      float arc = numPanels * RainbowBaseModel.rainbowThetaInc * 15.0;
+      float columns = numPanels * 15.0;
+      float arc = (numPanels * 15.0 - 1) * RainbowBaseModel.rainbowThetaInc;
       float thetaStart = 90.0 - arc/2.0;
       float thetaFinish = 90.0 + arc/2.0;
-      int ledsHigh = 30;
       float z = 0;
       float r = innerRadius;  // Feet
       int ledCount = 0;
-      for (int rowNum = 0; rowNum < ledsHigh; rowNum++) {
-        for (float angle = thetaFinish; angle > thetaStart; angle -= RainbowBaseModel.rainbowThetaInc) {
+      for (int rowNum = 0; rowNum < LED_HEIGHT; rowNum++) {
+	for (int colNum = 0; colNum < columns; colNum++) {
+	  float angle = thetaStart + colNum * RainbowBaseModel.rainbowThetaInc;
           double x = r * cos(radians(angle));
           double y = r * sin(radians(angle));
           addPoint(new LXPoint(x, y, z));
