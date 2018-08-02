@@ -40,9 +40,11 @@ static public class RenderImageUtil {
       int imageY = (pointsHigh - 1) - y;  // Y is backwards for images.
       int imageX = x;
       int imageIndex = imageY * image.width + imageX;
-      if (imageIndex == 12600) {
-        System.out.println("x: " + x + " y:" + y + " imageX:" + imageX + " imageY:" + imageY);
+      //if (imageIndex == 12600) {
+      if (imageY == 29) {
+        //System.out.println("x: " + x + " y:" + y + " imageX:" + imageX + " imageY:" + imageY + " imageIndex:" + imageIndex);
       }
+      //}
       colors[pointNumber] = image.pixels[imageIndex];
       pointNumber++;
     }   
@@ -67,6 +69,8 @@ static public class RenderImageUtil {
     float radiusInWorldPixels = (RainbowBaseModel.outerRadius) * RainbowBaseModel.pixelsPerFoot;
     float imageOriginWorldX = -radiusInWorldPixels;
     float worldPixelsHeight = radiusInWorldPixels;
+    
+    if (image.pixels == null) image.loadPixels();
     
     for (LXPoint p : lx.model.points) {
       // Adjust the x-coordinate by one radius since the world space is centered around x=0
