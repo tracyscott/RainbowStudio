@@ -1,15 +1,19 @@
 import java.util.*;
 
+import java.io.File;
+
 import com.github.davidmoten.rtree.RTree;
 
-import com.chroma.Chroma;
-import com.chroma.ChromaLCH;
-import com.chroma.ColorSpace;
+import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
 
 @LXCategory(LXCategory.FORM)
 public class RainbowMeans extends LXPattern {
-    public final CompoundParameter swapsKnob =
-	new CompoundParameter("Swaps", 1, 20).setDescription("Swaps per frame.");
+    public final CompoundParameter speedKnob =
+	new CompoundParameter("Speed", 1, 20).setDescription("Speed.");
     public final CompoundParameter brightnessKnob =
 	new CompoundParameter("Bright", 1, 100).setDescription("Brightness.");
     public final CompoundParameter saturationKnob =
@@ -18,13 +22,13 @@ public class RainbowMeans extends LXPattern {
     Ball balls[];
     Random rnd;
     RainbowCanvas canvas;
-    Chroma placeholder;
 
+    double elapsed;
 
-    int width() {
+    int trueWidth() {
 	return ((RainbowBaseModel)lx.model).pointsWide;
     }
-    int height() {
+    int trueHeight() {
 	return ((RainbowBaseModel)lx.model).pointsHigh;
     }
 
@@ -32,28 +36,25 @@ public class RainbowMeans extends LXPattern {
  	super(lx);
 
         try {
-            
-        canvas = new RainbowCanvas(lx);
+	    canvas = new RainbowCanvas(lx);
+	    elapsed = 0;
+	    balls = new Ball[100];
+	    rnd = new Random();
 
-	balls = new Ball[100];
-	rnd = new Random();
+	    int i;
+	    for (i = 0; i < balls.length; i++) {
+		balls[i] = new Ball();
+		balls[i].X = lx.model.xMin + (lx.model.xMax - lx.model.xMin) * rnd.nextFloat();
+		balls[i].Y = lx.model.yMin + (lx.model.yMax - lx.model.yMin) * rnd.nextFloat();
+		balls[i].R = (lx.model.yMax - lx.model.yMin) * rnd.nextFloat() / 4;
+	    }
 
-        placeholder = new Chroma(ColorSpace.LCH, 50.0, 100.0, 40.0, 255);
-
-	int i;
-	for (i = 0; i < balls.length; i++) {
-	    balls[i] = new Ball();
-	    balls[i].X = rnd.nextInt(width());
-	    balls[i].Y = rnd.nextInt(height());
-	    balls[i].R = rnd.nextInt(height()/2);
-	}
-
-	addParameter(swapsKnob);
-	addParameter(brightnessKnob);
-	addParameter(saturationKnob);
-	brightnessKnob.setValue(100);
-	saturationKnob.setValue(100);
-	swapsKnob.setValue(5);
+	    addParameter(speedKnob);
+	    addParameter(brightnessKnob);
+	    addParameter(saturationKnob);
+	    brightnessKnob.setValue(100);
+	    saturationKnob.setValue(100);
+	    speedKnob.setValue(5);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -64,63 +65,29 @@ public class RainbowMeans extends LXPattern {
     }
 
     public void run(double deltaMs) {
+	elapsed += deltaMs;
 	for (Ball ball : balls) {
 	    ball.draw();
 	}
 	canvas.render();
     }
 
-    void set(int x, int y) {
-
-	if (x < 0 || x >= width()) {
-	    return;
+    void silly() {
+	for (int yi = 0; yi < canvas.height; yi++) {
+	    for (int xi = 0; xi < canvas.width; xi++) {
+		int idx = yi*canvas.width+xi;
+		canvas.samples[idx].setHSB((float)yi/(float)canvas.height, 1, 1);
+	    }
 	}
-	if (y < 0 || y >= height()) {
-	    return;
-	}
-
-	int idx = y * width() + x;
-	colors[idx] = placeholder.get();
     }
 
     public class Ball {
-	int X;
-	int Y;
-	int R;
+	float X;
+	float Y;
+	float R;
 
 	void draw() {
             canvas.circle(X, Y, R);
-	}
-
-	void bresenham() {
-    	    // Bresenham algorithm
-	    // https://rosettacode.org/wiki/Bitmap/Midpoint_circle_algorithm#Go
-	    int r = R;
-	    if (r < 0) {
-		return;
-	    }
-	    int x1 = -r;
-	    int y1 = 0;
-	    int err = 2-2*r;
-
-	    for (;;) {
-		set(X-x1, Y+y1);
-		set(X-y1, Y-x1);
-		set(X+x1, Y-y1);
-		set(X+y1, Y+x1);
-		r = err;
-		if (r > x1) {
-		    x1++;
-		    err += x1*2 + 1;
-		}
-		if (r <= y1) {
-		    y1++;
-		    err += y1*2 + 1;
-		}
-		if (x1 >= 0) {
-		    break;
-		}
-	    }
 	}
     };
 
@@ -129,17 +96,19 @@ public class RainbowMeans extends LXPattern {
         public class Sub {
             float X;
             float Y;
-            float L,C,H;
+            int C;
 
             Sub(float x, float y) {
 		this.X = x;
 		this.Y = y;
             }
 
-	    void set(float l, float c, float h) {
-                L = l;
-                C = c;
-                H = h;
+	    void setHSB(float h, float s, float b) {
+		C = Color.HSBtoRGB(h, s, b);
+	    }
+
+	    void setRGB(int r, int g, int b) {
+		C = new Color(r, g, b).getRGB();
 	    }
         }
 
@@ -150,25 +119,43 @@ public class RainbowMeans extends LXPattern {
         private LX lx;
         private int width;
         private int height;
+	private boolean isfar[];
         private Sub samples[];
 	private Pixel pixels[];
-	private RTree<LXPoint, Point> tree;
+
+	private float pxMin, pxMax, pyMin, pyMax;
 
         // Units are in feet, here.  Sample one inch pixels.
-        public final float unit = 1.0f / 12.0f;
-	public final float foot = 12.0f;
+	public final float unit = 1.0f / 12.0f;
+	public final float limit = 12.0f;
 
         public RainbowCanvas(LX lx) {
             this.lx = lx;
-            this.width = (int)((lx.model.xMax - lx.model.xMin) / unit);
-	    this.height = (int)((lx.model.yMax - lx.model.yMin) / unit);
-            this.samples = new Sub[height * width];
 	    this.pixels = new Pixel[lx.model.points.length];
+
+	    pxMin = Float.POSITIVE_INFINITY;
+	    pyMin = Float.POSITIVE_INFINITY;
+	    pxMax = Float.NEGATIVE_INFINITY;
+	    pyMax = Float.NEGATIVE_INFINITY;
+
+	    for (LXPoint pt : ((RainbowModel3D)lx.model).perimeter) {
+		pxMin = Math.min(pxMin, pt.x);
+		pyMin = Math.min(pyMin, pt.y);
+		pxMax = Math.max(pxMax, pt.x);
+		pyMax = Math.max(pyMax, pt.y);
+	    }
+
+            this.width = subXi(pxMax);
+	    this.height = subYi(pyMax);
+            this.samples = new Sub[height * width];
+            this.isfar = new boolean[height * width];
+
+	    System.err.println("Subsample size " + width + "x" + height + " = " + width*height);
 	    
 	    for (int xi = 0; xi < width; xi++) {
-	    	float x = toPos(xi);
+	    	float x = iX(xi);
 	    	for (int yi = 0; yi < height; yi++) {
-	    	    float y = toPos(yi);
+	    	    float y = iY(yi);
 	    	    int idx = yi*width+xi;
 	    	    samples[idx] = new Sub(x, y);
 		}
@@ -178,108 +165,140 @@ public class RainbowMeans extends LXPattern {
 		pixels[i] = new Pixel();
 		pixels[i].subs = new ArrayList<Sub>();
 	    }
-	    
-	    createTree();
-	}
 
-	void createTree() {
-	    tree = RTree.create();
-
-	    if (lx == null) {
-		return;
-	    }
-	    if (lx.model == null) {
-		return;
-	    }
-	    if (lx.model.points == null) {
-		return;
-	    }
-
+	    RTree<LXPoint, Point> tree = RTree.create();
+	    HashSet<LXPoint> perimeter = new HashSet<LXPoint>();
 	    
 	    for (LXPoint lxp : lx.model.points) {
 	    	tree = tree.add(lxp, Geometries.point(lxp.x, lxp.y));
 	    }
 
+	    for (LXPoint lxp : ((RainbowModel3D)lx.model).perimeter) {
+	    	tree = tree.add(lxp, Geometries.point(lxp.x, lxp.y));
+		perimeter.add(lxp);
+	    }
+
+	    int farcount = 0;
+
 	    for (int xi = 0; xi < width; xi++) {
-	    	float x = toPos(xi);
+	    	float x = iX(xi);
 	    	for (int yi = 0; yi < height; yi++) {
-	    	    float y = toPos(yi);
+	    	    float y = iY(yi);
 	    	    int idx = yi*width+xi;
 
                     for (Entry<LXPoint, Point> point :
-                             tree.nearest(Geometries.point(x, y), foot/2., 1).toBlocking().toIterable()) {
-                        pixels[point.value().index].subs.add(samples[idx]);
+                             tree.nearest(Geometries.point(x, y), limit, 1).toBlocking().toIterable()) {
+			LXPoint lxp = point.value();
+			if (perimeter.contains(lxp)) {
+			    isfar[idx] = true;
+			    farcount++;
+			    continue;
+			}
+                        pixels[lxp.index].subs.add(samples[idx]);
                     }
 	    	}
 	    }
+
+	    System.err.printf("Using %.1f%% of sub-sample pixels\n", 100.0*(float)(width*height-farcount)/(float)(width*height));
 	}
 
-        public int toPix(float val) {
-            return (int)(val / unit);
+        public int subXi(float val) {
+            return (int)((val - pxMin) / unit);
+        }
+        public int subYi(float val) {
+            return (int)((val - pyMin) / unit);
         }
 
-        public float toPos(int idx) {
-            return idx * unit;
+        public float iX(int idx) {
+            return pxMin + idx * unit;
+        }
+        public float iY(int idx) {
+            return pyMin + idx * unit;
         }
 
         public void circle(float x, float y, float r) {
-	    int xbegin = toPix(x-r);
-            int xend = toPix(x+r);
+	    int xbegin = subXi(x-r);
+            int xend = subXi(x+r);
 
-            int ybegin = toPix(y-r);
-            int yend = toPix(y+r);
+            int ybegin = subYi(y-r);
+            int yend = subYi(y+r);
 
             float r2 = r * r;
 
             for (int xi = xbegin; xi <= xend; xi += 1) {
-                float xd = toPos(xi) - x;
+                float xd = iX(xi) - x;
                 float xd2 = xd * xd;
                 for (int yi = ybegin; yi <= yend; yi += 1) {
-                    float yd = toPos(yi) - y;
-                    float yd2 = yd * yd;
-
-		    if (xi < 0 || yi < 0 || xi >= width || yi >= height) {
+		    if (xi < 0 || yi < 0 || xi >= canvas.width || yi >= canvas.height) {
 			continue;
 		    }
 		    
+		    int idx = width*yi+xi;
+
+		    if (isfar[idx]) {
+			continue;
+		    }
+		    
+                    float yd = iY(yi) - y;
+                    float yd2 = yd * yd;
+
                     if (xd2 + yd2 > r2) {
                         continue;
                     }
 
-                    float theta = (float)Math.atan(yd / xd);
+                    float theta = (float)(Math.atan(yd / xd) + (Math.PI / 2));
 
-                    if (theta < 0) {
-                        theta += 2 * Math.PI;
-                    }
-
-                    if (xi < x) {
-                        theta -= 180; 
-                    }
+		    if (xd < 0) {
+			theta += Math.PI;
+		    }
                     
-                    float hue = (float)(theta * 180 / Math.PI);
-                    float chroma = xd / x;
-                    float level = 1.0;
+		    float hue = (float)(theta / (2 * Math.PI)) + (float)(speedKnob.getValue()*elapsed/10000);
+                    float chroma = 0.95;
+                    float level = 0.95;
 
-                    samples[width*yi+xi].set(level, chroma, hue);
+                    samples[idx].setHSB(hue, chroma, level);
                 }
             }
         }
 
 	public void render() {
+	    //dump();
+
 	    for (LXPoint lxp : lx.model.points) {
-                float la = 0, ca = 0 , ha = 0;
+                float r = 0, g = 0, b = 0;
                 int cnt = 0;
-                // Note: these are unweighted. Not so right...
+                // Note: these are unweighted.
                 for (Sub s : pixels[lxp.index].subs) {
                     cnt++;
-                    la += s.L;
-                    ca += s.C;
-                    ha += s.H;
+		    r += LXColor.red(s.C);
+		    g += LXColor.green(s.C);
+		    b += LXColor.blue(s.C);
                 }
-                colors[lxp.index] = LXColor.hsb(ha/(float)cnt,
-                                                ca/(float)cnt * 100,
-                                                la/(float)cnt) * 100;
+                colors[lxp.index] = LXColor.rgb((int)(r/(float)cnt),
+						(int)(g/(float)cnt),
+						(int)(b/(float)cnt));
             }
         }
+
+	public void dump() {
+	    final BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+	    final Graphics2D g = (Graphics2D) image.getGraphics();
+	    g.setBackground(Color.white);
+	    g.clearRect(0, 0, width, height);
+	    
+	    for (int yi = 0; yi < canvas.height; yi++) {
+		for (int xi = 0; xi < canvas.width; xi++) {
+		    int idx = yi*canvas.width+xi;
+		    image.setRGB(xi, canvas.height-yi-1, canvas.samples[idx].C);
+		}
+	    }
+
+	    try {
+		ImageIO.write(image, "PNG", new File("/Users/jmacd/Desktop/image.png"));
+	    } catch (IOException e) {
+		System.err.println("IO exception" + e);
+		throw new RuntimeException("BLAH");
+	    }
+	}
     }
 }

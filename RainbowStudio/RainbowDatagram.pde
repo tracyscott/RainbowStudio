@@ -3,15 +3,25 @@
  */
 public static class RainbowDatagram extends ArtNetDatagram {
   private final LXParameter brightness;
+  int universe = 0;
+  int dataLength = 0;
   
   public RainbowDatagram(LX lx, int[] indices, byte channel) {
     super(indices, channel);
+    dataLength = indices.length * 3;
     this.brightness = lx.engine.output.brightness;
   }
   
   public RainbowDatagram(LX lx, int[] indices, int universeNumber) {
     super(indices, 3*indices.length, universeNumber);
     this.brightness = lx.engine.output.brightness;
+    dataLength = indices.length * 3;
+  }
+  
+  public RainbowDatagram(LX lx, int[] indices, int dataLength, int universeNumber) {
+    super(indices, dataLength, universeNumber);
+    this.brightness = lx.engine.output.brightness;
+    this.dataLength = dataLength;
   }
 
   
@@ -31,6 +41,10 @@ public static class RainbowDatagram extends ArtNetDatagram {
       this.buffer[i + 1] = gammaGreen[0xff & (c >> 8)]; // G
       this.buffer[i + 2] = gammaBlue[0xff & c]; // B
       i += 3;
+      // Deal with an issue where the passed in pointIndices array is larger than the
+      // dataLength we used to construct the object.
+      if (i >= this.buffer.length)
+        break;
     }
     return this;
   }
