@@ -380,7 +380,7 @@ abstract public class PGTexture extends PGBase {
 
 @LXCategory(LXCategory.FORM)
   public class AnimatedSprite extends PGTexture {
-  public String filename = "smallcat.gif";
+  public String spritename = "smallcat";
   float angle = 0.0;
   float minAngle = 0.0;
   float maxAngle = PI;
@@ -388,6 +388,7 @@ abstract public class PGTexture extends PGBase {
   int spriteWidth = 0;
   public AnimatedSprite(LX lx) {
     super(lx, P2D);
+    String filename = dataPath("./spritepp/" + spritename + ".gif");
     images = Gif.getPImages(RainbowStudio.pApplet, filename);
     for (int i = 0; i < images.length; i++) {
       images[i].loadPixels();
