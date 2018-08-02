@@ -90,7 +90,9 @@ static public class UIGammaSelector extends UICollapsibleSection {
         Gamma.buildBlueGammaLUT(parameter.getValuef());
       }
     };
+    //blueGamma.setOscAddress("/blueGamma");
     blueSlider.setParameter(blueGamma);
+    //System.out.println("blueGamma path: " + LXOscEngine.getOscAddress(blueGamma));
     blueSlider.addToContainer(this);
   }
 }
@@ -268,6 +270,9 @@ public class UIModeSelector extends UICollapsibleSection {
   public LXChannel getChannelByLabel(LX lx, String label) {
     for (LXChannelBus channelBus : lx.engine.channels) {
       LXChannel channel = (LXChannel) channelBus;
+      if (!(channelBus instanceof LXChannel)) {
+        continue;
+      }
       if (label.equalsIgnoreCase(channel.getLabel()))
         return channel;
     }
