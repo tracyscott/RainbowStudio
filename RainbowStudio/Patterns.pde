@@ -463,7 +463,7 @@ abstract public class PGPixelPerfect extends PGBase {
  */
 abstract class MidiBase extends LXPattern {
   heronarts.lx.midi.LXMidiOutput midiThroughOutput;
-  
+
   public MidiBase(LX lx) {
     super(lx);
     // Find target output for passing MIDI through
@@ -474,42 +474,42 @@ abstract class MidiBase extends LXPattern {
         midiThroughOutput = output;
         midiThroughOutput.open();
       }
-    }    
+    }
   }
-  
+
   public void noteOnReceived(MidiNoteOn note) {
     if (midiThroughOutput != null)
       midiThroughOutput.send(note);
   }
-  
+
   public void noteOffReceived(MidiNote note) {
     if (midiThroughOutput != null)
       midiThroughOutput.send(note);
   }
-  
+
   public void afterTouchReceived(MidiAftertouch aftertouch) {
     if (midiThroughOutput != null)
       midiThroughOutput.send(aftertouch);
   }
-  
+
   public void controlChangeReceived(MidiControlChange cc) {
     if (midiThroughOutput != null)
       midiThroughOutput.send(cc);
   }
-  
+
   public void pitchBendReceived(MidiPitchBend pitchBend) {
     if (midiThroughOutput != null)
       midiThroughOutput.send(pitchBend);
   }
-  
+
   public void programChangeReceived(MidiProgramChange pc) {
     if (midiThroughOutput != null)
       midiThroughOutput.send(pc);
   }
 }
-  
+
 @LXCategory(LXCategory.FORM)
-public class Pong extends MidiBase {
+  public class Pong extends MidiBase {
   int paddle1Pos = 0;
   int paddle1X = 2;
   int paddle2Pos = 0;
@@ -522,18 +522,18 @@ public class Pong extends MidiBase {
   float ballVelocityY = 0.0;
   int numPixelsPerRow;
   int numPixelsHigh;
-  
+
   public Pong(LX lx) {
     super(lx);
     numPixelsPerRow = ((RainbowBaseModel)lx.model).pointsWide;
     numPixelsHigh = ((RainbowBaseModel)lx.model).pointsHigh;
-    
+
     ballPosX = numPixelsPerRow / 2;
     ballPosY = numPixelsHigh / 2;
     ballVelocityX = 1.0;
     ballVelocityY = 1.0;
   }
-  
+
   public void run(double deltaMs) {
     // Compute ball position
     ballPosX += ballVelocityX;
@@ -543,17 +543,17 @@ public class Pong extends MidiBase {
     int topOfPaddle2 = paddle2Pos + paddleHeight;
     int edgeOfPaddle2 = paddle2X + paddleWidth;
     int ballSize = 2;
-    
+
     if (ballPosX == paddle1X && ballPosY < topOfPaddle1 && ballPosY >= paddle1Pos) {
       ballVelocityX = -ballVelocityX;
-      ballPosX = ceil(ballPosX + 2.0 * ballVelocityX);      
+      ballPosX = ceil(ballPosX + 2.0 * ballVelocityX);
     }
-    
+
     if (ballPosX == paddle2X && ballPosY < topOfPaddle2 && ballPosY >= paddle2Pos) {
       ballVelocityX = -ballVelocityX;
-      ballPosX = ceil(ballPosX + 2.0 * ballVelocityX);      
+      ballPosX = ceil(ballPosX + 2.0 * ballVelocityX);
     }
-    
+
     if (ballPosY > numPixelsHigh) {
       ballVelocityY = -ballVelocityY;
       ballPosY = ceil(ballPosY + 2.0 * ballVelocityY);
@@ -590,11 +590,11 @@ public class Pong extends MidiBase {
         colors[p.index] = 0xff000000;
       }
       pointNumber++;
-    }    
+    }
   }
-  
+
   @Override
-  public void noteOnReceived(MidiNoteOn note) {
+    public void noteOnReceived(MidiNoteOn note) {
     int pitch = note.getPitch();
     // Pyle rollup electric drum kit
     int topLeft = 57;
@@ -604,11 +604,11 @@ public class Pong extends MidiBase {
     int bottomLeft = 38;
     int bottomMiddle = 46;
     int bottomRight = 41;
-    
+
     int bar = 0;
     if (pitch == topRight) {
       paddle2Pos++;
-      if (paddle2Pos > 30 - paddleHeight)  {
+      if (paddle2Pos > 30 - paddleHeight) {
         paddle2Pos--;
       }
     } else if (pitch == bottomRight) {
@@ -619,7 +619,7 @@ public class Pong extends MidiBase {
 
     if (pitch == topLeft) {
       paddle1Pos++;
-      if (paddle1Pos > 30 - paddleHeight)  {
+      if (paddle1Pos > 30 - paddleHeight) {
         paddle1Pos--;
       }
     } else if (pitch == bottomLeft) {
@@ -632,11 +632,11 @@ public class Pong extends MidiBase {
   }
 
   @Override
-  public void noteOffReceived(MidiNote note) {
+    public void noteOffReceived(MidiNote note) {
     super.noteOffReceived(note);
   }
 }
-  
+
 @LXCategory(LXCategory.FORM)
   public class BasicMidiPP extends MidiBase {
   public final CompoundParameter brightnessKnob =
@@ -700,7 +700,7 @@ public class Pong extends MidiBase {
     // NOTE: my mini keyboard generates between 48 & 72 (small keyboard)
     currentHue = map(pitch, 48.0, 72.0, 0.0, 100.0);
     currentBrightness = map(velocity, 0.0, 127.0, 0.0, 100.0);
-    
+
     // Necessary to call for MIDI Through note forwarding.
     super.noteOnReceived(note);
   }
@@ -712,7 +712,7 @@ public class Pong extends MidiBase {
     // note-off for all notes.
     currentBrightness = 0.0;
     bar = -1;
-    
+
     // Necessary to call for MIDI Through note forwarding.
     super.noteOffReceived(note);
   }
@@ -884,6 +884,109 @@ public class Pong extends MidiBase {
   }
 }
 
+/*
+ * PanelTest.  Generate numbered sequences on panels to help debug
+ * any physical wiring issues.
+ */
+@LXCategory(LXCategory.TEST)
+  public class PanelTest extends PGPixelPerfect {
+  protected int curBlockPanel;
+  protected int curBlockPosX;
+  protected int curBlockPosY;
+  protected long currentPanelTestFrame;
+  
+  public PanelTest(LX lx) {
+    super(lx, "");
+    curBlockPosX = 0;
+    curBlockPosY = 0;
+    curBlockPanel = 0;
+    currentPanelTestFrame = 0;
+  }
+
+  public void draw(double deltaDrawMs) {
+    pg.noSmooth();
+    pg.background(255);
+    int numPanels = 28;
+    int panelWidth = 15;
+    int panelHeight = 30;
+    
+    int curFillPanel = (int)currentFrame / 80 % 28;
+    for (int curPanel = 0; curPanel < numPanels; curPanel++) {
+      // Draw a 15x30 rect of gray, alternating intensity between 30 and 60
+      //pg.noStroke();
+      pg.strokeWeight(1);
+      if (curPanel % 2 == 1) {
+        if ((int)currentFrame/20 % 3 == 0)
+          pg.stroke(255,0,0);
+        else if ((int)currentFrame/20 % 3 == 1)
+          pg.stroke(0,255,0);
+        else if ((int)currentFrame/20 % 3 == 2)
+          pg.stroke(0, 0, 255);
+        //pg.stroke(255,0, 0);
+        pg.fill(70);
+      } else {
+        if ((int)currentFrame/20 % 3 == 0)
+          pg.stroke(0,255,0);
+        else if ((int)currentFrame/20 % 3 == 1)
+          pg.stroke(0,0,255);
+        else if ((int)currentFrame/20 % 3 == 2)
+          pg.stroke(255, 0, 0);
+        //pg.stroke(0,255,0);
+        pg.fill(120);
+      }
+      if (curPanel == curFillPanel) {
+        if ((int)currentFrame/20 % 4 == 0) {
+          pg.stroke(255,0,0);
+          pg.fill(255, 0, 0);
+        } else if ((int)currentFrame/20 % 4 == 1) {
+          pg.stroke(0,255,0);
+          pg.fill(0, 255, 0);
+        } else if ((int)currentFrame/20 % 4 == 2) {
+          pg.stroke(0, 0, 255);
+          pg.fill(0, 0, 255);
+        } else if ((int)currentFrame/20 % 4 == 3) {
+          pg.stroke(255);
+          pg.fill(255);
+        }
+        // Colored block debugger.
+        pg.rect(curBlockPosX + curBlockPanel * panelWidth, curBlockPosY, 2, 2);
+
+        //pg.stroke(255,0, 0);
+        //pg.fill(255);
+        //pg.stroke(255);
+      }
+
+      pg.rect(curPanel * panelWidth, 0, panelWidth - 1, panelHeight - 1);
+      
+      
+      pg.stroke(255);
+      pg.fill(255);
+      int fontSize = 16;
+      pg.textSize(fontSize);
+      int curPanel01 = curPanel % 10;
+      int curPanel10 = curPanel / 10;
+      pg.text(""+curPanel01, curPanel * panelWidth + 2, fontSize + 12);
+      if (curPanel10 > 0)
+        pg.text(""+curPanel10, curPanel * panelWidth + 2, fontSize - 2);
+    }
+    if (currentPanelTestFrame%80 == 79) {
+      curBlockPosY += 3;
+      if (curBlockPosY >= panelHeight -1) {
+        curBlockPosX += 3;
+        curBlockPosY = 0;
+      } 
+      if (curBlockPosX >= panelWidth) {
+        curBlockPosX = 0;
+        curBlockPanel++;
+      }
+      if (curBlockPanel > 29) {
+        curBlockPanel = 0;
+      }
+      System.out.println("Block coords panel=" + curBlockPanel + " x=" + curBlockPosX + " y=" + curBlockPosY);
+    }    
+    currentPanelTestFrame++;  
+  }
+}
 
 /*
  * Utility class for Fluid Simulation.
@@ -1052,7 +1155,8 @@ public class Pong extends MidiBase {
       }
       pg.image(frameImg, currentPos, 0);
       currentPos -= xSpeed.getValue();
-    } catch (ArrayIndexOutOfBoundsException ex) {
+    } 
+    catch (ArrayIndexOutOfBoundsException ex) {
       // handle race condition when reloading images.
     }
   }
@@ -1153,7 +1257,7 @@ public class Pong extends MidiBase {
     new CompoundParameter("K3", 0, 1).setDescription("Mapped to iMouse.z");
   public final CompoundParameter knob4 =
     new CompoundParameter("K4", 0, 1).setDescription("Mapped to iMouse.w");
-    
+
   List<FileItem> fileItems = new ArrayList<FileItem>();
   UIItemList.ScrollList fileItemList;
   List<String> shaderFiles;
@@ -1206,11 +1310,11 @@ public class Pong extends MidiBase {
   }
 
   @Override
-  public void load(LX lx, JsonObject obj) {
+    public void load(LX lx, JsonObject obj) {
     super.load(lx, obj);
     loadShader(shaderFileKnob.getString());
   }
-  
+
   protected void loadShader(String shaderFile) {
     if (toy != null) toy.release();  // release existing shader texture
     if (context != null) context.release();
@@ -1267,7 +1371,7 @@ public class Pong extends MidiBase {
     new UIKnob(knob3).addToContainer(knobsContainer);
     new UIKnob(knob4).addToContainer(knobsContainer);
     knobsContainer.addToContainer(device);
-    
+
     UI2dContainer filenameEntry = new UI2dContainer(0, 0, device.getWidth(), 30);
     filenameEntry.setLayout(UI2dContainer.Layout.HORIZONTAL);
 
@@ -1403,7 +1507,7 @@ public class Pong extends MidiBase {
   int renderedTextWidth = 0;
   int textGapPixels = 10;
   PFont font;
-  int fontSize = 20;
+  int fontSize = 30;
 
   public AnimatedTextPP(LX lx) {
     super(lx, "");
@@ -1413,7 +1517,7 @@ public class Pong extends MidiBase {
     for (String fontName : fontNames) {
       System.out.println("Font: " + fontName);
     }
-    font = createFont("ComicSansMS", fontSize, true);
+    font = createFont("04b", fontSize, true);
     for (int i = 0; i < defaultTexts.length; i++) {
       textItems.add(new TextItem(defaultTexts[i]));
     }
@@ -1426,7 +1530,7 @@ public class Pong extends MidiBase {
     textImage = createGraphics(bufferWidth, 30);
     currentPos = imageWidth + 1;
     lastPos = imageWidth + 2;
-    textImage.smooth();    
+    textImage.noSmooth();    
     textImage.beginDraw();
     textImage.background(0);
     textImage.stroke(255);
@@ -1442,7 +1546,7 @@ public class Pong extends MidiBase {
       textImage.endDraw();
       redrawTextBuffer(renderedTextWidth + 10);
     } else {
-      textImage.text(currentText, 0, fontSize + 2);
+      textImage.text(currentText, 0, fontSize - 3);
       textImage.endDraw();
     }
   }
@@ -1562,7 +1666,7 @@ abstract public class RainbowGIFBase extends LXPattern implements CustomDeviceUI
   protected int imageHeight = 0;
   protected String filesDir;
   boolean includeAntialias;
-  
+
   public RainbowGIFBase(LX lx, int imageWidth, int imageHeight, String dir, 
     String defaultFile, boolean includeAntialias) {
     super(lx);
@@ -1570,11 +1674,11 @@ abstract public class RainbowGIFBase extends LXPattern implements CustomDeviceUI
     this.imageHeight = imageHeight;
     this.includeAntialias = includeAntialias;
     gifKnob.setValue(defaultFile);
-    
+
     filesDir = dir;
     loadGif(gifKnob.getString());
     reloadFileList();
-    
+
     addParameter(fpsKnob);
     if (includeAntialias) addParameter(antialiasKnob);
     addParameter(gifKnob);
@@ -1600,13 +1704,14 @@ abstract public class RainbowGIFBase extends LXPattern implements CustomDeviceUI
     }
     try {
       renderToPoints();
-    } catch (ArrayIndexOutOfBoundsException ex) {
+    } 
+    catch (ArrayIndexOutOfBoundsException ex) {
       // Sometimes caused by race condition when reloading, just skip a frame.
     }
   }
-  
+
   abstract protected void renderToPoints();
-  
+
   protected void reloadFileList() {
     gifFiles = getGifFiles();
     fileItems.clear();
@@ -1615,7 +1720,7 @@ abstract public class RainbowGIFBase extends LXPattern implements CustomDeviceUI
     }
     if (fileItemList != null) fileItemList.setItems(fileItems);
   }
-  
+
   protected File getFile() {
     return new File(dataPath(filesDir + this.gifKnob.getString() + ".gif"));
   }
@@ -1656,14 +1761,14 @@ abstract public class RainbowGIFBase extends LXPattern implements CustomDeviceUI
     }
     new UIButton(CONTROLS_MIN_WIDTH, 10, 60, 20) {
       @Override
-      public void onToggle(boolean on) {
+        public void onToggle(boolean on) {
         if (on) {
           reloadFileList();
         }
       }
     }
     .setLabel("rescan dir").setMomentary(true).addToContainer(knobsContainer);
-    
+
     knobsContainer.addToContainer(device);
 
     UI2dContainer filenameEntry = new UI2dContainer(0, 0, device.getWidth(), 30);
@@ -1685,7 +1790,7 @@ abstract public class RainbowGIFBase extends LXPattern implements CustomDeviceUI
     }
     .setLabel("\u21BA").setMomentary(true).addToContainer(filenameEntry);
     filenameEntry.addToContainer(device);
-    
+
     fileItemList =  new UIItemList.ScrollList(ui, 0, 5, CONTROLS_MIN_WIDTH, 80);
     fileItemList.setShowCheckboxes(false);
     fileItemList.setItems(fileItems);
@@ -1708,15 +1813,15 @@ abstract public class RainbowGIFBase extends LXPattern implements CustomDeviceUI
  * out of the texture.  Includes support for an anti-alias toggle.
  */
 @LXCategory(LXCategory.FORM)
-public class RainbowGIF extends RainbowGIFBase {
+  public class RainbowGIF extends RainbowGIFBase {
   public RainbowGIF(LX lx) {
-    super(lx, ceil(RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot * 2.0),
-          ceil(RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot), 
-          "./giftex/",
-          "hx_ripple",
-          true);
+    super(lx, ceil(RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot * 2.0), 
+      ceil(RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot), 
+      "./giftex/", 
+      "hx_ripple", 
+      true);
   }
-  
+
   protected void renderToPoints() {
     RenderImageUtil.imageToPointsSemiCircle(lx, colors, images[(int)currentFrame], antialiasKnob.isOn());
   }
@@ -1727,16 +1832,16 @@ public class RainbowGIF extends RainbowGIFBase {
  * no antialias toggle.
  */
 @LXCategory(LXCategory.FORM)
-public class RainbowGIFPP extends RainbowGIFBase {
+  public class RainbowGIFPP extends RainbowGIFBase {
   public RainbowGIFPP(LX lx) {
-    super(lx, ((RainbowBaseModel)lx.model).pointsWide, ((RainbowBaseModel)lx.model).pointsHigh,
-    "./gifpp/",
-    "life2",
-    false);
+    super(lx, ((RainbowBaseModel)lx.model).pointsWide, ((RainbowBaseModel)lx.model).pointsHigh, 
+      "./gifpp/", 
+      "life2", 
+      false);
   }
-  
+
   protected void renderToPoints() {
-    RenderImageUtil.imageToPointsPixelPerfect(lx, colors, images[(int)currentFrame]);  
+    RenderImageUtil.imageToPointsPixelPerfect(lx, colors, images[(int)currentFrame]);
   }
 }
 
@@ -1931,11 +2036,11 @@ public class RainbowGIFPP extends RainbowGIFBase {
     for (int i = 0; i < sortedHues.length; i++)
       sortedHues[i] = hues[i];
     for (int i = hues.length; i > 1; i--) {
-	int a = rnd.nextInt(i);
-	int b = i - 1;
-	float tmp = sortedHues[a];
-	sortedHues[a] = sortedHues[b];
-	sortedHues[b] = tmp;
+      int a = rnd.nextInt(i);
+      int b = i - 1;
+      float tmp = sortedHues[a];
+      sortedHues[a] = sortedHues[b];
+      sortedHues[b] = tmp;
     }
   }
 }
@@ -1991,7 +2096,7 @@ public class RainbowGIFPP extends RainbowGIFBase {
       if (currentLed >= model.points.length) return;
 
       // If we are at the end of a chunk, jump up to the next row of LEDs      
-     if (currentLed > startLedRow + chunkSize) {
+      if (currentLed > startLedRow + chunkSize) {
         startLedRow = startLedRow + pointsWide;
         currentLed = startLedRow - 1;  // account for the for loop doing currentLed++
         continue;
