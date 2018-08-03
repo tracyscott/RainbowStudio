@@ -1,1 +1,4 @@
 .lxproject
+.DS_Store
+.idea/
+*.iml
