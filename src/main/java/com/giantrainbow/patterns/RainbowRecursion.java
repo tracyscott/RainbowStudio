@@ -13,19 +13,19 @@ import heronarts.lx.parameter.CompoundParameter;
 @LXCategory(LXCategory.COLOR)
 public class RainbowRecursion extends LXPattern {
   public final CompoundParameter depthKnob =
-    new CompoundParameter("Depth", 0, 10).setDescription("Max recursion depth.");
+      new CompoundParameter("Depth", 0, 10).setDescription("Max recursion depth.");
   public final CompoundParameter thicknessKnob =
-    new CompoundParameter("Thick", 1, 10).setDescription("Thickness");
+      new CompoundParameter("Thick", 1, 10).setDescription("Thickness");
   public final CompoundParameter hueOffsetKnob =
-    new CompoundParameter("hOffset", -360, 360).setDescription("Hue offset");
+      new CompoundParameter("hOffset", -360, 360).setDescription("Hue offset");
 
-  int maxDepth = 9;
-  int currentMaxDepth = 0;
-  int pointsWide;
-  int pointsHigh;
-  int bandHeight = 3;
-  boolean forward = true;
-  double hueOffset = 0.0;
+  private int maxDepth = 9;
+  private int currentMaxDepth;
+  private int pointsWide;
+  private int pointsHigh;
+  private int bandHeight = 3;
+  private boolean forward = true;
+  private double hueOffset;
 
   public RainbowRecursion(LX lx) {
     super(lx);
@@ -48,7 +48,7 @@ public class RainbowRecursion extends LXPattern {
     colorRecursive(0, 0);
   }
 
-  void colorRecursive(int thisDepth, int xOffset) {
+  private void colorRecursive(int thisDepth, int xOffset) {
     // Draw a band of full hue across points at this level and this chunk. Based on our recursion depth and
     // the xOffset we can compute the batch of points that we need to color.
     if (thisDepth > currentMaxDepth) return;

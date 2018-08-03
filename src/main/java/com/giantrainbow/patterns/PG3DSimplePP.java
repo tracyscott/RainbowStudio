@@ -7,7 +7,7 @@ import static processing.core.PConstants.PI;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 
-/*
+/**
  * Simple Processing 3D example.  Note, due to threading limitations with
  * OpenGL and Processing/Java to run P3D patterns, you MUST NOT enable the
  * separate thread for the Engine in the UI.  Only a single thread may perform

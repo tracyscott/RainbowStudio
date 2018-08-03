@@ -12,18 +12,18 @@ import heronarts.lx.model.LXPoint;
 
 @LXCategory(LXCategory.FORM)
 public class Pong extends MidiBase {
-  int paddle1Pos = 0;
-  int paddle1X = 2;
-  int paddle2Pos = 0;
-  int paddle2X = 420 - 4;
-  int paddleHeight = 8;
-  int paddleWidth = 2;
-  int ballPosX;
-  int ballPosY;
-  float ballVelocityX = 0.0f;
-  float ballVelocityY = 0.0f;
-  int numPixelsPerRow;
-  int numPixelsHigh;
+  private int paddle1Pos;
+  private int paddle1X = 2;
+  private int paddle2Pos;
+  private int paddle2X = 420 - 4;
+  private int paddleHeight = 8;
+  private int paddleWidth = 2;
+  private int ballPosX;
+  private int ballPosY;
+  private float ballVelocityX;
+  private float ballVelocityY;
+  private int numPixelsPerRow;
+  private int numPixelsHigh;
 
   public Pong(LX lx) {
     super(lx);
@@ -115,8 +115,9 @@ public class Pong extends MidiBase {
       }
     } else if (pitch == bottomRight) {
       paddle2Pos--;
-      if (paddle2Pos < 0)
+      if (paddle2Pos < 0) {
         paddle2Pos = 0;
+      }
     }
 
     if (pitch == topLeft) {
@@ -126,8 +127,9 @@ public class Pong extends MidiBase {
       }
     } else if (pitch == bottomLeft) {
       paddle1Pos--;
-      if (paddle1Pos < 0)
+      if (paddle1Pos < 0) {
         paddle1Pos = 0;
+      }
     }
     // Necessary to call for MIDI Through note forwarding.
     super.noteOnReceived(note);

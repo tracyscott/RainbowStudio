@@ -12,8 +12,8 @@ import heronarts.lx.parameter.CompoundParameter;
 @LXCategory(LXCategory.FORM)
 public class PG3DSimple extends PGTexture {
   public final CompoundParameter sizeKnob =
-    new CompoundParameter("size", 1.0, 30.0)
-    .setDescription("Size");
+      new CompoundParameter("size", 1.0, 30.0)
+          .setDescription("Size");
 
   public PG3DSimple(LX lx) {
     super(lx, P3D);

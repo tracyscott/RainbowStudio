@@ -2,17 +2,20 @@ package com.giantrainbow.patterns;
 
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
+import java.util.logging.Logger;
 
-/*
+/**
  * PanelTest.  Generate numbered sequences on panels to help debug
  * any physical wiring issues.
  */
 @LXCategory(LXCategory.TEST)
 public class PanelTest extends PGPixelPerfect {
-  protected int curBlockPanel;
-  protected int curBlockPosX;
-  protected int curBlockPosY;
-  protected long currentPanelTestFrame;
+  private static final Logger logger = Logger.getLogger(PanelTest.class.getName());
+
+  private int curBlockPanel;
+  private int curBlockPosX;
+  private int curBlockPosY;
+  private long currentPanelTestFrame;
 
   public PanelTest(LX lx) {
     super(lx, "");
@@ -101,7 +104,7 @@ public class PanelTest extends PGPixelPerfect {
       if (curBlockPanel > 29) {
         curBlockPanel = 0;
       }
-      System.out.println("Block coords panel=" + curBlockPanel + " x=" + curBlockPosX + " y=" + curBlockPosY);
+      logger.info("Block coords panel=" + curBlockPanel + " x=" + curBlockPosX + " y=" + curBlockPosY);
     }
     currentPanelTestFrame++;
   }

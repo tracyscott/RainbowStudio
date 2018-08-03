@@ -1,10 +1,10 @@
 package com.giantrainbow;
 
 public class Gamma {
-  static float defaultGamma = 1.8f;
-  static float defaultGammaRed = 1.8f;
-  static float defaultGammaGreen = 1.8f;
-  static float defaultGammaBlue = 1.8f;
+  private static float defaultGamma = 1.8f;
+  private static float defaultGammaRed = 1.8f;
+  private static float defaultGammaGreen = 1.8f;
+  private static float defaultGammaBlue = 1.8f;
 
   static final byte[][] GAMMA_LUT = new byte[256][256];
   static final byte[][] GAMMA_LUT_RED = new byte[256][256];

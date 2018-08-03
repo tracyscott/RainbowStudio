@@ -8,15 +8,18 @@ import com.giantrainbow.model.RainbowBaseModel;
 import heronarts.lx.LX;
 import heronarts.lx.color.LXColor;
 import heronarts.lx.model.LXPoint;
+import java.util.logging.Logger;
 import processing.core.PImage;
 
-/*
+/**
  * Utility class for rendering images.  Implements the mapping of
  * the polar coordinate generated points into an image, including
  * the option of antialiasing.
  */
 class RenderImageUtil {
-  /*
+  private static final Logger logger = Logger.getLogger(RenderImageUtil.class.getName());
+
+  /**
    * Compute a new RGB color based on a given weight.  Each
    * RGB component is multiplied by the weight (range 0.0-1.0)
    * and a new 32-bit color is returned.  Currently forces
@@ -33,7 +36,7 @@ class RenderImageUtil {
     return  0xFF000000 | weightedRed | weightedGreen | weightedBlue;
   }
 
-  /*
+  /**
    * Render an image to the rainbow pixel-perfect.  This effectively treats the
    * rainbow as a 420x30 image.  The image will effectively have a bend distortion
    * and lesser intensity at the top due to reduced pixel density but it is
@@ -62,7 +65,7 @@ class RenderImageUtil {
     }
   }
 
-  /*
+  /**
    * Given our Rainbow points/leds, sample an image to assign led colors.  The image is
    * the same size as the top half of the circle of the Rainbow.  Use this method if you
    * are generating images that rely on the circumference of the circle.  With this method
@@ -95,24 +98,28 @@ class RenderImageUtil {
       float pointYImagePixels = worldPixelsHeight - pointYWorldPixels;
       if (pointYImagePixels < 0) {
         // This should never happen, output stats if it does.
-        System.out.println("p.x: " + p.x + " p.y:" + p.y + " pointYWorldPixels: " +
+        logger.info("p.x: " + p.x + " p.y:" + p.y + " pointYWorldPixels: " +
         pointYWorldPixels + " poingYImagePixels: " + pointYImagePixels + " worldPixelsHeight:" +
         worldPixelsHeight);
-        System.out.println("model.y.max: " + lx.model.yMax * 6.0);
+        logger.info("model.y.max: " + lx.model.yMax * 6.0);
       }
       // The nearest image coordinate.  Use this directly for non anti-aliased case.
-      int xCoordImagePixels = (int)round(pointXImagePixels);
-      int yCoordImagePixels = (int)round(pointYImagePixels);
+      int xCoordImagePixels = round(pointXImagePixels);
+      int yCoordImagePixels = round(pointYImagePixels);
 
       // If we end up rounding outside the image, just take the boundary pixel.
-      if (yCoordImagePixels >= image.height)
+      if (yCoordImagePixels >= image.height) {
         yCoordImagePixels = image.height - 1;
-      if (yCoordImagePixels < 0)
+      }
+      if (yCoordImagePixels < 0) {
         yCoordImagePixels = 0;
-      if (xCoordImagePixels < 0)
+      }
+      if (xCoordImagePixels < 0) {
         xCoordImagePixels = 0;
-      if (xCoordImagePixels > image.width)
+      }
+      if (xCoordImagePixels > image.width) {
         xCoordImagePixels = image.width - 1;
+      }
 
       if (!antialias) {
         int imgIndex = yCoordImagePixels * image.width + xCoordImagePixels;
@@ -133,14 +140,18 @@ class RenderImageUtil {
 
         // If we round outside our boundaries, clamp the values. We will skip
         // these when doing weighted averages.
-        if (xLeft < 0)
+        if (xLeft < 0) {
           xLeft = -1;
-        if (xRight >= image.width)
+        }
+        if (xRight >= image.width) {
           xRight = image.width;
-        if (yAbove >= image.height)
+        }
+        if (yAbove >= image.height) {
           yAbove = image.height;
-         if (yBelow < 0)
-           yBelow = -1;
+        }
+        if (yBelow < 0) {
+          yBelow = -1;
+        }
 
         // Compute the image index of the nearest pixels.
         int imgIndexLeft = image.width * yCoordImagePixels + xLeft;
@@ -201,7 +212,7 @@ class RenderImageUtil {
     }
   }
 
-  /*
+  /**
    * Render an image on the rainbow. Includes an option for antialiasing.
    * This method assumes that the image has been scaled to correspond
    * to the bounding box size of the rainbow arc.  The pixel density is

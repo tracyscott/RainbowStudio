@@ -11,7 +11,7 @@ import heronarts.lx.parameter.BooleanParameter;
 import heronarts.lx.parameter.CompoundParameter;
 import processing.core.PGraphics;
 
-/*
+/**
  * Original implemenation of PGDraw.  Left here for a full Processing drawing
  * example in case you need to do something not allowed by extending PGTexture
  * or PGPixelPerfect.
@@ -19,16 +19,16 @@ import processing.core.PGraphics;
 @LXCategory(LXCategory.FORM)
 public class PGDraw extends LXPattern {
   public final CompoundParameter fpsKnob =
-    new CompoundParameter("Fps", 1.0, 10.0)
-    .setDescription("Controls the frames per second.");
+      new CompoundParameter("Fps", 1.0, 10.0)
+          .setDescription("Controls the frames per second.");
 
   public final BooleanParameter antialiasKnob =
-    new BooleanParameter("antialias", true);
+      new BooleanParameter("antialias", true);
 
-  protected double currentFrame = 0.0;
+  protected double currentFrame;
   protected PGraphics pg;
-  protected int imageWidth = 0;
-  protected int imageHeight = 0;
+  protected int imageWidth;
+  protected int imageHeight;
   protected int previousFrame = -1;
 
   float angle = 0.0f;

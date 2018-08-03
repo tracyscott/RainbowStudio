@@ -11,13 +11,14 @@ import heronarts.lx.parameter.CompoundParameter;
 @LXCategory(LXCategory.TEXTURE)
 public class Lines extends LXPattern {
   public final CompoundParameter posKnob =
-    new CompoundParameter("Pos", 0, 0, ((RainbowBaseModel)lx.model).pointsHigh)
-    .setDescription("Controls where the line is. e.g. Animate with LFO.");
+      new CompoundParameter("Pos", 0, 0, ((RainbowBaseModel)lx.model).pointsHigh)
+          .setDescription("Controls where the line is. e.g. Animate with LFO.");
   public final CompoundParameter widthKnob =
-    new CompoundParameter("Width", 0, ((RainbowBaseModel)lx.model).pointsHigh * 2)
-    .setDescription("Controls the width of the line+deadspace");
-  public final CompoundParameter verticalKnob = new CompoundParameter("vert", 0.0, 0.0, 1.0)
-    .setDescription("Vertical or Horizontal lines.");
+      new CompoundParameter("Width", 0, ((RainbowBaseModel)lx.model).pointsHigh * 2)
+          .setDescription("Controls the width of the line+deadspace");
+  public final CompoundParameter verticalKnob =
+      new CompoundParameter("vert", 0.0, 0.0, 1.0)
+          .setDescription("Vertical or Horizontal lines.");
 
   public Lines(LX lx) {
     super(lx);

@@ -17,20 +17,22 @@ import heronarts.p3lx.ui.component.UIKnob;
 import heronarts.p3lx.ui.component.UITextBox;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 import processing.core.PConstants;
 import processing.core.PFont;
 import processing.core.PGraphics;
 
 @LXCategory(LXCategory.FORM)
 public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
+  private static final Logger logger = Logger.getLogger(AnimatedTextPP.class.getName());
+
   public final StringParameter textKnob = new StringParameter("str", "");
 
   List<TextItem> textItems = new ArrayList<TextItem>();
   UIItemList.ScrollList textItemList;
   private static final int CONTROLS_MIN_WIDTH = 120;
   public final CompoundParameter xSpeed =
-    new CompoundParameter("XSpd", 0, 20)
-    .setDescription("X speed in pixels per frame");
+      new CompoundParameter("XSpd", 0, 20).setDescription("X speed in pixels per frame");
 
   int textBufferWidth = 200;
   PGraphics textImage;
@@ -54,7 +56,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     addParameter(xSpeed);
     String[] fontNames = PFont.list();
     for (String fontName : fontNames) {
-      System.out.println("Font: " + fontName);
+      logger.info("Font: " + fontName);
     }
     font = RainbowStudio.pApplet.createFont("04b", fontSize, true);
     for (int i = 0; i < defaultTexts.length; i++) {
@@ -73,15 +75,16 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     textImage.beginDraw();
     textImage.background(0);
     textImage.stroke(255);
-    if (font != null)
+    if (font != null) {
       textImage.textFont(font);
-    else
+    } else {
       textImage.textSize(fontSize);
+    }
     String currentText = textItems.get(currentString).getLabel();
     renderedTextWidth = ceil(textImage.textWidth(currentText));
     // If the text was clipped, try again with a larger width.
     if (renderedTextWidth + 1 >= bufferWidth) {
-      System.out.println("text clipped: renderedTextWidth=" + renderedTextWidth);
+      logger.info("text clipped: renderedTextWidth=" + renderedTextWidth);
       textImage.endDraw();
       redrawTextBuffer(renderedTextWidth + 10);
     } else {
@@ -110,12 +113,12 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     currentPos -= xSpeed.getValue();
   }
 
-  /*
+  /**
    * Animated Text has some custom UI components that allow us to add and delete
    * strings at run time.  This is a moderately complex example of custom Pattern UI.
    */
   @Override
-    public void buildDeviceUI(UI ui, final UI2dContainer device) {
+  public void buildDeviceUI(UI ui, final UI2dContainer device) {
     device.setContentWidth(CONTROLS_MIN_WIDTH);
     device.setLayout(UI2dContainer.Layout.VERTICAL);
     device.setPadding(3, 3, 3, 3);
@@ -131,9 +134,9 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     textEntryLine.setLayout(UI2dContainer.Layout.HORIZONTAL);
 
     new UITextBox(0, 0, device.getContentWidth() - 22, 20)
-      .setParameter(textKnob)
-      .setTextAlignment(PConstants.LEFT)
-      .addToContainer(textEntryLine);
+        .setParameter(textKnob)
+        .setTextAlignment(PConstants.LEFT)
+        .addToContainer(textEntryLine);
 
     textItemList =  new UIItemList.ScrollList(ui, 0, 5, CONTROLS_MIN_WIDTH, 80);
 
@@ -146,10 +149,9 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
           textKnob.setValue("");
         }
       }
-    }
-    .setLabel("+")
-      .setMomentary(true)
-      .addToContainer(textEntryLine);
+    }.setLabel("+")
+        .setMomentary(true)
+        .addToContainer(textEntryLine);
 
     textEntryLine.addToContainer(device);
 
@@ -161,7 +163,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   public class TextItem extends UIItemList.Item {
     private final String text;
 
-    public TextItem(String str) {
+    TextItem(String str) {
       this.text = str;
     }
     public boolean isActive() {

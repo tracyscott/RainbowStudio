@@ -5,7 +5,7 @@ import static processing.core.PConstants.P2D;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 
-/*
+/**
  * PGDraw implementation by extending PGTexture.
  */
 @LXCategory(LXCategory.FORM)
@@ -16,7 +16,7 @@ public class PGDraw2 extends PGTexture {
   }
 
   @Override
-    protected void draw(double deltaDrawMs) {
+  protected void draw(double deltaDrawMs) {
     angle += 0.03;
     pg.background(0);
     pg.strokeWeight(10.0f);

@@ -49,7 +49,7 @@ public class ShaderToyAudio extends PGPixelPerfect {
     ByteBuffer fftBuf = ByteBuffer.wrap(fft);
     DwGLTexture tex0 = new DwGLTexture();
     tex0.resize(context, GL2.GL_R8, 512, 2, GL2.GL_RED, GL2.GL_UNSIGNED_BYTE,
-      GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 1, 1, fftBuf);
+        GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 1, 1, fftBuf);
     toy.set_iChannel(0, tex0);
     pg.background(0);
     toy.apply(toyGraphics);

@@ -23,20 +23,20 @@ import processing.core.PImage;
 
 abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
   public final CompoundParameter fpsKnob =
-    new CompoundParameter("Fps", 1.0, 10.0)
-    .setDescription("Controls the frames per second.");
+      new CompoundParameter("Fps", 1.0, 10.0)
+          .setDescription("Controls the frames per second.");
   public final BooleanParameter antialiasKnob =
-    new BooleanParameter("antialias", true);
-  public final StringParameter imgKnob = new StringParameter("img", "")
-    .setDescription("Texture image for rainbow.");
+      new BooleanParameter("antialias", true);
+  public final StringParameter imgKnob =
+      new StringParameter("img", "")
+          .setDescription("Texture image for rainbow.");
 
   protected List<FileItem> fileItems = new ArrayList<FileItem>();
   protected UIItemList.ScrollList fileItemList;
   protected List<String> imgFiles;
   private static final int CONTROLS_MIN_WIDTH = 160;
 
-  private static final List<String> IMG_EXTS =
-      Arrays.asList(new String[] { ".gif", ".png", ".jpg" });
+  private static final List<String> IMG_EXTS = Arrays.asList(".gif", ".png", ".jpg");
 
   protected PImage image;
   protected int imageWidth = 0;
@@ -99,15 +99,16 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
       }
       fileItems.add(new FileItem(filename));
     }
-    if (fileItemList != null)
+    if (fileItemList != null) {
       fileItemList.setItems(fileItems);
+    }
   }
 
   //
   // Custom UI to allow for the selection of the shader file
   //
   @Override
-    public void buildDeviceUI(UI ui, final UI2dContainer device) {
+  public void buildDeviceUI(UI ui, final UI2dContainer device) {
     device.setContentWidth(CONTROLS_MIN_WIDTH);
     device.setLayout(UI2dContainer.Layout.VERTICAL);
     device.setPadding(3, 3, 3, 3);
@@ -122,15 +123,16 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
       antialiasButton.setMomentary(false);
       antialiasButton.addToContainer(knobsContainer);
     }
-        new UIButton(CONTROLS_MIN_WIDTH, 10, 60, 20) {
+    new UIButton(CONTROLS_MIN_WIDTH, 10, 60, 20) {
       @Override
       public void onToggle(boolean on) {
         if (on) {
           reloadFileList();
         }
       }
-    }
-    .setLabel("rescan dir").setMomentary(true).addToContainer(knobsContainer);
+    }.setLabel("rescan dir")
+        .setMomentary(true)
+        .addToContainer(knobsContainer);
 
     knobsContainer.addToContainer(device);
 
@@ -139,21 +141,22 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
 
     fileItemList =  new UIItemList.ScrollList(ui, 0, 5, CONTROLS_MIN_WIDTH, 80);
     new UITextBox(0, 0, device.getContentWidth() - 22, 20)
-      .setParameter(imgKnob)
-      .setTextAlignment(PConstants.LEFT)
-      .addToContainer(filenameEntry);
+        .setParameter(imgKnob)
+        .setTextAlignment(PConstants.LEFT)
+        .addToContainer(filenameEntry);
 
 
     // Button for reloading shader.
     new UIButton(device.getContentWidth() - 20, 0, 20, 20) {
       @Override
-        public void onToggle(boolean on) {
+      public void onToggle(boolean on) {
         if (on) {
           loadImg(imgKnob.getString());
         }
       }
-    }
-    .setLabel("\u21BA").setMomentary(true).addToContainer(filenameEntry);
+    }.setLabel("\u21BA")
+        .setMomentary(true)
+        .addToContainer(filenameEntry);
     filenameEntry.addToContainer(device);
 
     fileItemList =  new UIItemList.ScrollList(ui, 0, 5, CONTROLS_MIN_WIDTH, 80);
@@ -163,7 +166,7 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
   }
 
   public class FileItem extends FileItemBase {
-    public FileItem(String filename) {
+    FileItem(String filename) {
       super(filename);
     }
     public void onActivate() {
