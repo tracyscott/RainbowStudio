@@ -22,4 +22,8 @@ public class Buffer {
     public void setRGB(int idx, int r, int g, int b) {
         buffer[idx] = LXColor.rgb(r, g, b);
     }
+
+    public void copy(int[] pixels) {
+        System.arraycopy(pixels, 0, buffer, 0, pixels.length);
+    }
 }

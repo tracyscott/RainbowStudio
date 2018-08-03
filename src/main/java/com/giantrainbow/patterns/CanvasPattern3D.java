@@ -16,11 +16,14 @@ abstract class CanvasPattern3D extends PGBase {
     }
 
     protected void imageToPoints() {
-        // TODO was:
-        // RenderImageUtil.imageToPointsSemiCircle(lx, colors, pg, antialiasKnob.isOn());
-        //
-        // Now will use the canvas:
-	// canvas.render(colors);
+        // TODO Use the pg image buffer directly instead of copy.
+        if (pg.pixels == null) {
+            pg.loadPixels();
+        }
+
+        canvas.buffer.copy(pg.pixels);
+        canvas.dumpImage();
+        canvas.render(colors);
     }
 
     // Implement drawing code here.

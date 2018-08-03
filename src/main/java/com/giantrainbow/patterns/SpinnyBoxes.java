@@ -27,12 +27,12 @@ public class SpinnyBoxes extends CanvasPattern3D {
     public void draw(double deltaDrawMs) {
         pg.background(0);
         float radiiThickness = RainbowBaseModel.outerRadius - RainbowBaseModel.innerRadius;
-        float middleRadiusInWorldPixels = (RainbowBaseModel.innerRadius + radiiThickness) * RainbowBaseModel.pixelsPerFoot;
+        float middleRadiusInWorldPixels = (RainbowBaseModel.innerRadius + radiiThickness) / canvas.resolution();
         pg.lights();
         pg.rectMode(CENTER);
         pg.fill(190);
         pg.noStroke();
-        pg.translate(middleRadiusInWorldPixels, 20, 0);
+        pg.translate(middleRadiusInWorldPixels, 200, 0);
         pg.rotateY(((int)currentFrame%16) * PI/16.0f);
         pg.box((int)(sizeKnob.getValue()));
     }

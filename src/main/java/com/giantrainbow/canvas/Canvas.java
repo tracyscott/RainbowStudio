@@ -78,6 +78,10 @@ public class Canvas {
         return map.height;
     }
 
+    public float resolution() {
+        return map.resolution;
+    }
+
     public void dumpImage() {
         final BufferedImage image = new BufferedImage(map.width, map.height, BufferedImage.TYPE_INT_ARGB);
         final Graphics2D g = (Graphics2D) image.getGraphics();

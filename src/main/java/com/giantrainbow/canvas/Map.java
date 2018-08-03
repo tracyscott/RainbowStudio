@@ -20,7 +20,7 @@ public class Map {
     final float resolution = foot / 12.0f;
 
     // This prunes the search for nearby subpixels.
-    final float searchLimit = foot / 3;
+    final float searchLimit = foot / 2;
 
     int width;
     int height;
