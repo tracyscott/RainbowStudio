@@ -10,18 +10,15 @@ import com.giantrainbow.canvas.Canvas;
 import java.util.Random;
 
 @LXCategory(LXCategory.FORM)
-public class SpinnyDisks extends LXPattern {
+public class SpinnyDisks extends CanvasPattern2D {
     public final CompoundParameter speedKnob =
 	new CompoundParameter("Speed", 1, 20).setDescription("Speed.");
 
     Ball   balls[];
     double elapsed;
-    Canvas canvas;
 
     public SpinnyDisks(LX lx) {
  	super(lx);
-
-        this.canvas = new Canvas(lx.model);
 
         this.elapsed = 0;
 	this.balls = new Ball[100];
@@ -40,12 +37,11 @@ public class SpinnyDisks extends LXPattern {
         speedKnob.setValue(5);
     }
 
-    public void run(double deltaMs) {
+    public void draw(double deltaMs) {
 	elapsed += deltaMs;
 	for (Ball ball : balls) {
 	    ball.draw();
 	}
-        canvas.render(colors);
     }
 
     public class Ball {
