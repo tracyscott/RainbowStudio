@@ -19,6 +19,7 @@ import static processing.core.PConstants.P3D;
 import static processing.core.PConstants.PI;
 
 import com.giantrainbow.RainbowStudio;
+import com.giantrainbow.colors.Colors;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.parameter.StringParameter;
@@ -81,18 +82,6 @@ public class Blocks extends PGPixelPerfect {
     fpsKnob.setValue(60);
   }
 
-  /**
-   * Chooses one of the colors from the color scheme.
-   */
-  private int randColor() {
-    // Choose from a 4-bit set of random colors
-    int c = 0xff;
-    for (int i = 0; i < 3; i++) {
-      c = (c << 8) | (rand.nextInt(1 << 4) << 4);
-    }
-    return c;
-  }
-
   @Override
   protected void draw(double deltaDrawMs) {
     pg.colorMode(HSB, 1.0f);  // Why doesn't this work from onActive()?
@@ -108,7 +97,7 @@ public class Blocks extends PGPixelPerfect {
     for (int i = 0; i < boxes.length; i++) {
       if (boxes[i].isDone()) {
         boxes[i].restart(
-            randColor(),
+            Colors.randomColor(4),
             HALF_PI * (rand.nextBoolean()  ? -1 : 1),
             pow(2.0f, lerp(1, -1, rand.nextInt(boxes.length)/(boxes.length - 1.0f))));
       }
@@ -138,7 +127,7 @@ public class Blocks extends PGPixelPerfect {
     private float t;  // The parametric value
 
     Box(float w, float h) {
-      this.color2 = randColor();
+      this.color2 = Colors.randomColor(4);
       this.w = w;
       this.h = h;
       this.angle1 = 0.0f;
@@ -210,7 +199,7 @@ public class Blocks extends PGPixelPerfect {
       pg.fill(c);
 
       int stroke;
-      if (pg.brightness(c) < 0.5) {
+      if (pg.brightness(c) < 0.5f) {
         stroke = WHITE;
       } else {
         stroke = BLACK;
@@ -219,7 +208,7 @@ public class Blocks extends PGPixelPerfect {
       float sw = 1.5f;
       pg.strokeWeight(sw);
       // Rounded corner = 5
-      pg.rect(-w/2 + sw/2.0f, -h/2 + sw/2.0f, w - sw, h - sw, 5);
+      pg.rect(-w/2.0f + sw/2.0f, -h/2.0f + sw/2.0f, w - sw, h - sw, 5.0f);
 
       String text = textControl.getString();
       String s;
