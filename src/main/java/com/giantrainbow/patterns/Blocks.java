@@ -29,6 +29,9 @@ import processing.core.PShape;
 
 /**
  * Randomly rotating blocks.
+ * <p>
+ * Note: The blocks are skewed near the ends not because of the rainbow curvature,
+ * but because of how I'm doing perspective.</p>
  *
  * @author Shawn Silverman
  */
