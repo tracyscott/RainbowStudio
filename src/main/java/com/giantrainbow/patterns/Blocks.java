@@ -43,7 +43,7 @@ public class Blocks extends PGPixelPerfect {
   private static final float BOX_W = SEGMENT_W * 0.9f;
   private static final float BOX_H = PANEL_H * 0.9f;
 
-  private static Random rand = new Random();
+  private static final Random rand = new Random();
 
   private final PFont font;
   private final PShape logo;
