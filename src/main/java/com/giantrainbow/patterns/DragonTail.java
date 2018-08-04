@@ -37,7 +37,10 @@ public class DragonTail extends PGPixelPerfect {
   @Override
   public void onActive() {
 //    size(500, 300);
+    pg.beginDraw();
     pg.colorMode(HSB, 360, 100, 100);
+    pg.endDraw();
+
     for (int i = 0; i < num; i++) {
       startX[i] = step * (i + 1);
       col[i] = (360 / num) * i;
@@ -54,8 +57,6 @@ public class DragonTail extends PGPixelPerfect {
 
   @Override
   protected void draw(double deltaDrawMs) {
-    pg.colorMode(HSB, 360, 100, 100);  // Why doesn't this work from onActive()?
-
     pg.fill(20, 25);
     pg.noStroke();
     pg.rect(0, 0, pg.width, pg.height);

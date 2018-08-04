@@ -75,8 +75,10 @@ public class Blocks extends PGPixelPerfect {
   @Override
   public void onActive() {
     // Graphics context setup
+    pg.beginDraw();
     pg.colorMode(HSB, 1.0f);
     pg.textFont(font);
+    pg.endDraw();
 
     // Default parameter setup
     fpsKnob.setValue(60);
@@ -84,8 +86,6 @@ public class Blocks extends PGPixelPerfect {
 
   @Override
   protected void draw(double deltaDrawMs) {
-    pg.colorMode(HSB, 1.0f);  // Why doesn't this work from onActive()?
-
     pg.background(BLACK);
 //    pg.ortho();
     pg.camera(pg.width/2.0f, pg.height/2.0f, 3.0f*pg.height, pg.width/2.0f, pg.height/2.0f, 0, 0, 1, 0);
