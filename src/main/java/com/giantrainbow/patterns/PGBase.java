@@ -15,7 +15,7 @@ import processing.core.PGraphics;
  */
 abstract class PGBase extends LXPattern {
   public final CompoundParameter fpsKnob =
-      new CompoundParameter("Fps", 1.0, 60.0)
+      new CompoundParameter("Fps", 1.0, RainbowStudio.GLOBAL_FRAME_RATE)
           .setDescription("Controls the frames per second.");
 
   protected double currentFrame = 0.0;
@@ -75,8 +75,8 @@ abstract class PGBase extends LXPattern {
 
   // Responsible for calling RenderImageUtil.imageToPointsSemiCircle to
   // RenderImageUtil.imageToPointsPixelPerfect.
-  abstract protected void imageToPoints();
+  protected abstract void imageToPoints();
 
   // Implement PGGraphics drawing code here.  PGTexture handles beginDraw()/endDraw();
-  abstract protected void draw(double deltaDrawMs);
+  protected abstract void draw(double deltaDrawMs);
 }
