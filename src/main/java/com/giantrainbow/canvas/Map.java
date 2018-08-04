@@ -11,6 +11,7 @@ import heronarts.lx.model.LXPoint;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+/** Map constructs a mapping from sub-sampled pixel to true pixel in the rainbow canvas. */
 public class Map {
   // Units are in feet, here.  Sample one inch pixels.
   final float foot = 1;
@@ -37,6 +38,7 @@ public class Map {
   float pxMax = Float.NEGATIVE_INFINITY;
   float pyMax = Float.NEGATIVE_INFINITY;
 
+  /** newFromModel constructs a map using the points of the LXModel. */
   public static Map newFromModel(LXModel model) {
     Map map = new Map();
     map.buildFromModel(model);
@@ -47,14 +49,20 @@ public class Map {
     ArrayList<Integer> subs = new ArrayList<Integer>();
   }
 
+  /** isFar returns true when the sub-pixel at index `idx` is not included in the rendering. */
   public boolean isFar(int idx) {
     return !isnear[idx];
   }
 
+  /** size returns the number of sub-pixels in the canvas. */
   public int size() {
     return height * width;
   }
 
+  /**
+   * buildFromModel computes the subpixel-to-pixel mapping, excluding points that are nearest to the
+   * perimeter or outside: `positions`, `subpixels`, and `isnear` are computed.
+   */
   void buildFromModel(LXModel model) {
     System.out.printf("Building canvas from model...\n");
 

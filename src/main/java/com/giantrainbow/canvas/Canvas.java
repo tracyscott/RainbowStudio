@@ -8,9 +8,13 @@ import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
+/** Canvas anti-aliases Euclidean coordinates onto Rainbow coordinates. */
 public class Canvas {
 
+  /** Buffer contains the current state of the canvas. */
   public Buffer buffer;
+
+  /** Map contains the (static) mapping function from sub-pixel to rainbow pixel. */
   public Map map;
 
   public Canvas(LXModel model) {
@@ -18,6 +22,10 @@ public class Canvas {
     buffer = new Buffer(map.size());
   }
 
+  /**
+   * circle renders a colorwheel circle at position `(x,y)` with radius `r`. `position` indicates
+   * the angle of rotation.
+   */
   public void circle(float x, float y, float r, float position) {
     int xbegin = map.subXi(x - r);
     int xend = map.subXi(x + r);
@@ -63,24 +71,29 @@ public class Canvas {
     }
   }
 
+  /** render stores the current buffer into `output`. */
   public void render(int output[]) {
     for (int i = 0; i < output.length; i++) {
       output[i] = map.computePoint(i, buffer);
     }
   }
 
+  /** width returns the sub-sampled width of the canvas. */
   public int width() {
     return map.width;
   }
 
+  /** width returns the sub-sampled height of the canvas. */
   public int height() {
     return map.height;
   }
 
+  /** resolution returns the dimension, _IN FEET_, of the canvas sub-pixels. */
   public float resolution() {
     return map.resolution;
   }
 
+  /** dumpImage is a debugging aid. */
   public void dumpImage() {
     final BufferedImage image =
         new BufferedImage(map.width, map.height, BufferedImage.TYPE_INT_ARGB);
