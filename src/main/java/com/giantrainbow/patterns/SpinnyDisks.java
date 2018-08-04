@@ -2,57 +2,53 @@ package com.giantrainbow.patterns;
 
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
-import heronarts.lx.LXPattern;
 import heronarts.lx.parameter.CompoundParameter;
-
-import com.giantrainbow.canvas.Canvas;
-
 import java.util.Random;
 
 @LXCategory(LXCategory.FORM)
 public class SpinnyDisks extends CanvasPattern2D {
-    public final CompoundParameter speedKnob =
-	new CompoundParameter("Speed", 1, 20).setDescription("Speed.");
+  public final CompoundParameter speedKnob =
+      new CompoundParameter("Speed", 1, 20).setDescription("Speed.");
 
-    Ball   balls[];
-    double elapsed;
+  Ball balls[];
+  double elapsed;
 
-    public SpinnyDisks(LX lx) {
- 	super(lx);
+  public SpinnyDisks(LX lx) {
+    super(lx);
 
-        this.elapsed = 0;
-	this.balls = new Ball[100];
+    this.elapsed = 0;
+    this.balls = new Ball[100];
 
-	Random rnd = new Random();
+    Random rnd = new Random();
 
-        for (int i = 0; i < balls.length; i++) {
-            balls[i] = new Ball();
-            balls[i].X = lx.model.xMin + (lx.model.xMax - lx.model.xMin) * rnd.nextFloat();
-            balls[i].Y = lx.model.yMin + (lx.model.yMax - lx.model.yMin) * rnd.nextFloat(); 
-            balls[i].R = 10 * rnd.nextFloat(); 
-            balls[i].S = rnd.nextFloat();
-        }
-
-        addParameter(speedKnob);
-        speedKnob.setValue(5);
+    for (int i = 0; i < balls.length; i++) {
+      balls[i] = new Ball();
+      balls[i].X = lx.model.xMin + (lx.model.xMax - lx.model.xMin) * rnd.nextFloat();
+      balls[i].Y = lx.model.yMin + (lx.model.yMax - lx.model.yMin) * rnd.nextFloat();
+      balls[i].R = 10 * rnd.nextFloat();
+      balls[i].S = rnd.nextFloat();
     }
 
-    public void draw(double deltaMs) {
-	elapsed += deltaMs;
-	for (Ball ball : balls) {
-	    ball.draw();
-	}
+    addParameter(speedKnob);
+    speedKnob.setValue(5);
+  }
+
+  public void draw(double deltaMs) {
+    elapsed += deltaMs;
+    for (Ball ball : balls) {
+      ball.draw();
     }
+  }
 
-    public class Ball {
-	float X;
-	float Y;
-	float R;
-	float S;
+  public class Ball {
+    float X;
+    float Y;
+    float R;
+    float S;
 
-	void draw() {
-            float position = (float)(speedKnob.getValue()*S*elapsed/10000);
-            canvas.circle(X, Y, R, position);
-	}
-    };
+    void draw() {
+      float position = (float) (speedKnob.getValue() * S * elapsed / 10000);
+      canvas.circle(X, Y, R, position);
+    }
+  };
 }
