@@ -1,25 +1,33 @@
 package com.giantrainbow.canvas;
 
 import heronarts.lx.color.LXColor;
-
 import java.awt.Color;
 
+/** Buffer stores the current values of the sub-sampled pixels of a Canvas. */
 public class Buffer {
-    int[] buffer;
+  int[] buffer;
 
-    Buffer(int size) {
-        buffer = new int[size];
-    }
+  Buffer(int size) {
+    buffer = new int[size];
+  }
 
-    public int get(int idx) {
-        return buffer[idx];
-    }
+  /** get returns the color of the indexed pixel. */
+  public int get(int idx) {
+    return buffer[idx];
+  }
 
-    public void setHSB(int idx, float h, float s, float b) {
-        buffer[idx] = Color.HSBtoRGB(h, s, b);
-    }
+  /** setHSB takes h, s, b in (0, 1]. */
+  public void setHSB(int idx, float h, float s, float b) {
+    buffer[idx] = Color.HSBtoRGB(h, s, b);
+  }
 
-    public void setRGB(int idx, int r, int g, int b) {
-        buffer[idx] = LXColor.rgb(r, g, b);
-    }
+  /** setRGB takes r, g, b in [0, 255]. */
+  public void setRGB(int idx, int r, int g, int b) {
+    buffer[idx] = LXColor.rgb(r, g, b);
+  }
+
+  /** copy copies the buffer into `pixels` */
+  public void copy(int[] pixels) {
+    System.arraycopy(pixels, 0, buffer, 0, pixels.length);
+  }
 }
