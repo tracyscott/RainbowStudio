@@ -23,7 +23,6 @@ import com.giantrainbow.colors.Colors;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.parameter.StringParameter;
-import java.util.Random;
 import processing.core.PFont;
 import processing.core.PGraphics;
 import processing.core.PShape;
@@ -42,8 +41,6 @@ public class Blocks extends PGPixelPerfect {
 
   private static final float BOX_W = SEGMENT_W * 0.9f;
   private static final float BOX_H = PANEL_H * 0.9f;
-
-  private static final Random rand = new Random();
 
   private final PFont font;
   private final PShape logo;
@@ -98,8 +95,8 @@ public class Blocks extends PGPixelPerfect {
       if (boxes[i].isDone()) {
         boxes[i].restart(
             Colors.randomColor(4),
-            HALF_PI * (rand.nextBoolean()  ? -1 : 1),
-            pow(2.0f, lerp(1, -1, rand.nextInt(boxes.length)/(boxes.length - 1.0f))));
+            HALF_PI * (random.nextBoolean()  ? -1 : 1),
+            pow(2.0f, lerp(1, -1, random.nextInt(boxes.length)/(boxes.length - 1.0f))));
       }
 
       pg.pushMatrix();

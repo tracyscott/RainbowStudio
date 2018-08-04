@@ -7,6 +7,7 @@ import com.giantrainbow.RainbowStudio;
 import heronarts.lx.LX;
 import heronarts.lx.LXPattern;
 import heronarts.lx.parameter.CompoundParameter;
+import java.util.Random;
 import processing.core.PGraphics;
 
 /**
@@ -24,6 +25,9 @@ abstract class PGBase extends LXPattern {
   protected int imageHeight;
   protected int previousFrame = -1;
   protected double deltaDrawMs = 0.0;
+
+  /** For subclasses to use. It's better to have one source. */
+  protected static final Random random = new Random();
 
   // For P3D, we need to be on the UI/GL Thread.  We should always be on the GL thread
   // during initialization because we start with Multithreading off.  If somebody enables
