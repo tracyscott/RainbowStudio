@@ -9,7 +9,7 @@ import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.parameter.CompoundParameter;
 
-/*
+/**
  * A simple radial test.  It attempts to alternate one row of leds on and off.  Since
  * it renders to a larger texture and is then sampled for the final output, it is not
  * expected to be perfect because of aliasing issues.  It provides a visual representation
@@ -19,8 +19,8 @@ import heronarts.lx.parameter.CompoundParameter;
 public class PGRadiusTest extends PGTexture {
 
   public final CompoundParameter thicknessKnob =
-    new CompoundParameter("thickness", 1.0, 10.0)
-    .setDescription("Thickness of each band");
+      new CompoundParameter("thickness", 1.0, 10.0)
+          .setDescription("Thickness of each band");
 
   public PGRadiusTest(LX lx) {
     super(lx, P2D);
@@ -43,7 +43,7 @@ public class PGRadiusTest extends PGTexture {
     for (int i = 0; i < 30; i += strokeWidth) {
       float radius = round((RainbowBaseModel.innerRadius + i * RainbowBaseModel.radiusInc) *
         RainbowBaseModel.pixelsPerFoot);
-      if (i % (2 * (int)strokeWidth) == 0) pg.stroke(255);
+      if (i % (2 * strokeWidth) == 0) pg.stroke(255);
       else pg.stroke(0);
       pg.ellipse(xCenterImgSpace, yCenterImgSpace, radius, radius);
     }

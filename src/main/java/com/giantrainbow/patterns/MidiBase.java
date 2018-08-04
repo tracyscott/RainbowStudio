@@ -2,26 +2,31 @@ package com.giantrainbow.patterns;
 
 import heronarts.lx.LX;
 import heronarts.lx.LXPattern;
+import heronarts.lx.midi.LXMidiEngine;
+import heronarts.lx.midi.LXMidiOutput;
 import heronarts.lx.midi.MidiAftertouch;
 import heronarts.lx.midi.MidiControlChange;
 import heronarts.lx.midi.MidiNote;
 import heronarts.lx.midi.MidiNoteOn;
 import heronarts.lx.midi.MidiPitchBend;
 import heronarts.lx.midi.MidiProgramChange;
+import java.util.logging.Logger;
 
-/*
+/**
  * Base class for MIDI patterns.  This class implements some MIDI Through logic that
  * is necessary on Windows.  Relies on a virtual MIDI port created in 'loopmidi' program.
  */
 abstract class MidiBase extends LXPattern {
-  heronarts.lx.midi.LXMidiOutput midiThroughOutput;
+  private static final Logger logger = Logger.getLogger(MidiBase.class.getName());
+
+  LXMidiOutput midiThroughOutput;
 
   public MidiBase(LX lx) {
     super(lx);
     // Find target output for passing MIDI through
-    heronarts.lx.midi.LXMidiEngine midi = lx.engine.midi;
-    for (heronarts.lx.midi.LXMidiOutput output : midi.outputs) {
-      System.out.println(output.getName() + ": " + output.getDescription());
+    LXMidiEngine midi = lx.engine.midi;
+    for (LXMidiOutput output : midi.outputs) {
+      logger.info(output.getName() + ": " + output.getDescription());
       if (output.getName().equalsIgnoreCase("rainbowStudioOut")) {
         midiThroughOutput = output;
         midiThroughOutput.open();

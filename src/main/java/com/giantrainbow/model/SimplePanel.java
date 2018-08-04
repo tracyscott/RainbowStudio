@@ -13,12 +13,16 @@ import heronarts.lx.model.LXAbstractFixture;
 import heronarts.lx.model.LXPoint;
 import heronarts.lx.output.ArtNetDatagram;
 import heronarts.lx.output.LXDatagramOutput;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-/*
+/**
  * A Generic 2D grid model.  Defaults to dimensions of Srikanth's test panel.  Also,
  * configureOutput is only implemented for Srikanth's specific wiring.  The Animated GIF
  * pattern currently uses a 100x50 animated gif of the game of life.  The Animated GIF
@@ -27,6 +31,7 @@ import java.util.Map;
  * buildModel (can be specified at the top of RainbowStudio.pde).
  */
 public class SimplePanel extends RainbowBaseModel {
+  private static final Logger logger = Logger.getLogger(SimplePanel.class.getName());
 
   public static final int LED_WIDTH = 10;  // Defaults based on Srikanth's test panel
   public static final int LED_HEIGHT = 5;
@@ -72,7 +77,7 @@ public class SimplePanel extends RainbowBaseModel {
     }
   }
 
-  /*
+  /**
    * Multi-panel output.  Panels should be remappable to account for build time
    * issues/mistakes.  There are 2 Pixlite LongRange MKII's per side.  The first
    * Pixlite drives 16 panels with 450 leds each, 7200 leds.  The second drives 12 panels with
@@ -95,10 +100,10 @@ public class SimplePanel extends RainbowBaseModel {
     int universesPerPanel = ceil((float)pointsPerPanel/(float)pointsPerUniverse);
 
     int maxColNumPerPanel = pointsWidePerPanel - 1;
-    int currentLogicalPanel = 0;
-    System.out.println("numPanels= " + numPanels);
-    System.out.println("controller 1 panels: " + panelsPerLedController1);
-    System.out.println("controller 2 panels: " + panelsPerLedController2);
+    int currentLogicalPanel;
+    logger.info("numPanels= " + numPanels);
+    logger.info("controller 1 panels: " + panelsPerLedController1);
+    logger.info("controller 2 panels: " + panelsPerLedController2);
 
     Map<Integer, List<Integer>> panelMap = new HashMap<Integer, List<Integer>>();
     // First, just build this in a straightforward way.
@@ -161,7 +166,7 @@ public class SimplePanel extends RainbowBaseModel {
       //int pointIndex = rowNumFromBottom * pointsWidePerPanel + colNumFromLeft;
       // Convert from Panel-local coordinates to global point coordinates.  Point 1,2 in Panel 2 is 420 * 2 + 1 + 2*30 = 901
       int globalPointIndex = rowNumFromBottom * pointsWide + colNumFromLeft + currentLogicalPanel * pointsWidePerPanel;
-      // System.out.println(globalLedPos + " colNum:" +colNumFromLeft + " rowNum:" + rowNumFromBottom + " pointIndex: " + pointIndex);
+      // logger.info(globalLedPos + " colNum:" +colNumFromLeft + " rowNum:" + rowNumFromBottom + " pointIndex: " + pointIndex);
       dmxChannelsForUniverse[universeLedPos] = globalPointIndex;
       // Either we are on DMX channel 170, or we are at the end of the panel.
       if (universeLedPos == pointsPerUniverse - 1 || panelLedPos == pointsWidePerPanel * pointsHighPerPanel - 1) {
@@ -185,22 +190,24 @@ public class SimplePanel extends RainbowBaseModel {
           // LED_CONTROLLER_IP needs to be changed to a list, configurable in UI.  See Tenere.
           // Leave ARTNET port hardcoded.
           if (currentLogicalPanel < panelsPerLedController1) {
-            // System.out.println("Creating datagram for panel: " + currentLogicalPanel);
-            ledControllerIp = pixliteConfig.pixlite1IpP.getString(); // UIPixliteConfig.pixlite1IpP.getString();
-            ledControllerPort = Integer.parseInt(pixliteConfig.pixlite1PortP.getString());
+            // logger.info("Creating datagram for panel: " + currentLogicalPanel);
+            ledControllerIp = UIPixliteConfig.pixlite1IpP.getString();
+            ledControllerPort = Integer.parseInt(UIPixliteConfig.pixlite1PortP.getString());
             whichLedControllerDatagrams = ledControllersDatagrams.get(0);
           } else {
-            ledControllerIp = pixliteConfig.pixlite2IpP.getString(); // UIPixliteConfig.pixlite2IpP.getString();
-            ledControllerPort = Integer.parseInt(pixliteConfig.pixlite2PortP.getString());
+            ledControllerIp = UIPixliteConfig.pixlite2IpP.getString();
+            ledControllerPort = Integer.parseInt(UIPixliteConfig.pixlite2PortP.getString());
             whichLedControllerDatagrams = ledControllersDatagrams.get(1);
           }
           datagram.setAddress(ledControllerIp).setPort(ledControllerPort);
-        } catch (java.net.UnknownHostException uhex) {
-          System.out.println("ERROR! UnknownHostException while configuring ArtNet: " + ledControllerIp);
+        } catch (UnknownHostException uhex) {
+          logger.log(Level.SEVERE, "Configuring ArtNet: " + ledControllerIp, uhex);
         }
         // whichLedControllerDatagrams == null should only happen if UnknownHostException is thrown.
         // Go ahead and crash because it is at startup and error message should help debug.
-        whichLedControllerDatagrams.add(datagram);
+        if (whichLedControllerDatagrams != null) {
+          whichLedControllerDatagrams.add(datagram);
+        }
         dmxChannelsForUniverse = new int[pointsPerUniverse];
       }
     }
@@ -217,18 +224,18 @@ public class SimplePanel extends RainbowBaseModel {
         }
       }
       try {
-        datagramOutput.addDatagram(new ArtSyncDatagram(Integer.parseInt(pixliteConfig.pixlite1PortP.getString())).setAddress(pixliteConfig.pixlite1IpP.getString()));
-        datagramOutput.addDatagram(new ArtSyncDatagram(Integer.parseInt(pixliteConfig.pixlite2PortP.getString())).setAddress(pixliteConfig.pixlite2IpP.getString()));
-      } catch (java.net.UnknownHostException uhex) {
-        System.out.println("ArtNet Sync: UnknownHostException: " + uhex.getMessage());
+        datagramOutput.addDatagram(new ArtSyncDatagram(Integer.parseInt(UIPixliteConfig.pixlite1PortP.getString())).setAddress(UIPixliteConfig.pixlite1IpP.getString()));
+        datagramOutput.addDatagram(new ArtSyncDatagram(Integer.parseInt(UIPixliteConfig.pixlite2PortP.getString())).setAddress(UIPixliteConfig.pixlite2IpP.getString()));
+      } catch (UnknownHostException uhex) {
+        logger.log(Level.SEVERE, "ArtNet Sync", uhex);
       }
       // Finally, register our LXDatagramOutput with the engine.
       lx.engine.output.addChild(datagramOutput);
       //lx.engine.output.framesPerSecond.setValue(GLOBAL_FRAME_RATE + 20);
-    } catch (java.net.SocketException sex) {
+    } catch (SocketException sex) {
       // This can happen for example if we run out of file handles because some code is opening
       // files without closing them.
-      System.out.println("ERROR! SocketException when initializing DatagramOutput: " + sex.getMessage());
+      logger.log(Level.SEVERE, "Initializing DatagramOutput", sex);
     }
   }
 
@@ -262,8 +269,8 @@ public class SimplePanel extends RainbowBaseModel {
         ArtNetDatagram datagram = new RainbowDatagram(lx, dmxChannelsForUniverse, (universeLedPos+1)*3, currentUniverse);
         try {
           datagram.setAddress(LED_CONTROLLER_IP).setPort(ARTNET_PORT);
-        } catch (java.net.UnknownHostException uhex) {
-          System.out.println("ERROR! UnknownHostException while configuring ArtNet: " + LED_CONTROLLER_IP);
+        } catch (UnknownHostException uhex) {
+          logger.log(Level.SEVERE, "Configuring ArtNet: " + LED_CONTROLLER_IP, uhex);
         }
         datagrams.add(datagram);
         currentUniverse++;
@@ -279,20 +286,20 @@ public class SimplePanel extends RainbowBaseModel {
       }
       try {
         datagramOutput.addDatagram(new ArtSyncDatagram(ARTNET_PORT).setAddress(LED_CONTROLLER_IP));
-      } catch (java.net.UnknownHostException uhex) {
-        System.out.println("ARTNET Sync: UnknownHostException: " + uhex.getMessage());
+      } catch (UnknownHostException uhex) {
+        logger.log(Level.SEVERE, "ARTNET Sync", uhex);
       }
       // Finally, register our LXDatagramOutput with the engine.
       lx.engine.output.addChild(datagramOutput);
       // lx.engine.output.framesPerSecond.setValue(GLOBAL_FRAME_RATE);
-    } catch (java.net.SocketException sex) {
+    } catch (SocketException sex) {
       // This can happen for example if we run out of file handles because some code is opening
       // files without closing them.
-      System.out.println("ERROR! SocketException when initializing DatagramOutput: " + sex.getMessage());
+      logger.log(Level.SEVERE, "Initializing DatagramOutput", sex);
     }
   }
 
-  /*
+  /**
    * Based on photo from Srikanth. 0 led on his board is bottom right. 149 led is
    * on top left.  The wiring starts from right to left and then alternates to
    * left to right moving up the rows.  The points in 3D space start with
@@ -345,8 +352,8 @@ public class SimplePanel extends RainbowBaseModel {
           ArtNetDatagram datagram = new ArtNetDatagram(ledWiring, currentUniverse);
           try {
              datagram.setAddress(LED_CONTROLLER_IP).setPort(ARTNET_PORT);
-          } catch (java.net.UnknownHostException uhex) {
-             System.out.println("ERROR! UnknownHostException while configuring ArtNet: " + LED_CONTROLLER_IP);
+          } catch (UnknownHostException uhex) {
+             logger.log(Level.SEVERE, "Configuring ArtNet: " + LED_CONTROLLER_IP, uhex);
           }
           datagrams.add(datagram);
           currentUniverse++;
@@ -364,11 +371,10 @@ public class SimplePanel extends RainbowBaseModel {
       }
       // Finally, register our LXDatagramOutput with the engine.
       lx.engine.output.addChild(datagramOutput);
-    } catch (java.net.SocketException sex) {
+    } catch (SocketException sex) {
       // This can happen for example if we run out of file handles because some code is opening
       // files without closing them.
-      System.out.println("ERROR! SocketException when initializing DatagramOutput: " + sex.getMessage());
+      logger.log(Level.SEVERE, "Initializing DatagramOutput", sex);
     }
-
   }
 }

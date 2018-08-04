@@ -13,15 +13,17 @@ import processing.core.PImage;
 
 @LXCategory(LXCategory.FORM)
 public class AnimatedSprite extends PGTexture {
-  public String spritename = "smallcat.gif";
+  public static final String SPRITE_NAME = "smallcat.gif";
+
   float angle = 0.0f;
   float minAngle = 0.0f;
   float maxAngle = PI;
   private PImage[] images;
   int spriteWidth = 0;
+
   public AnimatedSprite(LX lx) {
     super(lx, P2D);
-//    String filename = RainbowStudio.pApplet.dataPath("./spritepp/" + spritename + ".gif");
+//    String filename = "spritepp/" + SPRITE_NAME;
     for (int i = 0; i < images.length; i++) {
       images[i].loadPixels();
       // assume frames are the same size.

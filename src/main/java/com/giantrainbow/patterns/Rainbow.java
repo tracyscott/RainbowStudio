@@ -23,7 +23,7 @@ public class Rainbow extends LXPattern {
       float hue = map(rowNumber, 0, ((RainbowBaseModel)lx.model).pointsHigh - 1, 0, 360);
       // We can get the position of this point via p.x, p.y, p.z
       colors[p.index] = LX.hsb(hue, 100, 100);
-      ++pointNumber;
+      pointNumber++;
     }
   }
 }

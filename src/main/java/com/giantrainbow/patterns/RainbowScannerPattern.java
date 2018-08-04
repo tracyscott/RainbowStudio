@@ -12,12 +12,13 @@ import heronarts.lx.parameter.CompoundParameter;
 public class RainbowScannerPattern extends LXPattern {
 
   public final CompoundParameter width =
-    new CompoundParameter("Width", 0, 45)
-    .setDescription("Controls the width of the scanner");
+      new CompoundParameter("Width", 0, 45)
+          .setDescription("Controls the width of the scanner");
 
   // In columns per second, 0.2 is 5 columns per second
-  public final CompoundParameter speed = new CompoundParameter("Speed", 0.2, 4)
-    .setDescription("Controls the speed of the scanner");
+  public final CompoundParameter speed =
+      new CompoundParameter("Speed", 0.2, 4)
+          .setDescription("Controls the speed of the scanner");
 
   private double currentScannerColumn = 0.0;
   private boolean movingForward = true;
@@ -53,13 +54,13 @@ public class RainbowScannerPattern extends LXPattern {
     for (LXPoint p : model.points) {
       int pointColumnNumber = pointNumber % numPixelsPerRow;
       if (pointColumnNumber < (int)currentScannerColumn + scannerWidth
-        && pointColumnNumber >= currentScannerColumn - scannerWidth) {
+          && pointColumnNumber >= currentScannerColumn - scannerWidth) {
         colors[p.index] = LXColor.gray(100);
       } else {
         // Set to black
         colors[p.index] = 0xff000000;
       }
-      ++pointNumber;
+      pointNumber++;
     }
   }
 }

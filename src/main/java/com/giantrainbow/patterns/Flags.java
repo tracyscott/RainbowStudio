@@ -5,10 +5,6 @@ package com.giantrainbow.patterns;
 // LGBT 6 Bands  (228,3,3) (255,140,0) (255,237,0) (0,128,38) (0,77,255) (117,7,135)
 // Bisexual (214, 2, 112) 123p (155,79,150) 61p  (0,56,168) 123p, so 2:1
 // Transgender (91, 206, 250) (245,169,184) (255, 255, 255) (245,169,184) (91,206, 250)
-/*
- * Flags
- *
- */
 
 import static processing.core.PApplet.round;
 
@@ -19,17 +15,21 @@ import heronarts.lx.color.LXColor;
 import heronarts.lx.model.LXPoint;
 import heronarts.lx.parameter.DiscreteParameter;
 
+/**
+ * Flags
+ *
+ */
 public class Flags extends LXPattern {
 
   public final DiscreteParameter flagKnob =
-    new DiscreteParameter("Flag", 0, 2)
-    .setDescription("Which flag.");
+      new DiscreteParameter("Flag", 0, 2)
+          .setDescription("Which flag.");
 
-  int[] lgbtFlag;
-  int[] biFlag;
-  int[] transFlag;
-  int[][] flags;
-  int[] flag;
+  private int[] lgbtFlag;
+  private int[] biFlag;
+  private int[] transFlag;
+  private int[][] flags;
+  private int[] flag;
 
   public Flags(LX lx) {
     super(lx);
@@ -57,12 +57,12 @@ public class Flags extends LXPattern {
 
     flagKnob.setValue(0);
     addParameter(flagKnob);
-    flag = flags[(int)round((float)(flagKnob.getValue()))];
+    flag = flags[round((float)(flagKnob.getValue()))];
   }
 
   public void run(double deltaMs) {
     int numRows = ((RainbowBaseModel)lx.model).pointsHigh;
-    int flagNum = (int)round((float)(flagKnob.getValue()));
+    int flagNum = round((float)(flagKnob.getValue()));
     if (flagNum < 0) flagNum = 0;
     if (flagNum > flags.length - 1) flagNum = flags.length - 1;
     flag = flags[flagNum];

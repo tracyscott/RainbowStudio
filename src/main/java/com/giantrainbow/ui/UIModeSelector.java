@@ -9,8 +9,10 @@ import heronarts.lx.studio.LXStudio;
 import heronarts.p3lx.ui.UI2dContainer;
 import heronarts.p3lx.ui.component.UIButton;
 import heronarts.p3lx.ui.component.UICollapsibleSection;
+import java.util.logging.Logger;
 
 public class UIModeSelector extends UICollapsibleSection {
+  private static final Logger logger = Logger.getLogger(UIModeSelector.class.getName());
 
   public final UIButton autoMode;
   public final UIButton audioMode;
@@ -68,7 +70,7 @@ public class UIModeSelector extends UICollapsibleSection {
           // Enable Standard Channels
           setStandardChannelsEnabled(true);
         } else {
-          System.out.println("Disabling standard mode.");
+          logger.info("Disabling standard mode.");
           // Disable Standard Channels
           setStandardChannelsEnabled(false);
         }
@@ -208,7 +210,7 @@ public class UIModeSelector extends UICollapsibleSection {
         audioMode = true;
         deltaLastModeSwap = 0.0;
       } else if (lx.engine.audio.meter.getDecibels() < 0.0 && deltaLastModeSwap > 5000.0 && audioMode) {
-        System.out.println("Disabling audio mode.");
+        logger.info("Disabling audio mode.");
         UIModeSelector.this.interactiveMode.setActive(false);
         UIModeSelector.this.instrumentMode.setActive(false);
         UIModeSelector.this.setAudioChannelEnabled(false);

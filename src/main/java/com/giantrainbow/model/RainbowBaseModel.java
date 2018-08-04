@@ -2,8 +2,9 @@ package com.giantrainbow.model;
 
 import heronarts.lx.model.LXFixture;
 import heronarts.lx.model.LXModel;
+import java.util.logging.Logger;
 
-/*
+/**
  * Abstract class for tracking things common to our models.
  * These can be used by the Patterns so that a pattern can
  * work on either the full rainbow or some subset of LEDs
@@ -20,12 +21,13 @@ import heronarts.lx.model.LXModel;
  * probably less confusing to keep this.
  */
 public abstract class RainbowBaseModel extends LXModel {
+  private static final Logger logger = Logger.getLogger(RainbowBaseModel.class.getName());
 
   public RainbowBaseModel(LXFixture fixture) {
     super(fixture);
 
-    System.out.println("X: " + xMin + " - " + xMax);
-    System.out.println("Y: " + yMin + " - " + yMax);
+    logger.info("X: " + xMin + " - " + xMax);
+    logger.info("Y: " + yMin + " - " + yMax);
   }
   public int pointsWide;
   public int pointsHigh;

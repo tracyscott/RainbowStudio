@@ -19,19 +19,20 @@ import java.util.List;
 import processing.core.PConstants;
 import processing.core.PImage;
 
-/*
+/**
  * Display an animated GIF on the rainbow.  This base class is used by both
  * the larger texture with antialias sampling and the pixel perfect renderings
  * with direct 1:1 pixel mappings (with bend distortion in physical space).
  */
 abstract class RainbowGIFBase extends LXPattern implements CustomDeviceUI {
   public final CompoundParameter fpsKnob =
-    new CompoundParameter("Fps", 1.0, 60.0)
-    .setDescription("Controls the frames per second.");
+      new CompoundParameter("Fps", 1.0, 60.0)
+          .setDescription("Controls the frames per second.");
   public final BooleanParameter antialiasKnob =
-    new BooleanParameter("antialias", true);
-  public final StringParameter gifKnob = new StringParameter("gif", "")
-    .setDescription("Animated gif");
+      new BooleanParameter("antialias", true);
+  public final StringParameter gifKnob =
+      new StringParameter("gif", "")
+          .setDescription("Animated gif");
 
   protected List<FileItem> fileItems = new ArrayList<FileItem>();
   protected UIItemList.ScrollList fileItemList;
@@ -173,7 +174,7 @@ abstract class RainbowGIFBase extends LXPattern implements CustomDeviceUI {
   }
 
   public class FileItem extends FileItemBase {
-    public FileItem(String filename) {
+    FileItem(String filename) {
       super(filename);
     }
     public void onActivate() {

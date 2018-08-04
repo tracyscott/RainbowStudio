@@ -7,26 +7,30 @@ import com.giantrainbow.model.RainbowBaseModel;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.color.LXColor;
+import heronarts.lx.midi.LXMidiOutput;
 import heronarts.lx.midi.MidiNote;
 import heronarts.lx.midi.MidiNoteOn;
 import heronarts.lx.model.LXPoint;
 import heronarts.lx.parameter.CompoundParameter;
+import java.util.logging.Logger;
 
 @LXCategory(LXCategory.FORM)
 public class BasicMidiPP extends MidiBase {
+  private static final Logger logger = Logger.getLogger(BasicMidiPP.class.getName());
+
   public final CompoundParameter brightnessKnob =
-    new CompoundParameter("bright", 1.0, 100.0)
-    .setDescription("Brightness");
+      new CompoundParameter("bright", 1.0, 100.0)
+          .setDescription("Brightness");
 
   public final CompoundParameter barsKnob =
-    new CompoundParameter("bars", 5, 6)
-    .setDescription("Brightness");
+      new CompoundParameter("bars", 5, 6)
+          .setDescription("Brightness");
 
 
-  float currentHue = 100.0f;
-  float currentBrightness = 0.0f;
-  heronarts.lx.midi.LXMidiOutput midiThroughOutput;
-  int bar = -1;
+  private float currentHue = 100.0f;
+  private float currentBrightness = 0.0f;
+  LXMidiOutput midiThroughOutput;
+  private int bar = -1;
 
   public BasicMidiPP(LX lx) {
     super(lx);
@@ -56,7 +60,7 @@ public class BasicMidiPP extends MidiBase {
   // Map a note to a hue
   public void noteOnReceived(MidiNoteOn note) {
     int pitch = note.getPitch();
-    System.out.println("pitch: " + pitch);
+    logger.info("pitch: " + pitch);
     // Start at note 60, White keys
     if (pitch == 60) {
       bar = 0;

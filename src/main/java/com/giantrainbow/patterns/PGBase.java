@@ -9,19 +9,19 @@ import heronarts.lx.LXPattern;
 import heronarts.lx.parameter.CompoundParameter;
 import processing.core.PGraphics;
 
-/*
+/**
  * Abstract base class for all Processing PGraphics drawing and mapping
  * to the Rainbow.
  */
 abstract class PGBase extends LXPattern {
   public final CompoundParameter fpsKnob =
-    new CompoundParameter("Fps", 1.0, 60.0)
-    .setDescription("Controls the frames per second.");
+      new CompoundParameter("Fps", 1.0, 60.0)
+          .setDescription("Controls the frames per second.");
 
   protected double currentFrame = 0.0;
   protected PGraphics pg;
-  protected int imageWidth = 0;
-  protected int imageHeight = 0;
+  protected int imageWidth;
+  protected int imageHeight;
   protected int previousFrame = -1;
   protected double deltaDrawMs = 0.0;
 

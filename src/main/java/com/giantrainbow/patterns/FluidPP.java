@@ -1,9 +1,5 @@
 package com.giantrainbow.patterns;
 
-/*
- * Utility class for Fluid Simulation.
- */
-
 import static processing.core.PApplet.abs;
 import static processing.core.PApplet.sin;
 import static processing.core.PConstants.P2D;
@@ -13,10 +9,15 @@ import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.fluid.DwFluid2D;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
+import java.util.logging.Logger;
 import processing.opengl.PGraphics2D;
 
+/**
+ * Utility class for Fluid Simulation.
+ */
 @LXCategory(LXCategory.FORM)
 public class FluidPP extends PGPixelPerfect {
+  private static final Logger logger = Logger.getLogger(FluidPP.class.getName());
 
   private class MyFluidData implements DwFluid2D.FluidData {
 
@@ -79,15 +80,15 @@ public class FluidPP extends PGPixelPerfect {
     }
   }
 
-  int fluidgrid_scale = 1;
-  DwFluid2D fluid;
-  PGraphics2D pg_fluid;
-  PGraphics2D pg_obstacles;
-  int     BACKGROUND_COLOR           = 0;
-  boolean UPDATE_FLUID               = true;
-  boolean DISPLAY_FLUID_TEXTURES     = true;
-  boolean DISPLAY_FLUID_VECTORS      = false;
-  int     DISPLAY_fluid_texture_mode = 0;
+  private int fluidgrid_scale = 1;
+  private DwFluid2D fluid;
+  private PGraphics2D pg_fluid;
+  private PGraphics2D pg_obstacles;
+  private int     BACKGROUND_COLOR           = 0;
+  private boolean UPDATE_FLUID               = true;
+  private boolean DISPLAY_FLUID_TEXTURES     = true;
+  private boolean DISPLAY_FLUID_VECTORS      = false;
+  private int     DISPLAY_fluid_texture_mode = 0;
 
   public FluidPP(LX lx) {
     super(lx, "");
@@ -96,7 +97,7 @@ public class FluidPP extends PGPixelPerfect {
     context.print();
     context.printGL();
     // fluid simulation
-    System.out.println(imageWidth + "," + imageHeight);
+    logger.info(imageWidth + "," + imageHeight);
     fluid = new DwFluid2D(context, imageWidth, imageHeight, fluidgrid_scale);
     // set some simulation parameters
     fluid.param.dissipation_density     = 0.999f;

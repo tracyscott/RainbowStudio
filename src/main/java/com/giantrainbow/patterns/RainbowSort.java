@@ -12,15 +12,15 @@ import java.util.Random;
 @LXCategory(LXCategory.FORM)
 public class RainbowSort extends LXPattern {
   public final CompoundParameter swapsKnob =
-    new CompoundParameter("Swaps", 1, 20).setDescription("Swaps per frame.");
+      new CompoundParameter("Swaps", 1, 20).setDescription("Swaps per frame.");
   public final CompoundParameter brightnessKnob =
-    new CompoundParameter("Bright", 1, 100).setDescription("Brightness.");
+      new CompoundParameter("Bright", 1, 100).setDescription("Brightness.");
   public final CompoundParameter saturationKnob =
-    new CompoundParameter("Sat", 1, 100).setDescription("Saturation");
+      new CompoundParameter("Sat", 1, 100).setDescription("Saturation");
 
-  float hues[];
-  float sortedHues[];
-  Random rnd;
+  private float hues[];
+  private float sortedHues[];
+  private Random rnd;
 
   public RainbowSort(LX lx) {
     super(lx);
@@ -35,8 +35,9 @@ public class RainbowSort extends LXPattern {
     saturationKnob.setValue(100);
     swapsKnob.setValue(5);
 
-    for (int i = 0; i < hues.length; i++)
+    for (int i = 0; i < hues.length; i++) {
       hues[i] = 360.0f * i / hues.length;
+    }
   }
 
   // For each iteration of the run, do one sorting step.
@@ -48,8 +49,9 @@ public class RainbowSort extends LXPattern {
     for (int j = 0; j < swapsKnob.getValue(); j++) {
       while (!swap()) {
       }
-      if (isSortDone())
+      if (isSortDone()) {
         break;
+      }
     }
 
     setOutput();
@@ -59,9 +61,11 @@ public class RainbowSort extends LXPattern {
     int pointNumber = 0;
     for (LXPoint p : model.points) {
       int pointCol = pointNumber % ((RainbowBaseModel)lx.model).pointsWide;
-      colors[p.index] = LXColor.hsb(sortedHues[pointCol], saturationKnob.getValue(),
-        brightnessKnob.getValue());
-      ++pointNumber;
+      colors[p.index] = LXColor.hsb(
+          sortedHues[pointCol],
+          saturationKnob.getValue(),
+          brightnessKnob.getValue());
+      pointNumber++;
     }
   }
 
@@ -98,21 +102,23 @@ public class RainbowSort extends LXPattern {
 
   protected boolean isSortDone() {
     for (int i = 1; i < sortedHues.length; i++) {
-      if (sortedHues[i-1] > sortedHues[i])
+      if (sortedHues[i-1] > sortedHues[i]) {
         return false;
+      }
     }
     return true;
   }
 
   protected void resetSort() {
-    for (int i = 0; i < sortedHues.length; i++)
+    for (int i = 0; i < sortedHues.length; i++) {
       sortedHues[i] = hues[i];
+    }
     for (int i = hues.length; i > 1; i--) {
-	int a = rnd.nextInt(i);
-	int b = i - 1;
-	float tmp = sortedHues[a];
-	sortedHues[a] = sortedHues[b];
-	sortedHues[b] = tmp;
+      int a = rnd.nextInt(i);
+      int b = i - 1;
+      float tmp = sortedHues[a];
+      sortedHues[a] = sortedHues[b];
+      sortedHues[b] = tmp;
     }
   }
 }

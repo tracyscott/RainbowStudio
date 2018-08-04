@@ -8,13 +8,16 @@ import heronarts.lx.LXCategory;
 import heronarts.lx.midi.MidiNoteOn;
 import heronarts.lx.parameter.CompoundParameter;
 import heronarts.lx.parameter.DiscreteParameter;
+import java.util.logging.Logger;
 import processing.core.PImage;
 
 @LXCategory(LXCategory.FORM)
 public class FlamingoRace extends PGPixelPerfect {
+  private static final Logger logger = Logger.getLogger(FlamingoRace.class.getName());
+
   public final CompoundParameter xSpeed =
-    new CompoundParameter("XSpd", 1, 20)
-    .setDescription("X speed in pixels per frame");
+      new CompoundParameter("XSpd", 1, 20)
+          .setDescription("X speed in pixels per frame");
 
   public final DiscreteParameter jumpWait = new DiscreteParameter("JumpW", 10, 100);
   public final DiscreteParameter fireWidth = new DiscreteParameter("FireW", 2, 14);
@@ -28,37 +31,37 @@ public class FlamingoRace extends PGPixelPerfect {
   private PImage[] desertNight;
   private PImage[] desertSky;
 
-  protected int currentPos1 = 0;
-  protected int currentPos2 = 0;
-  protected boolean flamingo1Left;
-  protected boolean flamingo1Right;
-  protected boolean flamingo1Jump;
-  protected boolean flamingo2Left;
-  protected boolean flamingo2Right;
-  protected boolean flamingo2Jump;
-  protected int currentJumpFrame1;
-  protected int currentJumpFrame2;
-  protected int currentFrame1;
-  protected int currentFrame2;
-  protected int currentFrameFlame;
-  protected int currentFireworksFrame;
-  protected boolean waitingForRight1;
-  protected boolean waitingForLeft1;
-  protected boolean waitingForRight2;
-  protected boolean waitingForLeft2;
-  protected int[] flamePositions = new int[4];
-  protected int flameWidth;
-  protected int framesUntilJump = 80;
-  protected int framesUntilJump1;
-  protected int framesUntilJump2;
+  private int currentPos1;
+  private int currentPos2;
+  private boolean flamingo1Left;
+  private boolean flamingo1Right;
+  private boolean flamingo1Jump;
+  private boolean flamingo2Left;
+  private boolean flamingo2Right;
+  private boolean flamingo2Jump;
+  private int currentJumpFrame1;
+  private int currentJumpFrame2;
+  private int currentFrame1;
+  private int currentFrame2;
+  private int currentFrameFlame;
+  private int currentFireworksFrame;
+  private boolean waitingForRight1;
+  private boolean waitingForLeft1;
+  private boolean waitingForRight2;
+  private boolean waitingForLeft2;
+  private int[] flamePositions = new int[4];
+  private int flameWidth;
+  private int framesUntilJump = 80;
+  private int framesUntilJump1;
+  private int framesUntilJump2;
   // Attempt to debounce the pads.
-  protected int lastNote;
-  protected long lastNoteMs;
-  protected int fireworksSequence;
-  protected boolean fireworksSequenceLeft;
-  protected int framesUntilStartInit = 30;
-  protected int framesUntilStart = framesUntilStartInit;
-  protected boolean debugLines = false;
+  private int lastNote;
+  private long lastNoteMs;
+  private int fireworksSequence;
+  private boolean fireworksSequenceLeft;
+  private int framesUntilStartInit = 30;
+  private int framesUntilStart = framesUntilStartInit;
+  private boolean debugLines = false;
 
   private static final String SPRITE_DIR = "spritepp/";
 
@@ -89,7 +92,7 @@ public class FlamingoRace extends PGPixelPerfect {
     jumpWait.setValue(20);
   }
 
-  public void resetFlamingos() {
+  private void resetFlamingos() {
     currentPos2 = imageWidth;
     currentPos1 = 0;
   }
@@ -105,9 +108,9 @@ public class FlamingoRace extends PGPixelPerfect {
 
       // tile the background
       PImage background;
-      if (!daytime)
+      if (!daytime) {
         background = desertNight[0];
-      else {
+      } else {
         background = desertSky[0];
         effigy = effigyBrown;
       }
@@ -171,9 +174,9 @@ public class FlamingoRace extends PGPixelPerfect {
       }
       pg.image(effigy[0], imageWidth/2.0f - effigy[0].width/2.0f, framesUntilStart);
       if (!flamingo1Jump) {
-        frameImg1 = flamingoWalk[((int)currentFrame1)%flamingoWalk.length];
+        frameImg1 = flamingoWalk[(currentFrame1)%flamingoWalk.length];
       } else {
-        frameImg1 = flamingoJump[((int)currentFrame1)%flamingoJump.length];
+        frameImg1 = flamingoJump[(currentFrame1)%flamingoJump.length];
       }
       if (currentPos1 > imageWidth / 2 - frameImg1.width) {
         currentFireworksFrame = 0;
@@ -182,9 +185,9 @@ public class FlamingoRace extends PGPixelPerfect {
         resetFlamingos();
       }
       if (!flamingo2Jump) {
-        frameImg2 = flamingoWalk[((int)currentFrame2)%flamingoWalk.length];
+        frameImg2 = flamingoWalk[(currentFrame2)%flamingoWalk.length];
       } else {
-        frameImg2 = flamingoJump[((int)currentFrame2)%flamingoJump.length];
+        frameImg2 = flamingoJump[(currentFrame2)%flamingoJump.length];
       }
       if (currentPos2 < imageWidth / 2 + frameImg2.width) {
         fireworksSequence = 3;
@@ -250,16 +253,16 @@ public class FlamingoRace extends PGPixelPerfect {
     }
   }
 
-  protected boolean fireCollisionFlamingo1() {
+  private boolean fireCollisionFlamingo1() {
     return fireCollision(currentPos1 + flamingoWalk[0].width/2);
   }
 
-  protected boolean fireCollisionFlamingo2() {
+  private boolean fireCollisionFlamingo2() {
     // Account for negative scale above with our flamingo position.
     return fireCollision(currentPos2 - flamingoWalk[0].width/2);
   }
 
-  protected boolean fireCollision(int flamingoPos) {
+  private boolean fireCollision(int flamingoPos) {
     if (debugLines) {
       pg.rect(flamingoPos, 0, 2, 30);
     }
@@ -293,7 +296,7 @@ public class FlamingoRace extends PGPixelPerfect {
     long now = System.currentTimeMillis();
     if (pitch == lastNote) {
       if (now - lastNoteMs < debounceTimeMs) {
-        System.out.println("debounced.");
+        logger.info("debounced.");
         return;
       }
     }

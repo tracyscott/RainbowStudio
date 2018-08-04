@@ -36,6 +36,8 @@ import heronarts.lx.LX;
 import heronarts.lx.LXComponent;
 import heronarts.lx.LXEffect;
 import heronarts.lx.LXPattern;
+import heronarts.lx.midi.LXMidiEngine;
+import heronarts.lx.midi.LXMidiOutput;
 import heronarts.lx.model.LXModel;
 import heronarts.lx.studio.LXStudio;
 import heronarts.p3lx.ui.UI3dContext;
@@ -64,30 +66,30 @@ public class RainbowStudio extends PApplet {
   }
 
   // Reference to top-level LX instance
-  heronarts.lx.studio.LXStudio lx;
+  private heronarts.lx.studio.LXStudio lx;
 
   public static final int GLOBAL_FRAME_RATE = 60;
   public static final boolean enableArtNet = false;
   public static final int ARTNET_PORT = 6454;
   public static final String LED_CONTROLLER_IP = "192.168.2.134";
 
-  public static final int FULL_RAINBOW = 0;
-  public static final int SRIKANTH_PANEL = 1;
-  public static final int RAINBOW_PANEL = 2;
-  public static final int LARGE_PANEL = 3;
-  public static final int RAINBOW_PANEL_4 = 4;
-  public static final int RAINBOW_PANEL_2 = 5;
+  private static final int FULL_RAINBOW = 0;
+  private static final int SRIKANTH_PANEL = 1;
+  private static final int RAINBOW_PANEL = 2;
+  private static final int LARGE_PANEL = 3;
+  private static final int RAINBOW_PANEL_4 = 4;
+  private static final int RAINBOW_PANEL_2 = 5;
 
   // Used for PixelFlow.  Needs a reference to pApplet for setting up
   // OpenGL Context.
   public static PApplet pApplet;
 
   public static boolean fullscreenMode = false;
-  static UI3dContext fullscreenContext;
-  static UIGammaSelector gammaControls;
-  static UIModeSelector modeSelector;
-  static UIAudioMonitorLevels audioMonitorLevels;
-  static UIPixliteConfig pixliteConfig;
+  private static UI3dContext fullscreenContext;
+  private static UIGammaSelector gammaControls;
+  private static UIModeSelector modeSelector;
+  private static UIAudioMonitorLevels audioMonitorLevels;
+  private static UIPixliteConfig pixliteConfig;
 
   @Override
   public void settings() {
@@ -146,7 +148,7 @@ public class RainbowStudio extends PApplet {
     LXModel model = buildModel(modelType);
     /* MULTITHREADED disabled for P3D, GL, Hardware Acceleration */
     boolean multithreaded = false;
-    lx = new heronarts.lx.studio.LXStudio(this, model, multithreaded);
+    lx = new LXStudio(this, model, multithreaded);
 
     lx.ui.setResizable(RESIZABLE);
 
@@ -166,22 +168,18 @@ public class RainbowStudio extends PApplet {
     }
 
     // Output the model bounding box for reference.
-    System.out.println("minx, miny: " + model.xMin + "," + model.yMin);
-    System.out.println("maxx, maxy: " + model.xMax + "," + model.yMax);
-    System.out.println("bounds size: " + (model.xMax - model.xMin) + "," +
-        (model.yMax - model.yMin));
+    logger.info("minx, miny: " + model.xMin + "," + model.yMin);
+    logger.info("maxx, maxy: " + model.xMax + "," + model.yMax);
+    logger.info("bounds size: " + (model.xMax - model.xMin) + "," + (model.yMax - model.yMin));
 
-    int texturePixelsWide = ceil(((RainbowBaseModel) model).outerRadius *
-        ((RainbowBaseModel) model).pixelsPerFoot) * 2;
-    int texturePixelsHigh = ceil(((RainbowBaseModel) model).outerRadius *
-        ((RainbowBaseModel) model).pixelsPerFoot);
-    System.out.println("texture image size: " + texturePixelsWide + "x" +
-        texturePixelsHigh);
+    int texturePixelsWide = ceil(RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot) * 2;
+    int texturePixelsHigh = ceil(RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot);
+    logger.info("texture image size: " + texturePixelsWide + "x" + texturePixelsHigh);
 
     int innerRadiusPixels = floor(RainbowBaseModel.innerRadius * RainbowBaseModel.pixelsPerFoot);
     int outerRadiusPixels = ceil(RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot);
-    System.out.println("innerRadiusPixels = " + innerRadiusPixels);
-    System.out.println("outerRadiusPixels = " + outerRadiusPixels);
+    logger.info("innerRadiusPixels = " + innerRadiusPixels);
+    logger.info("outerRadiusPixels = " + outerRadiusPixels);
 
     // FULL_RAINBOW is
     // rectangle bounds size: 86.52052, 37.74478
@@ -192,16 +190,22 @@ public class RainbowStudio extends PApplet {
     // when not resorting to averaging neighbors in the pattern code.
 
     if (enableArtNet) {
-      if (modelType == FULL_RAINBOW) {
-        SimplePanel.configureOutputMultiPanel(lx, pixliteConfig);
-      } else if (modelType == SRIKANTH_PANEL) {
-        SimplePanel.configureOutputSrikanthPanel(lx);
-      } else if (modelType == RAINBOW_PANEL) {
-        SimplePanel.configureOutputRainbowPanel(lx);
-      } else if (modelType == RAINBOW_PANEL_4) {
-        SimplePanel.configureOutputMultiPanel(lx, pixliteConfig);
-      } else if (modelType == RAINBOW_PANEL_2) {
-        SimplePanel.configureOutputMultiPanel(lx, pixliteConfig);
+      switch (modelType) {
+        case FULL_RAINBOW:
+          SimplePanel.configureOutputMultiPanel(lx, pixliteConfig);
+          break;
+        case SRIKANTH_PANEL:
+          SimplePanel.configureOutputSrikanthPanel(lx);
+          break;
+        case RAINBOW_PANEL:
+          SimplePanel.configureOutputRainbowPanel(lx);
+          break;
+        case RAINBOW_PANEL_4:
+          SimplePanel.configureOutputMultiPanel(lx, pixliteConfig);
+          break;
+        case RAINBOW_PANEL_2:
+          SimplePanel.configureOutputMultiPanel(lx, pixliteConfig);
+          break;
       }
     }
 
@@ -219,9 +223,9 @@ public class RainbowStudio extends PApplet {
     }
 
     // Dump our MIDI device names for reference.
-    heronarts.lx.midi.LXMidiEngine midi = lx.engine.midi;
-    for (heronarts.lx.midi.LXMidiOutput output : midi.outputs) {
-      System.out.println(output.getName() + ": " + output.getDescription());
+    LXMidiEngine midi = lx.engine.midi;
+    for (LXMidiOutput output : midi.outputs) {
+      logger.info(output.getName() + ": " + output.getDescription());
     }
 
     // Support Fullscreen Mode.  We create a second UIGLPointCloud and
@@ -253,10 +257,11 @@ public class RainbowStudio extends PApplet {
   }
 
   public class TopLevelKeyEventHandler extends UIEventHandler {
-    public TopLevelKeyEventHandler() {
+    TopLevelKeyEventHandler() {
       super();
     }
 
+    @Override
     protected void onKeyPressed(KeyEvent keyEvent, char keyChar, int keyCode) {
       super.onKeyPressed(keyEvent, keyChar, keyCode);
       if (keyCode == 70) {
@@ -265,8 +270,8 @@ public class RainbowStudio extends PApplet {
     }
   }
 
-  void toggleFullscreen() {
-    if (fullscreenMode == false) {
+  private void toggleFullscreen() {
+    if (!fullscreenMode) {
       lx.ui.leftPane.setVisible(false);
       lx.ui.rightPane.setVisible(false);
       lx.ui.helpBar.setVisible(false);
@@ -309,44 +314,43 @@ public class RainbowStudio extends PApplet {
 
     @Override
     public void save(LX lx, JsonObject obj) {
-      obj.addProperty(KEY_GAMMA_RED, gammaControls.redGamma.getValue());
-      obj.addProperty(KEY_GAMMA_GREEN, gammaControls.greenGamma.getValue());
-      obj.addProperty(KEY_GAMMA_BLUE, gammaControls.blueGamma.getValue());
-      obj.addProperty(KEY_PIXLITE1_IP, pixliteConfig.pixlite1IpP.getString());
-      obj.addProperty(KEY_PIXLITE1_PORT, pixliteConfig.pixlite1PortP.getString());
-      obj.addProperty(KEY_PIXLITE2_IP, pixliteConfig.pixlite2IpP.getString());
-      obj.addProperty(KEY_PIXLITE2_PORT, pixliteConfig.pixlite2PortP.getString());
+      obj.addProperty(KEY_GAMMA_RED, UIGammaSelector.redGamma.getValue());
+      obj.addProperty(KEY_GAMMA_GREEN, UIGammaSelector.greenGamma.getValue());
+      obj.addProperty(KEY_GAMMA_BLUE, UIGammaSelector.blueGamma.getValue());
+      obj.addProperty(KEY_PIXLITE1_IP, UIPixliteConfig.pixlite1IpP.getString());
+      obj.addProperty(KEY_PIXLITE1_PORT, UIPixliteConfig.pixlite1PortP.getString());
+      obj.addProperty(KEY_PIXLITE2_IP, UIPixliteConfig.pixlite2IpP.getString());
+      obj.addProperty(KEY_PIXLITE2_PORT, UIPixliteConfig.pixlite2PortP.getString());
     }
 
     @Override
     public void load(LX lx, JsonObject obj) {
-      System.out.println("Loading settings....");
+      logger.info("Loading settings....");
       if (obj.has(KEY_GAMMA_RED)) {
-        gammaControls.redGamma.setValue(obj.get(KEY_GAMMA_RED).getAsDouble());
+        UIGammaSelector.redGamma.setValue(obj.get(KEY_GAMMA_RED).getAsDouble());
       }
       if (obj.has(KEY_GAMMA_GREEN)) {
-        gammaControls.greenGamma.setValue(obj.get(KEY_GAMMA_GREEN).getAsDouble());
+        UIGammaSelector.greenGamma.setValue(obj.get(KEY_GAMMA_GREEN).getAsDouble());
       }
       if (obj.has(KEY_GAMMA_BLUE)) {
-        gammaControls.blueGamma.setValue(obj.get(KEY_GAMMA_BLUE).getAsDouble());
+        UIGammaSelector.blueGamma.setValue(obj.get(KEY_GAMMA_BLUE).getAsDouble());
       }
       if (obj.has(KEY_PIXLITE1_IP)) {
-        pixliteConfig.pixlite1IpP.setValue(obj.get(KEY_PIXLITE1_IP).getAsString());
+        UIPixliteConfig.pixlite1IpP.setValue(obj.get(KEY_PIXLITE1_IP).getAsString());
       }
       if (obj.has(KEY_PIXLITE1_PORT)) {
-        pixliteConfig.pixlite1PortP.setValue(obj.get(KEY_PIXLITE1_PORT).getAsString());
+        UIPixliteConfig.pixlite1PortP.setValue(obj.get(KEY_PIXLITE1_PORT).getAsString());
       }
       if (obj.has(KEY_PIXLITE2_IP)) {
-        pixliteConfig.pixlite2IpP.setValue(obj.get(KEY_PIXLITE2_IP).getAsString());
+        UIPixliteConfig.pixlite2IpP.setValue(obj.get(KEY_PIXLITE2_IP).getAsString());
       }
       if (obj.has(KEY_PIXLITE2_PORT)) {
-        pixliteConfig.pixlite2PortP.setValue(obj.get(KEY_PIXLITE2_PORT).getAsString());
+        UIPixliteConfig.pixlite2PortP.setValue(obj.get(KEY_PIXLITE2_PORT).getAsString());
       }
     }
   }
 
-
-  public void initialize(final heronarts.lx.studio.LXStudio lx, heronarts.lx.studio.LXStudio.UI ui) {
+  public void initialize(final LXStudio lx, LXStudio.UI ui) {
     // Add custom components or output drivers here
     // Register settings
     lx.engine.registerComponent("rainbowSettings", new Settings(lx, ui));
@@ -355,7 +359,7 @@ public class RainbowStudio extends PApplet {
     registerAll(lx);
   }
 
-  public void onUIReady(heronarts.lx.studio.LXStudio lx, heronarts.lx.studio.LXStudio.UI ui) {
+  public void onUIReady(LXStudio lx, LXStudio.UI ui) {
     // Add custom UI components here
   }
 
@@ -364,8 +368,8 @@ public class RainbowStudio extends PApplet {
   }
 
   // Configuration flags
-  final static boolean MULTITHREADED = true;
-  final static boolean RESIZABLE = true;
+  private final static boolean MULTITHREADED = true;
+  private final static boolean RESIZABLE = true;
 
   // Helpful global constants
   final static float INCHES = 1.0f / 12.0f;
@@ -379,7 +383,7 @@ public class RainbowStudio extends PApplet {
 
   public static final int LEDS_PER_UNIVERSE = 170;
 
-  LXModel buildModel(int modelType) {
+  private LXModel buildModel(int modelType) {
     // A three-dimensional grid model
     // return new GridModel3D();
     if (modelType == FULL_RAINBOW) {

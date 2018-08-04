@@ -21,19 +21,20 @@ import processing.core.PImage;
 public class AnimatedSpritePP extends PGPixelPerfect implements CustomDeviceUI {
   public final StringParameter spriteFileKnob = new StringParameter("sprite", "smallcat");
   public final CompoundParameter xSpeed =
-    new CompoundParameter("XSpd", 1, 20)
-    .setDescription("X speed in pixels per frame");
+      new CompoundParameter("XSpd", 1, 20)
+          .setDescription("X speed in pixels per frame");
 
-  List<FileItem> fileItems = new ArrayList<FileItem>();
+  List<FileItem> fileItems = new ArrayList<>();
   UIItemList.ScrollList fileItemList;
   List<String> spriteFiles;
   private static final int CONTROLS_MIN_WIDTH = 120;
-  public String filename = "smallcat.gif";
+
+  private static final String FILENAME = "smallcat.gif";
 
   private static final String SPRITE_DIR = "spritepp/";
 
   private PImage[] images;
-  protected int currentPos = 0;
+  private int currentPos;
 
   public AnimatedSpritePP(LX lx) {
     super(lx, "");
@@ -106,21 +107,23 @@ public class AnimatedSpritePP extends PGPixelPerfect implements CustomDeviceUI {
 
     fileItemList =  new UIItemList.ScrollList(ui, 0, 5, CONTROLS_MIN_WIDTH, 80);
     new UITextBox(0, 0, device.getContentWidth() - 22, 20)
-      .setParameter(spriteFileKnob)
-      .setTextAlignment(PConstants.LEFT)
-      .addToContainer(filenameEntry);
+        .setParameter(spriteFileKnob)
+        .setTextAlignment(PConstants.LEFT)
+        .addToContainer(filenameEntry);
 
 
     // Button for reloading shader.
     new UIButton(device.getContentWidth() - 20, 0, 20, 20) {
       @Override
-        public void onToggle(boolean on) {
+      public void onToggle(boolean on) {
         if (on) {
           loadSprite(spriteFileKnob.getString());
         }
       }
-    }
-    .setLabel("\u21BA").setMomentary(true).addToContainer(filenameEntry);
+    }.setLabel("\u21BA")
+        .setMomentary(true)
+        .addToContainer(filenameEntry);
+
     filenameEntry.addToContainer(device);
 
     fileItemList =  new UIItemList.ScrollList(ui, 0, 5, CONTROLS_MIN_WIDTH, 80);
@@ -130,7 +133,7 @@ public class AnimatedSpritePP extends PGPixelPerfect implements CustomDeviceUI {
   }
 
   public class FileItem extends FileItemBase {
-    public FileItem(String filename) {
+    FileItem(String filename) {
       super(filename);
     }
     public void onActivate() {

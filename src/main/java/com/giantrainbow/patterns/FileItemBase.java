@@ -3,7 +3,7 @@ package com.giantrainbow.patterns;
 import heronarts.p3lx.ui.UI;
 import heronarts.p3lx.ui.component.UIItemList;
 
-/*
+/**
  * Utility base class to clean up all the patterns that have file
  * inputs.
  */

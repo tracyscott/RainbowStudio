@@ -5,13 +5,13 @@ import heronarts.lx.output.ArtNetDatagram;
 import heronarts.lx.output.LXDatagram;
 import heronarts.lx.parameter.LXParameter;
 
-/*
+/**
  * Based on TenereDatagram.  Use a LUT for Gamma correction for speed.
  */
 public class RainbowDatagram extends ArtNetDatagram {
   private final LXParameter brightness;
-  int universe = 0;
-  int dataLength = 0;
+  private int universe;
+  private int dataLength;
 
   public RainbowDatagram(LX lx, int[] indices, byte channel) {
     super(indices, channel);

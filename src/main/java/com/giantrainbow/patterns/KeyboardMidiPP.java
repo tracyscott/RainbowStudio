@@ -5,6 +5,9 @@ import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.LXPattern;
 import heronarts.lx.color.LXColor;
+import heronarts.lx.midi.LXMidiEngine;
+import heronarts.lx.midi.LXMidiInput;
+import heronarts.lx.midi.LXMidiOutput;
 import heronarts.lx.midi.MidiNote;
 import heronarts.lx.midi.MidiNoteOn;
 import heronarts.lx.model.LXPoint;
@@ -12,31 +15,34 @@ import heronarts.lx.parameter.CompoundParameter;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.logging.Logger;
 
 @LXCategory(LXCategory.FORM)
 public class KeyboardMidiPP extends LXPattern {
+  private static final Logger logger = Logger.getLogger(KeyboardMidiPP.class.getName());
+
   public final CompoundParameter brightnessKnob =
-    new CompoundParameter("bright", 1.0, 100.0)
-    .setDescription("Brightness");
+      new CompoundParameter("bright", 1.0, 100.0)
+          .setDescription("Brightness");
 
   public final CompoundParameter keysKnob =
-    new CompoundParameter("bars", 25, 88)
-    .setDescription("Musical Keys");
+      new CompoundParameter("bars", 25, 88)
+          .setDescription("Musical Keys");
 
-  final int MIDDLEC = 60;
-  heronarts.lx.midi.LXMidiOutput midiThroughOutput;
-  heronarts.lx.midi.LXMidiInput midiThroughInput;
+  private final int MIDDLEC = 60;
+  private LXMidiOutput midiThroughOutput;
+  private LXMidiInput midiThroughInput;
 
-  Queue<Integer> keysPlayed = new LinkedList<Integer>();
-  ArrayList<Integer> litColumns = new ArrayList<Integer>();
+  private Queue<Integer> keysPlayed = new LinkedList<>();
+  private ArrayList<Integer> litColumns = new ArrayList<>();
 
   public KeyboardMidiPP(LX lx) {
     super(lx);
     // Find target output for passing MIDI through
-    heronarts.lx.midi.LXMidiEngine midi = lx.engine.midi;
+    LXMidiEngine midi = lx.engine.midi;
 
-    for (heronarts.lx.midi.LXMidiOutput output : midi.outputs) {
-      System.out.println(output.getName() + ": " + output.getDescription());
+    for (LXMidiOutput output : midi.outputs) {
+      logger.info(output.getName() + ": " + output.getDescription());
       if (output.getName().equalsIgnoreCase("rainbowStudioOut")) {
         midiThroughOutput = output;
         midiThroughOutput.open();
@@ -50,7 +56,6 @@ public class KeyboardMidiPP extends LXPattern {
   }
 
   public void run(double deltaMs) {
-
     int numCol = ((RainbowBaseModel)lx.model).pointsWide;
     int centerRainbow;
     int centerkeyboard;
@@ -69,9 +74,9 @@ public class KeyboardMidiPP extends LXPattern {
     // Center of Keyboard
     int numMidiKeys= (int)keysKnob.getValue();
     if (numMidiKeys %2 == 0) {
-      centerkeyboard = (int)(numMidiKeys/2);
+      centerkeyboard = (numMidiKeys/2);
     } else {
-      centerkeyboard = (int)(numMidiKeys/2)+1;
+      centerkeyboard = (numMidiKeys/2)+1;
     }
 
     // Padding needed to fill up the rainbow

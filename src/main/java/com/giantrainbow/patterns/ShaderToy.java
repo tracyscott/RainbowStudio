@@ -43,13 +43,17 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
 
   public final StringParameter shaderFileKnob = new StringParameter("frag", "sparkles");
   public final CompoundParameter knob1 =
-    new CompoundParameter("K1", 0, 1).setDescription("Mapped to iMouse.x");
+      new CompoundParameter("K1", 0, 1)
+          .setDescription("Mapped to iMouse.x");
   public final CompoundParameter knob2 =
-    new CompoundParameter("K2", 0, 1).setDescription("Mapped to iMouse.y");
+      new CompoundParameter("K2", 0, 1)
+          .setDescription("Mapped to iMouse.y");
   public final CompoundParameter knob3 =
-    new CompoundParameter("K3", 0, 1).setDescription("Mapped to iMouse.z");
+      new CompoundParameter("K3", 0, 1)
+          .setDescription("Mapped to iMouse.z");
   public final CompoundParameter knob4 =
-    new CompoundParameter("K4", 0, 1).setDescription("Mapped to iMouse.w");
+      new CompoundParameter("K4", 0, 1)
+          .setDescription("Mapped to iMouse.w");
 
   List<FileItem> fileItems = new ArrayList<FileItem>();
   UIItemList.ScrollList fileItemList;
