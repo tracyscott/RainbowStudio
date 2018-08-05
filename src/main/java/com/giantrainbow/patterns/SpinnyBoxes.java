@@ -21,11 +21,11 @@ public class SpinnyBoxes extends CanvasPattern3D {
   }
 
   public void draw(double deltaDrawMs) {
-    int size = 2 * (int) (sizeKnob.getValue());
+    int size = (int) (3 * sizeKnob.getValue());
     pg.background(0);
     pg.lights();
     pg.rectMode(CENTER);
-    pg.fill(190);
+    pg.fill(255, 255, 0);
     pg.noStroke();
     pg.translate(canvas.width() / 2, canvas.height() - size, 0);
     pg.rotateY(((int) currentFrame % 16) * PI / 16.0f);
