@@ -14,13 +14,14 @@ import org.apache.commons.math3.distribution.TDistribution;
 
 /** Map constructs a mapping from sub-sampled pixel to true pixel in the rainbow canvas. */
 public class Map {
-  // Aliasing confidence level for the max-distance point, to compute density.
-  // (0, 1), this ...@@@
+  // Aliasing confidence level for the max-distance point, to compute
+  // density.  Smaller values treat all subpixels evenly, values
+  // closer to 1 weigh nearby points more.
   final double aliasLevel = 0.98;
 
   // Units are in feet, here.  Sample one inch pixels.
   final float foot = 1;
-  final float resolution = foot / 18.0f;
+  final float resolution = foot / 12.0f;
 
   // This prunes the search for nearby subpixels.
   final float searchLimit = foot / 2;
