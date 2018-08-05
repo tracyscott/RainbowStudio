@@ -21,15 +21,41 @@ uniform float iSampleRate;           // image/buffer/sound    The sound sample r
 uniform float iChannelTime[4];       // image/buffer          Time for channel (if video or sound), in seconds
 uniform vec3  iChannelResolution[4]; // image/buffer/sound    Input texture resolution for each channel
 
+float hz(float hz)
+{
+    float u = hz/11000.0;
+    return texture(iChannel0,vec2(u,0.25)).x;
+}
+
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
-  vec2 c = fragCoord / iResolution.xy;
-  fragColor = vec4(1.0, 1.0, 1.0, 1.0);
-  float mag = texture(iChannel0, vec2(0.5*c.x, 0.5*c.y)).r;
-  if (c.y > mag) {
-    fragColor = vec4(0.0, 0.0, 0.0, 0.0);
-  } else {
-    fragColor = vec4(1.0, 1.0, 1.0, 1.0);
-  }
-}  
+    vec2 uv = fragCoord.xy / iResolution.xy;
 
+    float v1 = 0.02 + 0.4*hz(100.0);
+    float v2 = 0.02 + 0.4*hz(500.0);
+    float v3 = 0.02 + 0.4*hz(1000.0);
+    float v4 = 0.02 + 0.4*hz(2000.0);
+    uv.x = 4 * 3.14 * uv.x;
+
+    vec3 col = vec3(0.0, 0.0, 0.0);
+    float v1y = 1.0 - uv.y - 1.0 + 2.2 * v1;
+    float v2y = 1.0 - uv.y - 1.0 + 2.2 * v2;
+    float v3y = 1.0 - uv.y - 1.0 + 2.2 * v3;
+    float v4y = 1.0 - uv.y - 1.0 + 2.2 * v4;
+    float width = iMouse.x*4.0 * 0.036;
+    float colorIntensity = iMouse.z;
+    col += vec3(colorIntensity,0.0,colorIntensity) * abs(width/v1y) * v1;
+    col += vec3(colorIntensity,colorIntensity,0.0) * abs(width/v2y) * v2;
+    col += vec3(0.0,colorIntensity, colorIntensity) * abs(width/v3y) * v3;
+    col += vec3(0.0,0.0,colorIntensity) * abs(width/v4y) * v4;
+
+    float uvy2 = 0.4*iTime-uv.y;
+    float kickHz = 70.0;
+    float kickHzVal = hz(kickHz);
+    float kickMultiplier = 16.0 * iMouse.y * kickHzVal * kickHzVal;
+    float a1 = 10.0*kickHzVal *
+        sin(50.0*uv.x)*cos(50.0*uvy2)/((10.0 / kickMultiplier) *cos(3.14 * uv.x));
+    col += vec3(1.0,0.0,0.0) * a1 * 0.1;
+
+    fragColor = vec4(col,1.0);
+}

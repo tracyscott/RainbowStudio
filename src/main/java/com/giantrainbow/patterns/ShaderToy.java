@@ -11,6 +11,8 @@ import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwShadertoy;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
+import heronarts.lx.audio.GraphicMeter;
+import heronarts.lx.parameter.BooleanParameter;
 import heronarts.lx.parameter.CompoundParameter;
 import heronarts.lx.parameter.StringParameter;
 import heronarts.p3lx.ui.CustomDeviceUI;
@@ -42,6 +44,7 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
   private static final Logger logger = Logger.getLogger(ShaderToy.class.getName());
 
   public final StringParameter shaderFileKnob = new StringParameter("frag", "sparkles");
+  public final BooleanParameter audioKnob = new BooleanParameter("Audio", true);
   public final CompoundParameter knob1 =
       new CompoundParameter("K1", 0, 1)
           .setDescription("Mapped to iMouse.x");
@@ -61,7 +64,7 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
 
   DwPixelFlow context;
   DwShadertoy toy;
-  DwGLTexture tex0 = new DwGLTexture();
+  DwGLTexture texNoise = new DwGLTexture();
   PGraphics toyGraphics;
   private static final int CONTROLS_MIN_WIDTH = 200;
 
@@ -71,6 +74,7 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
   public ShaderToy(LX lx) {
     super(lx, "");
     fpsKnob.setValue(60);
+    addParameter(audioKnob);
     addParameter(knob1);
     addParameter(knob2);
     addParameter(knob3);
@@ -152,7 +156,7 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
       bdata[i++] = (byte) 255;
     }
     // Noise data texture passsed as a texture.
-    tex0.resize(context, GL2.GL_RGBA8, wh, wh, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 4, 1, bbuffer);
+    texNoise.resize(context, GL2.GL_RGBA8, wh, wh, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 4, 1, bbuffer);
   }
 
   @Override
@@ -178,17 +182,37 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
   }
 
   public void draw(double drawDeltaMs) {
+    GraphicMeter eq = lx.engine.audio.meter;
+    byte[] fftAudioTex = new byte[1024];
+    for (int i = 0; i < 256; i++) {
+      int fftValue = (int) (256 * eq.fft.get(i));
+      // Audio buffer is only 512 bytes, so fft is 256.  Let's
+      // just add duplicate values.
+      fftAudioTex[i] = (byte) fftValue;
+      //fftAudioTex[i*2+1] = (byte) fftValue;
+    }
+    float[] audioSamples = eq.getSamples();
+    for (int i = 512; i < 1024; i++) {
+      int audioValue = (int) (256 * audioSamples[i-512]);
+      fftAudioTex[i] = (byte) audioValue;
+    }
+    ByteBuffer audioTexBuf = ByteBuffer.wrap(fftAudioTex);
+    DwGLTexture texAudio = new DwGLTexture();
+    texAudio.resize(context, GL2.GL_R8, 512, 2, GL2.GL_RED, GL2.GL_UNSIGNED_BYTE,
+        GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 1, 1, audioTexBuf);
+    toy.set_iChannel(0, texAudio);
+    toy.set_iChannel(1, texNoise);
     pg.background(0);
     if (toy == null) {
       return;
     }
-    toy.set_iChannel(0, tex0);
     toy.set_iMouse(knob1.getValuef(), knob2.getValuef(), knob3.getValuef(), knob4.getValuef());
     toy.apply(toyGraphics);
     toyGraphics.loadPixels();
     toyGraphics.updatePixels();
     pg.image(toyGraphics, 0, 0);
     pg.loadPixels();
+    texAudio.release();
   }
 
   protected InputStream getFile() {

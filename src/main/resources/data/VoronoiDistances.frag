@@ -46,7 +46,7 @@ uniform vec3  iChannelResolution[4]; // image/buffer/sound    Input texture reso
 vec2 hash2( vec2 p )
 {
 	// texture based white noise
-	return textureLod( iChannel0, (p+0.5)/256.0, 0.0 ).xy;
+	return textureLod( iChannel1, (p+0.5)/256.0, 0.0 ).xy;
 	
     // procedural white noise	
 	//return fract(sin(vec2(dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3))))*43758.5453);
