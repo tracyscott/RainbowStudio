@@ -64,8 +64,6 @@ public class Map {
    * perimeter or outside: `positions`, `subpixels`, and `isnear` are computed.
    */
   void buildFromModel(LXModel model) {
-    System.out.printf("Building canvas from model...\n");
-
     // TODO: Add a model-perimeter interface to support testing w/ other
     // panel configurations.
     for (LXPoint pt : ((RainbowModel3D) model).perimeter) {
@@ -138,8 +136,8 @@ public class Map {
     positions[model.size] = position;
 
     System.out.printf(
-        "Canvas has %d pixels; %d subpixels; %.0f%% covered\n",
-        model.size, size(), 100.0 * (float) nearcount / (float) size());
+        "Canvas has %d pixels; %dx%d=%d subpixels; %.0f%% covered\n",
+        model.size, width, height, size(), 100.0 * (float) nearcount / (float) size());
   }
 
   int subXi(float val) {

@@ -4,6 +4,10 @@ import com.giantrainbow.canvas.Canvas;
 import heronarts.lx.LX;
 import heronarts.lx.LXPattern;
 
+/**
+ * CanvasPattern2D supports drawing into a linear array of pixels, then anti-aliasing into true
+ * rainbow pixels.
+ */
 abstract class CanvasPattern2D extends LXPattern {
   Canvas canvas;
 

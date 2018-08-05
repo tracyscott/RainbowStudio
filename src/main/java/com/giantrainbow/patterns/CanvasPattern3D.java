@@ -5,6 +5,10 @@ import static processing.core.PConstants.P3D;
 import com.giantrainbow.canvas.Canvas;
 import heronarts.lx.LX;
 
+/**
+ * CanvasPattern3D supports 3D-drawing into a linear array of pixels, then anti-aliasing into true
+ * rainbow pixels. [WIP]
+ */
 abstract class CanvasPattern3D extends PGBase {
   Canvas canvas;
 
@@ -15,13 +19,12 @@ abstract class CanvasPattern3D extends PGBase {
   }
 
   protected void imageToPoints() {
-    // TODO Use the pg image buffer directly instead of copy.
     if (pg.pixels == null) {
       pg.loadPixels();
     }
 
-    canvas.buffer.copy(pg.pixels);
-    canvas.dumpImage();
+    // TODO Use the pg image buffer directly instead of copy.
+    canvas.buffer.copyIn(pg.pixels);
     canvas.render(colors);
   }
 
