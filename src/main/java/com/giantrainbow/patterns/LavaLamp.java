@@ -3,6 +3,7 @@
  */
 package com.giantrainbow.patterns;
 
+import static com.giantrainbow.RainbowStudio.pApplet;
 import static heronarts.lx.color.LXColor.BLACK;
 import static heronarts.lx.color.LXColor.WHITE;
 import static processing.core.PApplet.constrain;
@@ -13,12 +14,11 @@ import static processing.core.PConstants.P2D;
 import static processing.core.PConstants.RGB;
 import static processing.core.PConstants.THRESHOLD;
 
-import com.giantrainbow.RainbowStudio;
 import com.giantrainbow.colors.ColorRainbow;
 import com.giantrainbow.colors.Colors;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
-import java.util.Arrays;
+import heronarts.lx.parameter.BooleanParameter;
 import processing.core.PImage;
 
 /**
@@ -31,15 +31,14 @@ public class LavaLamp extends PGPixelPerfect {
 
   private static final int SEGMENT_W = 60;
 
+  private static final int N_BALLS = 42;
+  private static final float BOUNDARY_THRESHOLD = 0.1f;
+  private static final float V_MAX = 3;
+
   private float[][] balls;  // i: x, y, vx, vy
 
-  private int nBalls = 42;
-  private float thresh = 0.1f;
-  private float vMax = 3;
   private int radius;
-
   private float speedScale;
-
   private PImage ballImage;
 
   // Color interpolation
@@ -70,6 +69,10 @@ public class LavaLamp extends PGPixelPerfect {
         }
       });
 
+  private final BooleanParameter blackOnlyToggle =
+      new BooleanParameter("B & W", false)
+          .setDescription("Toggles black-and-white-only mode");
+
   public LavaLamp(LX lx) {
     super(lx, P2D);
 
@@ -78,6 +81,8 @@ public class LavaLamp extends PGPixelPerfect {
             speedScale = 3.0f / fpsKnob.getValuef();
           }
         });
+
+    addParameter(blackOnlyToggle);
   }
 
   @Override
@@ -88,7 +93,7 @@ public class LavaLamp extends PGPixelPerfect {
     radius = SEGMENT_W / 4;//(int) (pg.width / 10 * 1.2);
     speedScale = 3.0f / DEFAULT_FPS;
 
-    balls = new float[nBalls][4];
+    balls = new float[N_BALLS][4];
 
     pg.beginDraw();
     generateCircleImage();
@@ -117,23 +122,20 @@ public class LavaLamp extends PGPixelPerfect {
   @Override
   protected void draw(double deltaDrawMs) {
     pg.colorMode(RGB, 255);
-    int bgColor = rainbow.get(pg, fpsKnob.getValuef());
+    int bgColor = blackOnlyToggle.getValueb()
+        ? BLACK
+        : rainbow.get(pg, fpsKnob.getValuef());
     int ballColor = complementColor(bgColor);
 
     moveBalls();
 
     pg.background(WHITE);
     pg.loadPixels();
-    int[] p1 = Arrays.copyOf(pg.pixels, pg.pixels.length);
     for (float[] ball : balls) {
       pg.image(ballImage, ball[0] - radius, ball[1] - radius);
     }
-//    if (!Arrays.equals(p1, pg.pixels)) {
-//      System.out.println("HERE!");
-//    }
 
-
-    pg.filter(THRESHOLD, thresh);
+    pg.filter(THRESHOLD, BOUNDARY_THRESHOLD);
 
     //apply color changes
     pg.loadPixels();
@@ -158,10 +160,10 @@ public class LavaLamp extends PGPixelPerfect {
         ball[3] = -ball[3];
       }
 
-      ball[2] += RainbowStudio.pApplet.random(-0.1f, 0.1f);
-      ball[3] += RainbowStudio.pApplet.random(-0.1f, 0.1f);
-      ball[2] = constrain(ball[2], -vMax, vMax);
-      ball[3] = constrain(ball[3], -vMax, vMax);
+      ball[2] += pApplet.random(-0.1f, 0.1f);
+      ball[3] += pApplet.random(-0.1f, 0.1f);
+      ball[2] = constrain(ball[2], -V_MAX, V_MAX);
+      ball[3] = constrain(ball[3], -V_MAX, V_MAX);
 
       ball[0] += ball[2] * speedScale;
       ball[1] += ball[3] * speedScale;
@@ -169,7 +171,7 @@ public class LavaLamp extends PGPixelPerfect {
   }
 
   private void generateCircleImage() {
-    ballImage = RainbowStudio.pApplet.createImage(radius * 2, radius * 2, ARGB);
+    ballImage = pApplet.createImage(radius * 2, radius * 2, ARGB);
     for(int x = 0; x <= radius; x++) {
       for (int y = 0; y <= radius; y++) {
         float r2 = pow(x - radius, 2) + pow(y - radius, 2);
@@ -190,10 +192,10 @@ public class LavaLamp extends PGPixelPerfect {
 
   private void generateBalls() {
     for (float[] ball : balls) {
-      ball[0] = RainbowStudio.pApplet.random(radius, pg.width - radius);
-      ball[1] = RainbowStudio.pApplet.random(radius, pg.height - radius);
-      ball[2] = RainbowStudio.pApplet.random(-vMax, vMax);
-      ball[3] = RainbowStudio.pApplet.random(-vMax, vMax);
+      ball[0] = pApplet.random(radius, pg.width - radius);
+      ball[1] = pApplet.random(radius, pg.height - radius);
+      ball[2] = pApplet.random(-V_MAX, V_MAX);
+      ball[3] = pApplet.random(-V_MAX, V_MAX);
     }
   }
 }
