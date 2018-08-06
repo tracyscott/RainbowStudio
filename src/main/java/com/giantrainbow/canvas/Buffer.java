@@ -27,7 +27,7 @@ public class Buffer {
   }
 
   /** copy copies the buffer into `pixels` */
-  public void copy(int[] pixels) {
+  public void copyInto(int[] pixels) {
     System.arraycopy(pixels, 0, buffer, 0, pixels.length);
   }
 }

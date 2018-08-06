@@ -4,7 +4,6 @@ import static processing.core.PConstants.CENTER;
 import static processing.core.PConstants.PI;
 
 import com.giantrainbow.canvas.Canvas;
-import com.giantrainbow.model.RainbowBaseModel;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.parameter.CompoundParameter;
@@ -22,16 +21,14 @@ public class SpinnyBoxes extends CanvasPattern3D {
   }
 
   public void draw(double deltaDrawMs) {
+    int size = (int) (2.1 * sizeKnob.getValue());
     pg.background(0);
-    float radiiThickness = RainbowBaseModel.outerRadius - RainbowBaseModel.innerRadius;
-    float middleRadiusInWorldPixels =
-        (RainbowBaseModel.innerRadius + radiiThickness) / canvas.resolution();
     pg.lights();
     pg.rectMode(CENTER);
-    pg.fill(190);
+    pg.fill(255);
     pg.noStroke();
-    pg.translate(middleRadiusInWorldPixels, 200, 0);
+    pg.translate(canvas.width() / 2, canvas.height() - size, 0);
     pg.rotateY(((int) currentFrame % 16) * PI / 16.0f);
-    pg.box((int) (sizeKnob.getValue()));
+    pg.box(size);
   }
 }
