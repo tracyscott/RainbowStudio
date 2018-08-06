@@ -1,7 +1,8 @@
 package com.giantrainbow.patterns;
 
-import static processing.core.PConstants.HSB;
+import static com.giantrainbow.colors.ColorHelpers.*;
 import static processing.core.PConstants.PI;
+import static processing.core.PConstants.RGB;
 
 import com.giantrainbow.canvas.Canvas;
 import heronarts.lx.LX;
@@ -13,6 +14,7 @@ import processing.core.PImage;
 
 @LXCategory(LXCategory.FORM)
 public class SpinnyBoxes extends CanvasPattern3D {
+
   public final CompoundParameter sizeKnob =
       new CompoundParameter("size", 1.0, 30.0).setDescription("Size");
 
@@ -59,15 +61,11 @@ public class SpinnyBoxes extends CanvasPattern3D {
 
     PImage makeTexture() {
       PApplet app = new PApplet();
-      PImage img = app.createImage(W, W, HSB);
+      PImage img = app.createImage(W, W, RGB);
       img.loadPixels();
 
       for (int i = 0; i < img.pixels.length; i++) {
-        img.pixels[i] =
-            app.color(
-                (int) 255 * rnd.nextFloat(),
-                (int) 255 * rnd.nextFloat(),
-                (int) 255 * rnd.nextFloat());
+        img.pixels[i] = rgb(rnd.nextInt(255), 0, 0);
       }
 
       img.updatePixels();
@@ -79,12 +77,13 @@ public class SpinnyBoxes extends CanvasPattern3D {
       pg.translate(0, 0, radius());
 
       pg.beginShape();
-      // pg.texture(T);
-      pg.fill(rnd.nextInt(255), rnd.nextInt(255), rnd.nextInt(255));
+
+      pg.texture(T);
+
       pg.vertex(-radius(), -radius(), 0, 0, 0);
-      pg.vertex(-radius(), +radius(), 0, 0, W);
-      pg.vertex(+radius(), +radius(), 0, W, W);
-      pg.vertex(+radius(), -radius(), 0, W, 0);
+      pg.vertex(+radius(), -radius(), 0, 1, 0);
+      pg.vertex(+radius(), +radius(), 0, 1, 1);
+      pg.vertex(-radius(), +radius(), 0, 0, 1);
       pg.endShape();
 
       pg.popMatrix();
@@ -123,13 +122,8 @@ public class SpinnyBoxes extends CanvasPattern3D {
   public void draw(double deltaMs) {
     elapsed += deltaMs;
 
-    pg.background(0);
-
-    pg.noFill();
     pg.noStroke();
-    // pg.translate(canvas.width() / 2, canvas.height() - size, 0);
-    // pg.rotateY(((int) currentFrame % 16) * PI / 16.0f);
-    // pg.box(size);
+    pg.background(0);
 
     for (Box box : boxes) {
       box.draw();
