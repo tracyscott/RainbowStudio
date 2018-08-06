@@ -1,0 +1,5 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Mon Aug 06 13:00:06 PDT 2018
+minim-core-2.2.2.pom>=
+minim-core-2.2.2-sources.jar>=
+minim-core-2.2.2.jar>=
