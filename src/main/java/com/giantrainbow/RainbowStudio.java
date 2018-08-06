@@ -23,6 +23,7 @@
 
 package com.giantrainbow;
 
+import com.giantrainbow.input.InputManager;
 import com.giantrainbow.model.RainbowBaseModel;
 import com.giantrainbow.model.RainbowModel3D;
 import com.giantrainbow.model.SimplePanel;
@@ -83,6 +84,9 @@ public class RainbowStudio extends PApplet {
   // Used for PixelFlow.  Needs a reference to pApplet for setting up
   // OpenGL Context.
   public static PApplet pApplet;
+
+  // This is a dumb way to do this, but store some project-common things here
+  public static InputManager inputManager;
 
   public static boolean fullscreenMode = false;
   private static UI3dContext fullscreenContext;
@@ -149,6 +153,9 @@ public class RainbowStudio extends PApplet {
     /* MULTITHREADED disabled for P3D, GL, Hardware Acceleration */
     boolean multithreaded = false;
     lx = new LXStudio(this, model, multithreaded);
+
+    // Common components stored (dumbly) as static variables
+    inputManager = new InputManager(lx);
 
     lx.ui.setResizable(RESIZABLE);
 
