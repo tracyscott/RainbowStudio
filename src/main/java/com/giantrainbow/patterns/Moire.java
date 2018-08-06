@@ -14,6 +14,7 @@ import static processing.core.PConstants.RADIUS;
 
 import com.giantrainbow.colors.ColorRainbow;
 import com.giantrainbow.colors.Colors;
+import com.giantrainbow.input.InputManager;
 import com.giantrainbow.input.LowPassFilter;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
@@ -41,6 +42,8 @@ public class Moire extends PGPixelPerfect {
 
   private List<Point> points = new ArrayList<>();
   private float radiusInc;
+
+  private InputManager.Beats beats;
 
   // Color interpolation
   private ColorRainbow rainbow = new ColorRainbow(
@@ -90,6 +93,8 @@ public class Moire extends PGPixelPerfect {
     }
 
     rainbow.reset(fpsKnob.getValuef());
+
+    beats = inputManager.getBeats();
   }
 
   @Override
@@ -106,11 +111,11 @@ public class Moire extends PGPixelPerfect {
     pg.noFill();
 
     // TODO: Sound input
-    boolean[] beats = inputManager.getBeats();
+    beats = inputManager.getBeats(beats);
     for (int i = 0; i < points.size(); i++) {
       float beatLevel = 0.0f;
       if (i < 3) {
-        if (beats[i]) {
+        if (beats.isBeat(i)) {
           beatLevel = 0.5f;
         }
       }

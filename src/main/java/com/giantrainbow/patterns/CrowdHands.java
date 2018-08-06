@@ -12,6 +12,7 @@ import static processing.core.PApplet.round;
 import static processing.core.PConstants.HSB;
 import static processing.core.PConstants.P2D;
 
+import com.giantrainbow.input.InputManager;
 import com.giantrainbow.input.LowPassFilter;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
@@ -41,9 +42,11 @@ public class CrowdHands extends PGPixelPerfect {
   private long lastTime;
   private Queue<Hands> handsQueue = new LinkedList<>();
 
-  // Use parameters to make it look good on the bus
+  // Use parameters to make it look good on the display
   private float startX;
   private float binSize;
+
+  private InputManager.Beats beats;
 
   /**
    * Wraps a {@link PImage} so that it can be scaled properly when it's loaded.
@@ -139,6 +142,8 @@ public class CrowdHands extends PGPixelPerfect {
 
     startX = START_X * pg.width;
     binSize = (END_X - START_X)*pg.width/3.0f;
+
+    beats = inputManager.getBeats();
   }
 
   @Override
@@ -153,21 +158,20 @@ public class CrowdHands extends PGPixelPerfect {
       return;
     }
 
-
     // Get all the scaled beat levels
-    boolean[] beats = inputManager.getBeats();
+    beats = inputManager.getBeats(beats);
 
     // dt
     float dt = (time - lastTime)/1000.0f;
     lastTime = time;
 
     // Draw all the current hands and collect the max. beat levels
-    float[] maxLevels = new float[beats.length];
+    float[] maxLevels = new float[InputManager.Beats.beatsCount()];
     for (Iterator<Hands> iter = handsQueue.iterator(); iter.hasNext(); ) {
       Hands hands = iter.next();
 
       int beatIndex = hands.beatIndex;
-      float level = hands.filter.next(beats[beatIndex] ? 1.0f : 0.0f, dt);
+      float level = hands.filter.next(beats.isBeat(beatIndex) ? 1.0f : 0.0f, dt);
       maxLevels[beatIndex] = max(maxLevels[beatIndex], level);
 
       // The level practically won't ever reach zero, so use 1 pixel height as the threshold
@@ -179,8 +183,8 @@ public class CrowdHands extends PGPixelPerfect {
       }
     }
 
-    for (int i = 0; i < 3; i++) {
-      if (beats[i]) {
+    for (int i = 0; i < InputManager.Beats.beatsCount(); i++) {
+      if (beats.isBeat(i)) {
         Hands hands = new Hands(tau, i, 1.0f);
         hands.draw(pg, 1.0f);
         handsQueue.add(hands);
