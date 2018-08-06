@@ -235,6 +235,7 @@ public class Blocks extends PGPixelPerfect {
         pg.scale(scale);
         pg.translate(0, 0, 0.01f);  // Avoid flicker by displaying just in front
         pg.shapeMode(CENTER);
+        logo.setFill(stroke);
         pg.shape(logo, 0, 0, 2.0f, 2.0f);
         //drawLogo(pg);
         pg.popStyle();
