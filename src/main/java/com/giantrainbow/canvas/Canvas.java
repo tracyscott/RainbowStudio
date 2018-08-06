@@ -1,6 +1,5 @@
 package com.giantrainbow.canvas;
 
-import static processing.core.PConstants.RGB;
 
 import heronarts.lx.model.LXModel;
 import java.awt.Color;
@@ -9,8 +8,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
-import processing.core.PApplet;
-import processing.core.PImage;
 
 /** Canvas anti-aliases Euclidean coordinates onto Rainbow coordinates. */
 public class Canvas {
@@ -130,18 +127,5 @@ public class Canvas {
     // img.image(img, -map.width, 0);
     // img.updatePixels();
     // img.save("/Users/jmacd/Desktop/canvas.png");
-  }
-
-  public void dumpRainbow() {
-    PApplet app = new PApplet();
-    PImage img = app.createImage(map.width, map.height, RGB);
-    img.loadPixels();
-
-    for (int i = 0; i < img.pixels.length; i++) {
-      img.pixels[i] = app.color(0, 90, 102);
-    }
-
-    img.updatePixels();
-    img.save("/Users/jmacd/Desktop/rainbow.png");
   }
 }
