@@ -1,5 +1,7 @@
 package com.giantrainbow.canvas;
 
+import static processing.core.PConstants.RGB;
+
 import com.giantrainbow.model.RainbowModel3D;
 import com.github.davidmoten.rtree.Entry;
 import com.github.davidmoten.rtree.RTree;
@@ -11,6 +13,8 @@ import heronarts.lx.model.LXPoint;
 import java.util.ArrayList;
 import java.util.HashSet;
 import org.apache.commons.math3.distribution.TDistribution;
+import processing.core.PApplet;
+import processing.core.PImage;
 
 /** Map constructs a mapping from sub-sampled pixel to true pixel in the rainbow canvas. */
 public class Map {
@@ -47,9 +51,15 @@ public class Map {
 
   /** newFromModel constructs a map using the points of the LXModel. */
   public static Map newFromModel(LXModel model) {
-    Map map = new Map();
-    map.buildFromModel(model);
-    return map;
+    try {
+      Map map = new Map();
+      map.buildFromModel(model);
+      // map.dumpMap(model);
+      return map;
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw e;
+    }
   }
 
   static class Pixel {
@@ -166,13 +176,12 @@ public class Map {
    * saying this right)
    */
   void buildWeights(LXPoint lxp) {
-    int off = positions[lxp.index];
     int end = positions[lxp.index + 1];
-    int cnt = end - off;
+    int cnt = end - positions[lxp.index];
     float maxd = Float.NEGATIVE_INFINITY;
 
     // Compute the maximum distance
-    for (; off < end; off++) {
+    for (int off = positions[lxp.index]; off < end; off++) {
       int subidx = subpixels[off];
       float x = iX(subXpos(subidx));
       float y = iY(subYpos(subidx));
@@ -201,9 +210,7 @@ public class Map {
 
     // Sum the gaussian PDF.
     float gsum = 0;
-    off = positions[lxp.index];
-    end = positions[lxp.index + 1];
-    for (; off < end; off++) {
+    for (int off = positions[lxp.index]; off < end; off++) {
       int subidx = subpixels[off];
       float x = iX(subXpos(subidx));
       float y = iY(subYpos(subidx));
@@ -220,9 +227,7 @@ public class Map {
     }
 
     // Normalize
-    off = positions[lxp.index];
-    end = positions[lxp.index + 1];
-    for (; off < end; off++) {
+    for (int off = positions[lxp.index]; off < end; off++) {
       int subidx = subpixels[off];
       float x = iX(subXpos(subidx));
       float y = iY(subYpos(subidx));
@@ -266,16 +271,88 @@ public class Map {
 
   int computePoint(int idx, Buffer buf) {
     float r = 0, g = 0, b = 0;
-    int off = positions[idx];
     int end = positions[idx + 1];
 
-    for (; off < end; off++) {
+    for (int off = positions[idx]; off < end; off++) {
       int s = buf.get(subpixels[off]);
       float w = subweights[off];
-      r += w * LXColor.red(s);
-      g += w * LXColor.green(s);
-      b += w * LXColor.blue(s);
+      r += w * (float) red(s);
+      g += w * (float) green(s);
+      b += w * (float) blue(s);
     }
     return LXColor.rgb((int) r, (int) g, (int) b);
+  }
+
+  public static int b2i(byte b) {
+    return (int) b & 0xFF;
+  }
+
+  public static int red(int color) {
+    return b2i(LXColor.red(color));
+  }
+
+  public static int green(int color) {
+    return b2i(LXColor.green(color));
+  }
+
+  public static int blue(int color) {
+    return b2i(LXColor.blue(color));
+  }
+
+  public static int rgb(int r, int g, int b) {
+    return LXColor.rgb(r, g, b);
+  }
+
+  public void dumpMap(LXModel model) {
+    final int trueWidth = ((RainbowModel3D) model).LED_WIDTH;
+
+    PApplet app = new PApplet();
+    PImage img = app.createImage(width, height, RGB);
+    img.loadPixels();
+
+    for (int i = 0; i < size(); i++) {
+      img.pixels[i] = app.color(100);
+    }
+
+    // (Four-color it.)
+    int[] coloring = {
+      rgb(255, 0, 0), rgb(0, 255, 0), rgb(0, 0, 255), rgb(255, 255, 0),
+    };
+
+    for (int c : coloring) {
+      System.err.println("  Colors " + red(c) + " " + green(c) + " " + blue(c));
+    }
+
+    for (LXPoint lxp : model.points) {
+      int idx = lxp.index;
+      int end = positions[idx + 1];
+
+      int trueX = lxp.index % trueWidth;
+      int trueY = lxp.index / trueWidth;
+
+      int color = coloring[(trueX % 2) + (trueY % 2) * 2];
+
+      float maxw = Float.NEGATIVE_INFINITY;
+      for (int off = positions[idx]; off < end; off++) {
+        maxw = (float) Math.max(subweights[off], maxw);
+      }
+
+      for (int off = positions[idx]; off < end; off++) {
+        int subidx = subpixels[off];
+        float w = subweights[off] / maxw;
+
+        int subx = subXpos(subidx);
+        int suby = subYpos(subidx);
+
+        img.pixels[(height - suby - 1) * width + subx] =
+            rgb(
+                (int) (w * (float) red(color)),
+                (int) (w * (float) green(color)),
+                (int) (w * (float) blue(color)));
+      }
+    }
+
+    img.updatePixels();
+    img.save("/Users/jmacd/Desktop/map.png");
   }
 }

@@ -24,7 +24,9 @@ abstract class CanvasPattern3D extends PGBase {
     }
 
     // TODO Use the pg image buffer directly instead of copy.
-    canvas.buffer.copyIn(pg.pixels);
+    canvas.buffer.copyInto(pg.pixels);
+    // canvas.dumpImage();
+    // canvas.dumpRainbow();
     canvas.render(colors);
   }
 

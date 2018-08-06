@@ -1,5 +1,7 @@
 package com.giantrainbow.canvas;
 
+import static processing.core.PConstants.RGB;
+
 import heronarts.lx.model.LXModel;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -7,6 +9,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import processing.core.PApplet;
+import processing.core.PImage;
 
 /** Canvas anti-aliases Euclidean coordinates onto Rainbow coordinates. */
 public class Canvas {
@@ -93,7 +97,7 @@ public class Canvas {
     return map.resolution;
   }
 
-  /** dumpImage is a debugging aid. */
+  /** dumpImage is a debugging aid to view the subpixel image as a PNG. */
   public void dumpImage() {
     final BufferedImage image =
         new BufferedImage(map.width, map.height, BufferedImage.TYPE_INT_ARGB);
@@ -104,14 +108,40 @@ public class Canvas {
     for (int yi = 0; yi < map.height; yi++) {
       for (int xi = 0; xi < map.width; xi++) {
         int idx = yi * map.width + xi;
+        // Note: This flips the image for rainbow Y-space coordinates.
         image.setRGB(xi, map.height - yi - 1, buffer.get(idx));
       }
     }
 
     try {
-      ImageIO.write(image, "PNG", new File("/Users/jmacd/Desktop/image.png"));
+      ImageIO.write(image, "PNG", new File("/Users/jmacd/Desktop/canvas.png"));
     } catch (IOException e) {
       System.err.println("IO exception" + e);
     }
+
+    // N.B. the following would also work, except that we're in a
+    // graphics-drawing context at this point, so...
+
+    // PApplet app = new PApplet();
+    // PGraphics img = app.createGraphics(map.width, map.height, P2D);
+    // img.loadPixels();
+    // buffer.copyInto(img.pixels);
+    // img.scale(1, -1);
+    // img.image(img, -map.width, 0);
+    // img.updatePixels();
+    // img.save("/Users/jmacd/Desktop/canvas.png");
+  }
+
+  public void dumpRainbow() {
+    PApplet app = new PApplet();
+    PImage img = app.createImage(map.width, map.height, RGB);
+    img.loadPixels();
+
+    for (int i = 0; i < img.pixels.length; i++) {
+      img.pixels[i] = app.color(0, 90, 102);
+    }
+
+    img.updatePixels();
+    img.save("/Users/jmacd/Desktop/rainbow.png");
   }
 }
