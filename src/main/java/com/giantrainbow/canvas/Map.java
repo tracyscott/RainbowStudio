@@ -284,7 +284,7 @@ public class Map {
   }
 
   public void dumpMap(LXModel model) {
-    final int trueWidth = ((RainbowModel3D) model).LED_WIDTH;
+    final int trueWidth = RainbowModel3D.LED_WIDTH;
 
     PApplet app = new PApplet();
     PImage img = app.createImage(width, height, RGB);
@@ -314,7 +314,7 @@ public class Map {
 
       float maxw = Float.NEGATIVE_INFINITY;
       for (int off = positions[idx]; off < end; off++) {
-        maxw = (float) Math.max(subweights[off], maxw);
+        maxw = Math.max(subweights[off], maxw);
       }
 
       for (int off = positions[idx]; off < end; off++) {

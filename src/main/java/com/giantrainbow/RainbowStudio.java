@@ -23,6 +23,7 @@
 
 package com.giantrainbow;
 
+import com.giantrainbow.input.InputManager;
 import com.giantrainbow.model.RainbowBaseModel;
 import com.giantrainbow.model.RainbowModel3D;
 import com.giantrainbow.model.SimplePanel;
@@ -69,7 +70,7 @@ public class RainbowStudio extends PApplet {
   private heronarts.lx.studio.LXStudio lx;
 
   public static final int GLOBAL_FRAME_RATE = 60;
-  public static final boolean enableArtNet = false;
+  public static final boolean enableArtNet = true;
   public static final int ARTNET_PORT = 6454;
   public static final String LED_CONTROLLER_IP = "192.168.2.134";
 
@@ -79,10 +80,14 @@ public class RainbowStudio extends PApplet {
   private static final int LARGE_PANEL = 3;
   private static final int RAINBOW_PANEL_4 = 4;
   private static final int RAINBOW_PANEL_2 = 5;
+  private static final int MODEL_TYPE = FULL_RAINBOW; // RAINBOW_PANEL, RAINBOW_PANEL_4 or FULL_RAINBOW
 
   // Used for PixelFlow.  Needs a reference to pApplet for setting up
   // OpenGL Context.
   public static PApplet pApplet;
+
+  // This is a dumb way to do this, but store some project-common things here
+  public static InputManager inputManager;
 
   public static boolean fullscreenMode = false;
   private static UI3dContext fullscreenContext;
@@ -143,12 +148,13 @@ public class RainbowStudio extends PApplet {
     pApplet = this;
     frameRate(GLOBAL_FRAME_RATE);
 
-    int modelType = FULL_RAINBOW; // RAINBOW_PANEL, RAINBOW_PANEL_4 or FULL_RAINBOW
-
-    LXModel model = buildModel(modelType);
+    LXModel model = buildModel(MODEL_TYPE);
     /* MULTITHREADED disabled for P3D, GL, Hardware Acceleration */
     boolean multithreaded = false;
     lx = new LXStudio(this, model, multithreaded);
+
+    // Common components stored (dumbly) as static variables
+    inputManager = new InputManager(lx);
 
     lx.ui.setResizable(RESIZABLE);
 
@@ -158,7 +164,7 @@ public class RainbowStudio extends PApplet {
     audioMonitorLevels = (UIAudioMonitorLevels) new UIAudioMonitorLevels(lx.ui).setExpanded(false).addToContainer(lx.ui.leftPane.global);
     pixliteConfig = (UIPixliteConfig) new UIPixliteConfig(lx.ui).setExpanded(false).addToContainer(lx.ui.leftPane.global);
 
-    if (modelType == RAINBOW_PANEL) {
+    if (MODEL_TYPE == RAINBOW_PANEL) {
       // Manually force the camera settings for a single panel.  A single panel is
       // way at the top of the world space and it is difficult to zoom in on it.
       float cameraY = RainbowBaseModel.innerRadius +
@@ -190,7 +196,7 @@ public class RainbowStudio extends PApplet {
     // when not resorting to averaging neighbors in the pattern code.
 
     if (enableArtNet) {
-      switch (modelType) {
+      switch (MODEL_TYPE) {
         case FULL_RAINBOW:
           SimplePanel.configureOutputMultiPanel(lx, pixliteConfig);
           break;
@@ -240,20 +246,6 @@ public class RainbowStudio extends PApplet {
     fullscreenContext.setVisible(false);
 
     lx.ui.setTopLevelKeyEventHandler(new TopLevelKeyEventHandler());
-    lx.ui.setBackgroundColor(0);
-
-    /*
-    Locale currentLocale = Locale.getDefault();
-
-  System.out.println(currentLocale.getDisplayLanguage());
-  System.out.println(currentLocale.getDisplayCountry());
-
-  System.out.println(currentLocale.getLanguage());
-  System.out.println(currentLocale.getCountry());
-
-  System.out.println(System.getProperty("user.country"));
-  System.out.println(System.getProperty("user.language"));
-  */
   }
 
   public class TopLevelKeyEventHandler extends UIEventHandler {

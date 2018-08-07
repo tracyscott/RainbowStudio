@@ -109,6 +109,7 @@ public class SimplePanel extends RainbowBaseModel {
     // First, just build this in a straightforward way.
     for (int i = 0; i < numPanels; i++) {
       List<Integer> universesThisPanel = new ArrayList<Integer>();
+      // Universes start at 1
       for (int j = 0; j < universesPerPanel; j++) {
         int universeNum = i * universesPerPanel + j;
         // Reset universe numbers for second pixlite
@@ -141,27 +142,27 @@ public class SimplePanel extends RainbowBaseModel {
 
       int[] dmxChannelsForUniverse = new int[pointsPerUniverse];
 
-    for (int panelLedPos = 0; panelLedPos < pointsWidePerPanel*pointsHighPerPanel; panelLedPos++) {
-      int colNumFromRight = panelLedPos / pointsHighPerPanel;
-      int colNumFromLeft = maxColNumPerPanel - colNumFromRight;
+    for (int wireLedPos = 0; wireLedPos < pointsWidePerPanel*pointsHighPerPanel; wireLedPos++) {
+      int colNumFromLeft = wireLedPos / pointsHighPerPanel;
+      int colNumFromRight = maxColNumPerPanel - colNumFromLeft;
       int rowNumFromBottom;
       if (colNumFromRight % 2 == 0)
-        rowNumFromBottom = panelLedPos % pointsHighPerPanel;
+        rowNumFromBottom = wireLedPos % pointsHighPerPanel;
       else
-        rowNumFromBottom = pointsHighPerPanel - panelLedPos % pointsHighPerPanel - 1;
+        rowNumFromBottom = pointsHighPerPanel - wireLedPos % pointsHighPerPanel - 1;
 
 
       List<Integer> panelUniverses = panelMap.get(currentLogicalPanel);
       // Which Panel-local universe are we in? 0,1,2?  Depends on our panelLedPos.  Then we also need to
       // check the Panel-Universe map in case something was wired up incorrectly and we need to
       // account for it in software.
-      int universeOffset = panelLedPos / pointsPerUniverse;
+      int universeOffset = wireLedPos / pointsPerUniverse;
       int currentPanelUniverse = panelUniverses.get(universeOffset);
 
       // TODO(tracy): pointsPerUniverse might be configurable in UI.
 
       // Chunk by 170 for each universe.
-      int universeLedPos = panelLedPos % pointsPerUniverse;
+      int universeLedPos = wireLedPos % pointsPerUniverse;
       // TODO(tracy): This needs to change from panel-local coordinates to global led coordinates.
       //int pointIndex = rowNumFromBottom * pointsWidePerPanel + colNumFromLeft;
       // Convert from Panel-local coordinates to global point coordinates.  Point 1,2 in Panel 2 is 420 * 2 + 1 + 2*30 = 901
@@ -169,7 +170,7 @@ public class SimplePanel extends RainbowBaseModel {
       // logger.info(globalLedPos + " colNum:" +colNumFromLeft + " rowNum:" + rowNumFromBottom + " pointIndex: " + pointIndex);
       dmxChannelsForUniverse[universeLedPos] = globalPointIndex;
       // Either we are on DMX channel 170, or we are at the end of the panel.
-      if (universeLedPos == pointsPerUniverse - 1 || panelLedPos == pointsWidePerPanel * pointsHighPerPanel - 1) {
+      if (universeLedPos == pointsPerUniverse - 1 || wireLedPos == pointsWidePerPanel * pointsHighPerPanel - 1) {
         // Construct with our custom datagram class that has lookup table Gamma corrrection and
         // rainbow background color correction.  Also, the last chunk of LEDs on a panel do not fill up an entire universe,
         // so set the datagram size based on the last universeLedPos.

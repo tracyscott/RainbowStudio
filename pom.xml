@@ -153,6 +153,12 @@
             <version>26.0-jre</version>
         </dependency>
 
+        <dependency>
+            <groupId>ddf.minim</groupId>
+            <artifactId>minim-core</artifactId>
+            <version>2.2.2</version>
+        </dependency>
+
 	<dependency>
 	  <groupId>org.apache.commons</groupId>
 	  <artifactId>commons-math3</artifactId>

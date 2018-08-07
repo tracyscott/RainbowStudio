@@ -42,3 +42,14 @@ Maven install:
 * Main JAR: `mvn install:install-file -Dfile=library/PixelFlow.jar -DgroupId=com.thomasdiewald -DartifactId=pixelflow -Dversion=1.3.0 -Dpackaging=jar`
 * Create JAR for sources: `jar cvf gifanimation-sources.jar -C src .`
 * Sources: `mvn install:install-file -Dfile=pixelflow-sources.jar -Dclassifier=sources -DgroupId=com.thomasdiewald -DartifactId=pixelflow -Dversion=1.3.0 -Dpackaging=jar`
+
+## Minim
+
+Main GitHub URL: [ddf/Minim](https://github.com/ddf/Minim)
+
+Download the latest release.
+
+Maven install:
+* Main JAR: `mvn install:install-file -Dfile=library/minim.jar -DgroupId=ddf.minim -DartifactId=minim-core -Dversion=2.2.2 -Dpackaging=jar`
+* Create JAR for sources: `jar cvf minim-core-sources.jar -C src .`
+* Sources: `mvn install:install-file -Dfile=minim-core-sources.jar -Dclassifier=sources -DgroupId=ddf.minim -DartifactId=minim-core -Dversion=2.2.2 -Dpackaging=jar`
