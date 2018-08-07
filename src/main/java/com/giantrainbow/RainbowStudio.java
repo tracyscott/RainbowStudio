@@ -70,7 +70,7 @@ public class RainbowStudio extends PApplet {
   private heronarts.lx.studio.LXStudio lx;
 
   public static final int GLOBAL_FRAME_RATE = 60;
-  public static final boolean enableArtNet = true;
+  public static final boolean enableArtNet = false;
   public static final int ARTNET_PORT = 6454;
   public static final String LED_CONTROLLER_IP = "192.168.2.134";
 
