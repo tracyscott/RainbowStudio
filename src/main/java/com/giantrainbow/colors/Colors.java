@@ -57,12 +57,10 @@ public class Colors {
       0xff0051ff,  // Blue
   };
 
-  private Colors() {
-  }
+  private Colors() {}
 
   /**
-   * Chooses a random n-bit color. If {@code bits} is not in the range 1-8 then 8 will
-   * be assumed.
+   * Chooses a random n-bit color. If {@code bits} is not in the range 1-8 then 8 will be assumed.
    *
    * @param bits the top number of random bits in an 8-bit color
    */

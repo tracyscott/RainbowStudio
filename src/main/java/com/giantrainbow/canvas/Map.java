@@ -1,5 +1,6 @@
 package com.giantrainbow.canvas;
 
+import static com.giantrainbow.colors.ColorHelpers.*;
 import static processing.core.PConstants.RGB;
 
 import com.giantrainbow.model.RainbowModel3D;
@@ -7,7 +8,6 @@ import com.github.davidmoten.rtree.Entry;
 import com.github.davidmoten.rtree.RTree;
 import com.github.davidmoten.rtree.geometry.Geometries;
 import com.github.davidmoten.rtree.geometry.Point;
-import heronarts.lx.color.LXColor;
 import heronarts.lx.model.LXModel;
 import heronarts.lx.model.LXPoint;
 import java.util.ArrayList;
@@ -280,27 +280,7 @@ public class Map {
       g += w * (float) green(s);
       b += w * (float) blue(s);
     }
-    return LXColor.rgb((int) r, (int) g, (int) b);
-  }
-
-  public static int b2i(byte b) {
-    return (int) b & 0xFF;
-  }
-
-  public static int red(int color) {
-    return b2i(LXColor.red(color));
-  }
-
-  public static int green(int color) {
-    return b2i(LXColor.green(color));
-  }
-
-  public static int blue(int color) {
-    return b2i(LXColor.blue(color));
-  }
-
-  public static int rgb(int r, int g, int b) {
-    return LXColor.rgb(r, g, b);
+    return rgb((int) r, (int) g, (int) b);
   }
 
   public void dumpMap(LXModel model) {
