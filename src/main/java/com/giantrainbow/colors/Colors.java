@@ -14,12 +14,10 @@ import java.util.Random;
 public class Colors {
   private static final Random rand = new Random();
 
-  private Colors() {
-  }
+  private Colors() {}
 
   /**
-   * Chooses a random n-bit color. If {@code bits} is not in the range 1-8 then 8 will
-   * be assumed.
+   * Chooses a random n-bit color. If {@code bits} is not in the range 1-8 then 8 will be assumed.
    *
    * @param bits the top number of random bits in an 8-bit color
    */
