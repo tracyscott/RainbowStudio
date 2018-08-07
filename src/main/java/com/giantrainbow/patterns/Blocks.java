@@ -4,6 +4,7 @@
  */
 package com.giantrainbow.patterns;
 
+import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
 import static heronarts.lx.color.LXColor.BLACK;
 import static heronarts.lx.color.LXColor.WHITE;
 import static processing.core.PApplet.lerp;
@@ -74,14 +75,14 @@ public class Blocks extends PGPixelPerfect {
 
   @Override
   public void onActive() {
+    // Default parameter setup
+    fpsKnob.setValue(GLOBAL_FRAME_RATE);
+
     // Graphics context setup
     pg.beginDraw();
     pg.colorMode(HSB, 1.0f);
     pg.textFont(font);
     pg.endDraw();
-
-    // Default parameter setup
-    fpsKnob.setValue(60);
   }
 
   @Override

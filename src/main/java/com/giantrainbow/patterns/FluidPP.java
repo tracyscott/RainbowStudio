@@ -1,5 +1,6 @@
 package com.giantrainbow.patterns;
 
+import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
 import static processing.core.PApplet.abs;
 import static processing.core.PApplet.sin;
 import static processing.core.PConstants.P2D;
@@ -92,7 +93,7 @@ public class FluidPP extends PGPixelPerfect {
 
   public FluidPP(LX lx) {
     super(lx, "");
-    fpsKnob.setValue(60);
+    fpsKnob.setValue(GLOBAL_FRAME_RATE);
     DwPixelFlow context = new DwPixelFlow(RainbowStudio.pApplet);
     context.print();
     context.printGL();

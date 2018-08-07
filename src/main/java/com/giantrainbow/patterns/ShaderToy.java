@@ -1,5 +1,6 @@
 package com.giantrainbow.patterns;
 
+import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
 import static processing.core.PConstants.P2D;
 
 import com.giantrainbow.PathUtils;
@@ -73,7 +74,7 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
 
   public ShaderToy(LX lx) {
     super(lx, "");
-    fpsKnob.setValue(60);
+    fpsKnob.setValue(GLOBAL_FRAME_RATE);
     addParameter(audioKnob);
     addParameter(knob1);
     addParameter(knob2);

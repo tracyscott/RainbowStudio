@@ -1,5 +1,6 @@
 package com.giantrainbow.patterns;
 
+import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
 import static processing.core.PConstants.P2D;
 
 import com.giantrainbow.RainbowStudio;
@@ -21,7 +22,7 @@ public class ShaderToyAudio extends PGPixelPerfect {
 
   public ShaderToyAudio(LX lx) {
     super(lx, "");
-    fpsKnob.setValue(60);
+    fpsKnob.setValue(GLOBAL_FRAME_RATE);
     context = new DwPixelFlow(RainbowStudio.pApplet);
     context.print();
     context.printGL();

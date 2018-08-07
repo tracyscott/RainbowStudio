@@ -3,6 +3,7 @@
  */
 package com.giantrainbow.patterns;
 
+import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
 import static processing.core.PApplet.map;
 import static processing.core.PApplet.round;
 import static processing.core.PApplet.sin;
@@ -36,7 +37,9 @@ public class DragonTail extends PGPixelPerfect {
 
   @Override
   public void onActive() {
-//    size(500, 300);
+    fpsKnob.setValue(GLOBAL_FRAME_RATE);
+
+    //    size(500, 300);
     pg.beginDraw();
     pg.colorMode(HSB, 360, 100, 100);
     pg.endDraw();
@@ -51,8 +54,6 @@ public class DragonTail extends PGPixelPerfect {
     step = round(50 * pg.width/500.0f);
     sz = round(8 * pg.width/500.0f);
     startX = new int[num];
-
-    fpsKnob.setValue(60);
   }
 
   @Override
