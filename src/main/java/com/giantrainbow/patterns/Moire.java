@@ -4,16 +4,16 @@
  */
 package com.giantrainbow.patterns;
 
+import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
 import static com.giantrainbow.RainbowStudio.inputManager;
 import static com.giantrainbow.RainbowStudio.pApplet;
-import static heronarts.lx.color.LXColor.BLACK;
+import static com.giantrainbow.colors.Colors.BLACK;
 import static processing.core.PApplet.map;
 import static processing.core.PApplet.sqrt;
 import static processing.core.PConstants.P2D;
 import static processing.core.PConstants.RADIUS;
 
 import com.giantrainbow.colors.ColorRainbow;
-import com.giantrainbow.colors.Colors;
 import com.giantrainbow.input.InputManager;
 import com.giantrainbow.input.LowPassFilter;
 import heronarts.lx.LX;
@@ -47,28 +47,13 @@ public class Moire extends PGPixelPerfect {
 
   // Color interpolation
   private ColorRainbow rainbow = new ColorRainbow(
-      new ColorRainbow.NextColor() {
-        private Integer nextColor;
-
-        protected void reset() {
-          nextColor = START_COLOR;
-        }
-
-        /**
-         * Chooses a random color from the palette that isn't black or the
-         * last color.
-         */
+      new ColorRainbow.NextRandomColor(4, COLOR_CHANGE_TIME, START_COLOR) {
+        @Override
         protected ColorRainbow.ColorTransition get() {
-          if (nextColor != null) {
-            int c = nextColor;
-            nextColor = null;
-            return new ColorRainbow.ColorTransition(c, COLOR_CHANGE_TIME);
-          }
-
           while (true) {
-            int c = Colors.randomColor(4);
-            if (c != BLACK && !lastColorMatches(c)) {
-              return new ColorRainbow.ColorTransition(c, COLOR_CHANGE_TIME);
+            ColorRainbow.ColorTransition t = super.get();
+            if (t.getColor() != BLACK) {
+              return t;
             }
           }
         }
@@ -80,7 +65,7 @@ public class Moire extends PGPixelPerfect {
 
   @Override
   public void onActive() {
-    fpsKnob.setValue(60);
+    fpsKnob.setValue(GLOBAL_FRAME_RATE);
 
     pg.beginDraw();
     pg.ellipseMode(RADIUS);
