@@ -76,4 +76,39 @@ public class Colors {
     }
     return c;
   }
+
+  /**
+   * Returns the red part of a 32-bit RGBA color.
+   */
+  public static int red(int color) {
+    return (color >> 16) & 0xff;
+  }
+
+  /**
+   * Returns the green part of a 32-bit RGBA color.
+   */
+  public static int green(int color) {
+    return (color >> 8) & 0xff;
+  }
+
+  /**
+   * Returns the blue part of a 32-bit RGBA color.
+   */
+  public static int blue(int color) {
+    return color & 0xff;
+  }
+
+  /**
+   * Returns the alpha part of a 32-bit RGBA color.
+   */
+  public static int alpha(int color) {
+    return (color >> 24) & 0xff;
+  }
+
+  /**
+   * Returns a color constructed from the three components. The alpha component is set to 255.
+   */
+  public static int rgb(int r, int g, int b) {
+    return 0xff000000 | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff);
+  }
 }
