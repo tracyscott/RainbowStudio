@@ -111,7 +111,7 @@ public class Moire extends PGPixelPerfect {
     pg.noFill();
 
     // TODO: Sound input
-    beats = inputManager.getBeats(beats);
+    beats = inputManager.getBeats(beats, 0);
     for (int i = 0; i < points.size(); i++) {
       float beatLevel = 0.0f;
       if (i < 3) {

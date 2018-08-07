@@ -120,13 +120,11 @@ public class InputManager implements AutoCloseable {
   /**
    * Gets the latest beats. This returns an object that keeps track of when the last beat
    * was received so that successive calls before new beats are calculated return false. To
-   * make use of this feature, call this method once and then {@link #getBeats(Beats)} for
-   * each time thereafter.
-   *
-   * @return
+   * make use of this feature, call this method once and then {@link #getBeats(Beats, int)}
+   * for each time thereafter.
    */
   public Beats getBeats() {
-    return getBeats(null);
+    return getBeats(null, 0);
   }
 
   /**
@@ -138,8 +136,10 @@ public class InputManager implements AutoCloseable {
    * values once, and then {@code false} thereafter.</p>
    *
    * @param latest the timestamped beats retrieved from any previous call
+   * @param minInterval the minimum amount of time to wait for new beat values,
+   *                    non-positive for no minimum value
    */
-  public Beats getBeats(Beats latest) {
+  public Beats getBeats(Beats latest, int minInterval) {
     if (closed) {
       return new Beats();
     }
@@ -147,13 +147,13 @@ public class InputManager implements AutoCloseable {
       if (latest == null) {
         return (Beats) beats.clone();
       }
-      if (beats.timestamp >= latest.timestamp) {
+      minInterval = Math.max(minInterval, 0);
+      if (beats.timestamp - minInterval >= latest.timestamp) {
         System.arraycopy(beats.beats, 0, latest.beats, 0, beats.beats.length);
         latest.timestamp = beats.timestamp;
       } else {
         // Set all the beats to zero
         Arrays.fill(latest.beats, false);
-        latest.timestamp = System.currentTimeMillis();
       }
       return latest;
     }

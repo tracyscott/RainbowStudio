@@ -159,7 +159,7 @@ public class CrowdHands extends PGPixelPerfect {
     }
 
     // Get all the scaled beat levels
-    beats = inputManager.getBeats(beats);
+    beats = inputManager.getBeats(beats, 0);
 
     // dt
     float dt = (time - lastTime)/1000.0f;
