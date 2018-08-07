@@ -3,6 +3,7 @@
  */
 package com.giantrainbow;
 
+import static com.giantrainbow.RainbowStudio.pApplet;
 import static processing.core.PConstants.ARGB;
 
 import com.google.common.reflect.ClassPath;
@@ -35,14 +36,14 @@ public class PathUtils {
     ArrayList<PImage> frames = new ArrayList<>();
 
     // gifAnimator isn't written well to handle exceptions properly :(
-    try (InputStream in = RainbowStudio.pApplet.createInput(path)) {
+    try (InputStream in = pApplet.createInput(path)) {
       GifDecoder d = new GifDecoder();
       d.read(in);  // Boo, no exceptions :(
 
       int n = d.getFrameCount();
       for (int i = 0; i < n; i++) {
         BufferedImage f = d.getFrame(i);
-        PImage img = RainbowStudio.pApplet.createImage(f.getWidth(), f.getHeight(), ARGB);
+        PImage img = pApplet.createImage(f.getWidth(), f.getHeight(), ARGB);
         frames.add(img);
         img.loadPixels();
         System.arraycopy(
