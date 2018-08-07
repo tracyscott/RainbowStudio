@@ -80,6 +80,7 @@ public class RainbowStudio extends PApplet {
   private static final int LARGE_PANEL = 3;
   private static final int RAINBOW_PANEL_4 = 4;
   private static final int RAINBOW_PANEL_2 = 5;
+  private static final int MODEL_TYPE = FULL_RAINBOW; // RAINBOW_PANEL, RAINBOW_PANEL_4 or FULL_RAINBOW
 
   // Used for PixelFlow.  Needs a reference to pApplet for setting up
   // OpenGL Context.
@@ -147,9 +148,7 @@ public class RainbowStudio extends PApplet {
     pApplet = this;
     frameRate(GLOBAL_FRAME_RATE);
 
-    int modelType = RAINBOW_PANEL_2; // RAINBOW_PANEL, RAINBOW_PANEL_4 or FULL_RAINBOW
-
-    LXModel model = buildModel(modelType);
+    LXModel model = buildModel(MODEL_TYPE);
     /* MULTITHREADED disabled for P3D, GL, Hardware Acceleration */
     boolean multithreaded = false;
     lx = new LXStudio(this, model, multithreaded);
@@ -165,7 +164,7 @@ public class RainbowStudio extends PApplet {
     audioMonitorLevels = (UIAudioMonitorLevels) new UIAudioMonitorLevels(lx.ui).setExpanded(false).addToContainer(lx.ui.leftPane.global);
     pixliteConfig = (UIPixliteConfig) new UIPixliteConfig(lx.ui).setExpanded(false).addToContainer(lx.ui.leftPane.global);
 
-    if (modelType == RAINBOW_PANEL) {
+    if (MODEL_TYPE == RAINBOW_PANEL) {
       // Manually force the camera settings for a single panel.  A single panel is
       // way at the top of the world space and it is difficult to zoom in on it.
       float cameraY = RainbowBaseModel.innerRadius +
@@ -197,7 +196,7 @@ public class RainbowStudio extends PApplet {
     // when not resorting to averaging neighbors in the pattern code.
 
     if (enableArtNet) {
-      switch (modelType) {
+      switch (MODEL_TYPE) {
         case FULL_RAINBOW:
           SimplePanel.configureOutputMultiPanel(lx, pixliteConfig);
           break;
