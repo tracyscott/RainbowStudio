@@ -1,25 +1,19 @@
 package com.giantrainbow.colors;
 
-import heronarts.lx.color.LXColor;
-
 public class ColorHelpers {
-  public static int b2i(byte b) {
-    return (int) b & 0xFF;
-  }
-
   public static int red(int color) {
-    return b2i(LXColor.red(color));
+    return (color >> 16) & 0xff;
   }
 
   public static int green(int color) {
-    return b2i(LXColor.green(color));
+    return (color >> 8) & 0xff;
   }
 
   public static int blue(int color) {
-    return b2i(LXColor.blue(color));
+    return color & 0xff;
   }
 
   public static int rgb(int r, int g, int b) {
-    return LXColor.rgb(r, g, b);
+    return 0xff000000 | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff);
   }
 }
