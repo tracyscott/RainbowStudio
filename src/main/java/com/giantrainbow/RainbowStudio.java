@@ -69,7 +69,7 @@ public class RainbowStudio extends PApplet {
   private heronarts.lx.studio.LXStudio lx;
 
   public static final int GLOBAL_FRAME_RATE = 60;
-  public static final boolean enableArtNet = false;
+  public static final boolean enableArtNet = true;
   public static final int ARTNET_PORT = 6454;
   public static final String LED_CONTROLLER_IP = "192.168.2.134";
 
@@ -143,7 +143,7 @@ public class RainbowStudio extends PApplet {
     pApplet = this;
     frameRate(GLOBAL_FRAME_RATE);
 
-    int modelType = FULL_RAINBOW; // RAINBOW_PANEL, RAINBOW_PANEL_4 or FULL_RAINBOW
+    int modelType = RAINBOW_PANEL_2; // RAINBOW_PANEL, RAINBOW_PANEL_4 or FULL_RAINBOW
 
     LXModel model = buildModel(modelType);
     /* MULTITHREADED disabled for P3D, GL, Hardware Acceleration */
@@ -240,20 +240,6 @@ public class RainbowStudio extends PApplet {
     fullscreenContext.setVisible(false);
 
     lx.ui.setTopLevelKeyEventHandler(new TopLevelKeyEventHandler());
-    lx.ui.setBackgroundColor(0);
-
-    /*
-    Locale currentLocale = Locale.getDefault();
-
-  System.out.println(currentLocale.getDisplayLanguage());
-  System.out.println(currentLocale.getDisplayCountry());
-
-  System.out.println(currentLocale.getLanguage());
-  System.out.println(currentLocale.getCountry());
-
-  System.out.println(System.getProperty("user.country"));
-  System.out.println(System.getProperty("user.language"));
-  */
   }
 
   public class TopLevelKeyEventHandler extends UIEventHandler {
