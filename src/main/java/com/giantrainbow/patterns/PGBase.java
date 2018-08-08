@@ -57,12 +57,13 @@ abstract class PGBase extends LXPattern {
       // if glThread == null this is the default Processing renderer so it is always
       // okay to draw.  If it is not-null, we need to make sure the pattern is
       // executing on the glThread or else Processing will crash.
-      if (glThread == null || Thread.currentThread() == glThread) {
+      // TODO: Why does having this not commented out cause the program to not display patterns unless the project is reloaded? Is it a different thread or something?
+//      if (glThread == null || Thread.currentThread() == glThread) {
         pg.beginDraw();
         draw(deltaDrawMs);
         pg.endDraw();
-      }
-      pg.loadPixels();
+//      }
+//      pg.loadPixels();
       previousFrame = (int) currentFrame;
       deltaDrawMs = 0.0;
     }
