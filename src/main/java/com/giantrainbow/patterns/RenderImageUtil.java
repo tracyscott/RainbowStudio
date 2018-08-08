@@ -26,14 +26,16 @@ class RenderImageUtil {
    * alpha to 0xFF.
    */
   public static int getWeightedColor(int clr, float weight) {
-    int red = LXColor.red(clr) & 0xFF; // & 0xFF to get byte value unsigned.
-    int green = LXColor.green(clr) & 0xFF;
-    int blue = LXColor.blue(clr) & 0xFF;
+    int red = (clr >> 16) & 0xff;
+    int green = (clr >> 8) & 0xff;
+    int blue = clr & 0xff;
 
-    int weightedRed = ((int)((float)red * weight))<< 16;
-    int weightedGreen = ((int)((float)green * weight))<<8;
-    int weightedBlue = (int)((float)blue * weight);
-    return  0xFF000000 | weightedRed | weightedGreen | weightedBlue;
+    // Weight all the components
+    red = (int) ((float) red * weight);
+    green = (int) ((float) green * weight);
+    blue = (int) ((float) blue * weight);
+
+    return  0xff000000 | (red << 16) | (green << 8) | blue;
   }
 
   /**
