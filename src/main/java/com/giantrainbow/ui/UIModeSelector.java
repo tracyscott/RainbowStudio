@@ -9,6 +9,9 @@ import heronarts.lx.studio.LXStudio;
 import heronarts.p3lx.ui.UI2dContainer;
 import heronarts.p3lx.ui.component.UIButton;
 import heronarts.p3lx.ui.component.UICollapsibleSection;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 public class UIModeSelector extends UICollapsibleSection {
@@ -26,7 +29,9 @@ public class UIModeSelector extends UICollapsibleSection {
   public BooleanParameter interactiveModeP = new BooleanParameter("interactive", false);
   public BooleanParameter instrumentModeP = new BooleanParameter("instrument", false);
 
-  public String[] standardModeChannels = { "Mult", "GIF", "Special"};
+  public String[] standardModeChannelNames = { "MULTI", "GIF", "SPECIAL"};
+  public List<LXChannelBus> standardModeChannels = new ArrayList<LXChannelBus>(standardModeChannelNames.length);
+
   public UIModeSelector(final LXStudio.UI ui, LX lx) {
     super(ui, 0, 0, ui.leftPane.global.getContentWidth(), 200);
     setTitle("MODE");
@@ -68,7 +73,12 @@ public class UIModeSelector extends UICollapsibleSection {
           UIModeSelector.this.audioMode.setActive(false);
           UIModeSelector.this.interactiveMode.setActive(false);
           UIModeSelector.this.instrumentMode.setActive(false);
-          // Enable Standard Channels
+          // Build our list of Standard Channels based on our names.  Putting it here allows it to
+          // work after loading a new file (versus startup initialization).
+          for (String channelName: standardModeChannelNames) {
+            LXChannelBus ch = getChannelByLabel(lx, channelName);
+            standardModeChannels.add(ch);
+          }
           setStandardChannelsEnabled(true);
         } else {
           logger.info("Disabling standard mode.");
@@ -120,9 +130,19 @@ public class UIModeSelector extends UICollapsibleSection {
     .setActive(false)
     .addToContainer(this);
 
-    this.standardMode.setActive(true);
-    lx.engine.audio.enabled.setValue(true);
-    this.addLoopTask(new AudioMonitor());
+    if (lx.engine.audio.input != null) {
+      if (lx.engine.audio.input.device.getObject().isAvailable()) {
+        this.standardMode.setActive(true);
+        lx.engine.audio.enabled.setValue(true);
+        this.addLoopTask(new AudioMonitor());
+      } else {
+        logger.warning("Audio Input device is not available!");
+      }
+    } else {
+      logger.warning("Audio Input is null.");
+    }
+
+    this.addLoopTask(new StandardModeCycle());
   }
 
   // TODO(tracy): We need to bring down everybody else's faders while bringing
@@ -136,7 +156,7 @@ public class UIModeSelector extends UICollapsibleSection {
   // Not renamable, so we will just need to hard code it.
 
   public void setAudioChannelEnabled(boolean on) {
-    LXChannel audioChannel = getChannelByLabel(lx, "AUDIO");
+    LXChannelBus audioChannel = getChannelByLabel(lx, "AUDIO");
     if (audioChannel != null) audioChannel.enabled.setValue(on);
   }
 
@@ -157,46 +177,88 @@ public class UIModeSelector extends UICollapsibleSection {
   // a hop to another channel group.  What does patternWillChange
   // do?
   public void setStandardChannelsEnabled(boolean on) {
-    LXChannel channel = getChannelByLabel(lx, "FORM");
-    if (channel != null) channel.enabled.setValue(on);
-    channel = getChannelByLabel(lx, "COLOR");
-    if (channel != null) channel.enabled.setValue(on);
-    channel = getChannelByLabel(lx, "TEXTURE");
-    if (channel != null) channel.enabled.setValue(on);
-    channel = getChannelByLabel(lx, "GIF");
-    if (channel != null) channel.enabled.setValue(on);
-    channel = getChannelByLabel(lx, "SPECIAL");
-    if (channel != null) channel.enabled.setValue(on);
+    for (LXChannelBus channel : standardModeChannels) {
+      if (channel != null)
+        channel.enabled.setValue(on);
+    }
   }
 
   public void setInteractiveChannelEnabled(boolean on) {
-    LXChannel channel = getChannelByLabel(lx, "INTERACTIVE");
+    LXChannelBus channel = getChannelByLabel(lx, "INTERACTIVE");
     if (channel != null) channel.enabled.setValue(on);
   }
 
   public void setInstrumentChannelsEnabled(boolean on) {
-    LXChannel channel = getChannelByLabel(lx, "AUDIO");
+    LXChannelBus channel = getChannelByLabel(lx, "AUDIO");
     if (channel != null) channel.enabled.setValue(on);
     channel = getChannelByLabel(lx, "MIDI");
     if (channel != null) channel.enabled.setValue(on);
   }
 
-  public LXChannel getChannelByLabel(LX lx, String label) {
+  public LXChannelBus getChannelByLabel(LX lx, String label) {
     for (LXChannelBus channelBus : lx.engine.channels) {
-      if (!(channelBus instanceof LXChannel)) {
-        continue;
-      }
-      LXChannel channel = (LXChannel) channelBus;
-      if (label.equalsIgnoreCase(channel.getLabel()))
-        return channel;
+      if (label.equalsIgnoreCase(channelBus.getLabel()))
+        return channelBus;
     }
     return null;
   }
 
   public class StandardModeCycle implements LXLoopTask {
+    public int currentPlayingChannel = 0;
+    public int previousPlayingChannel = 0;
+    public double currentChannelPlayTime = 0.0;
+    public double timePerChannel = 5000.0;  // Make this settable in the UI.
+    public double fadeTime = 1000.0;  // Make this settable in the UI.
+    public double prevChannelDisableThreshold = 0.05;  // Settable in UI? How low slider goes before full disable.
+    public double channelFadeFullThreshold = 0.1; // At this value just set it to 1.  Deals with chunkiness around time.
+    public double fadeTimeRemaining = 0.0;
 
     public void loop(double deltaMs) {
-      // Adjust channel sliders.
+      if (!UIModeSelector.this.standardModeP.getValueb())
+        return;
+
+      // If our current configuration doesn't have multiple standard channel names, just no-op.
+      if (standardModeChannels.size() < 2) {
+        logger.warning("Too few standard channels.");
+        return;
+      }
+
+      // We are still fading,
+      if (fadeTimeRemaining > 0.0) {
+        double previousChannelPercent = fadeTimeRemaining / fadeTime;
+        double percentDone = 1.0 - previousChannelPercent;
+        if (percentDone + channelFadeFullThreshold >= 1.0) {
+          percentDone = 1.0;
+        }
+        LXChannelBus previousChannel = standardModeChannels.get(previousPlayingChannel);
+        LXChannelBus currentChannel = standardModeChannels.get(currentPlayingChannel);
+        if (previousChannel != null)
+          previousChannel.fader.setValue(previousChannelPercent);
+        if (previousChannelPercent > prevChannelDisableThreshold)
+        if (currentChannel != null) currentChannel.fader.setValue(percentDone);
+        // When this goes below zero we are done fading until the timePerChannel time
+        // is reached and fadeTimeRemaining is reset to fadeTime.
+        fadeTimeRemaining -= deltaMs;
+      }
+
+      currentChannelPlayTime += deltaMs;
+      // Exceeded our per-channel time, begin to fade.
+      if (currentChannelPlayTime + deltaMs > timePerChannel) {
+        LXChannelBus currentChannel = standardModeChannels.get(currentPlayingChannel);
+        //currentChannel.enabled.setValue(false);
+        previousPlayingChannel = currentPlayingChannel;
+        ++currentPlayingChannel;
+        if (currentPlayingChannel >= standardModeChannels.size()) {
+          currentPlayingChannel = 0;
+        }
+        currentChannel = standardModeChannels.get(currentPlayingChannel);
+        if (currentChannel != null) {
+          currentChannel.enabled.setValue(true);
+          currentChannelPlayTime = 0.0; // Reset play time counter.
+        }
+        fadeTimeRemaining = fadeTime;
+        // logger.info("Switching channels:" + currentPlayingChannel);
+      }
     }
   }
 
