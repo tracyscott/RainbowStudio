@@ -245,6 +245,8 @@ class RenderImageUtil {
     int numPointsPerRow = ((RainbowBaseModel)(lx.model)).pointsWide;
      // Convert from world space to image coordinate space.
 
+    image.loadPixels();
+
     for (LXPoint p : model.points) {
       float pointX = (p.x - model.xMin) *RainbowBaseModel.pixelsPerFoot;
       float pointY = (p.y - model.yMin) *RainbowBaseModel.pixelsPerFoot;
