@@ -374,6 +374,8 @@ public class RainbowStudio extends PApplet {
 
   // Configuration flags
   private final static boolean MULTITHREADED = false;  // Disabled for anything GL
+                                                       // Enable at your own risk!
+                                                       // Could cause VM crashes.
   private final static boolean RESIZABLE = true;
 
   // Helpful global constants
