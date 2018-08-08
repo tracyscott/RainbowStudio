@@ -156,9 +156,12 @@ public class RainbowStudio extends PApplet {
     frameRate(GLOBAL_FRAME_RATE);
 
     LXModel model = buildModel(MODEL_TYPE);
-    /* MULTITHREADED disabled for P3D, GL, Hardware Acceleration */
-    boolean multithreaded = false;
-    lx = new LXStudio(this, model, multithreaded);
+    logger.info("Current renderer:" + sketchRenderer());
+    logger.info("Current graphics:" + getGraphics());
+    logger.info("Current graphics is GL:" + getGraphics().isGL());
+    logger.info("Multithreaded hint: " + MULTITHREADED);
+    logger.info("Multithreaded actually: " + (MULTITHREADED && !getGraphics().isGL()));
+    lx = new LXStudio(this, model, MULTITHREADED && !getGraphics().isGL());
 
     // Common components stored (dumbly) as static variables
     inputManager = new InputManager(lx);
@@ -370,7 +373,7 @@ public class RainbowStudio extends PApplet {
   }
 
   // Configuration flags
-  private final static boolean MULTITHREADED = true;
+  private final static boolean MULTITHREADED = false;  // Disabled for anything GL
   private final static boolean RESIZABLE = true;
 
   // Helpful global constants
