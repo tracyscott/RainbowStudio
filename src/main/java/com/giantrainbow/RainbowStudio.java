@@ -81,7 +81,7 @@ public class RainbowStudio extends PApplet {
   private static final int RAINBOW_PANEL_4 = 4;
   private static final int RAINBOW_PANEL_2 = 5;
   private static final int RAINBOW_PANEL_1 = 6;
-  private static final int MODEL_TYPE = RAINBOW_PANEL_1; // RAINBOW_PANEL, RAINBOW_PANEL_4 or FULL_RAINBOW
+  private static final int MODEL_TYPE = FULL_RAINBOW; // RAINBOW_PANEL, RAINBOW_PANEL_4 or FULL_RAINBOW
 
   // Used for PixelFlow.  Needs a reference to pApplet for setting up
   // OpenGL Context.

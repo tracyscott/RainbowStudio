@@ -26,6 +26,7 @@ public class UIModeSelector extends UICollapsibleSection {
   public BooleanParameter interactiveModeP = new BooleanParameter("interactive", false);
   public BooleanParameter instrumentModeP = new BooleanParameter("instrument", false);
 
+  public String[] standardModeChannels = { "Mult", "GIF", "Special"};
   public UIModeSelector(final LXStudio.UI ui, LX lx) {
     super(ui, 0, 0, ui.leftPane.global.getContentWidth(), 200);
     setTitle("MODE");
@@ -190,6 +191,13 @@ public class UIModeSelector extends UICollapsibleSection {
         return channel;
     }
     return null;
+  }
+
+  public class StandardModeCycle implements LXLoopTask {
+
+    public void loop(double deltaMs) {
+      // Adjust channel sliders.
+    }
   }
 
   public class AudioMonitor implements LXLoopTask {
