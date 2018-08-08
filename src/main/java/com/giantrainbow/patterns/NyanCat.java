@@ -72,7 +72,7 @@ public class NyanCat extends PGPixelPerfect {
   public NyanCat(LX lx) {
     super(lx, P2D);
 
-    catFrames = PathUtils.loadSprite("imgpp/nyancat.gif");
+    catFrames = PathUtils.loadSprite("images/nyancat.gif");
     maxImgWidth = 0;
     int maxImgHeight = 0;
     for (PImage img : catFrames) {
