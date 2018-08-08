@@ -54,10 +54,9 @@ class RenderImageUtil {
     int colorsIndex = 0;
     int imageIndex = (image.height - 1)*image.width;
     for (int y = 0; y < image.height; y++) {
-      for (int x = 0; x < image.width; x++) {
-        colors[colorsIndex++] = image.pixels[imageIndex++];
-      }
-      imageIndex -= 2*image.width;
+      System.arraycopy(image.pixels, imageIndex, colors, colorsIndex, image.width);
+      colorsIndex += image.width;
+      imageIndex -= image.width;
     }
   }
 
