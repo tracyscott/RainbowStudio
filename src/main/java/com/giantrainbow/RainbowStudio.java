@@ -58,6 +58,12 @@ public class RainbowStudio extends PApplet {
     System.setProperty(
         "java.util.logging.SimpleFormatter.format",
         "%3$s: %1$tc [%4$s] %5$s%6$s%n");
+
+    // JOGL debugging:
+    // The first enables just Animator debugging
+    // The second enables all
+//    System.setProperty("jogl.debug.Animator", "true");
+//    System.setProperty("jogl.debug", "true");
   }
 
   private static final Logger logger = Logger.getLogger(RainbowStudio.class.getName());
