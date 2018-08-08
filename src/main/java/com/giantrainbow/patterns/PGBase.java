@@ -34,6 +34,10 @@ abstract class PGBase extends LXPattern {
   // skip our GL render (image will freeze).
   protected Thread glThread;
 
+  // NOTE(Shawn): The instance is sometimes created on a different thread than the thread
+  //              that calls run(). We may not be able to use the value we obtain in the
+  //              constructor.
+
   public PGBase(LX lx, int width, int height, String drawMode) {
     super(lx);
     imageWidth = width;
