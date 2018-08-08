@@ -1,9 +1,9 @@
 package com.giantrainbow.patterns;
 
+import static com.giantrainbow.RainbowStudio.pApplet;
 import static processing.core.PApplet.ceil;
 import static processing.core.PApplet.round;
 
-import com.giantrainbow.RainbowStudio;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.parameter.CompoundParameter;
@@ -58,7 +58,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     for (String fontName : fontNames) {
       logger.info("Font: " + fontName);
     }
-    font = RainbowStudio.pApplet.createFont("04b", fontSize, true);
+    font = pApplet.createFont("04b", fontSize, true);
     for (int i = 0; i < defaultTexts.length; i++) {
       textItems.add(new TextItem(defaultTexts[i]));
     }
@@ -68,7 +68,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   }
 
   public void redrawTextBuffer(int bufferWidth) {
-    textImage = RainbowStudio.pApplet.createGraphics(bufferWidth, 30);
+    textImage = pApplet.createGraphics(bufferWidth, 30);
     currentPos = imageWidth + 1;
     lastPos = imageWidth + 2;
     textImage.noSmooth();

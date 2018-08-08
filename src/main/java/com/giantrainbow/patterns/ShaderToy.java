@@ -1,9 +1,10 @@
 package com.giantrainbow.patterns;
 
+import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
+import static com.giantrainbow.RainbowStudio.pApplet;
 import static processing.core.PConstants.P2D;
 
 import com.giantrainbow.PathUtils;
-import com.giantrainbow.RainbowStudio;
 import com.google.gson.JsonObject;
 import com.jogamp.opengl.GL2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
@@ -73,14 +74,14 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
 
   public ShaderToy(LX lx) {
     super(lx, "");
-    fpsKnob.setValue(60);
+    fpsKnob.setValue(GLOBAL_FRAME_RATE);
     addParameter(audioKnob);
     addParameter(knob1);
     addParameter(knob2);
     addParameter(knob3);
     addParameter(knob4);
     addParameter(shaderFileKnob);
-    toyGraphics = RainbowStudio.pApplet.createGraphics(imageWidth, imageHeight, P2D);
+    toyGraphics = pApplet.createGraphics(imageWidth, imageHeight, P2D);
     loadShader(shaderFileKnob.getString());
     // context initialized in loadShader, print the GL hardware once when loading
     // the pattern.  left in for now while testing performance on different
@@ -109,7 +110,7 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
     for (String filename : shaderFiles) {
       // Copy all the shaders locally
       if (shaderDir != null) {
-        try (InputStream in = RainbowStudio.pApplet.createInput(filename)) {
+        try (InputStream in = pApplet.createInput(filename)) {
           File shaderFile = new File(shaderDir, new File(filename).getName());
           if (shaderFile.exists()) {
             logger.info("Not overwriting shader: from=data:" + filename + " to=" + shaderFile);
@@ -150,9 +151,9 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
     byte[] bdata = new byte[wh * wh * 4];
     ByteBuffer bbuffer = ByteBuffer.wrap(bdata);
     for (int i = 0; i < bdata.length; ) {
-      bdata[i++] = (byte) RainbowStudio.pApplet.random(0, 255);
-      bdata[i++] = (byte) RainbowStudio.pApplet.random(0, 255);
-      bdata[i++] = (byte) RainbowStudio.pApplet.random(0, 255);
+      bdata[i++] = (byte) pApplet.random(0, 255);
+      bdata[i++] = (byte) pApplet.random(0, 255);
+      bdata[i++] = (byte) pApplet.random(0, 255);
       bdata[i++] = (byte) 255;
     }
     // Noise data texture passsed as a texture.
@@ -172,7 +173,7 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
       toy = null;
     }
     if (context != null) context.release();
-    context = new DwPixelFlow(RainbowStudio.pApplet);
+    context = new DwPixelFlow(pApplet);
     // TODO(tracy): Handle file not found issue.
 
     File local = new File(LOCAL_SHADER_DIR + shaderFile + ".frag");
@@ -216,7 +217,7 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
   }
 
   protected InputStream getFile() {
-    return RainbowStudio.pApplet.createInput(this.shaderFileKnob.getString() + ".frag");
+    return pApplet.createInput(this.shaderFileKnob.getString() + ".frag");
   }
 
   //

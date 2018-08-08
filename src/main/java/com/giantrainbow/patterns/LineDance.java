@@ -4,9 +4,10 @@
  */
 package com.giantrainbow.patterns;
 
+import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
 import static com.giantrainbow.RainbowStudio.inputManager;
-import static heronarts.lx.color.LXColor.BLACK;
-import static heronarts.lx.color.LXColor.WHITE;
+import static com.giantrainbow.colors.Colors.BLACK;
+import static com.giantrainbow.colors.Colors.WHITE;
 import static processing.core.PApplet.round;
 import static processing.core.PConstants.HSB;
 import static processing.core.PConstants.P2D;
@@ -51,7 +52,7 @@ public class LineDance extends PGPixelPerfect {
 
   @Override
   public void onActive() {
-    fpsKnob.setValue(60);
+    fpsKnob.setValue(GLOBAL_FRAME_RATE);
 
     // Reset
     sensitivity = SENSITIVITY_VALUE;

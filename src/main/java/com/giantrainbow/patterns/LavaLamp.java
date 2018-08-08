@@ -3,9 +3,10 @@
  */
 package com.giantrainbow.patterns;
 
+import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
 import static com.giantrainbow.RainbowStudio.pApplet;
-import static heronarts.lx.color.LXColor.BLACK;
-import static heronarts.lx.color.LXColor.WHITE;
+import static com.giantrainbow.colors.Colors.BLACK;
+import static com.giantrainbow.colors.Colors.WHITE;
 import static processing.core.PApplet.constrain;
 import static processing.core.PApplet.pow;
 import static processing.core.PConstants.ARGB;
@@ -15,7 +16,6 @@ import static processing.core.PConstants.RGB;
 import static processing.core.PConstants.THRESHOLD;
 
 import com.giantrainbow.colors.ColorRainbow;
-import com.giantrainbow.colors.Colors;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.parameter.BooleanParameter;
@@ -27,7 +27,7 @@ import processing.core.PImage;
 @LXCategory(LXCategory.FORM)
 public class LavaLamp extends PGPixelPerfect {
   private static final float COLOR_CHANGE_TIME = 10.0f;
-  private static final float DEFAULT_FPS = 60.0f;
+  private static final float DEFAULT_FPS = GLOBAL_FRAME_RATE;
 
   private static final int SEGMENT_W = 60;
 
@@ -42,32 +42,8 @@ public class LavaLamp extends PGPixelPerfect {
   private PImage ballImage;
 
   // Color interpolation
-  private ColorRainbow rainbow = new ColorRainbow(
-      new ColorRainbow.NextColor() {
-        private Integer firstColor;
-
-        protected void reset() {
-          firstColor = BLACK;
-        }
-
-        /**
-         * Chooses a random color from the palette that isn't the last color.
-         */
-        protected ColorRainbow.ColorTransition get() {
-          if (firstColor != null) {
-            int c = firstColor;
-            firstColor = null;
-            return new ColorRainbow.ColorTransition(c, COLOR_CHANGE_TIME);
-          }
-
-          while (true) {
-            int c = Colors.randomColor(6);
-            if (!lastColorMatches(c)) {
-              return new ColorRainbow.ColorTransition(c, COLOR_CHANGE_TIME);
-            }
-          }
-        }
-      });
+  private ColorRainbow rainbow =
+      new ColorRainbow(new ColorRainbow.NextRandomColor(6, COLOR_CHANGE_TIME, BLACK));
 
   private final BooleanParameter blackOnlyToggle =
       new BooleanParameter("B & W", false)

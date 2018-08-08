@@ -4,6 +4,7 @@
  */
 package com.giantrainbow.patterns;
 
+import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
 import static com.giantrainbow.RainbowStudio.inputManager;
 import static com.giantrainbow.RainbowStudio.pApplet;
 import static processing.core.PApplet.floor;
@@ -73,7 +74,7 @@ public class CheckerMove extends PGPixelPerfect {
 
   @Override
   public void onActive() {
-    fpsKnob.setValue(60);
+    fpsKnob.setValue(GLOBAL_FRAME_RATE);
 
     pg.beginDraw();
     pg.noSmooth();

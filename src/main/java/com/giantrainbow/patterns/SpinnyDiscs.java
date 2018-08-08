@@ -6,14 +6,14 @@ import heronarts.lx.parameter.CompoundParameter;
 import java.util.Random;
 
 @LXCategory(LXCategory.FORM)
-public class SpinnyDisks extends CanvasPattern2D {
+public class SpinnyDiscs extends CanvasPattern2D {
   public final CompoundParameter speedKnob =
       new CompoundParameter("Speed", 1, 20).setDescription("Speed.");
 
   Ball balls[];
   double elapsed;
 
-  public SpinnyDisks(LX lx) {
+  public SpinnyDiscs(LX lx) {
     super(lx);
 
     this.elapsed = 0;

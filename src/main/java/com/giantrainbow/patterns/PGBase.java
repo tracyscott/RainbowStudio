@@ -1,22 +1,20 @@
 package com.giantrainbow.patterns;
 
+import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
+import static com.giantrainbow.RainbowStudio.pApplet;
 import static processing.core.PConstants.P2D;
 import static processing.core.PConstants.P3D;
 
-import com.giantrainbow.RainbowStudio;
 import heronarts.lx.LX;
 import heronarts.lx.LXPattern;
 import heronarts.lx.parameter.CompoundParameter;
 import java.util.Random;
 import processing.core.PGraphics;
 
-/**
- * Abstract base class for all Processing PGraphics drawing and mapping
- * to the Rainbow.
- */
+/** Abstract base class for all Processing PGraphics drawing and mapping to the Rainbow. */
 abstract class PGBase extends LXPattern {
   public final CompoundParameter fpsKnob =
-      new CompoundParameter("Fps", 1.0, RainbowStudio.GLOBAL_FRAME_RATE)
+      new CompoundParameter("Fps", 1.0, GLOBAL_FRAME_RATE)
           .setDescription("Controls the frames per second.");
 
   protected double currentFrame = 0.0;
@@ -42,30 +40,25 @@ abstract class PGBase extends LXPattern {
     imageHeight = height;
     if (P3D.equals(drawMode) || P2D.equals(drawMode)) {
       glThread = Thread.currentThread();
-      pg = RainbowStudio.pApplet.createGraphics(imageWidth, imageHeight, drawMode);
+      pg = pApplet.createGraphics(imageWidth, imageHeight, drawMode);
     } else {
-      pg = RainbowStudio.pApplet.createGraphics(imageWidth, imageHeight);
+      pg = pApplet.createGraphics(imageWidth, imageHeight);
     }
     addParameter(fpsKnob);
   }
 
   public void run(double deltaMs) {
     double fps = fpsKnob.getValue();
-    currentFrame += (deltaMs/1000.0) * fps;
+    currentFrame += (deltaMs / 1000.0) * fps;
     // We don't call draw() every frame so track the accumulated deltaMs for them.
     deltaDrawMs += deltaMs;
-    if ((int)currentFrame > previousFrame) {
-      // if glThread == null this is the default Processing renderer so it is always
-      // okay to draw.  If it is not-null, we need to make sure the pattern is
-      // executing on the glThread or else Processing will crash.
-      if (glThread == null || Thread.currentThread() == glThread) {
-        // Time for new frame.  Draw
-        pg.beginDraw();
-        draw(deltaDrawMs);
-        pg.endDraw();
-        pg.loadPixels();
-      }
-      previousFrame = (int)currentFrame;
+    if ((int) currentFrame > previousFrame) {
+      // Time for new frame.  Draw
+      pg.beginDraw();
+      draw(deltaDrawMs);
+      pg.endDraw();
+      pg.loadPixels();
+      previousFrame = (int) currentFrame;
       deltaDrawMs = 0.0;
     }
     // Don't let current frame increment forever.  Otherwise float will
