@@ -1,9 +1,10 @@
 package com.giantrainbow.patterns;
 
+import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
+import static com.giantrainbow.RainbowStudio.pApplet;
 import static processing.core.PConstants.P2D;
 import static processing.core.PConstants.P3D;
 
-import com.giantrainbow.RainbowStudio;
 import heronarts.lx.LX;
 import heronarts.lx.LXPattern;
 import heronarts.lx.parameter.CompoundParameter;
@@ -13,7 +14,7 @@ import processing.core.PGraphics;
 /** Abstract base class for all Processing PGraphics drawing and mapping to the Rainbow. */
 abstract class PGBase extends LXPattern {
   public final CompoundParameter fpsKnob =
-      new CompoundParameter("Fps", 1.0, RainbowStudio.GLOBAL_FRAME_RATE)
+      new CompoundParameter("Fps", 1.0, GLOBAL_FRAME_RATE)
           .setDescription("Controls the frames per second.");
 
   protected double currentFrame = 0.0;
@@ -39,9 +40,9 @@ abstract class PGBase extends LXPattern {
     imageHeight = height;
     if (P3D.equals(drawMode) || P2D.equals(drawMode)) {
       glThread = Thread.currentThread();
-      pg = RainbowStudio.pApplet.createGraphics(imageWidth, imageHeight, drawMode);
+      pg = pApplet.createGraphics(imageWidth, imageHeight, drawMode);
     } else {
-      pg = RainbowStudio.pApplet.createGraphics(imageWidth, imageHeight);
+      pg = pApplet.createGraphics(imageWidth, imageHeight);
     }
     addParameter(fpsKnob);
   }

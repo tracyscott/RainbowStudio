@@ -4,6 +4,7 @@
  */
 package com.giantrainbow.patterns;
 
+import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
 import static com.giantrainbow.RainbowStudio.inputManager;
 import static com.giantrainbow.RainbowStudio.pApplet;
 import static processing.core.PApplet.lerp;
@@ -125,7 +126,7 @@ public class CrowdHands extends PGPixelPerfect {
 
   @Override
   public void onActive() {
-    fpsKnob.setValue(60);
+    fpsKnob.setValue(GLOBAL_FRAME_RATE);
 
     pg.beginDraw();
     pg.colorMode(HSB, 1.0f);

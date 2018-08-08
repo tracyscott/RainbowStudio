@@ -1,6 +1,9 @@
 package com.giantrainbow.canvas;
 
-import static com.giantrainbow.colors.ColorHelpers.*;
+import static com.giantrainbow.colors.Colors.blue;
+import static com.giantrainbow.colors.Colors.green;
+import static com.giantrainbow.colors.Colors.red;
+import static com.giantrainbow.colors.Colors.rgb;
 import static processing.core.PConstants.RGB;
 
 import com.giantrainbow.model.RainbowModel3D;

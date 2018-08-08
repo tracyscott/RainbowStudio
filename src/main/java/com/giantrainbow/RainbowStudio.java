@@ -70,7 +70,7 @@ public class RainbowStudio extends PApplet {
   private heronarts.lx.studio.LXStudio lx;
 
   public static final int GLOBAL_FRAME_RATE = 60;
-  public static final boolean enableArtNet = false;
+  public static final boolean enableArtNet = true;
   public static final int ARTNET_PORT = 6454;
   public static final String LED_CONTROLLER_IP = "192.168.2.134";
 
@@ -80,6 +80,7 @@ public class RainbowStudio extends PApplet {
   private static final int LARGE_PANEL = 3;
   private static final int RAINBOW_PANEL_4 = 4;
   private static final int RAINBOW_PANEL_2 = 5;
+  private static final int RAINBOW_PANEL_1 = 6;
   private static final int MODEL_TYPE = FULL_RAINBOW; // RAINBOW_PANEL, RAINBOW_PANEL_4 or FULL_RAINBOW
 
   // Used for PixelFlow.  Needs a reference to pApplet for setting up
@@ -210,6 +211,9 @@ public class RainbowStudio extends PApplet {
           SimplePanel.configureOutputMultiPanel(lx, pixliteConfig);
           break;
         case RAINBOW_PANEL_2:
+          SimplePanel.configureOutputMultiPanel(lx, pixliteConfig);
+          break;
+        case RAINBOW_PANEL_1:
           SimplePanel.configureOutputMultiPanel(lx, pixliteConfig);
           break;
       }
@@ -390,6 +394,8 @@ public class RainbowStudio extends PApplet {
       return new RainbowModel3D(4);
     } else if (modelType == RAINBOW_PANEL_2) {
       return new RainbowModel3D(2);
+    } else if (modelType == RAINBOW_PANEL_1) {
+      return new RainbowModel3D(1);
     } else {
       return null;
     }

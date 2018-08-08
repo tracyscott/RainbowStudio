@@ -1,8 +1,9 @@
 package com.giantrainbow.patterns;
 
+import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
+import static com.giantrainbow.RainbowStudio.pApplet;
 import static processing.core.PConstants.P2D;
 
-import com.giantrainbow.RainbowStudio;
 import com.jogamp.opengl.GL2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
@@ -21,11 +22,11 @@ public class ShaderToyAudio extends PGPixelPerfect {
 
   public ShaderToyAudio(LX lx) {
     super(lx, "");
-    fpsKnob.setValue(60);
-    context = new DwPixelFlow(RainbowStudio.pApplet);
+    fpsKnob.setValue(GLOBAL_FRAME_RATE);
+    context = new DwPixelFlow(pApplet);
     context.print();
     context.printGL();
-    toyGraphics = RainbowStudio.pApplet.createGraphics(imageWidth, imageHeight, P2D);
+    toyGraphics = pApplet.createGraphics(imageWidth, imageHeight, P2D);
     toy = new DwShadertoy(context, "data/audio.frag");
   }
 

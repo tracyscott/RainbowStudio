@@ -1,6 +1,6 @@
 package com.giantrainbow.patterns;
 
-import static com.giantrainbow.colors.ColorHelpers.*;
+import static com.giantrainbow.colors.Colors.rgb;
 import static processing.core.PConstants.PI;
 import static processing.core.PConstants.RGB;
 

@@ -1,7 +1,8 @@
 package com.giantrainbow.patterns;
 
+import static com.giantrainbow.RainbowStudio.pApplet;
+
 import com.giantrainbow.PathUtils;
-import com.giantrainbow.RainbowStudio;
 import heronarts.lx.LX;
 import heronarts.lx.LXPattern;
 import heronarts.lx.parameter.BooleanParameter;
@@ -66,7 +67,7 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
   }
 
   private void loadImg(String imgname) {
-    image = RainbowStudio.pApplet.loadImage(filesDir + imgname);
+    image = pApplet.loadImage(filesDir + imgname);
     image.resize(imageWidth, imageHeight);
     image.loadPixels();
   }

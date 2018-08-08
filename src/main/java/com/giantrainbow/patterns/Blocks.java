@@ -4,8 +4,10 @@
  */
 package com.giantrainbow.patterns;
 
-import static heronarts.lx.color.LXColor.BLACK;
-import static heronarts.lx.color.LXColor.WHITE;
+import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
+import static com.giantrainbow.RainbowStudio.pApplet;
+import static com.giantrainbow.colors.Colors.BLACK;
+import static com.giantrainbow.colors.Colors.WHITE;
 import static processing.core.PApplet.lerp;
 import static processing.core.PApplet.max;
 import static processing.core.PApplet.min;
@@ -18,7 +20,6 @@ import static processing.core.PConstants.HSB;
 import static processing.core.PConstants.P3D;
 import static processing.core.PConstants.PI;
 
-import com.giantrainbow.RainbowStudio;
 import com.giantrainbow.colors.Colors;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
@@ -62,7 +63,7 @@ public class Blocks extends PGPixelPerfect {
       boxes[i] = new Box(BOX_W, BOX_H);
     }
 
-    font = RainbowStudio.pApplet.createFont("fonts/Roboto/Roboto-Bold.ttf", PANEL_H);
+    font = pApplet.createFont("fonts/Roboto/Roboto-Bold.ttf", PANEL_H);
 
     // From: https://commons.wikimedia.org/wiki/File:Burning-Man.svg
     // Linked from: https://eplaya.burningman.org/viewtopic.php?t=54052
@@ -74,14 +75,14 @@ public class Blocks extends PGPixelPerfect {
 
   @Override
   public void onActive() {
+    // Default parameter setup
+    fpsKnob.setValue(GLOBAL_FRAME_RATE);
+
     // Graphics context setup
     pg.beginDraw();
     pg.colorMode(HSB, 1.0f);
     pg.textFont(font);
     pg.endDraw();
-
-    // Default parameter setup
-    fpsKnob.setValue(60);
   }
 
   @Override
