@@ -98,7 +98,7 @@ public class FlamingoRace extends PGPixelPerfect {
   }
 
   public void draw(double deltaMs) {
-    boolean daytime = true;
+    boolean daytime = false;
     pg.background(0);
 
     try {

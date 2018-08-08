@@ -47,6 +47,8 @@ class RenderImageUtil {
     int pointsWide = ((RainbowBaseModel)lx.model).pointsWide;
     int pointsHigh = ((RainbowBaseModel)lx.model).pointsHigh;
     int pointNumber = 0;
+
+    if (image.pixels == null) image.loadPixels();
     // NOTE: This code assumes that the point layout starts with point 0,0 on
     // the bottom left corner of the points.
     for (LXPoint p : lx.model.points) {

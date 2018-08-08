@@ -9,9 +9,9 @@ import heronarts.p3lx.ui.component.UICollapsibleSection;
 import heronarts.p3lx.ui.component.UISlider;
 
 public class UIGammaSelector extends UICollapsibleSection {
-  public static BoundedParameter redGamma = new BoundedParameter("Red", 1.8, 1.0, 2.0);
-  public static BoundedParameter greenGamma = new BoundedParameter("Green", 1.8, 1.0, 2.0);
-  public static BoundedParameter blueGamma = new BoundedParameter("Blue", 1.8, 1.0, 2.0);
+  public static BoundedParameter redGamma = new BoundedParameter("Red", 1.8, 1.0, 3.0);
+  public static BoundedParameter greenGamma = new BoundedParameter("Green", 1.8, 1.0, 3.0);
+  public static BoundedParameter blueGamma = new BoundedParameter("Blue", 1.8, 1.0, 3.0);
   public UISlider redSlider;
   public UISlider greenSlider;
   public UISlider blueSlider;
