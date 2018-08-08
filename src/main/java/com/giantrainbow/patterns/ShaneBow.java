@@ -8,6 +8,14 @@ import processing.core.PConstants;
 
 //TODO: Tie the xRate to the ambient noise?
 //TODO: Reintroduce hueOffset?
+
+/**
+ * A simple pattern which draws a grid of boxes in a rotating fashion. When the box width is
+ * smaller than the height of the rainbow, multiple rows will be displayed with a second layer of
+ * rainbowness that swirls across the arc of the rainbow. The pattern alternates between expanding
+ * and contracting box size and changes rotation from clockwise to counter-clockwise after each
+ * expansion and contraction of box size.
+ */
 @LXCategory(LXCategory.FORM)
 public class ShaneBow extends PGPixelPerfect {
 
