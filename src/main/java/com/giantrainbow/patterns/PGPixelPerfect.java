@@ -21,5 +21,5 @@ abstract class PGPixelPerfect extends PGBase {
   }
 
   // Implement PGGraphics drawing code here.  PGPixelPerfect handles beginDraw()/endDraw();
-  abstract protected void draw(double deltaDrawMs);
+  protected abstract void draw(double deltaDrawMs);
 }
