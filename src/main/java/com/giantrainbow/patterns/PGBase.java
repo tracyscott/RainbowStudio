@@ -54,9 +54,14 @@ abstract class PGBase extends LXPattern {
     deltaDrawMs += deltaMs;
     if ((int) currentFrame > previousFrame) {
       // Time for new frame.  Draw
-      pg.beginDraw();
-      draw(deltaDrawMs);
-      pg.endDraw();
+      // if glThread == null this is the default Processing renderer so it is always
+      // okay to draw.  If it is not-null, we need to make sure the pattern is
+      // executing on the glThread or else Processing will crash.
+      if (glThread == null || Thread.currentThread() == glThread) {
+        pg.beginDraw();
+        draw(deltaDrawMs);
+        pg.endDraw();
+      }
       pg.loadPixels();
       previousFrame = (int) currentFrame;
       deltaDrawMs = 0.0;
