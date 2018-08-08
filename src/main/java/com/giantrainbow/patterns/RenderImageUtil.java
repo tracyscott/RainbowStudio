@@ -48,7 +48,7 @@ class RenderImageUtil {
     int pointsHigh = ((RainbowBaseModel)lx.model).pointsHigh;
     int pointNumber = 0;
 
-    if (image.pixels == null) image.loadPixels();
+    image.loadPixels();
     // NOTE: This code assumes that the point layout starts with point 0,0 on
     // the bottom left corner of the points.
     for (LXPoint p : lx.model.points) {
@@ -87,7 +87,7 @@ class RenderImageUtil {
     float imageOriginWorldX = -radiusInWorldPixels;
     float worldPixelsHeight = radiusInWorldPixels;
 
-    if (image.pixels == null) image.loadPixels();
+    image.loadPixels();
 
     for (LXPoint p : lx.model.points) {
       // Adjust the x-coordinate by one radius since the world space is centered around x=0
