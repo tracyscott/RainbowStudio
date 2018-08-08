@@ -42,28 +42,22 @@ class RenderImageUtil {
    * and lesser intensity at the top due to reduced pixel density but it is
    * doesn't suffer from the aliasing caused by the led positions not being
    * perfectly cartesian.
+   * <p>
+   * This assumes that the size of {@code image} is the same as {@code colors}.</p>
+   * <p>
+   * Note that point (0,0) is at the bottom left in {@code colors}.</p>
    */
-  public static void imageToPointsPixelPerfect(LX lx, int[] colors, PImage image) {
-    int pointsWide = ((RainbowBaseModel)lx.model).pointsWide;
-    int pointsHigh = ((RainbowBaseModel)lx.model).pointsHigh;
-    int pointNumber = 0;
+  public static void imageToPointsPixelPerfect(int[] colors, PImage image) {
+    // (0, 0) is at the bottom left in the colors array
 
     image.loadPixels();
-    // NOTE: This code assumes that the point layout starts with point 0,0 on
-    // the bottom left corner of the points.
-    for (LXPoint p : lx.model.points) {
-      int y = pointNumber / pointsWide;
-      int x = pointNumber % pointsWide;
-      int imageY = (pointsHigh - 1) - y;  // Y is backwards for images.
-      int imageX = x;
-      int imageIndex = imageY * image.width + imageX;
-      //if (imageIndex == 12600) {
-      if (imageY == 29) {
-        //System.out.println("x: " + x + " y:" + y + " imageX:" + imageX + " imageY:" + imageY + " imageIndex:" + imageIndex);
+    int colorsIndex = 0;
+    int imageIndex = (image.height - 1)*image.width;
+    for (int y = 0; y < image.height; y++) {
+      for (int x = 0; x < image.width; x++) {
+        colors[colorsIndex++] = image.pixels[imageIndex++];
       }
-      //}
-      colors[pointNumber] = image.pixels[imageIndex];
-      pointNumber++;
+      imageIndex -= 2*image.width;
     }
   }
 
