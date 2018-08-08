@@ -60,7 +60,6 @@ public class PGDraw extends LXPattern {
       pg.line(-imageWidth/2.0f + 10, -imageHeight/2.0f + 10, imageWidth/2.0f - 10, imageHeight/2.0f - 10);
       pg.popMatrix();
       pg.endDraw();
-      pg.loadPixels();
       previousFrame = (int)currentFrame;
     }
     // Our bounding rectangle is the full half-circle so that Processing drawing operations
