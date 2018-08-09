@@ -5,10 +5,12 @@ import heronarts.lx.LXChannel;
 import heronarts.lx.LXChannelBus;
 import heronarts.lx.LXLoopTask;
 import heronarts.lx.parameter.BooleanParameter;
+import heronarts.lx.parameter.BoundedParameter;
 import heronarts.lx.studio.LXStudio;
 import heronarts.p3lx.ui.UI2dContainer;
 import heronarts.p3lx.ui.component.UIButton;
 import heronarts.p3lx.ui.component.UICollapsibleSection;
+import heronarts.p3lx.ui.component.UIKnob;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,8 +31,15 @@ public class UIModeSelector extends UICollapsibleSection {
   public BooleanParameter interactiveModeP = new BooleanParameter("interactive", false);
   public BooleanParameter instrumentModeP = new BooleanParameter("instrument", false);
 
+  static public BoundedParameter timePerChannelP = new BoundedParameter("TPerCh", 60000.0, 2000.0, 360000.0);
+  static public BoundedParameter fadeTimeP = new BoundedParameter("FadeT", 1000.0, 0.000, 10000.0);
+  public final UIKnob timePerChannel;
+  public final UIKnob fadeTime;
+
   public String[] standardModeChannelNames = { "MULTI", "GIF", "SPECIAL"};
   public List<LXChannelBus> standardModeChannels = new ArrayList<LXChannelBus>(standardModeChannelNames.length);
+  public int currentPlayingChannel = 0;
+  public int previousPlayingChannel = 0;
 
   public UIModeSelector(final LXStudio.UI ui, LX lx) {
     super(ui, 0, 0, ui.leftPane.global.getContentWidth(), 200);
@@ -40,18 +49,18 @@ public class UIModeSelector extends UICollapsibleSection {
     this.lx = lx;
 
     // When enabled, audio monitoring can trigger automatic channel switching.
-    this.autoMode = (UIButton) new UIButton(0, 0, getContentWidth(), 18)
+    autoMode = (UIButton) new UIButton(0, 0, getContentWidth(), 18)
     .setParameter(autoAudioModeP)
     .setLabel("Auto Audio Detect")
     .setActive(false)
     .addToContainer(this);
 
-    this.audioMode = (UIButton) new UIButton(0, 0, getContentWidth(), 18) {
+    audioMode = (UIButton) new UIButton(0, 0, getContentWidth(), 18) {
       public void onToggle(boolean on) {
         if (on) {
-          standardModeP.setValue(false);
-          interactiveModeP.setValue(false);
-          instrumentModeP.setValue(false);
+          standardMode.setActive(false);
+          interactiveMode.setActive(false);
+          instrumentMode.setActive(false);
           // Enable AUDIO channel
           setAudioChannelEnabled(true);
           //audioModeP.setValue(true);
@@ -67,12 +76,12 @@ public class UIModeSelector extends UICollapsibleSection {
     .setActive(false)
     .addToContainer(this);
 
-    this.standardMode = (UIButton) new UIButton(0, 0, getContentWidth(), 18) {
+    standardMode = (UIButton) new UIButton(0, 0, getContentWidth(), 18) {
       public void onToggle(boolean on) {
         if (on) {
-          UIModeSelector.this.audioMode.setActive(false);
-          UIModeSelector.this.interactiveMode.setActive(false);
-          UIModeSelector.this.instrumentMode.setActive(false);
+          audioMode.setActive(false);
+          interactiveMode.setActive(false);
+          instrumentMode.setActive(false);
           // Build our list of Standard Channels based on our names.  Putting it here allows it to
           // work after loading a new file (versus startup initialization).
           for (String channelName: standardModeChannelNames) {
@@ -92,12 +101,21 @@ public class UIModeSelector extends UICollapsibleSection {
     .setActive(false)
     .addToContainer(this);
 
-    this.interactiveMode = (UIButton) new UIButton(0, 0, getContentWidth(), 18) {
+    UI2dContainer knobsContainer = new UI2dContainer(0, 30, getContentWidth(), 45);
+    knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
+    knobsContainer.setPadding(0, 0, 0, 0);
+    timePerChannel = (UIKnob) new UIKnob(timePerChannelP);
+    timePerChannel.addToContainer(knobsContainer);
+    fadeTime = (UIKnob) new UIKnob(fadeTimeP);
+    fadeTime.addToContainer(knobsContainer);
+    knobsContainer.addToContainer(this);
+
+    interactiveMode = (UIButton) new UIButton(0, 0, getContentWidth(), 18) {
       public void onToggle(boolean on) {
         if (on) {
-          UIModeSelector.this.audioMode.setActive(false);
-          UIModeSelector.this.standardMode.setActive(false);
-          UIModeSelector.this.instrumentMode.setActive(false);
+          audioMode.setActive(false);
+          standardMode.setActive(false);
+          instrumentMode.setActive(false);
           // Enable Interactive channel
           setInteractiveChannelEnabled(true);
         } else {
@@ -111,12 +129,12 @@ public class UIModeSelector extends UICollapsibleSection {
     .setActive(false)
     .addToContainer(this);
 
-    this.instrumentMode = (UIButton) new UIButton(0, 0, getContentWidth(), 18) {
+    instrumentMode = (UIButton) new UIButton(0, 0, getContentWidth(), 18) {
       public void onToggle(boolean on) {
         if (on) {
-          UIModeSelector.this.audioMode.setActive(false);
-          UIModeSelector.this.standardMode.setActive(false);
-          UIModeSelector.this.interactiveMode.setActive(false);
+          audioMode.setActive(false);
+          standardMode.setActive(false);
+          interactiveMode.setActive(false);
           // Enable Instrument/AUDIO channels
           setInstrumentChannelsEnabled(true);
         } else {
@@ -177,9 +195,15 @@ public class UIModeSelector extends UICollapsibleSection {
   // a hop to another channel group.  What does patternWillChange
   // do?
   public void setStandardChannelsEnabled(boolean on) {
-    for (LXChannelBus channel : standardModeChannels) {
+    if (on) {
+      LXChannelBus channel = standardModeChannels.get(currentPlayingChannel);
       if (channel != null)
-        channel.enabled.setValue(on);
+        channel.enabled.setValue(true);
+    } else {
+      for (LXChannelBus channel : standardModeChannels) {
+        if (channel != null)
+          channel.enabled.setValue(on);
+      }
     }
   }
 
@@ -204,8 +228,6 @@ public class UIModeSelector extends UICollapsibleSection {
   }
 
   public class StandardModeCycle implements LXLoopTask {
-    public int currentPlayingChannel = 0;
-    public int previousPlayingChannel = 0;
     public double currentChannelPlayTime = 0.0;
     public double timePerChannel = 5000.0;  // Make this settable in the UI.
     public double fadeTime = 1000.0;  // Make this settable in the UI.
@@ -216,6 +238,9 @@ public class UIModeSelector extends UICollapsibleSection {
     public void loop(double deltaMs) {
       if (!UIModeSelector.this.standardModeP.getValueb())
         return;
+
+      fadeTime = UIModeSelector.this.fadeTimeP.getValue();
+      timePerChannel = UIModeSelector.this.timePerChannelP.getValue();
 
       // If our current configuration doesn't have multiple standard channel names, just no-op.
       if (standardModeChannels.size() < 2) {
@@ -232,9 +257,11 @@ public class UIModeSelector extends UICollapsibleSection {
         }
         LXChannelBus previousChannel = standardModeChannels.get(previousPlayingChannel);
         LXChannelBus currentChannel = standardModeChannels.get(currentPlayingChannel);
-        if (previousChannel != null)
+        if (previousChannel != null) {
           previousChannel.fader.setValue(previousChannelPercent);
-        if (previousChannelPercent > prevChannelDisableThreshold)
+          if (previousChannelPercent < prevChannelDisableThreshold)
+            previousChannel.enabled.setValue(false);
+        }
         if (currentChannel != null) currentChannel.fader.setValue(percentDone);
         // When this goes below zero we are done fading until the timePerChannel time
         // is reached and fadeTimeRemaining is reset to fadeTime.
@@ -265,22 +292,42 @@ public class UIModeSelector extends UICollapsibleSection {
   public class AudioMonitor implements LXLoopTask {
     public double deltaLastModeSwap = 0.0;
     public boolean audioMode = false;
+    public double avgDb = 0.0;
+    public long sampleCount = 0;
+    public double avgTimeRemaining;
+    public double avgTime = 3000.0;
 
     public void loop(double deltaMs) {
       // TODO(tracy): We need a number of samples over time and then decide if we should switch
       // based on that.
       if (!autoAudioModeP.isOn()) return;
 
-      if (lx.engine.audio.meter.getDecibels() > 0.0 && deltaLastModeSwap > 5000.0 && !audioMode) {
-        System.out.println(lx.engine.audio.meter.getDecibels());
+      double currentDb = lx.engine.audio.meter.getDecibels();
+      avgTimeRemaining -= deltaMs;
+      sampleCount++;
+      avgDb = avgDb + currentDb/sampleCount;
+      if (avgTimeRemaining > 0.0)
+        return;
+      System.out.println("avgDb:" + avgDb);
+      System.out.println("checking for switch");
+      // We are done averaging samples, reset our variables.
+      sampleCount = 0;
+      avgTimeRemaining = UIAudioMonitorLevels.avgTimeP.getValue() * 1000.0;
+
+      if (avgDb > UIAudioMonitorLevels.minThresholdP.getValue()
+          //&& deltaLastModeSwap > UIAudioMonitorLevels.quietTimeP.getValue() * 1000.0
+          && !audioMode) {
+        logger.info("Enabling audio mode, avgDb: " + avgDb);
         UIModeSelector.this.standardMode.setActive(false);
         UIModeSelector.this.interactiveMode.setActive(false);
         UIModeSelector.this.instrumentMode.setActive(false);
         UIModeSelector.this.setAudioChannelEnabled(true);
         audioMode = true;
         deltaLastModeSwap = 0.0;
-      } else if (lx.engine.audio.meter.getDecibels() < 0.0 && deltaLastModeSwap > 5000.0 && audioMode) {
-        logger.info("Disabling audio mode.");
+      } else if (avgDb < UIAudioMonitorLevels.minThresholdP.getValue()
+          //&& deltaLastModeSwap > UIAudioMonitorLevels.quietTimeP.getValue() * 1000.0
+          && audioMode) {
+        logger.info("Disabling audio mode, avgDb: " + avgDb);
         UIModeSelector.this.interactiveMode.setActive(false);
         UIModeSelector.this.instrumentMode.setActive(false);
         UIModeSelector.this.setAudioChannelEnabled(false);
@@ -290,6 +337,7 @@ public class UIModeSelector extends UICollapsibleSection {
       } else {
         deltaLastModeSwap += deltaMs;
       }
+      avgDb = 0.0;  // Reset rolling average.
     }
   }
 }

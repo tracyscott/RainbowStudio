@@ -1,6 +1,6 @@
 {
   "version": "0.1",
-  "timestamp": 1533707571269,
+  "timestamp": 1533710396689,
   "engine": {
     "id": 1,
     "class": "heronarts.lx.LXEngine",
@@ -48,7 +48,7 @@
           "selected": false,
           "enabled": true,
           "cue": false,
-          "fader": 1.0,
+          "fader": 0.015,
           "crossfadeGroup": 0,
           "blendMode": 0
         },
@@ -114,7 +114,7 @@
                     "phase": 0.0,
                     "exp": 0.0
                   },
-                  "basis": 0.09179643115626751
+                  "basis": 0.643213847874321
                 }
               ],
               "modulations": [
@@ -303,7 +303,7 @@
           "selected": false,
           "enabled": true,
           "cue": false,
-          "fader": 0.016,
+          "fader": 1.0,
           "crossfadeGroup": 0,
           "blendMode": 0,
           "midiMonitor": false,
@@ -523,7 +523,7 @@
           "Band-3": 0.0,
           "Band-4": 0.0,
           "Band-5": 0.0,
-          "Band-6": 0.0,
+          "Band-6": 0.04159859927235898,
           "Band-7": 0.0,
           "Band-8": 0.0,
           "Band-9": 0.0,
@@ -573,6 +573,8 @@
     },
     "components": {
       "rainbowSettings": {
+        "stdModeTime": 2000.0,
+        "stdModeFadeTime": 1000.0,
         "gammaRed": 3.0,
         "gammaGreen": 3.0,
         "gammaBlue": 3.0,
@@ -605,7 +607,7 @@
             "phase": 0.0,
             "exp": 0.0
           },
-          "basis": 0.24462003211138775
+          "basis": 0.880990566413013
         },
         {
           "id": 216,
@@ -628,7 +630,7 @@
             "phase": 0.0,
             "exp": 0.0
           },
-          "basis": 0.765045087291933
+          "basis": 0.4457901907737347
         }
       ],
       "modulations": [
