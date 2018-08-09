@@ -37,14 +37,14 @@ public class SpinnyBoxes extends CanvasPattern3D {
   PImage makeTexture() {
     PApplet app = new PApplet();
     PImage img = app.createImage(canvas.width(), canvas.width(), RGB);
-    // img.loadPixels();
+    img.loadPixels();
 
     for (int i = 0; i < img.pixels.length; i++) {
       float widthFraction = (float) (i % canvas.width()) / (float) canvas.width();
       img.pixels[i] = rgb((int) (widthFraction * 255.), 0, 0);
     }
 
-    // img.updatePixels();
+    img.updatePixels();
     img.save("/Users/jmacd/Desktop/texture.png");
     return img;
   }
@@ -83,14 +83,14 @@ public class SpinnyBoxes extends CanvasPattern3D {
     void drawRect(float zoff) {
       pg.beginShape();
 
-      // pg.texture(texture);
+      pg.texture(texture);
 
       pg.fill(C);
 
       pg.vertex(-radius(), -radius(), zoff, 0, 0);
-      pg.vertex(+radius(), -radius(), zoff, 1, 0);
-      pg.vertex(+radius(), +radius(), zoff, 1, 1);
-      pg.vertex(-radius(), +radius(), zoff, 0, 1);
+      pg.vertex(+radius(), -radius(), zoff, canvas.width(), 0);
+      pg.vertex(+radius(), +radius(), zoff, canvas.width(), canvas.height());
+      pg.vertex(-radius(), +radius(), zoff, 0, canvas.height());
       pg.endShape();
     }
 
