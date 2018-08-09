@@ -8,10 +8,13 @@ import heronarts.p3lx.ui.component.UIKnob;
 
 public class UIAudioMonitorLevels extends UICollapsibleSection {
   public static BoundedParameter minThresholdP =
-      new BoundedParameter("MinThreshold", 10.0, 0.0, 40.0);
+      new BoundedParameter("MinThr", -80.0, -100.0, 40.0);
+  public static BoundedParameter avgTimeP =
+      new BoundedParameter("AvgTS", 1.0, 3.0, 30.0);
   public static BoundedParameter quietTimeP =
-      new BoundedParameter("Quiet Time", 60.0, 0.0, 180.0);
+      new BoundedParameter("QuietT", 60.0, 0.0, 180.0);
   public static UIKnob minThreshold;
+  public static UIKnob avgTime;
   public static UIKnob quietTime;
 
   public UIAudioMonitorLevels(final LXStudio.UI ui) {
@@ -22,9 +25,11 @@ public class UIAudioMonitorLevels extends UICollapsibleSection {
     UI2dContainer knobsContainer =
         new UI2dContainer(0, 30, ui.leftPane.global.getContentWidth(), 45);
     knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
-    knobsContainer.setPadding(3, 3, 3, 3);
+    knobsContainer.setPadding(0, 0, 0, 0);
     minThreshold = new UIKnob(minThresholdP);
     minThreshold.addToContainer(knobsContainer);
+    avgTime = new UIKnob(avgTimeP);
+    avgTime.addToContainer(knobsContainer);
     quietTime = new UIKnob(quietTimeP);
     quietTime.addToContainer(knobsContainer);
     knobsContainer.addToContainer(this);

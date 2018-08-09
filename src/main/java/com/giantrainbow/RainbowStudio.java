@@ -75,6 +75,7 @@ public class RainbowStudio extends PApplet {
   // Reference to top-level LX instance
   private heronarts.lx.studio.LXStudio lx;
 
+  public static final boolean disableOutputOnStart = true;
   public static final int GLOBAL_FRAME_RATE = 60;
   public static final boolean enableArtNet = true;
   public static final int ARTNET_PORT = 6454;
@@ -227,6 +228,8 @@ public class RainbowStudio extends PApplet {
           break;
       }
     }
+    if (disableOutputOnStart)
+      lx.engine.output.enabled.setValue(false);
 
     // Check for data/PLAYASIDE
     try (InputStream in = createInput("PLAYASIDE")) {
@@ -308,6 +311,13 @@ public class RainbowStudio extends PApplet {
       this.ui = ui;
     }
 
+    private static final String KEY_STDMODE_TIME = "stdModeTime";
+    private static final String KEY_STDMODE_FADETIME = "stdModeFadeTime";
+    
+    private static final String KEY_AUDIOMONITOR_MINTHR = "minThr";
+    private static final String KEY_AUDIOMONITOR_AVGTS = "avgTs";
+    private static final String KEY_AUDIOMONITOR_QUIETT = "quietT";
+
     private static final String KEY_GAMMA_RED = "gammaRed";
     private static final String KEY_GAMMA_GREEN = "gammaGreen";
     private static final String KEY_GAMMA_BLUE = "gammaBlue";
@@ -319,6 +329,11 @@ public class RainbowStudio extends PApplet {
 
     @Override
     public void save(LX lx, JsonObject obj) {
+      obj.addProperty(KEY_AUDIOMONITOR_MINTHR, UIAudioMonitorLevels.minThresholdP.getValue());
+      obj.addProperty(KEY_AUDIOMONITOR_AVGTS, UIAudioMonitorLevels.avgTimeP.getValue());
+      obj.addProperty(KEY_AUDIOMONITOR_QUIETT, UIAudioMonitorLevels.quietTimeP.getValue());
+      obj.addProperty(KEY_STDMODE_TIME, UIModeSelector.timePerChannelP.getValue());
+      obj.addProperty(KEY_STDMODE_FADETIME, UIModeSelector.fadeTimeP.getValue());
       obj.addProperty(KEY_GAMMA_RED, UIGammaSelector.redGamma.getValue());
       obj.addProperty(KEY_GAMMA_GREEN, UIGammaSelector.greenGamma.getValue());
       obj.addProperty(KEY_GAMMA_BLUE, UIGammaSelector.blueGamma.getValue());
@@ -331,6 +346,21 @@ public class RainbowStudio extends PApplet {
     @Override
     public void load(LX lx, JsonObject obj) {
       logger.info("Loading settings....");
+      if (obj.has(KEY_AUDIOMONITOR_AVGTS)) {
+        UIAudioMonitorLevels.avgTimeP.setValue(obj.get(KEY_AUDIOMONITOR_AVGTS).getAsDouble());
+      }
+      if (obj.has(KEY_AUDIOMONITOR_MINTHR)) {
+        UIAudioMonitorLevels.minThresholdP.setValue(obj.get(KEY_AUDIOMONITOR_MINTHR).getAsDouble());
+      }
+      if (obj.has(KEY_AUDIOMONITOR_QUIETT)) {
+        UIAudioMonitorLevels.quietTimeP.setValue(obj.get(KEY_AUDIOMONITOR_QUIETT).getAsDouble());
+      }
+      if (obj.has(KEY_STDMODE_TIME)) {
+        UIModeSelector.timePerChannelP.setValue(obj.get(KEY_STDMODE_TIME).getAsDouble());
+      }
+      if (obj.has(KEY_STDMODE_FADETIME)) {
+        UIModeSelector.fadeTimeP.setValue(obj.get(KEY_STDMODE_FADETIME).getAsDouble());
+      }
       if (obj.has(KEY_GAMMA_RED)) {
         UIGammaSelector.redGamma.setValue(obj.get(KEY_GAMMA_RED).getAsDouble());
       }
