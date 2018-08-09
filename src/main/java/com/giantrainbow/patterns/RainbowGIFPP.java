@@ -18,6 +18,6 @@ public class RainbowGIFPP extends RainbowGIFBase {
   }
 
   protected void renderToPoints() {
-    RenderImageUtil.imageToPointsPixelPerfect(lx, colors, images[(int)currentFrame]);
+    RenderImageUtil.imageToPointsPixelPerfect(colors, images[(int)currentFrame]);
   }
 }

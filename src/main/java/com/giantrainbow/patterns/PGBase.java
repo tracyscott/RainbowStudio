@@ -2,8 +2,6 @@ package com.giantrainbow.patterns;
 
 import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
 import static com.giantrainbow.RainbowStudio.pApplet;
-import static processing.core.PConstants.P2D;
-import static processing.core.PConstants.P3D;
 
 import heronarts.lx.LX;
 import heronarts.lx.LXPattern;
@@ -32,18 +30,21 @@ abstract class PGBase extends LXPattern {
   // the Engine thread in the UI we don't want to crash so we will keep track of the GL
   // thread and if the current thread in our run() method doesn't match glThread we will just
   // skip our GL render (image will freeze).
-  protected Thread glThread;
+  // UPDATE: Removed this check because Processing already handles this.
+
+  // NOTE(Shawn): The instance is sometimes created on a different thread than the thread
+  //              that calls run(). We may not be able to use the value we obtain in the
+  //              constructor to check for the GL thread. And besides, Processing makes an
+  //              effort to do this anyway, in PGraphicsOpenGL.beginDraw() with the
+  //              GL_THREAD_NOT_CURRENT message.
 
   public PGBase(LX lx, int width, int height, String drawMode) {
     super(lx);
     imageWidth = width;
     imageHeight = height;
-    if (P3D.equals(drawMode) || P2D.equals(drawMode)) {
-      glThread = Thread.currentThread();
-      pg = pApplet.createGraphics(imageWidth, imageHeight, drawMode);
-    } else {
-      pg = pApplet.createGraphics(imageWidth, imageHeight);
-    }
+
+    pg = pApplet.createGraphics(imageWidth, imageHeight, drawMode);
+
     addParameter(fpsKnob);
   }
 
@@ -54,10 +55,16 @@ abstract class PGBase extends LXPattern {
     deltaDrawMs += deltaMs;
     if ((int) currentFrame > previousFrame) {
       // Time for new frame.  Draw
+      // if glThread == null this is the default Processing renderer so it is always
+      // okay to draw.  If it is not-null, we need to make sure the pattern is
+      // executing on the glThread or else Processing will crash.
+      // UPDATE: Removed this code because Processing already makes a best effort,
+      //         and, in addition, the program crashes anyway if multithreading is
+      //         set to 'true'.
       pg.beginDraw();
       draw(deltaDrawMs);
       pg.endDraw();
-      pg.loadPixels();
+
       previousFrame = (int) currentFrame;
       deltaDrawMs = 0.0;
     }

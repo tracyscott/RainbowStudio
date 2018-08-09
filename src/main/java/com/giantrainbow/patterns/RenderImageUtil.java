@@ -26,14 +26,16 @@ class RenderImageUtil {
    * alpha to 0xFF.
    */
   public static int getWeightedColor(int clr, float weight) {
-    int red = LXColor.red(clr) & 0xFF; // & 0xFF to get byte value unsigned.
-    int green = LXColor.green(clr) & 0xFF;
-    int blue = LXColor.blue(clr) & 0xFF;
+    int red = (clr >> 16) & 0xff;
+    int green = (clr >> 8) & 0xff;
+    int blue = clr & 0xff;
 
-    int weightedRed = ((int)((float)red * weight))<< 16;
-    int weightedGreen = ((int)((float)green * weight))<<8;
-    int weightedBlue = (int)((float)blue * weight);
-    return  0xFF000000 | weightedRed | weightedGreen | weightedBlue;
+    // Weight all the components
+    red = (int) ((float) red * weight);
+    green = (int) ((float) green * weight);
+    blue = (int) ((float) blue * weight);
+
+    return  0xff000000 | (red << 16) | (green << 8) | blue;
   }
 
   /**
@@ -42,28 +44,21 @@ class RenderImageUtil {
    * and lesser intensity at the top due to reduced pixel density but it is
    * doesn't suffer from the aliasing caused by the led positions not being
    * perfectly cartesian.
+   * <p>
+   * This assumes that the size of {@code image} is the same as {@code colors}.</p>
+   * <p>
+   * Note that point (0,0) is at the bottom left in {@code colors}.</p>
    */
-  public static void imageToPointsPixelPerfect(LX lx, int[] colors, PImage image) {
-    int pointsWide = ((RainbowBaseModel)lx.model).pointsWide;
-    int pointsHigh = ((RainbowBaseModel)lx.model).pointsHigh;
-    int pointNumber = 0;
+  public static void imageToPointsPixelPerfect(int[] colors, PImage image) {
+    // (0, 0) is at the bottom left in the colors array
 
-    if (image.pixels == null) image.loadPixels();
-    // NOTE: This code assumes that the point layout starts with point 0,0 on
-    // the bottom left corner of the points.
-    for (LXPoint p : lx.model.points) {
-      int y = pointNumber / pointsWide;
-      int x = pointNumber % pointsWide;
-      int imageY = (pointsHigh - 1) - y;  // Y is backwards for images.
-      int imageX = x;
-      int imageIndex = imageY * image.width + imageX;
-      //if (imageIndex == 12600) {
-      if (imageY == 29) {
-        //System.out.println("x: " + x + " y:" + y + " imageX:" + imageX + " imageY:" + imageY + " imageIndex:" + imageIndex);
-      }
-      //}
-      colors[pointNumber] = image.pixels[imageIndex];
-      pointNumber++;
+    image.loadPixels();
+    int colorsIndex = 0;
+    int imageIndex = (image.height - 1)*image.width;
+    for (int y = 0; y < image.height; y++) {
+      System.arraycopy(image.pixels, imageIndex, colors, colorsIndex, image.width);
+      colorsIndex += image.width;
+      imageIndex -= image.width;
     }
   }
 
@@ -87,7 +82,7 @@ class RenderImageUtil {
     float imageOriginWorldX = -radiusInWorldPixels;
     float worldPixelsHeight = radiusInWorldPixels;
 
-    if (image.pixels == null) image.loadPixels();
+    image.loadPixels();
 
     for (LXPoint p : lx.model.points) {
       // Adjust the x-coordinate by one radius since the world space is centered around x=0
@@ -244,6 +239,8 @@ class RenderImageUtil {
     int imageHeight = image.height;
     int numPointsPerRow = ((RainbowBaseModel)(lx.model)).pointsWide;
      // Convert from world space to image coordinate space.
+
+    image.loadPixels();
 
     for (LXPoint p : model.points) {
       float pointX = (p.x - model.xMin) *RainbowBaseModel.pixelsPerFoot;

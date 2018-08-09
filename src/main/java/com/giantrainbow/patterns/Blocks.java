@@ -68,7 +68,7 @@ public class Blocks extends PGPixelPerfect {
     // From: https://commons.wikimedia.org/wiki/File:Burning-Man.svg
     // Linked from: https://eplaya.burningman.org/viewtopic.php?t=54052
     // From Google search: simple burning man logo vector
-    logo = pg.loadShape("img/Burning-Man.svg");
+    logo = pg.loadShape("images/Burning-Man.svg");
 
     addParameter(textControl);
   }
