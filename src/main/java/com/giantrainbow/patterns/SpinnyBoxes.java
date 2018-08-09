@@ -1,6 +1,7 @@
 package com.giantrainbow.patterns;
 
 import static com.giantrainbow.RainbowStudio.pApplet;
+import static com.giantrainbow.colors.Colors.RAINBOW_PALETTE;
 import static com.giantrainbow.colors.Colors.rgb;
 import static processing.core.PConstants.PI;
 import static processing.core.PConstants.RGB;
@@ -39,8 +40,11 @@ public class SpinnyBoxes extends CanvasPattern3D {
 
     img.loadPixels();
     for (int i = 0; i < img.pixels.length; i++) {
-      float widthFraction = (float) (i % canvas.width()) / (float) canvas.width();
-      img.pixels[i] = rgb((int) (widthFraction * 255.), 0, 0);
+      float x = (float) (i % canvas.width()) / (float) canvas.width();
+      float x6 = x * 6;
+      int xi = (int) x6;
+
+      img.pixels[i] = RAINBOW_PALETTE[xi];
     }
     img.updatePixels();
 
@@ -79,36 +83,40 @@ public class SpinnyBoxes extends CanvasPattern3D {
       S = rnd.nextFloat();
     }
 
-    void drawSide() {
-      pg.pushMatrix();
-      pg.translate(0, 0, radius());
-
+    void drawRect(float zoff) {
       pg.beginShape();
 
-      // pg.texture(texture);
+      pg.texture(texture);
 
       pg.fill(C);
 
-      pg.vertex(-radius(), -radius(), 0, 0, 0);
-      pg.vertex(+radius(), -radius(), 0, 1, 0);
-      pg.vertex(+radius(), +radius(), 0, 1, 1);
-      pg.vertex(-radius(), +radius(), 0, 0, 1);
+      pg.vertex(-radius(), -radius(), zoff, 0, 0);
+      pg.vertex(+radius(), -radius(), zoff, canvas.width(), 0);
+      pg.vertex(+radius(), +radius(), zoff, canvas.width(), canvas.height());
+      pg.vertex(-radius(), +radius(), zoff, 0, canvas.height());
       pg.endShape();
+    }
+
+    void drawSides() {
+      pg.pushMatrix();
+
+      drawRect(radius());
+      drawRect(-radius());
 
       pg.popMatrix();
     }
 
     void draw3Sides() {
-      drawSide();
+      drawSides();
 
       pg.pushMatrix();
       pg.rotateX(PI / 2);
-      drawSide();
+      drawSides();
       pg.popMatrix();
 
       pg.pushMatrix();
       pg.rotateY(PI / 2);
-      drawSide();
+      drawSides();
       pg.popMatrix();
     }
 
@@ -116,13 +124,7 @@ public class SpinnyBoxes extends CanvasPattern3D {
       pg.pushMatrix();
 
       pg.translate(X, Y, -Z);
-
       pg.rotate((float) (speedKnob.getValue() * elapsed * PI / 10000.), R.x, R.y, R.z);
-
-      draw3Sides();
-
-      pg.rotateX(PI);
-      pg.rotateY(PI);
 
       draw3Sides();
 
