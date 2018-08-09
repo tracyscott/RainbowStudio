@@ -8,6 +8,8 @@ import heronarts.lx.LXPattern;
 import heronarts.lx.parameter.CompoundParameter;
 import java.util.Random;
 import processing.core.PGraphics;
+import static processing.core.PConstants.P2D;
+import static processing.core.PConstants.P3D;
 
 /** Abstract base class for all Processing PGraphics drawing and mapping to the Rainbow. */
 abstract class PGBase extends LXPattern {
@@ -43,7 +45,11 @@ abstract class PGBase extends LXPattern {
     imageWidth = width;
     imageHeight = height;
 
-    pg = pApplet.createGraphics(imageWidth, imageHeight, drawMode);
+    if (P3D.equals(drawMode) || P2D.equals(drawMode)) {
+      pg = pApplet.createGraphics(imageWidth, imageHeight, drawMode);
+    } else {
+      pg = pApplet.createGraphics(imageWidth, imageHeight);
+    }
 
     addParameter(fpsKnob);
   }
