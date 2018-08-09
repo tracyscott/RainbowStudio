@@ -1,6 +1,7 @@
 package com.giantrainbow.patterns;
 
 import static com.giantrainbow.RainbowStudio.pApplet;
+import static com.giantrainbow.colors.Colors.RAINBOW_PALETTE;
 import static com.giantrainbow.colors.Colors.rgb;
 import static processing.core.PConstants.PI;
 import static processing.core.PConstants.RGB;
@@ -39,8 +40,11 @@ public class SpinnyBoxes extends CanvasPattern3D {
 
     img.loadPixels();
     for (int i = 0; i < img.pixels.length; i++) {
-      float widthFraction = (float) (i % canvas.width()) / (float) canvas.width();
-      img.pixels[i] = rgb((int) (widthFraction * 255.), 0, 0);
+      float x = (float) (i % canvas.width()) / (float) canvas.width();
+      float x6 = x * 6;
+      int xi = (int) x6;
+
+      img.pixels[i] = RAINBOW_PALETTE[xi];
     }
     img.updatePixels();
 
