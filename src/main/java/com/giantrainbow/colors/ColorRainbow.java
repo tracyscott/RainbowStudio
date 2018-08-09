@@ -176,6 +176,7 @@ public final class ColorRainbow {
     protected ColorTransition get() {
       if (resetIndex >= 0) {
         int c = colors[resetIndex];
+        nextIndex = (resetIndex + 1)%colors.length;
         resetIndex = -1;
         return new ColorTransition(c, changeTime);
       }
