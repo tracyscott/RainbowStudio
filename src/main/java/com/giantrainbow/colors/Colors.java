@@ -12,7 +12,7 @@ import java.util.Random;
  *
  * @author Shawn Silverman
  */
-public class Colors {
+public final class Colors {
   static final Random rand = new Random();
 
   // Useful links:
