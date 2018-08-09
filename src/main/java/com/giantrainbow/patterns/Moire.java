@@ -14,10 +14,12 @@ import static processing.core.PConstants.P2D;
 import static processing.core.PConstants.RADIUS;
 
 import com.giantrainbow.colors.ColorRainbow;
+import com.giantrainbow.colors.Colors;
 import com.giantrainbow.input.InputManager;
 import com.giantrainbow.input.LowPassFilter;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
+import heronarts.lx.parameter.BooleanParameter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +36,7 @@ public class Moire extends PGPixelPerfect {
 
   private static final int YELLOW = 0xffffff00;
 
-  private static final float COLOR_CHANGE_TIME = 15.0f;
+  private static final float COLOR_CHANGE_TIME = 10.0f;
   private static final int START_COLOR = YELLOW;
   private static final int LINE_COLOR = BLACK;
 
@@ -46,21 +48,33 @@ public class Moire extends PGPixelPerfect {
   private InputManager.Beats beats;
 
   // Color interpolation
-  private ColorRainbow rainbow = new ColorRainbow(
-      new ColorRainbow.NextRandomColor(4, COLOR_CHANGE_TIME, START_COLOR) {
-        @Override
-        protected ColorRainbow.ColorTransition get() {
-          while (true) {
-            ColorRainbow.ColorTransition t = super.get();
-            if (t.getColor() != BLACK) {
-              return t;
-            }
-          }
-        }
-      });
+  private volatile ColorRainbow[] rainbows;
+  private ColorRainbow[] multiRainbows = new ColorRainbow[6];
+  private ColorRainbow[] solidRainbows = new ColorRainbow[1];
+  {
+    for (int i = 0; i < multiRainbows.length; i++) {
+      multiRainbows[i] = new ColorRainbow(
+          new ColorRainbow.NextArrayColor(Colors.RAINBOW_PALETTE, COLOR_CHANGE_TIME, false, i));
+    }
+    solidRainbows[0] = new ColorRainbow(
+        new ColorRainbow.NextArrayColor(Colors.RAINBOW2_PALETTE, COLOR_CHANGE_TIME, true));
+  }
+
+  private final BooleanParameter solidToggle =
+      new BooleanParameter("Solid", false)
+          .setDescription("Solid color or rainbow");
 
   public Moire(LX lx) {
     super(lx, P2D);
+
+    addParameter(solidToggle);
+    solidToggle.addListener(lxParameter -> {
+          if (((BooleanParameter) lxParameter).isOn()) {
+            rainbows = solidRainbows;
+          } else {
+            rainbows = multiRainbows;
+          }
+        });
   }
 
   @Override
@@ -77,7 +91,15 @@ public class Moire extends PGPixelPerfect {
       points.add(new Point());
     }
 
-    rainbow.reset(fpsKnob.getValuef());
+    for (ColorRainbow cr : multiRainbows) {
+      cr.reset(fpsKnob.getValuef());
+    }
+    for (ColorRainbow cr : solidRainbows) {
+      cr.reset(fpsKnob.getValuef());
+    }
+    rainbows = solidToggle.isOn()
+        ? solidRainbows
+        : multiRainbows;
 
     beats = inputManager.getBeats();
   }
@@ -89,9 +111,15 @@ public class Moire extends PGPixelPerfect {
 
   @Override
   protected void draw(double deltaDrawMs) {
-    int bg = rainbow.get(pg, fpsKnob.getValuef());
+    pg.background(BLACK);
+    pg.noStroke();
+    ColorRainbow[] rainbows = this.rainbows;
+    float h = pg.height / rainbows.length;
+    for (int i = 0; i < rainbows.length; i++) {
+      pg.fill(rainbows[i].get(pg, fpsKnob.getValuef()));
+      pg.rect(0, i*h, pg.width, h);
+    }
 
-    pg.background(bg);
     pg.stroke(LINE_COLOR);
     pg.noFill();
 
