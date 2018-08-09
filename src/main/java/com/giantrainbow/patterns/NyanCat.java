@@ -79,7 +79,8 @@ public class NyanCat extends PGPixelPerfect {
   private long lastUpdateDelta;
 
   private File audioFile;
-  private String oldAudioFileName;
+  private String oldAudioFileName;  // For restoring the original file
+  private Boolean oldAudioLooping;  // For restoring the original looping setting
 
   public NyanCat(LX lx) {
     super(lx, P2D);
@@ -118,8 +119,11 @@ public class NyanCat extends PGPixelPerfect {
 
     // Start the audio
     oldAudioFileName = null;
+    oldAudioLooping = null;
     if (audioFile != null) {
+      logger.info("Starting audio: " + audioFile);
       oldAudioFileName = lx.engine.audio.output.file.getString();
+      oldAudioLooping = lx.engine.audio.output.looping.getValueb();
       lx.engine.audio.output.file.setValue(audioFile.getName());
       lx.engine.audio.output.looping.setValue(true);
       lx.engine.audio.output.play.setValue(true);
@@ -132,11 +136,10 @@ public class NyanCat extends PGPixelPerfect {
 
     // Stop the audio
     if (audioFile != null) {
+      logger.info("Stopping audio: " + audioFile);
       lx.engine.audio.output.play.setValue(false);
-      if (!audioFile.delete()) {
-        logger.warning("Could not delete temporary file: " + audioFile);
-      }
       lx.engine.audio.output.file.setValue(oldAudioFileName);
+      lx.engine.audio.output.looping.setValue(oldAudioLooping);
     }
   }
 
