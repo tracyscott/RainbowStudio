@@ -75,6 +75,7 @@ public class Moire extends PGPixelPerfect {
             rainbows = multiRainbows;
           }
         });
+    this.rainbows = multiRainbows;  // draw() can be called before onActive()??
   }
 
   @Override
@@ -97,7 +98,7 @@ public class Moire extends PGPixelPerfect {
     for (ColorRainbow cr : solidRainbows) {
       cr.reset(fpsKnob.getValuef());
     }
-    rainbows = solidToggle.isOn()
+    this.rainbows = solidToggle.isOn()
         ? solidRainbows
         : multiRainbows;
 
