@@ -26,7 +26,7 @@ public class ShaderToyAudio extends PGPixelPerfect {
     context = new DwPixelFlow(pApplet);
     context.print();
     context.printGL();
-    toyGraphics = pApplet.createGraphics(imageWidth, imageHeight, P2D);
+    toyGraphics = pApplet.createGraphics(pg.width, pg.height, P2D);
     toy = new DwShadertoy(context, "data/audio.frag");
   }
 

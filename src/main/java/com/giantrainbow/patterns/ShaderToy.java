@@ -81,7 +81,7 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
     addParameter(knob3);
     addParameter(knob4);
     addParameter(shaderFileKnob);
-    toyGraphics = pApplet.createGraphics(imageWidth, imageHeight, P2D);
+    toyGraphics = pApplet.createGraphics(pg.width, pg.height, P2D);
     loadShader(shaderFileKnob.getString());
     // context initialized in loadShader, print the GL hardware once when loading
     // the pattern.  left in for now while testing performance on different

@@ -69,8 +69,8 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
 
   public void redrawTextBuffer(int bufferWidth) {
     textImage = pApplet.createGraphics(bufferWidth, 30);
-    currentPos = imageWidth + 1;
-    lastPos = imageWidth + 2;
+    currentPos = pg.width + 1;
+    lastPos = pg.width + 2;
     textImage.noSmooth();
     textImage.beginDraw();
     textImage.background(0);
@@ -95,8 +95,8 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
 
   public void draw(double deltaDrawMs) {
     if (currentPos < 0 - (renderedTextWidth + textGapPixels)) {
-      currentPos = imageWidth + +1;
-      lastPos = imageWidth + 2;
+      currentPos = pg.width + +1;
+      lastPos = pg.width + 2;
       currentString++;
       if (currentString >= textItems.size()) {
         currentString = 0;

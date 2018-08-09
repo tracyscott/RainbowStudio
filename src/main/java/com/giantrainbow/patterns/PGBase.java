@@ -19,8 +19,6 @@ abstract class PGBase extends LXPattern {
 
   protected double currentFrame = 0.0;
   protected PGraphics pg;
-  protected int imageWidth;
-  protected int imageHeight;
   protected int previousFrame = -1;
   protected double deltaDrawMs = 0.0;
 
@@ -42,13 +40,11 @@ abstract class PGBase extends LXPattern {
 
   public PGBase(LX lx, int width, int height, String drawMode) {
     super(lx);
-    imageWidth = width;
-    imageHeight = height;
 
     if (P3D.equals(drawMode) || P2D.equals(drawMode)) {
-      pg = pApplet.createGraphics(imageWidth, imageHeight, drawMode);
+      pg = pApplet.createGraphics(width, height, drawMode);
     } else {
-      pg = pApplet.createGraphics(imageWidth, imageHeight);
+      pg = pApplet.createGraphics(width, height);
     }
 
     addParameter(fpsKnob);

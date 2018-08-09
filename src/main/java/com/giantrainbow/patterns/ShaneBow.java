@@ -22,10 +22,10 @@ public class ShaneBow extends PGPixelPerfect {
   public final LX lx;
 
   public final CompoundParameter xRateParam = new CompoundParameter("xRate", 0, 2, 10);
-  public final CompoundParameter xStartParam = new CompoundParameter("xStart", 1, 1, imageWidth + 1);
+  public final CompoundParameter xStartParam = new CompoundParameter("xStart", 1, 1, pg.width + 1);
   public final BooleanParameter clockwiseParam = new BooleanParameter("clockwise", true);
 
-  public final CompoundParameter blockWidthParam = new CompoundParameter("blockWidth", 1, 1, imageWidth + 1);
+  public final CompoundParameter blockWidthParam = new CompoundParameter("blockWidth", 1, 1, pg.width + 1);
   public final BooleanParameter blockExpandingParam = new BooleanParameter("blockExp", true);
 
   public ShaneBow(LX lx) {
@@ -46,7 +46,7 @@ public class ShaneBow extends PGPixelPerfect {
     float xStart = xStartParam.getValuef();
     float xRate = xRateParam.getValuef();
     float blockWidth = blockWidthParam.getValuef();
-    float blockRate = Math.max(0.1f, blockWidth / imageWidth);
+    float blockRate = Math.max(0.1f, blockWidth / pg.width);
     boolean clockwise = clockwiseParam.getValueb();
     System.out.format("clockwise: %s | xStart: %s + xRate: %s | blockWidth: %s + blockRate: %s%n",
         clockwise, xStart, xRate, blockWidth, blockRate);
@@ -54,23 +54,23 @@ public class ShaneBow extends PGPixelPerfect {
     // Draw the blocks
     pg.background(0);
     pg.colorMode(PConstants.HSB, 1000);
-    for (float x = xStart; x < (imageWidth + xStart); x += blockWidth) {
-      float startHue = (x / imageWidth) * 1000;
-      for (float y = 0; y < imageHeight; y += blockWidth) {
-        float offsetHue = (y / imageHeight) * 1000;
+    for (float x = xStart; x < (pg.width + xStart); x += blockWidth) {
+      float startHue = (x / pg.width) * 1000;
+      for (float y = 0; y < pg.height; y += blockWidth) {
+        float offsetHue = (y / pg.height) * 1000;
         float hue = (startHue + offsetHue) % 1000;
         pg.stroke(hue, 1000, 1000);
         pg.fill(hue, 1000, 1000);
-        pg.rect(x % imageWidth, y, blockWidth, blockWidth);
-        if (x % imageWidth + blockWidth > imageWidth) {
-          float width2 = (x % imageWidth + blockWidth) - imageWidth;
+        pg.rect(x % pg.width, y, blockWidth, blockWidth);
+        if (x % pg.width + blockWidth > pg.width) {
+          float width2 = (x % pg.width + blockWidth) - pg.width;
           pg.rect(0, y, width2, blockWidth);
         }
       }
     }
 
     // Update the params for the next frame
-    if (blockWidth > imageWidth) {
+    if (blockWidth > pg.width) {
       blockExpandingParam.setValue(false);
     } else if (blockWidth <= 1) {
       blockExpandingParam.setValue(true);
@@ -78,10 +78,10 @@ public class ShaneBow extends PGPixelPerfect {
     }
     blockWidthParam.setValue(blockWidth + (blockRate * (blockExpandingParam.getValueb() ? 1f : -1f)));
     xStartParam.setValue(
-        xStart > imageWidth
+        xStart > pg.width
             ? 2
             : xStart <= 1
-                ? imageWidth - 1
+                ? pg.width - 1
                 : xStart + (xRate * (clockwise ? 1 : -1)));
   }
 }
