@@ -76,7 +76,7 @@ public class SpinnyBoxes extends CanvasPattern3D {
       X = rnd.nextFloat() * canvas.width();
       Y = rnd.nextFloat() * canvas.height();
       Z = rnd.nextFloat() * canvas.width();
-      W = (int) (rnd.nextFloat() * (float) maxSize);
+      W = (int) (rnd.nextFloat() * maxSize);
 
       C = rgb(rnd.nextInt(255), rnd.nextInt(255), rnd.nextInt(255));
       R = PVector.random3D();

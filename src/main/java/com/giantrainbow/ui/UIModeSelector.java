@@ -104,9 +104,9 @@ public class UIModeSelector extends UICollapsibleSection {
     UI2dContainer knobsContainer = new UI2dContainer(0, 30, getContentWidth(), 45);
     knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
     knobsContainer.setPadding(0, 0, 0, 0);
-    timePerChannel = (UIKnob) new UIKnob(timePerChannelP);
+    timePerChannel = new UIKnob(timePerChannelP);
     timePerChannel.addToContainer(knobsContainer);
-    fadeTime = (UIKnob) new UIKnob(fadeTimeP);
+    fadeTime = new UIKnob(fadeTimeP);
     fadeTime.addToContainer(knobsContainer);
     knobsContainer.addToContainer(this);
 
@@ -239,8 +239,8 @@ public class UIModeSelector extends UICollapsibleSection {
       if (!UIModeSelector.this.standardModeP.getValueb())
         return;
 
-      fadeTime = UIModeSelector.this.fadeTimeP.getValue();
-      timePerChannel = UIModeSelector.this.timePerChannelP.getValue();
+      fadeTime = UIModeSelector.fadeTimeP.getValue();
+      timePerChannel = UIModeSelector.timePerChannelP.getValue();
 
       // If our current configuration doesn't have multiple standard channel names, just no-op.
       if (standardModeChannels.size() < 2) {
