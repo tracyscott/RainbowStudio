@@ -69,7 +69,6 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
   private void loadImg(String imgname) {
     image = pApplet.loadImage(filesDir + imgname);
     image.resize(imageWidth, imageHeight);
-    image.loadPixels();
   }
 
   public void run(double deltaMs) {

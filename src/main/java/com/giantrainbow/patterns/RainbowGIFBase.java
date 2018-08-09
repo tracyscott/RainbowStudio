@@ -96,7 +96,7 @@ abstract class RainbowGIFBase extends LXPattern implements CustomDeviceUI {
     }
   }
 
-  abstract protected void renderToPoints();
+  protected abstract void renderToPoints();
 
   protected void reloadFileList() {
     gifFiles = PathUtils.findDataFiles(filesDir, ".gif");

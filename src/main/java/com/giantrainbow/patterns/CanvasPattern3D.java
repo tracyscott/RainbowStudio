@@ -19,12 +19,11 @@ abstract class CanvasPattern3D extends PGBase {
   }
 
   protected void imageToPoints() {
-    if (pg.pixels == null) {
-      pg.loadPixels();
-    }
-
+    pg.loadPixels();
     // TODO Use the pg image buffer directly instead of copy.
     canvas.buffer.copyInto(pg.pixels);
+    pg.updatePixels();
+
     canvas.dumpImage(); // @@@
     canvas.render(colors);
   }

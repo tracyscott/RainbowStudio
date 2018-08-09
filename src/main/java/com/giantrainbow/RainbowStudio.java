@@ -58,6 +58,12 @@ public class RainbowStudio extends PApplet {
     System.setProperty(
         "java.util.logging.SimpleFormatter.format",
         "%3$s: %1$tc [%4$s] %5$s%6$s%n");
+
+    // JOGL debugging:
+    // The first enables just Animator debugging
+    // The second enables all
+//    System.setProperty("jogl.debug.Animator", "true");
+//    System.setProperty("jogl.debug", "true");
   }
 
   private static final Logger logger = Logger.getLogger(RainbowStudio.class.getName());
@@ -151,9 +157,12 @@ public class RainbowStudio extends PApplet {
     frameRate(GLOBAL_FRAME_RATE);
 
     LXModel model = buildModel(MODEL_TYPE);
-    /* MULTITHREADED disabled for P3D, GL, Hardware Acceleration */
-    boolean multithreaded = false;
-    lx = new LXStudio(this, model, multithreaded);
+    logger.info("Current renderer:" + sketchRenderer());
+    logger.info("Current graphics:" + getGraphics());
+    logger.info("Current graphics is GL:" + getGraphics().isGL());
+    logger.info("Multithreaded hint: " + MULTITHREADED);
+    logger.info("Multithreaded actually: " + (MULTITHREADED && !getGraphics().isGL()));
+    lx = new LXStudio(this, model, MULTITHREADED && !getGraphics().isGL());
 
     // Common components stored (dumbly) as static variables
     inputManager = new InputManager(lx);
@@ -394,7 +403,9 @@ public class RainbowStudio extends PApplet {
   }
 
   // Configuration flags
-  private final static boolean MULTITHREADED = true;
+  private final static boolean MULTITHREADED = false;  // Disabled for anything GL
+                                                       // Enable at your own risk!
+                                                       // Could cause VM crashes.
   private final static boolean RESIZABLE = true;
 
   // Helpful global constants

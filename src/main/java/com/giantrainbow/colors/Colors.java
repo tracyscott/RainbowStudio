@@ -4,6 +4,7 @@
  */
 package com.giantrainbow.colors;
 
+import java.awt.Color;
 import java.util.Random;
 
 /**
@@ -57,7 +58,8 @@ public class Colors {
       0xff0051ff,  // Blue
   };
 
-  private Colors() {}
+  private Colors() {
+  }
 
   /**
    * Chooses a random n-bit color. If {@code bits} is not in the range 1-8 then 8 will be assumed.
@@ -110,5 +112,12 @@ public class Colors {
    */
   public static int rgb(int r, int g, int b) {
     return 0xff000000 | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff);
+  }
+
+  /**
+   * Returns a color constructed from the three components. The alpha component is set to 255.
+   */
+  public static int hsb(float h, float s, float b) {
+    return Color.HSBtoRGB(h, s, b);
   }
 }

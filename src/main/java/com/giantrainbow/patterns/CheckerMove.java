@@ -12,10 +12,12 @@ import static processing.core.PApplet.max;
 import static processing.core.PApplet.min;
 import static processing.core.PApplet.round;
 import static processing.core.PConstants.P2D;
+import static processing.core.PConstants.THRESHOLD;
 
 import com.giantrainbow.input.InputManager;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
+import heronarts.lx.parameter.BooleanParameter;
 import java.util.logging.Logger;
 import processing.core.PGraphics;
 import processing.core.PImage;
@@ -31,6 +33,7 @@ public class CheckerMove extends PGPixelPerfect {
 
   private static final int INDIAN_RED = 0xffcd5c5c;
   private static final int LIGHT_SKY_BLUE = 0xff87cefa;
+  private static final float BRIGHTNESS_THRESHOLD = (float) 0xfa / (float) 0xff;
 
   private static final int COLOR_1 = INDIAN_RED;
   private static final int COLOR_2 = LIGHT_SKY_BLUE;
@@ -68,8 +71,14 @@ public class CheckerMove extends PGPixelPerfect {
   private long lastBeatsTime;
   private boolean beatsNotRandom;  // Indicates whether we are responding to beats
 
+  private final BooleanParameter grayScaleToggle =
+      new BooleanParameter("Gray Scale", false)
+          .setDescription("Gray scale");
+
   public CheckerMove(LX lx) {
     super(lx, P2D);
+
+    addParameter(grayScaleToggle);
   }
 
   @Override
@@ -115,12 +124,16 @@ public class CheckerMove extends PGPixelPerfect {
   protected void draw(double deltaDrawMs) {
     if (reset) {
       reset = false;
-      int halfWidth = round(pg.width/(2.0f*squareSize))*squareSize;
+      int qWidth = round(pg.width/(4.0f*squareSize))*squareSize;
       screen.beginDraw();
       screen.fill(COLOR_1);
-      screen.rect(0, 0, halfWidth, screen.height);
+      screen.rect(0, 0, qWidth, screen.height);
       screen.fill(COLOR_2);
-      screen.rect(halfWidth, 0, screen.width - halfWidth, screen.height);
+      screen.rect(qWidth, 0, qWidth, screen.height);
+      screen.fill(COLOR_1);
+      screen.rect(2*qWidth, 0, qWidth, screen.height);
+      screen.fill(COLOR_2);
+      screen.rect(3*qWidth, 0, screen.width - 3*qWidth, screen.height);
       screen.endDraw();
       moveImage.copy(screen, 0, 0, screen.width, screen.height, 0, 0, screen.width, screen.height);
     }
@@ -147,6 +160,8 @@ public class CheckerMove extends PGPixelPerfect {
             }
           }
         }
+
+        beats = inputManager.getBeats(beats, 0);
         for (int i = 0; i < 3; i++) {
           if (beats.isBeat(i)) {
             lastBeatsTime = time;
@@ -234,10 +249,11 @@ public class CheckerMove extends PGPixelPerfect {
     }
 
     pg.copy(screen,
-        screen.width - pg.width/2, 0, pg.width/2, pg.height,
-        0, 0, pg.width/2, pg.height);
-    pg.copy(screen,
-        0, 0, pg.width/2, pg.height,
-        pg.width/2, 0, pg.width/2, pg.height);
+        0, 0, pg.width, pg.height,
+        0, 0, pg.width, pg.height);
+    if (grayScaleToggle.isOn()) {
+      // TODO: Find a faster way to do this
+      pg.filter(THRESHOLD, BRIGHTNESS_THRESHOLD);
+    }
   }
 }

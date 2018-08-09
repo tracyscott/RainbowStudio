@@ -97,6 +97,14 @@ public final class ColorRainbow {
     private Integer nextColor;
 
     /**
+     * Creates a new instance. This calls {@link #NextRandomColor(int, float, Integer)} with
+     * a {@code null} start color.
+     */
+    public NextRandomColor(int bits, float changeTime) {
+      this(bits, changeTime, null);
+    }
+
+    /**
      * Creates a new instance. The number of bits specified in {@code bits} can
      * range from 1-8. It defaults to 8 if it's outside this range.
      *
@@ -139,16 +147,40 @@ public final class ColorRainbow {
     private final float changeTime;
     private final boolean random;
 
+    private final int startIndex;
+    private int resetIndex = -1;  // Use this after a reset
+
     private int nextIndex = -1;
 
     public NextArrayColor(int[] colors, float changeTime, boolean random) {
+      this(colors, changeTime, random, -1);
+    }
+
+    public NextArrayColor(int[] colors, float changeTime, boolean random, int startIndex) {
       this.colors = colors.clone();
       this.changeTime = changeTime;
       this.random = random;
+      if (0 <= startIndex && startIndex < colors.length) {
+        this.startIndex = startIndex;
+      } else {
+        this.startIndex = -1;
+      }
+    }
+
+    @Override
+    protected void reset() {
+      resetIndex = startIndex;
     }
 
     @Override
     protected ColorTransition get() {
+      if (resetIndex >= 0) {
+        int c = colors[resetIndex];
+        nextIndex = (resetIndex + 1)%colors.length;
+        resetIndex = -1;
+        return new ColorTransition(c, changeTime);
+      }
+
       int c;
       if (colors.length == 0) {
         c = BLACK;
