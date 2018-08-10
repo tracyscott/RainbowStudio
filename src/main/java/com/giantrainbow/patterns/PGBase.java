@@ -55,7 +55,9 @@ abstract class PGBase extends LXPattern {
 
   public void run(double deltaMs) {
     if (!setupCalled) {
+      pg.beginDraw();
       setup();
+      pg.endDraw();
       setupCalled = true;
     }
 
@@ -95,6 +97,9 @@ abstract class PGBase extends LXPattern {
    * Called once before all the draw calls, similar to how a Processing sketch has a setup()
    * call. onActive()/onInactive() call timings appear not to be able to be treated the same
    * as conceptual setup() and tearDown() calls.
+   * <p>
+   * Calls to {@link PGraphics#beginDraw()} and {@link PGraphics#endDraw()} will surround a call
+   * to this method.</p>
    */
   protected void setup() {
   }
