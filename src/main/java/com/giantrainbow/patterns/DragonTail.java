@@ -36,13 +36,11 @@ public class DragonTail extends PGPixelPerfect {
   }
 
   @Override
-  public void onActive() {
+  public void setup() {
     fpsKnob.setValue(GLOBAL_FRAME_RATE);
 
     //    size(500, 300);
-    pg.beginDraw();
     pg.colorMode(HSB, 360, 100, 100);
-    pg.endDraw();
 
     for (int i = 0; i < num; i++) {
       startX[i] = step * (i + 1);

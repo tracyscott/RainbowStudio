@@ -83,11 +83,12 @@ public class CheckerMove extends PGPixelPerfect {
 
   @Override
   public void onActive() {
-    fpsKnob.setValue(GLOBAL_FRAME_RATE);
+    pg.noSmooth();  // Needs to be called outside beginDraw()/endDraw()
+  }
 
-    pg.beginDraw();
-    pg.noSmooth();
-    pg.endDraw();
+  @Override
+  public void setup() {
+    fpsKnob.setValue(GLOBAL_FRAME_RATE);
 
     squareSize = (pg.width + SQUARE_SIZE_DIVISOR - 1)/SQUARE_SIZE_DIVISOR;
     squaresW = (pg.width + squareSize - 1)/squareSize;
@@ -95,9 +96,9 @@ public class CheckerMove extends PGPixelPerfect {
     logger.info("squareSize=" + squareSize + " squares=(" + squaresW + ", " + squaresH + ")");
 
     screen = pApplet.createGraphics(squaresW*squareSize, squaresH*squareSize, P2D);
+    screen.noSmooth();
     screen.beginDraw();
     screen.noStroke();
-    screen.noSmooth();
     screen.endDraw();
 
     // Note that using an image makes the alpha get weird when copying between the graphics

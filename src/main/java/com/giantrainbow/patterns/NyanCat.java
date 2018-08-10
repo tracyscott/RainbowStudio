@@ -102,7 +102,7 @@ public class NyanCat extends PGPixelPerfect {
   }
 
   @Override
-  public void onActive() {
+  public void setup() {
     fpsKnob.setValue(GLOBAL_FRAME_RATE);
 
     // Create fresh stars
