@@ -22,6 +22,9 @@ abstract class PGBase extends LXPattern {
   protected int previousFrame = -1;
   protected double deltaDrawMs = 0.0;
 
+  /** Indicates whether {@link #setup()} has been called. */
+  private boolean setupCalled;
+
   /** For subclasses to use. It's better to have one source. */
   protected static final Random random = new Random();
 
@@ -51,6 +54,11 @@ abstract class PGBase extends LXPattern {
   }
 
   public void run(double deltaMs) {
+    if (!setupCalled) {
+      setup();
+      setupCalled = true;
+    }
+
     double fps = fpsKnob.getValue();
     currentFrame += (deltaMs / 1000.0) * fps;
     // We don't call draw() every frame so track the accumulated deltaMs for them.
@@ -82,6 +90,14 @@ abstract class PGBase extends LXPattern {
   // Responsible for calling RenderImageUtil.imageToPointsSemiCircle to
   // RenderImageUtil.imageToPointsPixelPerfect.
   protected abstract void imageToPoints();
+
+  /**
+   * Called once before all the draw calls, similar to how a Processing sketch has a setup()
+   * call. onActive()/onInactive() call timings appear not to be able to be treated the same
+   * as conceptual setup() and tearDown() calls.
+   */
+  protected void setup() {
+  }
 
   // Implement PGGraphics drawing code here.  PGTexture handles beginDraw()/endDraw();
   protected abstract void draw(double deltaDrawMs);
