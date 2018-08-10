@@ -35,11 +35,11 @@ public class Cylon extends PGPixelPerfect {
   private static final int SILVER = 0xffc0c0c0;
 
   private static final int INITIAL_PERIOD = 2000;
-  private final float BLOB_WIDTH = pg.width / 5.0f;
-  private final float BLOB_HEIGHT = pg.height * 0.35f;
+  private final float BLOB_WIDTH = pg.width * 0.2f;
+  private final float BLOB_HEIGHT = pg.height * 0.25f;
 
-  private final float HELMET_WIDTH = pg.height * 0.2f;
-  private final float HELMET_CORNER_RADIUS = HELMET_WIDTH * 2;
+  private final float HELMET_STROKE_WIDTH = pg.height * 0.3f;
+  private final float HELMET_CORNER_RADIUS = HELMET_STROKE_WIDTH * 2;
 
   private static final String SOUND_FILE = "sounds/cylon_eye.wav";
 
@@ -126,6 +126,7 @@ public class Cylon extends PGPixelPerfect {
     }
     float x = v - BLOB_WIDTH/2.0f;
     float y = (pg.height - BLOB_HEIGHT)/2.0f;
+    pg.strokeWeight(1.0f);
     for (int i = 0; i < BLOB_WIDTH; i++) {
       float theta = (float) i / (BLOB_WIDTH - 1);
       int red = (int) (sin(PI*theta) * 255.0f);
@@ -137,7 +138,7 @@ public class Cylon extends PGPixelPerfect {
     // Draw the helmet part
     pg.noFill();
     pg.stroke(SILVER);
-    pg.strokeWeight(HELMET_WIDTH);
+    pg.strokeWeight(HELMET_STROKE_WIDTH);
     pg.rect(0, 0, pg.width, pg.height, HELMET_CORNER_RADIUS);
   }
 
