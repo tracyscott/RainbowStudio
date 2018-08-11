@@ -78,9 +78,7 @@ public class LavaLamp extends PGPixelPerfect {
   }
 
   @Override
-  public void onInactive() {
-    super.onInactive();
-
+  public void tearDown() {
 //    ballImage = null;
     balls = null;
   }

@@ -116,9 +116,7 @@ public class CheckerMove extends PGPixelPerfect {
   }
 
   @Override
-  public void onInactive() {
-    super.onInactive();
-
+  public void tearDown() {
     screen.dispose();
     ((PGraphics) moveImage).dispose();
   }

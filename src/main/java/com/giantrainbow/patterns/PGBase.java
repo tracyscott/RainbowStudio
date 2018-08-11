@@ -2,14 +2,15 @@ package com.giantrainbow.patterns;
 
 import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
 import static com.giantrainbow.RainbowStudio.pApplet;
+import static processing.core.PConstants.P2D;
+import static processing.core.PConstants.P3D;
 
+import com.google.common.annotations.Beta;
 import heronarts.lx.LX;
 import heronarts.lx.LXPattern;
 import heronarts.lx.parameter.CompoundParameter;
 import java.util.Random;
 import processing.core.PGraphics;
-import static processing.core.PConstants.P2D;
-import static processing.core.PConstants.P3D;
 
 /** Abstract base class for all Processing PGraphics drawing and mapping to the Rainbow. */
 abstract class PGBase extends LXPattern {
@@ -58,10 +59,12 @@ abstract class PGBase extends LXPattern {
    * Subclasses <em>must</em> call {@code super.onInactive()}.
    */
   @Override
-  public void onInactive() {
+  public final void onInactive() {
     setupCalled = false;
+    tearDown();
   }
 
+  @Override
   public void run(double deltaMs) {
     if (!setupCalled) {
       pg.beginDraw();
@@ -111,6 +114,14 @@ abstract class PGBase extends LXPattern {
    * to this method.</p>
    */
   protected void setup() {
+  }
+
+  /**
+   * Called when {@link #onInactive()} is called. That method has been made {@code final}
+   * so that it can guarantee {@link #setup()} is called. This may change in the future.
+   */
+  @Beta
+  protected void tearDown() {
   }
 
   // Implement PGGraphics drawing code here.  PGTexture handles beginDraw()/endDraw();
