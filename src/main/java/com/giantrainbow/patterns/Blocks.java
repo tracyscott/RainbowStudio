@@ -74,15 +74,13 @@ public class Blocks extends PGPixelPerfect {
   }
 
   @Override
-  public void onActive() {
+  public void setup() {
     // Default parameter setup
     fpsKnob.setValue(GLOBAL_FRAME_RATE);
 
     // Graphics context setup
-    pg.beginDraw();
     pg.colorMode(HSB, 1.0f);
     pg.textFont(font);
-    pg.endDraw();
   }
 
   @Override

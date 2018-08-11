@@ -77,15 +77,15 @@ public class FlamingoRace extends PGPixelPerfect {
     desertNight = PathUtils.loadSprite(SPRITE_DIR + "desertnightblurred.gif");
     desertSky = PathUtils.loadSprite(SPRITE_DIR + "cloudblurred.gif");
     effigyBrown = PathUtils.loadSprite(SPRITE_DIR + "EffigyBrown.gif");
-    currentPos2 = imageWidth;
+    currentPos2 = pg.width;
     waitingForRight1 = true;
     waitingForRight2 = true;
     currentFireworksFrame = -1;
     flameWidth = flame[0].width;
-    flamePositions[0] = ceil(imageWidth/2.0f * 0.33f - flameWidth/2.0f);
-    flamePositions[1] = ceil(imageWidth/2.0f * 0.67f - flameWidth/2.0f);
-    flamePositions[2] = ceil(imageWidth/2.0f + imageWidth/2.0f * 0.33f - flameWidth/2.0f);
-    flamePositions[3] = ceil(imageWidth/2.0f + imageWidth/2.0f * 0.66f - flameWidth/2.0f - 2);
+    flamePositions[0] = ceil(pg.width/2.0f * 0.33f - flameWidth/2.0f);
+    flamePositions[1] = ceil(pg.width/2.0f * 0.67f - flameWidth/2.0f);
+    flamePositions[2] = ceil(pg.width/2.0f + pg.width/2.0f * 0.33f - flameWidth/2.0f);
+    flamePositions[3] = ceil(pg.width/2.0f + pg.width/2.0f * 0.66f - flameWidth/2.0f - 2);
     addParameter(fireWidth);
     fireWidth.setValue(8);
     addParameter(jumpWait);
@@ -93,7 +93,7 @@ public class FlamingoRace extends PGPixelPerfect {
   }
 
   private void resetFlamingos() {
-    currentPos2 = imageWidth;
+    currentPos2 = pg.width;
     currentPos1 = 0;
   }
 
@@ -115,14 +115,14 @@ public class FlamingoRace extends PGPixelPerfect {
         effigy = effigyBrown;
       }
 
-      for (int i = 0; i < imageWidth/background.width; i++) {
+      for (int i = 0; i < pg.width/background.width; i++) {
         pg.image(background, i *background.width, 0);
       }
       pg.fill(255, 0, 0);
       if (framesUntilJump1 > 0)
         pg.rect(0,0, framesUntilJump1/2, 4);
       if (framesUntilJump2 > 0)
-        pg.rect(imageWidth - framesUntilJump2/2, 0, framesUntilJump/2, 4);
+        pg.rect(pg.width - framesUntilJump2/2, 0, framesUntilJump/2, 4);
 
       PImage frameImg1;
       PImage frameImg2;
@@ -172,13 +172,13 @@ public class FlamingoRace extends PGPixelPerfect {
         }
         currentPos2 -= xSpeed.getValue() * 0.65;
       }
-      pg.image(effigy[0], imageWidth/2.0f - effigy[0].width/2.0f, framesUntilStart);
+      pg.image(effigy[0], pg.width/2.0f - effigy[0].width/2.0f, framesUntilStart);
       if (!flamingo1Jump) {
         frameImg1 = flamingoWalk[(currentFrame1)%flamingoWalk.length];
       } else {
         frameImg1 = flamingoJump[(currentFrame1)%flamingoJump.length];
       }
-      if (currentPos1 > imageWidth / 2 - frameImg1.width) {
+      if (currentPos1 > pg.width / 2 - frameImg1.width) {
         currentFireworksFrame = 0;
         fireworksSequence = 3;
         fireworksSequenceLeft = true;
@@ -189,7 +189,7 @@ public class FlamingoRace extends PGPixelPerfect {
       } else {
         frameImg2 = flamingoJump[(currentFrame2)%flamingoJump.length];
       }
-      if (currentPos2 < imageWidth / 2 + frameImg2.width) {
+      if (currentPos2 < pg.width / 2 + frameImg2.width) {
         fireworksSequence = 3;
         fireworksSequenceLeft = false;
         currentFireworksFrame = 0;
@@ -207,17 +207,17 @@ public class FlamingoRace extends PGPixelPerfect {
           if (fireworksSequence == 3) {
             fireworksPos = 20;
           } else if (fireworksSequence == 2) {
-            fireworksPos = imageWidth/4 - fireworksImg.width/2;
+            fireworksPos = pg.width/4 - fireworksImg.width/2;
           } else if (fireworksSequence == 1) {
-            fireworksPos = imageWidth/2 - fireworksImg.width/2;
+            fireworksPos = pg.width/2 - fireworksImg.width/2;
           }
         } else {
           if (fireworksSequence == 3) {
-            fireworksPos = imageWidth - fireworksImg.width - 20;
+            fireworksPos = pg.width - fireworksImg.width - 20;
           } else if (fireworksSequence == 2) {
-            fireworksPos = imageWidth/2 + imageWidth/4 + fireworksImg.width/2;
+            fireworksPos = pg.width/2 + pg.width/4 + fireworksImg.width/2;
           } else if (fireworksSequence == 1) {
-            fireworksPos = imageWidth/2 - fireworksImg.width/2;
+            fireworksPos = pg.width/2 - fireworksImg.width/2;
           }
         }
 

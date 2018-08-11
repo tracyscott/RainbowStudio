@@ -51,7 +51,7 @@ public class LineDance extends PGPixelPerfect {
   }
 
   @Override
-  public void onActive() {
+  public void setup() {
     fpsKnob.setValue(GLOBAL_FRAME_RATE);
 
     // Reset
@@ -63,10 +63,8 @@ public class LineDance extends PGPixelPerfect {
     // Setup
     sample = new float[inputManager.getAudioSampleSize()];
 
-    pg.beginDraw();
     pg.colorMode(HSB, 255);
     pg.background(BLACK);
-    pg.endDraw();
   }
 
   @Override

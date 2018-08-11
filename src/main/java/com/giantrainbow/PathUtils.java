@@ -7,16 +7,19 @@ import static com.giantrainbow.RainbowStudio.pApplet;
 import static processing.core.PConstants.ARGB;
 
 import com.google.common.reflect.ClassPath;
-import gifAnimation.GifDecoder;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 import processing.core.PImage;
 
 /**
@@ -37,21 +40,29 @@ public class PathUtils {
 
     // gifAnimator isn't written well to handle exceptions properly :(
     try (InputStream in = pApplet.createInput(path)) {
-      GifDecoder d = new GifDecoder();
-      d.read(in);  // Boo, no exceptions :(
-
-      int n = d.getFrameCount();
-      for (int i = 0; i < n; i++) {
-        BufferedImage f = d.getFrame(i);
-        PImage img = pApplet.createImage(f.getWidth(), f.getHeight(), ARGB);
-        frames.add(img);
-        img.loadPixels();
-        System.arraycopy(
-            f.getRGB(0, 0, f.getWidth(), f.getHeight(), null, 0, f.getWidth()), 0,
-            img.pixels, 0,
-            f.getWidth() * f.getHeight());
+      if (in == null) {
+        return new PImage[0];
       }
-    } catch (IOException ex) {
+      Iterator<ImageReader> iter = ImageIO.getImageReadersByFormatName("gif");
+      if (!iter.hasNext()) {
+        return new PImage[0];
+      }
+      ImageReader r = iter.next();
+      try (ImageInputStream iis = ImageIO.createImageInputStream(in)) {
+        r.setInput(iis);
+        int count = r.getNumImages(true);
+        for (int i = 0; i < count; i++) {
+          BufferedImage img = r.read(i);
+          // NOTE: The PImage(java.awt.Image) constructor may not respect alpha
+          PImage pImg = pApplet.createImage(img.getWidth(), img.getHeight(), ARGB);
+          frames.add(pImg);
+          pImg.loadPixels();
+          img.getRGB(0, 0, img.getWidth(), img.getHeight(), pImg.pixels, 0, img.getWidth());
+          pImg.updatePixels();
+        }
+      }
+    } catch (IOException | RuntimeException ex) {
+      // There's a potential "ArrayIndexOutOfBoundsException: 4096" from ImageIO loading GIFs
       logger.log(Level.SEVERE, "Error loading sprite: " + path, ex);
     }
 

@@ -79,12 +79,10 @@ public class Moire extends PGPixelPerfect {
   }
 
   @Override
-  public void onActive() {
+  public void setup() {
     fpsKnob.setValue(GLOBAL_FRAME_RATE);
 
-    pg.beginDraw();
     pg.ellipseMode(RADIUS);
-    pg.endDraw();
 
     radiusInc = pg.width / RADIUS_PER_WIDTH;
     points.clear();
@@ -106,7 +104,7 @@ public class Moire extends PGPixelPerfect {
   }
 
   @Override
-  public void onInactive() {
+  public void tearDown() {
     points.clear();
   }
 

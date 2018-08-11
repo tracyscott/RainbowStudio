@@ -61,7 +61,7 @@ public class AnimatedSpritePP extends PGPixelPerfect implements CustomDeviceUI {
     try {
       PImage frameImg = images[((int)currentFrame)%images.length];
       if (currentPos < 0 - frameImg.width) {
-        currentPos = imageWidth + frameImg.width + 1;
+        currentPos = pg.width + frameImg.width + 1;
       }
       pg.image(frameImg, currentPos, 0);
       currentPos -= xSpeed.getValue();
@@ -82,7 +82,7 @@ public class AnimatedSpritePP extends PGPixelPerfect implements CustomDeviceUI {
 
     if (images.length > 0) {
       // Start off the screen to the right.
-      currentPos = imageWidth + images[0].width + 1;
+      currentPos = pg.width + images[0].width + 1;
     }
   }
 

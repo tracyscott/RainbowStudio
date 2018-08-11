@@ -125,12 +125,10 @@ public class CrowdHands extends PGPixelPerfect {
   }
 
   @Override
-  public void onActive() {
+  public void setup() {
     fpsKnob.setValue(GLOBAL_FRAME_RATE);
 
-    pg.beginDraw();
     pg.colorMode(HSB, 1.0f);
-    pg.endDraw();
 
     tau = inputManager.getAudioSampleSize() / inputManager.getAudioSampleRate() * 30;
     lastTime = 0L;

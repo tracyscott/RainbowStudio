@@ -4,16 +4,20 @@
 package com.giantrainbow.patterns;
 
 import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
+import static com.giantrainbow.RainbowStudio.pApplet;
 import static com.giantrainbow.colors.Colors.WHITE;
 import static processing.core.PApplet.map;
 import static processing.core.PApplet.max;
 import static processing.core.PConstants.P2D;
 
 import com.giantrainbow.PathUtils;
+import com.giantrainbow.UtilsForLX;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 import processing.core.PImage;
 
 // Useful links:
@@ -37,6 +41,8 @@ import processing.core.PImage;
  */
 @LXCategory(LXCategory.FORM)
 public class NyanCat extends PGPixelPerfect {
+  private static final Logger logger = Logger.getLogger(NyanCat.class.getName());
+
   private static final int BACKGROUND_COLOR = 0xff0f4d8f;
 
   private static final float FPS = 6;
@@ -58,6 +64,9 @@ public class NyanCat extends PGPixelPerfect {
       0xff6633ff,  // PURPLE
   };
 
+  private static final String SOUND_FILE = "sounds/nyancat.wav";
+  private static final String SPRITE_FILE = "images/nyancat.gif";
+
   private PImage[] catFrames;
   private int maxImgWidth;
   private List<Star> stars = new ArrayList<>();
@@ -69,10 +78,12 @@ public class NyanCat extends PGPixelPerfect {
 
   private long lastUpdateDelta;
 
+  private File audioFile;
+
   public NyanCat(LX lx) {
     super(lx, P2D);
 
-    catFrames = PathUtils.loadSprite("images/nyancat.gif");
+    catFrames = PathUtils.loadSprite(SPRITE_FILE);
     maxImgWidth = 0;
     int maxImgHeight = 0;
     for (PImage img : catFrames) {
@@ -83,28 +94,47 @@ public class NyanCat extends PGPixelPerfect {
 
     catX = -maxImgWidth;
     catY = (pg.height - maxImgHeight)/2;
+
+    // Write the audio to a temp file because LX's audio engine only works with File
+    audioFile = UtilsForLX.copyAudioForOutput(pApplet, SOUND_FILE, lx.engine.audio.output);
   }
 
   @Override
-  public void onActive() {
+  public void setup() {
     fpsKnob.setValue(GLOBAL_FRAME_RATE);
 
     // Create fresh stars
     stars.clear();
     int x = 0;
     while (x < pg.width) {
-      x += random.nextInt(maxImgWidth/2) + maxImgWidth/2;
+      x += random.nextInt(maxImgWidth*2/3) + maxImgWidth/3;
       int y = random.nextInt(pg.height);
       stars.add(new Star(x, y, random.nextFloat() < 0.1f));
     }
 
     // Reset the delta timer
     lastUpdateDelta = 0L;
+
+    // Start the audio
+    if (audioFile != null) {
+      logger.info("Starting audio: " + audioFile);
+      lx.engine.audio.output.file.setValue(audioFile.getName());
+      lx.engine.audio.output.looping.setValue(true);
+      lx.engine.audio.output.play.setValue(true);
+    }
   }
 
   @Override
-  public void onInactive() {
+  public void tearDown() {
     stars.clear();
+
+    // Stop the audio
+    if (audioFile != null) {
+      logger.info("Stopping audio: " + audioFile);
+      lx.engine.audio.output.play.setValue(false);
+      lx.engine.audio.output.file.setValue("");
+      lx.engine.audio.output.looping.setValue(false);
+    }
   }
 
   @Override

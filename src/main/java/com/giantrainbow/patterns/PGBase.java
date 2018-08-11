@@ -2,14 +2,15 @@ package com.giantrainbow.patterns;
 
 import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
 import static com.giantrainbow.RainbowStudio.pApplet;
+import static processing.core.PConstants.P2D;
+import static processing.core.PConstants.P3D;
 
+import com.google.common.annotations.Beta;
 import heronarts.lx.LX;
 import heronarts.lx.LXPattern;
 import heronarts.lx.parameter.CompoundParameter;
 import java.util.Random;
 import processing.core.PGraphics;
-import static processing.core.PConstants.P2D;
-import static processing.core.PConstants.P3D;
 
 /** Abstract base class for all Processing PGraphics drawing and mapping to the Rainbow. */
 abstract class PGBase extends LXPattern {
@@ -19,10 +20,12 @@ abstract class PGBase extends LXPattern {
 
   protected double currentFrame = 0.0;
   protected PGraphics pg;
-  protected int imageWidth;
-  protected int imageHeight;
   protected int previousFrame = -1;
   protected double deltaDrawMs = 0.0;
+
+  /** Indicates whether {@link #setup()} has been called. */
+  private boolean setupCalled;
+  // TODO: Fix this whole pattern lifecycle thing
 
   /** For subclasses to use. It's better to have one source. */
   protected static final Random random = new Random();
@@ -42,19 +45,34 @@ abstract class PGBase extends LXPattern {
 
   public PGBase(LX lx, int width, int height, String drawMode) {
     super(lx);
-    imageWidth = width;
-    imageHeight = height;
 
     if (P3D.equals(drawMode) || P2D.equals(drawMode)) {
-      pg = pApplet.createGraphics(imageWidth, imageHeight, drawMode);
+      pg = pApplet.createGraphics(width, height, drawMode);
     } else {
-      pg = pApplet.createGraphics(imageWidth, imageHeight);
+      pg = pApplet.createGraphics(width, height);
     }
 
     addParameter(fpsKnob);
   }
 
+  /**
+   * Subclasses <em>must</em> call {@code super.onInactive()}.
+   */
+  @Override
+  public final void onInactive() {
+    setupCalled = false;
+    tearDown();
+  }
+
+  @Override
   public void run(double deltaMs) {
+    if (!setupCalled) {
+      pg.beginDraw();
+      setup();
+      pg.endDraw();
+      setupCalled = true;
+    }
+
     double fps = fpsKnob.getValue();
     currentFrame += (deltaMs / 1000.0) * fps;
     // We don't call draw() every frame so track the accumulated deltaMs for them.
@@ -86,6 +104,25 @@ abstract class PGBase extends LXPattern {
   // Responsible for calling RenderImageUtil.imageToPointsSemiCircle to
   // RenderImageUtil.imageToPointsPixelPerfect.
   protected abstract void imageToPoints();
+
+  /**
+   * Called once before all the draw calls, similar to how a Processing sketch has a setup()
+   * call. onActive()/onInactive() call timings appear not to be able to be treated the same
+   * as conceptual setup() and tearDown() calls.
+   * <p>
+   * Calls to {@link PGraphics#beginDraw()} and {@link PGraphics#endDraw()} will surround a call
+   * to this method.</p>
+   */
+  protected void setup() {
+  }
+
+  /**
+   * Called when {@link #onInactive()} is called. That method has been made {@code final}
+   * so that it can guarantee {@link #setup()} is called. This may change in the future.
+   */
+  @Beta
+  protected void tearDown() {
+  }
 
   // Implement PGGraphics drawing code here.  PGTexture handles beginDraw()/endDraw();
   protected abstract void draw(double deltaDrawMs);

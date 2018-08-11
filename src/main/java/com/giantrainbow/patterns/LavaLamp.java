@@ -62,7 +62,7 @@ public class LavaLamp extends PGPixelPerfect {
   }
 
   @Override
-  public void onActive() {
+  public void setup() {
     fpsKnob.setValue(DEFAULT_FPS);
 
     // Parameters
@@ -71,16 +71,14 @@ public class LavaLamp extends PGPixelPerfect {
 
     balls = new float[N_BALLS][4];
 
-    pg.beginDraw();
     generateCircleImage();
-    pg.endDraw();
     generateBalls();
 
     rainbow.reset(DEFAULT_FPS);
   }
 
   @Override
-  public void onInactive() {
+  public void tearDown() {
 //    ballImage = null;
     balls = null;
   }

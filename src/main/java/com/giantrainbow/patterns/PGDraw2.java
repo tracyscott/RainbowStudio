@@ -21,10 +21,10 @@ public class PGDraw2 extends PGTexture {
     pg.background(0);
     pg.strokeWeight(10.0f);
     pg.stroke(255);
-    pg.translate(imageWidth/2.0f, imageHeight/2.0f);
+    pg.translate(pg.width/2.0f, pg.height/2.0f);
     pg.pushMatrix();
     pg.rotate(angle);
-    pg.line(-imageWidth/2.0f + 10, -imageHeight/2.0f + 10, imageWidth/2.0f - 10, imageHeight/2.0f - 10);
+    pg.line(-pg.width/2.0f + 10, -pg.height/2.0f + 10, pg.width/2.0f - 10, pg.height/2.0f - 10);
     pg.popMatrix();
   }
 }
