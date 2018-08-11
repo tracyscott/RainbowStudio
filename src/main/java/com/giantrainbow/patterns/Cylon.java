@@ -102,7 +102,7 @@ public class Cylon extends PGPixelPerfect {
     if (audioFile != null) {
       logger.info("Stopping audio: " + audioFile);
       lx.engine.audio.output.play.setValue(false);
-      lx.engine.audio.output.file.setValue(null);
+      lx.engine.audio.output.file.setValue("");
       lx.engine.audio.output.looping.setValue(false);
     }
   }
