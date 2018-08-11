@@ -79,6 +79,8 @@ public class LavaLamp extends PGPixelPerfect {
 
   @Override
   public void onInactive() {
+    super.onInactive();
+
 //    ballImage = null;
     balls = null;
   }

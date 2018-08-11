@@ -53,6 +53,14 @@ abstract class PGBase extends LXPattern {
     addParameter(fpsKnob);
   }
 
+  /**
+   * Subclasses <em>must</em> call {@code super.onInactive()}.
+   */
+  @Override
+  public void onInactive() {
+    setupCalled = false;
+  }
+
   public void run(double deltaMs) {
     if (!setupCalled) {
       pg.beginDraw();

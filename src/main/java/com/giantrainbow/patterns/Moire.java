@@ -107,6 +107,8 @@ public class Moire extends PGPixelPerfect {
 
   @Override
   public void onInactive() {
+    super.onInactive();
+
     points.clear();
   }
 

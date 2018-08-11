@@ -104,6 +104,8 @@ public class Cylon extends PGPixelPerfect {
 
   @Override
   public void onInactive() {
+    super.onInactive();
+
     // Stop the audio
     if (audioFile != null) {
       logger.info("Stopping audio: " + audioFile);

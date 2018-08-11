@@ -132,6 +132,8 @@ public class NyanCat extends PGPixelPerfect {
 
   @Override
   public void onInactive() {
+    super.onInactive();
+
     stars.clear();
 
     // Stop the audio
