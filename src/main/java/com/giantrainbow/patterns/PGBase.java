@@ -24,6 +24,7 @@ abstract class PGBase extends LXPattern {
 
   /** Indicates whether {@link #setup()} has been called. */
   private boolean setupCalled;
+  // TODO: Fix this whole pattern lifecycle thing
 
   /** For subclasses to use. It's better to have one source. */
   protected static final Random random = new Random();
