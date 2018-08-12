@@ -19,8 +19,6 @@ import processing.core.PConstants;
 @LXCategory(LXCategory.FORM)
 public class ShaneBow extends PGPixelPerfect {
 
-  public final LX lx;
-
   public final CompoundParameter xRateParam = new CompoundParameter("xRate", 0, 2, 10);
   public final CompoundParameter xStartParam = new CompoundParameter("xStart", 1, 1, pg.width + 1);
   public final BooleanParameter clockwiseParam = new BooleanParameter("clockwise", true);
@@ -29,8 +27,7 @@ public class ShaneBow extends PGPixelPerfect {
   public final BooleanParameter blockExpandingParam = new BooleanParameter("blockExp", true);
 
   public ShaneBow(LX lx) {
-    super(lx, "");
-    this.lx = lx;
+    super(lx, null);
     fpsKnob.setValue(30f);
     removeParameter(fpsKnob);
     addParameter(xRateParam);

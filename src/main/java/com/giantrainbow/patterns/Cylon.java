@@ -4,12 +4,12 @@
 package com.giantrainbow.patterns;
 
 import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
-import static com.giantrainbow.RainbowStudio.pApplet;
 import static com.giantrainbow.colors.Colors.BLACK;
 import static processing.core.PApplet.sin;
 import static processing.core.PConstants.P2D;
 import static processing.core.PConstants.PI;
 
+import com.giantrainbow.RainbowStudio;
 import com.giantrainbow.UtilsForLX;
 import com.giantrainbow.colors.Colors;
 import heronarts.lx.LX;
@@ -80,7 +80,7 @@ public class Cylon extends PGPixelPerfect {
     addParameter(speedKnob);
 
     // Write the audio to a temp file because LX's audio engine only works with File
-    audioFile = UtilsForLX.copyAudioForOutput(pApplet, SOUND_FILE, lx.engine.audio.output);
+    audioFile = UtilsForLX.copyAudioForOutput(RainbowStudio.pApplet, SOUND_FILE, lx.engine.audio.output);
   }
 
   @Override

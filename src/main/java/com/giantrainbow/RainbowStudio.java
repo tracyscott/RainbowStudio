@@ -75,9 +75,11 @@ public class RainbowStudio extends PApplet {
   // Reference to top-level LX instance
   private heronarts.lx.studio.LXStudio lx;
 
+  public static PApplet pApplet;
+
   public static final boolean disableOutputOnStart = true;
   public static final int GLOBAL_FRAME_RATE = 60;
-  public static final boolean enableArtNet = true;
+  public static final boolean enableArtNet = false;
   public static final int ARTNET_PORT = 6454;
   public static final String LED_CONTROLLER_IP = "192.168.2.134";
 
@@ -91,10 +93,6 @@ public class RainbowStudio extends PApplet {
   private static final int RAINBOW_START_PANEL = 7;
   private static final int RAINBOW_END_PANEL = 8;
   private static final int MODEL_TYPE = FULL_RAINBOW; // RAINBOW_PANEL, RAINBOW_PANEL_4 or FULL_RAINBOW
-
-  // Used for PixelFlow.  Needs a reference to pApplet for setting up
-  // OpenGL Context.
-  public static PApplet pApplet;
 
   // This is a dumb way to do this, but store some project-common things here
   public static InputManager inputManager;
@@ -118,6 +116,7 @@ public class RainbowStudio extends PApplet {
    * @param lx the LX environment
    */
   private void registerAll(LXStudio lx) {
+    //lx.registerPattern(com.giantrainbow.patterns.ShaderToy.class);
     List<Class<? extends LXPattern>> patterns = lx.getRegisteredPatterns();
     List<Class<? extends LXEffect>> effects = lx.getRegisteredEffects();
     final String parentPackage = getClass().getPackage().getName();
@@ -155,8 +154,8 @@ public class RainbowStudio extends PApplet {
   @Override
   public void setup() {
     // Processing setup, constructs the window and the LX instance
-    pApplet = this;
     frameRate(GLOBAL_FRAME_RATE);
+    pApplet = this;
 
     LXModel model = buildModel(MODEL_TYPE);
     logger.info("Current renderer:" + sketchRenderer());
@@ -320,7 +319,7 @@ public class RainbowStudio extends PApplet {
 
     private static final String KEY_STDMODE_TIME = "stdModeTime";
     private static final String KEY_STDMODE_FADETIME = "stdModeFadeTime";
-    
+
     private static final String KEY_AUDIOMONITOR_MINTHR = "minThr";
     private static final String KEY_AUDIOMONITOR_AVGTS = "avgTs";
     private static final String KEY_AUDIOMONITOR_QUIETT = "quietT";

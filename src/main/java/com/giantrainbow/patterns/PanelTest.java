@@ -18,7 +18,7 @@ public class PanelTest extends PGPixelPerfect {
   private long currentPanelTestFrame;
 
   public PanelTest(LX lx) {
-    super(lx, "");
+    super(lx, null);
     curBlockPosX = 0;
     curBlockPosY = 0;
     curBlockPanel = 0;

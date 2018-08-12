@@ -3,7 +3,6 @@
  */
 package com.giantrainbow;
 
-import static com.giantrainbow.RainbowStudio.pApplet;
 import static processing.core.PConstants.ARGB;
 
 import com.google.common.reflect.ClassPath;
@@ -20,6 +19,7 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
+import processing.core.PApplet;
 import processing.core.PImage;
 
 /**
@@ -35,11 +35,11 @@ public class PathUtils {
    *
    * @return the sprite's sequence of images.
    */
-  public static PImage[] loadSprite(String path) {
+  public static PImage[] loadSprite(PApplet applet, String path) {
     ArrayList<PImage> frames = new ArrayList<>();
 
     // gifAnimator isn't written well to handle exceptions properly :(
-    try (InputStream in = pApplet.createInput(path)) {
+    try (InputStream in = applet.createInput(path)) {
       if (in == null) {
         return new PImage[0];
       }
@@ -54,7 +54,7 @@ public class PathUtils {
         for (int i = 0; i < count; i++) {
           BufferedImage img = r.read(i);
           // NOTE: The PImage(java.awt.Image) constructor may not respect alpha
-          PImage pImg = pApplet.createImage(img.getWidth(), img.getHeight(), ARGB);
+          PImage pImg = applet.createImage(img.getWidth(), img.getHeight(), ARGB);
           frames.add(pImg);
           pImg.loadPixels();
           img.getRGB(0, 0, img.getWidth(), img.getHeight(), pImg.pixels, 0, img.getWidth());

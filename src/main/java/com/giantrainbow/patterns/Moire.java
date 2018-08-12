@@ -6,13 +6,13 @@ package com.giantrainbow.patterns;
 
 import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
 import static com.giantrainbow.RainbowStudio.inputManager;
-import static com.giantrainbow.RainbowStudio.pApplet;
 import static com.giantrainbow.colors.Colors.BLACK;
 import static processing.core.PApplet.map;
 import static processing.core.PApplet.sqrt;
 import static processing.core.PConstants.P2D;
 import static processing.core.PConstants.RADIUS;
 
+import com.giantrainbow.RainbowStudio;
 import com.giantrainbow.colors.ColorRainbow;
 import com.giantrainbow.colors.Colors;
 import com.giantrainbow.input.InputManager;
@@ -145,7 +145,7 @@ public class Moire extends PGPixelPerfect {
     private LowPassFilter filter;  // For filtering radius decay
 
     Point() {
-      radiusInc = Moire.this.radiusInc * pApplet.random(0.5f, 0.8f);
+      radiusInc = Moire.this.radiusInc * RainbowStudio.pApplet.random(0.5f, 0.8f);
       noiseInc = 0.07f / fpsKnob.getValuef();
       fpsKnob.addListener(lxParameter -> noiseInc = 0.07f / lxParameter.getValuef());
 
@@ -157,10 +157,10 @@ public class Moire extends PGPixelPerfect {
     void drawCircles(float beatLevel, float dt) {
       noiseX += noiseInc;
       noiseY += noiseInc;
-      pApplet.noiseSeed(seed);
+      RainbowStudio.pApplet.noiseSeed(seed);
 
-      float x = map(pApplet.noise(noiseX, 0), 0.0f, 1.0f, -radiusInc, pg.width + radiusInc);
-      float y = map(pApplet.noise(0, noiseY), 0.0f, 1.0f, -pg.height, pg.height + pg.height);
+      float x = map(RainbowStudio.pApplet.noise(noiseX, 0), 0.0f, 1.0f, -radiusInc, pg.width + radiusInc);
+      float y = map(RainbowStudio.pApplet.noise(0, noiseY), 0.0f, 1.0f, -pg.height, pg.height + pg.height);
       float maxRadius = 2.0f*sqrt(pg.width*pg.width + pg.height*pg.height);
       float radius = 0.0f;
       beatLevel = filter.next(beatLevel, dt);

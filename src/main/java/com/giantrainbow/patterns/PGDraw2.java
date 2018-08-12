@@ -11,6 +11,7 @@ import heronarts.lx.LXCategory;
 @LXCategory(LXCategory.FORM)
 public class PGDraw2 extends PGTexture {
   float angle = 0.0f;
+
   public PGDraw2(LX lx) {
     super(lx, P2D);
   }
