@@ -17,6 +17,9 @@ import java.util.logging.Logger;
 
 import static processing.core.PApplet.ceil;
 
+/**
+ * Configure ArtNet Datagram outputs.
+ */
 public class Output {
   private static final Logger logger = Logger.getLogger(Output.class.getName());
 
@@ -25,9 +28,18 @@ public class Output {
    * issues/mistakes.  There are 2 Pixlite LongRange MKII's per side.  The first
    * Pixlite drives 16 panels with 450 leds each, 7200 leds.  The second drives 12 panels with
    * 450 leds each, 5400 leds.
-   *
+   * <p></p>
    * Includes support for start/end panels.  Reference:
    * https://www.notion.so/rainbowbridge/End-panel-LED-routing-and-SW-mapping-848d7fa30de744fa94bcc199ba110a2d
+   * <p></p>
+   * For a single panel, START_PANEL test, use modelType= RAINBOW_START_PANEL.
+   * For a single panel, END_PANEL test, use modelType= RAINBOW_END_PANEL.  Also, if using the
+   * @see com.giantrainbow.patterns.PanelWire pattern, enable the 'end' toggle so that it
+   * doesn't default to the start panel because their is a single panel in the 3D model.
+   *
+   * @param lx LX Engine
+   * @param startPanel Include special output configuration for a panel type Variant E.
+   * @param endPanel Include special output configuration for a panel type Variant H.
    */
   public static void configureOutputMultiPanel(LX lx, boolean startPanel, boolean endPanel) {
     // Config for panel size, number of panels, number of universes per panel, number of led controllers
@@ -93,10 +105,13 @@ public class Output {
       // Start/End panels have fewer leds.  See Notion page referenced at top of method.
       // First 300 leds are standard.  The 7th string is 50 pixels with the last 2 pixels unused.
       // The 8th string is only 34 leds.
+
+      /*
       if (startPanel && currentLogicalPanel == 0)
         pointsPerThisPanel = 300 + 50 + 34;
       if (endPanel && currentLogicalPanel == numPanels - 1)
         pointsPerThisPanel = 300 + 50 + 34;
+      */
 
       for (int wireLedPos = 0; wireLedPos < pointsPerThisPanel; wireLedPos++) {
         int colNumFromLeft = -1;
@@ -111,7 +126,7 @@ public class Output {
           // First 300 leds (6 strands are wired normal but mirrored in X dimension, start at bottom right on front
           if (wireLedPos < 300) {
             colNumFromRight = wireLedPos / pointsHighPerPanel;
-            colNumFromLeft = maxColNumPerPanel - (colNumFromRight + 1);
+            colNumFromLeft = maxColNumPerPanel - colNumFromRight;
             if (colNumFromRight % 2 == 0)
               rowNumFromBottom = wireLedPos % pointsHighPerPanel;
             else
@@ -151,7 +166,7 @@ public class Output {
                 rowNumFromBottom = string8StartRow + string8WirePos;
               } else if (string8WirePos >= 16 && string8WirePos < 26) {
                 colNumFromLeft = 1;
-                rowNumFromBottom = string8StartRow2 - 16 + string8WirePos;
+                rowNumFromBottom = (pointsHighPerPanel-1) - (string8WirePos - 16);
               } else if (string8WirePos >= 26 && string8WirePos < 30) {
                 colNumFromLeft = -1; // Sentinel to mark unused leds in the wires.
               } else if (string8WirePos >= 30 && string8WirePos < 34) {
@@ -162,13 +177,14 @@ public class Output {
               }
             }
           }
-        } else if (endPanel && currentLogicalPanel < numPanels - 1) {
+          //logger.info("colFromLeft: " + colNumFromLeft + " colFromRight:" + colNumFromRight);
+        } else if (endPanel && currentLogicalPanel <= numPanels - 1) {
           // Handle end panel, panel variant H special case.
           // The first 300 leds are the typical wiring.
           if (wireLedPos < 300) {
             colNumFromLeft = wireLedPos / pointsHighPerPanel;
             colNumFromRight = maxColNumPerPanel - colNumFromLeft;
-            if (colNumFromRight % 2 == 0)
+            if (colNumFromLeft % 2 == 0)
               rowNumFromBottom = wireLedPos % pointsHighPerPanel;
             else
               rowNumFromBottom = pointsHighPerPanel - wireLedPos % pointsHighPerPanel - 1;
@@ -207,7 +223,7 @@ public class Output {
                 rowNumFromBottom = string8StartRow + string8WirePos;
               } else if (string8WirePos >= 16 && string8WirePos < 26) {
                 colNumFromLeft = 13;
-                rowNumFromBottom = string8StartRow2 - 16 + string8WirePos;
+                rowNumFromBottom = (pointsHighPerPanel-1) - (string8WirePos - 16);
               } else if (string8WirePos >= 26 && string8WirePos < 30) {
                 colNumFromLeft = -1; // Sentinel to mark unused leds in the wires.
               } else if (string8WirePos >= 30 && string8WirePos < 34) {
@@ -218,10 +234,12 @@ public class Output {
               }
             }
           }
+          // logger.info("colFromLeft: " + colNumFromLeft + " colFromRight:" + colNumFromRight);
         } else {
           // Standard Panels
           colNumFromLeft = wireLedPos / pointsHighPerPanel;
           colNumFromRight = maxColNumPerPanel - colNumFromLeft;
+          //logger.info("colFromLeft: " + colNumFromLeft + " colFromRight:" + colNumFromRight);
 
           if (colNumFromRight % 2 == 0)
             rowNumFromBottom = wireLedPos % pointsHighPerPanel;

@@ -42,7 +42,7 @@ public class PanelWire extends LXPattern {
     int pointsWidePerPanel = 15;
     int pointsWide = ((RainbowBaseModel)lx.model).pointsWide;
     int pointsHighPerPanel = ((RainbowBaseModel)lx.model).pointsHigh;
-    int maxColNumPerPanel = pointsWidePerPanel;
+    int maxColNumPerPanel = pointsWidePerPanel - 1;
     int numPanels = ((RainbowBaseModel)lx.model).pointsWide / pointsWidePerPanel;
 
     double fps = fpsKnob.getValue();
@@ -58,6 +58,10 @@ public class PanelWire extends LXPattern {
     }
 
     for (int panelNum = 0; panelNum < numPanels; panelNum++) {
+      int pointsPerPanel = pointsWidePerPanel * pointsHighPerPanel;
+      if (panelNum == 0 || panelNum == numPanels - 1) {
+        pointsPerPanel = 300 + 50 + 34;
+      }
       for (int wireLedPos = 0; wireLedPos < pointsWidePerPanel * pointsHighPerPanel; wireLedPos++) {
         int colNumFromLeft = -1;
         int colNumFromRight;
@@ -71,8 +75,8 @@ public class PanelWire extends LXPattern {
           // First 300 leds (6 strands are wired normal but mirrored in X dimension, start at bottom right on front
           if (wireLedPos < 300) {
             colNumFromRight = wireLedPos / pointsHighPerPanel;
-            colNumFromLeft = maxColNumPerPanel - (colNumFromRight + 1);
-            if (colNumFromRight % 2 == 0)
+            colNumFromLeft = maxColNumPerPanel - colNumFromRight;
+            if (colNumFromLeft % 2 == 0)
               rowNumFromBottom = wireLedPos % pointsHighPerPanel;
             else
               rowNumFromBottom = pointsHighPerPanel - wireLedPos % pointsHighPerPanel - 1;
@@ -111,7 +115,7 @@ public class PanelWire extends LXPattern {
                 rowNumFromBottom = string8StartRow + string8WirePos;
               } else if (string8WirePos >= 16 && string8WirePos < 26) {
                 colNumFromLeft = 1;
-                rowNumFromBottom = string8StartRow2 - 16 + string8WirePos;
+                rowNumFromBottom = (pointsHighPerPanel-1) - (string8WirePos - 16);
               } else if (string8WirePos >= 26 && string8WirePos < 30) {
                 colNumFromLeft = -1; // Sentinel to mark unused leds in the wires.
               } else if (string8WirePos >= 30 && string8WirePos < 34) {
@@ -130,7 +134,7 @@ public class PanelWire extends LXPattern {
           if (wireLedPos < 300) {
             colNumFromLeft = wireLedPos / pointsHighPerPanel;
             colNumFromRight = maxColNumPerPanel - colNumFromLeft;
-            if (colNumFromRight % 2 == 0)
+            if (colNumFromLeft % 2 == 0)
               rowNumFromBottom = wireLedPos % pointsHighPerPanel;
             else
               rowNumFromBottom = pointsHighPerPanel - wireLedPos % pointsHighPerPanel - 1;
@@ -169,7 +173,7 @@ public class PanelWire extends LXPattern {
                 rowNumFromBottom = string8StartRow + string8WirePos;
               } else if (string8WirePos >= 16 && string8WirePos < 26) {
                 colNumFromLeft = 13;
-                rowNumFromBottom = string8StartRow2 - 16 + string8WirePos;
+                rowNumFromBottom = (pointsHighPerPanel-1) - (string8WirePos - 16);
               } else if (string8WirePos >= 26 && string8WirePos < 30) {
                 colNumFromLeft = -1; // Sentinel to mark unused leds in the wires.
               } else if (string8WirePos >= 30 && string8WirePos < 34) {
