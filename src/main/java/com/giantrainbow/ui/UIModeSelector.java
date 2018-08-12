@@ -1,5 +1,6 @@
 package com.giantrainbow.ui;
 
+import com.giantrainbow.UtilsForLX;
 import heronarts.lx.LX;
 import heronarts.lx.LXChannel;
 import heronarts.lx.LXChannelBus;
@@ -63,7 +64,6 @@ public class UIModeSelector extends UICollapsibleSection {
           instrumentMode.setActive(false);
           // Enable AUDIO channel
           setAudioChannelEnabled(true);
-          //audioModeP.setValue(true);
         } else {
           // Disable AUDIO channel
           setAudioChannelEnabled(false);
@@ -85,7 +85,7 @@ public class UIModeSelector extends UICollapsibleSection {
           // Build our list of Standard Channels based on our names.  Putting it here allows it to
           // work after loading a new file (versus startup initialization).
           for (String channelName: standardModeChannelNames) {
-            LXChannelBus ch = getChannelByLabel(lx, channelName);
+            LXChannelBus ch = UtilsForLX.getChannelByLabel(lx, channelName);
             standardModeChannels.add(ch);
           }
           setStandardChannelsEnabled(true);
@@ -174,7 +174,7 @@ public class UIModeSelector extends UICollapsibleSection {
   // Not renamable, so we will just need to hard code it.
 
   public void setAudioChannelEnabled(boolean on) {
-    LXChannelBus audioChannel = getChannelByLabel(lx, "AUDIO");
+    LXChannelBus audioChannel = UtilsForLX.getChannelByLabel(lx, "AUDIO");
     if (audioChannel != null) audioChannel.enabled.setValue(on);
   }
 
@@ -208,23 +208,15 @@ public class UIModeSelector extends UICollapsibleSection {
   }
 
   public void setInteractiveChannelEnabled(boolean on) {
-    LXChannelBus channel = getChannelByLabel(lx, "INTERACTIVE");
+    LXChannelBus channel = UtilsForLX.getChannelByLabel(lx, "INTERACTIVE");
     if (channel != null) channel.enabled.setValue(on);
   }
 
   public void setInstrumentChannelsEnabled(boolean on) {
-    LXChannelBus channel = getChannelByLabel(lx, "AUDIO");
+    LXChannelBus channel = UtilsForLX.getChannelByLabel(lx, "AUDIO");
     if (channel != null) channel.enabled.setValue(on);
-    channel = getChannelByLabel(lx, "MIDI");
+    channel = UtilsForLX.getChannelByLabel(lx, "MIDI");
     if (channel != null) channel.enabled.setValue(on);
-  }
-
-  public LXChannelBus getChannelByLabel(LX lx, String label) {
-    for (LXChannelBus channelBus : lx.engine.channels) {
-      if (label.equalsIgnoreCase(channelBus.getLabel()))
-        return channelBus;
-    }
-    return null;
   }
 
   public class StandardModeCycle implements LXLoopTask {
@@ -321,7 +313,8 @@ public class UIModeSelector extends UICollapsibleSection {
         UIModeSelector.this.standardMode.setActive(false);
         UIModeSelector.this.interactiveMode.setActive(false);
         UIModeSelector.this.instrumentMode.setActive(false);
-        UIModeSelector.this.setAudioChannelEnabled(true);
+        UIModeSelector.this.audioMode.setActive(true);
+        // UIModeSelector.this.setAudioChannelEnabled(true);
         audioMode = true;
         deltaLastModeSwap = 0.0;
       } else if (avgDb < UIAudioMonitorLevels.minThresholdP.getValue()

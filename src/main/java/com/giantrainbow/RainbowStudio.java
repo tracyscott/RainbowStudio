@@ -27,10 +27,7 @@ import com.giantrainbow.input.InputManager;
 import com.giantrainbow.model.RainbowBaseModel;
 import com.giantrainbow.model.RainbowModel3D;
 import com.giantrainbow.model.SimplePanel;
-import com.giantrainbow.ui.UIAudioMonitorLevels;
-import com.giantrainbow.ui.UIGammaSelector;
-import com.giantrainbow.ui.UIModeSelector;
-import com.giantrainbow.ui.UIPixliteConfig;
+import com.giantrainbow.ui.*;
 import com.google.common.reflect.ClassPath;
 import com.google.gson.JsonObject;
 import heronarts.lx.LX;
@@ -38,6 +35,7 @@ import heronarts.lx.LXComponent;
 import heronarts.lx.LXEffect;
 import heronarts.lx.LXPattern;
 import heronarts.lx.midi.LXMidiEngine;
+import heronarts.lx.midi.LXMidiInput;
 import heronarts.lx.midi.LXMidiOutput;
 import heronarts.lx.model.LXModel;
 import heronarts.lx.studio.LXStudio;
@@ -103,6 +101,7 @@ public class RainbowStudio extends PApplet {
   private static UIModeSelector modeSelector;
   private static UIAudioMonitorLevels audioMonitorLevels;
   private static UIPixliteConfig pixliteConfig;
+  public static UIMidiControl uiMidiControl;
 
   @Override
   public void settings() {
@@ -175,6 +174,8 @@ public class RainbowStudio extends PApplet {
         .setExpanded(false).addToContainer(lx.ui.leftPane.global);
     audioMonitorLevels = (UIAudioMonitorLevels) new UIAudioMonitorLevels(lx.ui).setExpanded(false).addToContainer(lx.ui.leftPane.global);
     pixliteConfig = (UIPixliteConfig) new UIPixliteConfig(lx.ui).setExpanded(false).addToContainer(lx.ui.leftPane.global);
+    uiMidiControl = (UIMidiControl) new UIMidiControl(lx.ui, lx, modeSelector).setExpanded(false).addToContainer(lx.ui.leftPane.global);
+    lx.engine.midi.addListener(uiMidiControl);
 
     if (MODEL_TYPE == RAINBOW_PANEL) {
       // Manually force the camera settings for a single panel.  A single panel is
@@ -401,7 +402,7 @@ public class RainbowStudio extends PApplet {
   }
 
   public void onUIReady(LXStudio lx, LXStudio.UI ui) {
-    // Add custom UI components here
+
   }
 
   public void draw() {
