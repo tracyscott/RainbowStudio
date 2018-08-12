@@ -6,6 +6,7 @@ import static processing.core.PApplet.cos;
 import static processing.core.PApplet.radians;
 import static processing.core.PApplet.sin;
 
+import com.giantrainbow.model.space.Space3D;
 import heronarts.lx.LX;
 import heronarts.lx.model.LXAbstractFixture;
 import heronarts.lx.model.LXPoint;
@@ -33,12 +34,14 @@ public class RainbowModel3D extends RainbowBaseModel {
   public RainbowModel3D(int numPanels) {
     super(new Fixture(numPanels));
     float arc = (numPanels * 15.0f - 1) * RainbowBaseModel.rainbowThetaInc;
-    this.thetaStart = 90.0f - arc/2.0f;
-    this.thetaFinish = 90.0f + arc/2.0f;
+    this.thetaStart = 90.0f - arc / 2.0f;
+    this.thetaFinish = 90.0f + arc / 2.0f;
     pointsWide = numPanels * 15;
     pointsHigh = 30;
 
     perimeter = new ArrayList<LXPoint>();
+
+    new Space3D();
 
     // Left edge & right perimeters
     double z = 0;
@@ -56,7 +59,7 @@ public class RainbowModel3D extends RainbowBaseModel {
       float angle = thetaStart + colNum * RainbowBaseModel.rainbowThetaInc;
 
       double br = innerRadius - radiusInc;
-      double tr = innerRadius + (LED_HEIGHT+1) * radiusInc;
+      double tr = innerRadius + (LED_HEIGHT + 1) * radiusInc;
 
       double bx = br * cos(radians(angle));
       double by = br * sin(radians(angle));
@@ -73,10 +76,10 @@ public class RainbowModel3D extends RainbowBaseModel {
     Fixture(int numPanels) {
       int columns = numPanels * 15;
       float arc = (numPanels * 15.0f - 1) * RainbowBaseModel.rainbowThetaInc;
-      float thetaStart = 90.0f - arc/2.0f;
-      float thetaFinish = 90.0f + arc/2.0f;
+      float thetaStart = 90.0f - arc / 2.0f;
+      float thetaFinish = 90.0f + arc / 2.0f;
       float z = 0;
-      float r = innerRadius;  // Feet
+      float r = innerRadius; // Feet
       int ledCount = 0;
       for (int rowNum = 0; rowNum < LED_HEIGHT; rowNum++) {
         for (int colNum = columns - 1; colNum >= 0; colNum--) {
@@ -86,7 +89,7 @@ public class RainbowModel3D extends RainbowBaseModel {
           addPoint(new LXPoint(x, y, z));
           ledCount++;
         }
-        r += radiusInc;  // Each strip is separated by 2.75 inches.  r is in units of feet.
+        r += radiusInc; // Each strip is separated by 2.75 inches.  r is in units of feet.
       }
       outerRadius = r;
       logger.info("thetaStart: " + thetaStart);
@@ -97,12 +100,12 @@ public class RainbowModel3D extends RainbowBaseModel {
   }
 
   /**
-   * Determine point to LED mapping.  This code is placed inside the model class because
-   * it is very tightly coupled to the model generation.  For now, we will just put 170 pixel
-   * chunks into each ArtNetDatagram, increasing the universe number each time.
-   * TODO(tracy): Fix this for final wiring.  Maybe it will be similar to RainbowPanel?
-   * TODO(tracy): It would be nice to be able to configure this in the UI.  We would need to
-   * call disable on the LXDatagramOutput, remove it, and then rebuild with the new IP/Port.
+   * Determine point to LED mapping. This code is placed inside the model class because it is very
+   * tightly coupled to the model generation. For now, we will just put 170 pixel chunks into each
+   * ArtNetDatagram, increasing the universe number each time. TODO(tracy): Fix this for final
+   * wiring. Maybe it will be similar to RainbowPanel? TODO(tracy): It would be nice to be able to
+   * configure this in the UI. We would need to call disable on the LXDatagramOutput, remove it, and
+   * then rebuild with the new IP/Port.
    */
   public static void configureOutput(LX lx) {
     List<ArtNetDatagram> datagrams = new ArrayList<ArtNetDatagram>();

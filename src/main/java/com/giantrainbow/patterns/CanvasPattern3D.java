@@ -24,7 +24,8 @@ abstract class CanvasPattern3D extends PGBase {
     canvas.buffer.copyInto(pg.pixels);
     pg.updatePixels();
 
-    canvas.dumpImage(); // @@@
+    // Note: to see the underlying buffer each frame, uncomment.
+    // canvas.dumpImage();
     canvas.render(colors);
   }
 
