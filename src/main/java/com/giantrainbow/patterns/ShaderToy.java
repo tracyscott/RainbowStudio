@@ -209,8 +209,8 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
     }
     toy.set_iMouse(knob1.getValuef(), knob2.getValuef(), knob3.getValuef(), knob4.getValuef());
     toy.apply(toyGraphics);
-//    toyGraphics.loadPixels();
-//    toyGraphics.updatePixels();
+    toyGraphics.loadPixels();
+    toyGraphics.updatePixels();
     pg.image(toyGraphics, 0, 0);
     texAudio.release();
   }
