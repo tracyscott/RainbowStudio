@@ -1,10 +1,11 @@
 package com.giantrainbow.patterns;
 
 import com.giantrainbow.PathUtils;
+import com.giantrainbow.RainbowStudio;
+import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.parameter.CompoundParameter;
 import heronarts.lx.parameter.StringParameter;
-import heronarts.p3lx.P3LX;
 import heronarts.p3lx.ui.CustomDeviceUI;
 import heronarts.p3lx.ui.UI;
 import heronarts.p3lx.ui.UI2dContainer;
@@ -36,7 +37,7 @@ public class AnimatedSpritePP extends PGPixelPerfect implements CustomDeviceUI {
   private PImage[] images;
   private int currentPos;
 
-  public AnimatedSpritePP(P3LX lx) {
+  public AnimatedSpritePP(LX lx) {
     super(lx, null);
     addParameter(xSpeed);
     xSpeed.setValue(5);
@@ -78,7 +79,7 @@ public class AnimatedSpritePP extends PGPixelPerfect implements CustomDeviceUI {
    * @param path the sprite's name, not including parent paths or the ".gif" suffix
    */
   private void loadSprite(String path) {
-    images = PathUtils.loadSprite(applet, SPRITE_DIR + path + ".gif");
+    images = PathUtils.loadSprite(RainbowStudio.pApplet, SPRITE_DIR + path + ".gif");
 
     if (images.length > 0) {
       // Start off the screen to the right.

@@ -3,7 +3,7 @@ package com.giantrainbow.patterns;
 import static processing.core.PConstants.P3D;
 
 import com.giantrainbow.canvas.Canvas;
-import heronarts.p3lx.P3LX;
+import heronarts.lx.LX;
 
 /**
  * CanvasPattern3D supports 3D-drawing into a linear array of pixels, then anti-aliasing into true
@@ -12,7 +12,7 @@ import heronarts.p3lx.P3LX;
 abstract class CanvasPattern3D extends PGBase {
   Canvas canvas;
 
-  public CanvasPattern3D(P3LX lx, Canvas canvas) {
+  public CanvasPattern3D(LX lx, Canvas canvas) {
     super(lx, canvas.width(), canvas.height(), P3D);
 
     this.canvas = canvas;

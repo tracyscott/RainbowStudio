@@ -5,9 +5,9 @@ import static processing.core.PConstants.P2D;
 import static processing.core.PConstants.RADIUS;
 
 import com.giantrainbow.model.RainbowBaseModel;
+import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.parameter.CompoundParameter;
-import heronarts.p3lx.P3LX;
 
 /**
  * A simple radial test.  It attempts to alternate one row of leds on and off.  Since
@@ -22,7 +22,7 @@ public class PGRadiusTest extends PGTexture {
       new CompoundParameter("thickness", 1.0, 10.0)
           .setDescription("Thickness of each band");
 
-  public PGRadiusTest(P3LX lx) {
+  public PGRadiusTest(LX lx) {
     super(lx, P2D);
     addParameter(thicknessKnob);
     thicknessKnob.setValue(1);

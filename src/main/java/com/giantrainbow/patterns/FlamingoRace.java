@@ -3,12 +3,15 @@ package com.giantrainbow.patterns;
 import static processing.core.PApplet.ceil;
 
 import com.giantrainbow.PathUtils;
+import com.giantrainbow.RainbowStudio;
+import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.midi.MidiNoteOn;
 import heronarts.lx.parameter.CompoundParameter;
 import heronarts.lx.parameter.DiscreteParameter;
-import heronarts.p3lx.P3LX;
 import java.util.logging.Logger;
+
+import processing.core.PApplet;
 import processing.core.PImage;
 
 @LXCategory(LXCategory.FORM)
@@ -65,10 +68,11 @@ public class FlamingoRace extends PGPixelPerfect {
 
   private static final String SPRITE_DIR = "spritepp/";
 
-  public FlamingoRace(P3LX lx) {
+  public FlamingoRace(LX lx) {
     super(lx, "");
     addParameter(xSpeed);
     xSpeed.setValue(5);
+    PApplet applet = RainbowStudio.pApplet;
     flamingoWalk = PathUtils.loadSprite(applet, SPRITE_DIR + "Ringo2.gif");
     flamingoJump = PathUtils.loadSprite(applet, SPRITE_DIR + "Jingo.gif");
     flame = PathUtils.loadSprite(applet, SPRITE_DIR + "Flame.gif");

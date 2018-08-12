@@ -1,11 +1,12 @@
 package com.giantrainbow.patterns;
 
 import com.giantrainbow.PathUtils;
+import com.giantrainbow.RainbowStudio;
+import heronarts.lx.LX;
+import heronarts.lx.LXPattern;
 import heronarts.lx.parameter.BooleanParameter;
 import heronarts.lx.parameter.CompoundParameter;
 import heronarts.lx.parameter.StringParameter;
-import heronarts.p3lx.P3LX;
-import heronarts.p3lx.P3LXPattern;
 import heronarts.p3lx.ui.CustomDeviceUI;
 import heronarts.p3lx.ui.UI;
 import heronarts.p3lx.ui.UI2dContainer;
@@ -24,7 +25,7 @@ import processing.core.PImage;
  * the larger texture with antialias sampling and the pixel perfect renderings
  * with direct 1:1 pixel mappings (with bend distortion in physical space).
  */
-abstract class RainbowGIFBase extends P3LXPattern implements CustomDeviceUI {
+abstract class RainbowGIFBase extends LXPattern implements CustomDeviceUI {
   public final CompoundParameter fpsKnob =
       new CompoundParameter("Fps", 1.0, 60.0)
           .setDescription("Controls the frames per second.");
@@ -46,7 +47,7 @@ abstract class RainbowGIFBase extends P3LXPattern implements CustomDeviceUI {
   protected String filesDir;  // Must end in a '/'
   boolean includeAntialias;
 
-  public RainbowGIFBase(P3LX lx, int imageWidth, int imageHeight, String dir,
+  public RainbowGIFBase(LX lx, int imageWidth, int imageHeight, String dir,
                         String defaultFile, boolean includeAntialias) {
     super(lx);
     this.imageWidth = imageWidth;
@@ -74,7 +75,7 @@ abstract class RainbowGIFBase extends P3LXPattern implements CustomDeviceUI {
    * @param gifname the sprite's name, not including parent paths or the ".gif" suffix
    */
   private void loadGif(String gifname) {
-    PImage[] newImages = PathUtils.loadSprite(applet, filesDir + gifname + ".gif");
+    PImage[] newImages = PathUtils.loadSprite(RainbowStudio.pApplet, filesDir + gifname + ".gif");
     for (PImage image : newImages) {
       image.resize(imageWidth, imageHeight);
     }

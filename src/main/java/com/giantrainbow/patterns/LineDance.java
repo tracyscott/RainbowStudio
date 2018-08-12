@@ -13,9 +13,9 @@ import static processing.core.PConstants.HSB;
 import static processing.core.PConstants.P2D;
 
 import com.giantrainbow.input.LowPassFilter;
+import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.parameter.CompoundParameter;
-import heronarts.p3lx.P3LX;
 
 /**
  * Draws the raw sound input.
@@ -44,7 +44,7 @@ public class LineDance extends PGPixelPerfect {
 
   private long lastTintDelta;
 
-  public LineDance(P3LX lx) {
+  public LineDance(LX lx) {
     super(lx, P2D);
 
     addParameter(blurKnob);

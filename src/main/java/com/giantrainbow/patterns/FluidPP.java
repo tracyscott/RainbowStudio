@@ -5,10 +5,11 @@ import static processing.core.PApplet.abs;
 import static processing.core.PApplet.sin;
 import static processing.core.PConstants.P2D;
 
+import com.giantrainbow.RainbowStudio;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.fluid.DwFluid2D;
+import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
-import heronarts.p3lx.P3LX;
 import java.util.logging.Logger;
 import processing.opengl.PGraphics2D;
 
@@ -90,10 +91,10 @@ public class FluidPP extends PGPixelPerfect {
   private boolean DISPLAY_FLUID_VECTORS      = false;
   private int     DISPLAY_fluid_texture_mode = 0;
 
-  public FluidPP(P3LX lx) {
+  public FluidPP(LX lx) {
     super(lx, "");
     fpsKnob.setValue(GLOBAL_FRAME_RATE);
-    DwPixelFlow context = new DwPixelFlow(applet);
+    DwPixelFlow context = new DwPixelFlow(RainbowStudio.pApplet);
     context.print();
     context.printGL();
     // fluid simulation
@@ -108,13 +109,13 @@ public class FluidPP extends PGPixelPerfect {
     MyFluidData cb_fluid_data = new MyFluidData();
     fluid.addCallback_FluiData(cb_fluid_data);
     // pgraphics for fluid
-    pg_fluid = (PGraphics2D) applet.createGraphics(pg.width, pg.height, P2D);
+    pg_fluid = (PGraphics2D) RainbowStudio.pApplet.createGraphics(pg.width, pg.height, P2D);
     pg_fluid.smooth(4);
     pg_fluid.beginDraw();
     pg_fluid.background(BACKGROUND_COLOR);
     pg_fluid.endDraw();
     // pgraphics for obstacles
-    pg_obstacles = (PGraphics2D) applet.createGraphics(pg.width, pg.height, P2D);
+    pg_obstacles = (PGraphics2D) RainbowStudio.pApplet.createGraphics(pg.width, pg.height, P2D);
     pg_obstacles.smooth(0);
     pg_obstacles.beginDraw();
     pg_obstacles.clear();

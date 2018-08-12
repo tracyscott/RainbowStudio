@@ -14,10 +14,11 @@ import static processing.core.PConstants.P2D;
 import static processing.core.PConstants.RGB;
 import static processing.core.PConstants.THRESHOLD;
 
+import com.giantrainbow.RainbowStudio;
 import com.giantrainbow.colors.ColorRainbow;
+import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.parameter.BooleanParameter;
-import heronarts.p3lx.P3LX;
 import processing.core.PImage;
 
 /**
@@ -48,7 +49,7 @@ public class LavaLamp extends PGPixelPerfect {
       new BooleanParameter("B & W", false)
           .setDescription("Toggles black-and-white-only mode");
 
-  public LavaLamp(P3LX lx) {
+  public LavaLamp(LX lx) {
     super(lx, P2D);
 
     fpsKnob.addListener(lxParameter -> {
@@ -133,8 +134,8 @@ public class LavaLamp extends PGPixelPerfect {
         ball[3] = -ball[3];
       }
 
-      ball[2] += applet.random(-0.1f, 0.1f);
-      ball[3] += applet.random(-0.1f, 0.1f);
+      ball[2] += RainbowStudio.pApplet.random(-0.1f, 0.1f);
+      ball[3] += RainbowStudio.pApplet.random(-0.1f, 0.1f);
       ball[2] = constrain(ball[2], -V_MAX, V_MAX);
       ball[3] = constrain(ball[3], -V_MAX, V_MAX);
 
@@ -144,7 +145,7 @@ public class LavaLamp extends PGPixelPerfect {
   }
 
   private void generateCircleImage() {
-    ballImage = applet.createImage(radius * 2, radius * 2, ARGB);
+    ballImage = RainbowStudio.pApplet.createImage(radius * 2, radius * 2, ARGB);
     for(int x = 0; x <= radius; x++) {
       for (int y = 0; y <= radius; y++) {
         float r2 = pow(x - radius, 2) + pow(y - radius, 2);
@@ -165,10 +166,10 @@ public class LavaLamp extends PGPixelPerfect {
 
   private void generateBalls() {
     for (float[] ball : balls) {
-      ball[0] = applet.random(radius, pg.width - radius);
-      ball[1] = applet.random(radius, pg.height - radius);
-      ball[2] = applet.random(-V_MAX, V_MAX);
-      ball[3] = applet.random(-V_MAX, V_MAX);
+      ball[0] = RainbowStudio.pApplet.random(radius, pg.width - radius);
+      ball[1] = RainbowStudio.pApplet.random(radius, pg.height - radius);
+      ball[2] = RainbowStudio.pApplet.random(-V_MAX, V_MAX);
+      ball[3] = RainbowStudio.pApplet.random(-V_MAX, V_MAX);
     }
   }
 }

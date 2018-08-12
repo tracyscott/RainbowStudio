@@ -5,10 +5,11 @@ import static com.giantrainbow.colors.Colors.rgb;
 import static processing.core.PConstants.PI;
 import static processing.core.PConstants.RGB;
 
+import com.giantrainbow.RainbowStudio;
 import com.giantrainbow.canvas.Canvas;
+import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.parameter.CompoundParameter;
-import heronarts.p3lx.P3LX;
 import java.util.Random;
 import processing.core.PImage;
 import processing.core.PVector;
@@ -19,7 +20,7 @@ public class SpinnyBoxes extends CanvasPattern3D {
   public final CompoundParameter speedKnob =
       new CompoundParameter("Speed", 1, 20).setDescription("Speed.");
 
-  public SpinnyBoxes(P3LX lx) {
+  public SpinnyBoxes(LX lx) {
     super(lx, new Canvas(lx.model));
     fpsKnob.setValue(60);
     speedKnob.setValue(1);
@@ -35,7 +36,7 @@ public class SpinnyBoxes extends CanvasPattern3D {
   }
 
   PImage makeTexture() {
-    PImage img = applet.createImage(canvas.width(), canvas.width(), RGB);
+    PImage img = RainbowStudio.pApplet.createImage(canvas.width(), canvas.width(), RGB);
 
     img.loadPixels();
     for (int i = 0; i < img.pixels.length; i++) {

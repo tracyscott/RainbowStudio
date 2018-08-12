@@ -9,11 +9,12 @@ import static processing.core.PApplet.sin;
 import static processing.core.PConstants.P2D;
 import static processing.core.PConstants.PI;
 
+import com.giantrainbow.RainbowStudio;
 import com.giantrainbow.UtilsForLX;
 import com.giantrainbow.colors.Colors;
+import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.parameter.CompoundParameter;
-import heronarts.p3lx.P3LX;
 import java.io.File;
 import java.util.logging.Logger;
 
@@ -54,7 +55,7 @@ public class Cylon extends PGPixelPerfect {
 
   private File audioFile;
 
-  public Cylon(P3LX lx) {
+  public Cylon(LX lx) {
     super(lx, P2D);
 
     // Initial period
@@ -79,7 +80,7 @@ public class Cylon extends PGPixelPerfect {
     addParameter(speedKnob);
 
     // Write the audio to a temp file because LX's audio engine only works with File
-    audioFile = UtilsForLX.copyAudioForOutput(applet, SOUND_FILE, lx.engine.audio.output);
+    audioFile = UtilsForLX.copyAudioForOutput(RainbowStudio.pApplet, SOUND_FILE, lx.engine.audio.output);
   }
 
   @Override

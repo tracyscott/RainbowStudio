@@ -4,15 +4,16 @@ import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
 import static processing.core.PConstants.P2D;
 import static processing.core.PConstants.P3D;
 
+import com.giantrainbow.RainbowStudio;
 import com.google.common.annotations.Beta;
+import heronarts.lx.LX;
+import heronarts.lx.LXPattern;
 import heronarts.lx.parameter.CompoundParameter;
-import heronarts.p3lx.P3LX;
-import heronarts.p3lx.P3LXPattern;
 import java.util.Random;
 import processing.core.PGraphics;
 
 /** Abstract base class for all Processing PGraphics drawing and mapping to the Rainbow. */
-abstract class PGBase extends P3LXPattern {
+abstract class PGBase extends LXPattern {
   public final CompoundParameter fpsKnob =
       new CompoundParameter("Fps", 1.0, GLOBAL_FRAME_RATE)
           .setDescription("Controls the frames per second.");
@@ -43,13 +44,13 @@ abstract class PGBase extends P3LXPattern {
   //              effort to do this anyway, in PGraphicsOpenGL.beginDraw() with the
   //              GL_THREAD_NOT_CURRENT message.
 
-  public PGBase(P3LX lx, int width, int height, String drawMode) {
+  public PGBase(LX lx, int width, int height, String drawMode) {
     super(lx);
 
     if (P3D.equals(drawMode) || P2D.equals(drawMode)) {
-      pg = applet.createGraphics(width, height, drawMode);
+      pg = RainbowStudio.pApplet.createGraphics(width, height, drawMode);
     } else {
-      pg = applet.createGraphics(width, height);
+      pg = RainbowStudio.pApplet.createGraphics(width, height);
     }
 
     addParameter(fpsKnob);

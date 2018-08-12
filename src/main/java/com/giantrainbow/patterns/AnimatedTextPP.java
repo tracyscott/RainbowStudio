@@ -3,10 +3,11 @@ package com.giantrainbow.patterns;
 import static processing.core.PApplet.ceil;
 import static processing.core.PApplet.round;
 
+import com.giantrainbow.RainbowStudio;
+import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.parameter.CompoundParameter;
 import heronarts.lx.parameter.StringParameter;
-import heronarts.p3lx.P3LX;
 import heronarts.p3lx.ui.CustomDeviceUI;
 import heronarts.p3lx.ui.UI;
 import heronarts.p3lx.ui.UI2dContainer;
@@ -49,7 +50,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   PFont font;
   int fontSize = 30;
 
-  public AnimatedTextPP(P3LX lx) {
+  public AnimatedTextPP(LX lx) {
     super(lx, "");
     addParameter(textKnob);
     addParameter(xSpeed);
@@ -57,7 +58,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     for (String fontName : fontNames) {
       logger.info("Font: " + fontName);
     }
-    font = applet.createFont("04b", fontSize, true);
+    font = RainbowStudio.pApplet.createFont("04b", fontSize, true);
     for (int i = 0; i < defaultTexts.length; i++) {
       textItems.add(new TextItem(defaultTexts[i]));
     }
@@ -67,7 +68,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   }
 
   public void redrawTextBuffer(int bufferWidth) {
-    textImage = applet.createGraphics(bufferWidth, 30);
+    textImage = RainbowStudio.pApplet.createGraphics(bufferWidth, 30);
     currentPos = pg.width + 1;
     lastPos = pg.width + 2;
     textImage.noSmooth();

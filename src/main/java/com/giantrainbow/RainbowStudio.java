@@ -75,6 +75,8 @@ public class RainbowStudio extends PApplet {
   // Reference to top-level LX instance
   private heronarts.lx.studio.LXStudio lx;
 
+  public static PApplet pApplet;
+
   public static final boolean disableOutputOnStart = true;
   public static final int GLOBAL_FRAME_RATE = 60;
   public static final boolean enableArtNet = true;
@@ -114,6 +116,7 @@ public class RainbowStudio extends PApplet {
    * @param lx the LX environment
    */
   private void registerAll(LXStudio lx) {
+    //lx.registerPattern(com.giantrainbow.patterns.ShaderToy.class);
     List<Class<? extends LXPattern>> patterns = lx.getRegisteredPatterns();
     List<Class<? extends LXEffect>> effects = lx.getRegisteredEffects();
     final String parentPackage = getClass().getPackage().getName();
@@ -152,6 +155,7 @@ public class RainbowStudio extends PApplet {
   public void setup() {
     // Processing setup, constructs the window and the LX instance
     frameRate(GLOBAL_FRAME_RATE);
+    pApplet = this;
 
     LXModel model = buildModel(MODEL_TYPE);
     logger.info("Current renderer:" + sketchRenderer());

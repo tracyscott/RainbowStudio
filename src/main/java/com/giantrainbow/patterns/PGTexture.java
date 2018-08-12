@@ -3,8 +3,8 @@ package com.giantrainbow.patterns;
 import static processing.core.PApplet.ceil;
 
 import com.giantrainbow.model.RainbowBaseModel;
+import heronarts.lx.LX;
 import heronarts.lx.parameter.BooleanParameter;
-import heronarts.p3lx.P3LX;
 
 /**
  * Abstract base class for Processing drawings when painting the
@@ -22,7 +22,7 @@ abstract class PGTexture extends PGBase {
       new BooleanParameter("antialias", true);
 
 
-  public PGTexture(P3LX lx, String drawMode) {
+  public PGTexture(LX lx, String drawMode) {
     super(lx,
         ceil(RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot * 2.0f),
         ceil(RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot),

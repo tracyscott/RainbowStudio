@@ -1,9 +1,9 @@
 package com.giantrainbow.patterns;
 
+import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.parameter.BooleanParameter;
 import heronarts.lx.parameter.CompoundParameter;
-import heronarts.p3lx.P3LX;
 import processing.core.PConstants;
 
 //TODO: Tie the xRate to the ambient noise?
@@ -26,7 +26,7 @@ public class ShaneBow extends PGPixelPerfect {
   public final CompoundParameter blockWidthParam = new CompoundParameter("blockWidth", 1, 1, pg.width + 1);
   public final BooleanParameter blockExpandingParam = new BooleanParameter("blockExp", true);
 
-  public ShaneBow(P3LX lx) {
+  public ShaneBow(LX lx) {
     super(lx, null);
     fpsKnob.setValue(30f);
     removeParameter(fpsKnob);

@@ -2,8 +2,8 @@ package com.giantrainbow.patterns;
 
 import static processing.core.PConstants.P2D;
 
+import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
-import heronarts.p3lx.P3LX;
 
 /**
  * PGDraw implementation by extending PGTexture.
@@ -12,7 +12,7 @@ import heronarts.p3lx.P3LX;
 public class PGDraw2 extends PGTexture {
   float angle = 0.0f;
 
-  public PGDraw2(P3LX lx) {
+  public PGDraw2(LX lx) {
     super(lx, P2D);
   }
 

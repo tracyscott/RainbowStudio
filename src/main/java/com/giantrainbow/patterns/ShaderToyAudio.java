@@ -3,13 +3,14 @@ package com.giantrainbow.patterns;
 import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
 import static processing.core.PConstants.P2D;
 
+import com.giantrainbow.RainbowStudio;
 import com.jogamp.opengl.GL2;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.dwgl.DwGLTexture;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwShadertoy;
+import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.audio.GraphicMeter;
-import heronarts.p3lx.P3LX;
 import java.nio.ByteBuffer;
 import processing.core.PGraphics;
 
@@ -19,13 +20,13 @@ public class ShaderToyAudio extends PGPixelPerfect {
   DwShadertoy toy;
   PGraphics toyGraphics;
 
-  public ShaderToyAudio(P3LX lx) {
+  public ShaderToyAudio(LX lx) {
     super(lx, null);
     fpsKnob.setValue(GLOBAL_FRAME_RATE);
-    context = new DwPixelFlow(applet);
+    context = new DwPixelFlow(RainbowStudio.pApplet);
     context.print();
     context.printGL();
-    toyGraphics = applet.createGraphics(pg.width, pg.height, P2D);
+    toyGraphics = RainbowStudio.pApplet.createGraphics(pg.width, pg.height, P2D);
     toy = new DwShadertoy(context, "data/audio.frag");
   }
 

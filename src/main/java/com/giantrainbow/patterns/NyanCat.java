@@ -10,9 +10,10 @@ import static processing.core.PApplet.max;
 import static processing.core.PConstants.P2D;
 
 import com.giantrainbow.PathUtils;
+import com.giantrainbow.RainbowStudio;
 import com.giantrainbow.UtilsForLX;
+import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
-import heronarts.p3lx.P3LX;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -79,10 +80,10 @@ public class NyanCat extends PGPixelPerfect {
 
   private File audioFile;
 
-  public NyanCat(P3LX lx) {
+  public NyanCat(LX lx) {
     super(lx, P2D);
 
-    catFrames = PathUtils.loadSprite(applet, SPRITE_FILE);
+    catFrames = PathUtils.loadSprite(RainbowStudio.pApplet, SPRITE_FILE);
     maxImgWidth = 0;
     int maxImgHeight = 0;
     for (PImage img : catFrames) {
@@ -95,7 +96,7 @@ public class NyanCat extends PGPixelPerfect {
     catY = (pg.height - maxImgHeight)/2;
 
     // Write the audio to a temp file because LX's audio engine only works with File
-    audioFile = UtilsForLX.copyAudioForOutput(applet, SOUND_FILE, lx.engine.audio.output);
+    audioFile = UtilsForLX.copyAudioForOutput(RainbowStudio.pApplet, SOUND_FILE, lx.engine.audio.output);
   }
 
   @Override
