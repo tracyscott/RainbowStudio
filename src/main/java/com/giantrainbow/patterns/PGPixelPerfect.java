@@ -1,7 +1,7 @@
 package com.giantrainbow.patterns;
 
 import com.giantrainbow.model.RainbowBaseModel;
-import heronarts.lx.LX;
+import heronarts.p3lx.P3LX;
 
 /**
  * Abstract base class for pixel perfect Processing drawings.  Use this
@@ -10,7 +10,7 @@ import heronarts.lx.LX;
  * the rainbow. Gets FPS knob from PGBase.
  */
 abstract class PGPixelPerfect extends PGBase {
-  public PGPixelPerfect(LX lx, String drawMode) {
+  public PGPixelPerfect(P3LX lx, String drawMode) {
     super(lx, ((RainbowBaseModel)lx.model).pointsWide,
       ((RainbowBaseModel)lx.model).pointsHigh,
       drawMode);

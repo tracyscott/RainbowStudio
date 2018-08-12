@@ -6,7 +6,6 @@ package com.giantrainbow.patterns;
 
 import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
 import static com.giantrainbow.RainbowStudio.inputManager;
-import static com.giantrainbow.RainbowStudio.pApplet;
 import static com.giantrainbow.colors.Colors.BLACK;
 import static processing.core.PApplet.map;
 import static processing.core.PApplet.sqrt;
@@ -17,9 +16,9 @@ import com.giantrainbow.colors.ColorRainbow;
 import com.giantrainbow.colors.Colors;
 import com.giantrainbow.input.InputManager;
 import com.giantrainbow.input.LowPassFilter;
-import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.parameter.BooleanParameter;
+import heronarts.p3lx.P3LX;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,7 +63,7 @@ public class Moire extends PGPixelPerfect {
       new BooleanParameter("Solid", false)
           .setDescription("Solid color or rainbow");
 
-  public Moire(LX lx) {
+  public Moire(P3LX lx) {
     super(lx, P2D);
 
     addParameter(solidToggle);
@@ -145,7 +144,7 @@ public class Moire extends PGPixelPerfect {
     private LowPassFilter filter;  // For filtering radius decay
 
     Point() {
-      radiusInc = Moire.this.radiusInc * pApplet.random(0.5f, 0.8f);
+      radiusInc = Moire.this.radiusInc * applet.random(0.5f, 0.8f);
       noiseInc = 0.07f / fpsKnob.getValuef();
       fpsKnob.addListener(lxParameter -> noiseInc = 0.07f / lxParameter.getValuef());
 
@@ -157,10 +156,10 @@ public class Moire extends PGPixelPerfect {
     void drawCircles(float beatLevel, float dt) {
       noiseX += noiseInc;
       noiseY += noiseInc;
-      pApplet.noiseSeed(seed);
+      applet.noiseSeed(seed);
 
-      float x = map(pApplet.noise(noiseX, 0), 0.0f, 1.0f, -radiusInc, pg.width + radiusInc);
-      float y = map(pApplet.noise(0, noiseY), 0.0f, 1.0f, -pg.height, pg.height + pg.height);
+      float x = map(applet.noise(noiseX, 0), 0.0f, 1.0f, -radiusInc, pg.width + radiusInc);
+      float y = map(applet.noise(0, noiseY), 0.0f, 1.0f, -pg.height, pg.height + pg.height);
       float maxRadius = 2.0f*sqrt(pg.width*pg.width + pg.height*pg.height);
       float radius = 0.0f;
       beatLevel = filter.next(beatLevel, dt);

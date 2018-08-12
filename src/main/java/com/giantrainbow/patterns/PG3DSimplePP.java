@@ -4,8 +4,8 @@ import static processing.core.PConstants.CENTER;
 import static processing.core.PConstants.P3D;
 import static processing.core.PConstants.PI;
 
-import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
+import heronarts.p3lx.P3LX;
 
 /**
  * Simple Processing 3D example.  Note, due to threading limitations with
@@ -16,7 +16,7 @@ import heronarts.lx.LXCategory;
  */
 @LXCategory(LXCategory.FORM)
 public class PG3DSimplePP extends PGPixelPerfect {
-  public PG3DSimplePP(LX lx) {
+  public PG3DSimplePP(P3LX lx) {
     super(lx, P3D);
   }
 

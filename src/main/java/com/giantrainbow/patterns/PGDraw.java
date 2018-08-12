@@ -1,14 +1,13 @@
 package com.giantrainbow.patterns;
 
-import static com.giantrainbow.RainbowStudio.pApplet;
 import static processing.core.PApplet.ceil;
 
 import com.giantrainbow.model.RainbowBaseModel;
-import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
-import heronarts.lx.LXPattern;
 import heronarts.lx.parameter.BooleanParameter;
 import heronarts.lx.parameter.CompoundParameter;
+import heronarts.p3lx.P3LX;
+import heronarts.p3lx.P3LXPattern;
 import processing.core.PGraphics;
 
 /**
@@ -17,7 +16,7 @@ import processing.core.PGraphics;
  * or PGPixelPerfect.
  */
 @LXCategory(LXCategory.FORM)
-public class PGDraw extends LXPattern {
+public class PGDraw extends P3LXPattern {
   public final CompoundParameter fpsKnob =
       new CompoundParameter("Fps", 1.0, 10.0)
           .setDescription("Controls the frames per second.");
@@ -33,12 +32,12 @@ public class PGDraw extends LXPattern {
 
   float angle = 0.0f;
 
-  public PGDraw(LX lx) {
+  public PGDraw(P3LX lx) {
     super(lx);
     float radiusInWorldPixels = RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot;
     imageWidth = ceil(radiusInWorldPixels * 2.0f);
     imageHeight = ceil(radiusInWorldPixels);
-    pg = pApplet.createGraphics(imageWidth, imageHeight);
+    pg = applet.createGraphics(imageWidth, imageHeight);
     addParameter(fpsKnob);
     addParameter(antialiasKnob);
     fpsKnob.setValue(10.0);

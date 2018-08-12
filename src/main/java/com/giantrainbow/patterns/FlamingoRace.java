@@ -3,11 +3,11 @@ package com.giantrainbow.patterns;
 import static processing.core.PApplet.ceil;
 
 import com.giantrainbow.PathUtils;
-import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.midi.MidiNoteOn;
 import heronarts.lx.parameter.CompoundParameter;
 import heronarts.lx.parameter.DiscreteParameter;
+import heronarts.p3lx.P3LX;
 import java.util.logging.Logger;
 import processing.core.PImage;
 
@@ -65,18 +65,18 @@ public class FlamingoRace extends PGPixelPerfect {
 
   private static final String SPRITE_DIR = "spritepp/";
 
-  public FlamingoRace(LX lx) {
+  public FlamingoRace(P3LX lx) {
     super(lx, "");
     addParameter(xSpeed);
     xSpeed.setValue(5);
-    flamingoWalk = PathUtils.loadSprite(SPRITE_DIR + "Ringo2.gif");
-    flamingoJump = PathUtils.loadSprite(SPRITE_DIR + "Jingo.gif");
-    flame = PathUtils.loadSprite(SPRITE_DIR + "Flame.gif");
-    fireworks = PathUtils.loadSprite(SPRITE_DIR + "fireworks.gif");
-    effigy = PathUtils.loadSprite(SPRITE_DIR + "Effigy.gif");
-    desertNight = PathUtils.loadSprite(SPRITE_DIR + "desertnightblurred.gif");
-    desertSky = PathUtils.loadSprite(SPRITE_DIR + "cloudblurred.gif");
-    effigyBrown = PathUtils.loadSprite(SPRITE_DIR + "EffigyBrown.gif");
+    flamingoWalk = PathUtils.loadSprite(applet, SPRITE_DIR + "Ringo2.gif");
+    flamingoJump = PathUtils.loadSprite(applet, SPRITE_DIR + "Jingo.gif");
+    flame = PathUtils.loadSprite(applet, SPRITE_DIR + "Flame.gif");
+    fireworks = PathUtils.loadSprite(applet, SPRITE_DIR + "fireworks.gif");
+    effigy = PathUtils.loadSprite(applet, SPRITE_DIR + "Effigy.gif");
+    desertNight = PathUtils.loadSprite(applet, SPRITE_DIR + "desertnightblurred.gif");
+    desertSky = PathUtils.loadSprite(applet, SPRITE_DIR + "cloudblurred.gif");
+    effigyBrown = PathUtils.loadSprite(applet, SPRITE_DIR + "EffigyBrown.gif");
     currentPos2 = pg.width;
     waitingForRight1 = true;
     waitingForRight2 = true;

@@ -1,13 +1,11 @@
 package com.giantrainbow.patterns;
 
-import static com.giantrainbow.RainbowStudio.pApplet;
-
 import com.giantrainbow.PathUtils;
-import heronarts.lx.LX;
-import heronarts.lx.LXPattern;
 import heronarts.lx.parameter.BooleanParameter;
 import heronarts.lx.parameter.CompoundParameter;
 import heronarts.lx.parameter.StringParameter;
+import heronarts.p3lx.P3LX;
+import heronarts.p3lx.P3LXPattern;
 import heronarts.p3lx.ui.CustomDeviceUI;
 import heronarts.p3lx.ui.UI;
 import heronarts.p3lx.ui.UI2dContainer;
@@ -22,7 +20,7 @@ import java.util.List;
 import processing.core.PConstants;
 import processing.core.PImage;
 
-abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
+abstract class RainbowImageBase extends P3LXPattern implements CustomDeviceUI {
   public final CompoundParameter fpsKnob =
       new CompoundParameter("Fps", 1.0, 10.0)
           .setDescription("Controls the frames per second.");
@@ -45,7 +43,8 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
   protected String filesDir;  // Must end in a '/'
   protected boolean includeAntialias;
 
-  public RainbowImageBase(LX lx, int imageWidth, int imageHeight, String filesDir, String defaultFile,
+  public RainbowImageBase(P3LX lx, int imageWidth, int imageHeight,
+                          String filesDir, String defaultFile,
                           boolean includeAntialias) {
     super(lx);
     this.imageWidth = imageWidth;
@@ -67,7 +66,7 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
   }
 
   private void loadImg(String imgname) {
-    image = pApplet.loadImage(filesDir + imgname);
+    image = applet.loadImage(filesDir + imgname);
     image.resize(imageWidth, imageHeight);
   }
 

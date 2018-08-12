@@ -5,7 +5,6 @@
 package com.giantrainbow.patterns;
 
 import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
-import static com.giantrainbow.RainbowStudio.pApplet;
 import static com.giantrainbow.colors.Colors.BLACK;
 import static com.giantrainbow.colors.Colors.WHITE;
 import static processing.core.PApplet.lerp;
@@ -21,9 +20,9 @@ import static processing.core.PConstants.P3D;
 import static processing.core.PConstants.PI;
 
 import com.giantrainbow.colors.Colors;
-import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.parameter.StringParameter;
+import heronarts.p3lx.P3LX;
 import processing.core.PFont;
 import processing.core.PGraphics;
 import processing.core.PShape;
@@ -54,7 +53,7 @@ public class Blocks extends PGPixelPerfect {
       new StringParameter("Text", "R INBOW")
           .setDescription("Text on the blocks");
 
-  public Blocks(LX lx) {
+  public Blocks(P3LX lx) {
     super(lx, P3D);
 
     // Create the boxes
@@ -63,7 +62,7 @@ public class Blocks extends PGPixelPerfect {
       boxes[i] = new Box(BOX_W, BOX_H);
     }
 
-    font = pApplet.createFont("fonts/Roboto/Roboto-Bold.ttf", PANEL_H);
+    font = applet.createFont("fonts/Roboto/Roboto-Bold.ttf", PANEL_H);
 
     // From: https://commons.wikimedia.org/wiki/File:Burning-Man.svg
     // Linked from: https://eplaya.burningman.org/viewtopic.php?t=54052
