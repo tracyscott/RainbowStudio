@@ -83,7 +83,7 @@ public class SimplePanel extends RainbowBaseModel {
    * Pixlite drives 16 panels with 450 leds each, 7200 leds.  The second drives 12 panels with
    * 450 leds each, 5400 leds.
    */
-  public static void configureOutputMultiPanel(LX lx, UIPixliteConfig pixliteConfig) {
+  public static void configureOutputMultiPanel(LX lx) {
     // Config for panel size, number of panels, number of universes per panel, number of led controllers
     // and number of panels per controller.
     int pointsWidePerPanel = 15;

@@ -88,6 +88,8 @@ public class RainbowStudio extends PApplet {
   private static final int RAINBOW_PANEL_4 = 4;
   private static final int RAINBOW_PANEL_2 = 5;
   private static final int RAINBOW_PANEL_1 = 6;
+  private static final int RAINBOW_START_PANEL = 7;
+  private static final int RAINBOW_END_PANEL = 8;
   private static final int MODEL_TYPE = FULL_RAINBOW; // RAINBOW_PANEL, RAINBOW_PANEL_4 or FULL_RAINBOW
 
   // Used for PixelFlow.  Needs a reference to pApplet for setting up
@@ -209,7 +211,7 @@ public class RainbowStudio extends PApplet {
     if (enableArtNet) {
       switch (MODEL_TYPE) {
         case FULL_RAINBOW:
-          SimplePanel.configureOutputMultiPanel(lx, pixliteConfig);
+          SimplePanel.configureOutputMultiPanel(lx);
           break;
         case SRIKANTH_PANEL:
           SimplePanel.configureOutputSrikanthPanel(lx);
@@ -218,14 +220,19 @@ public class RainbowStudio extends PApplet {
           SimplePanel.configureOutputRainbowPanel(lx);
           break;
         case RAINBOW_PANEL_4:
-          SimplePanel.configureOutputMultiPanel(lx, pixliteConfig);
+          SimplePanel.configureOutputMultiPanel(lx);
           break;
         case RAINBOW_PANEL_2:
-          SimplePanel.configureOutputMultiPanel(lx, pixliteConfig);
+          SimplePanel.configureOutputMultiPanel(lx);
           break;
         case RAINBOW_PANEL_1:
-          SimplePanel.configureOutputMultiPanel(lx, pixliteConfig);
+          SimplePanel.configureOutputMultiPanel(lx);
           break;
+        case RAINBOW_START_PANEL:
+          Output.configureOutputMultiPanel(lx, true, false);
+          break;
+        case RAINBOW_END_PANEL:
+          Output.configureOutputMultiPanel(lx, false, true);
       }
     }
     if (disableOutputOnStart)
@@ -436,6 +443,10 @@ public class RainbowStudio extends PApplet {
     } else if (modelType == RAINBOW_PANEL_2) {
       return new RainbowModel3D(2);
     } else if (modelType == RAINBOW_PANEL_1) {
+      return new RainbowModel3D(1);
+    } else if (modelType == RAINBOW_START_PANEL) {
+      return new RainbowModel3D(1);
+    } else if (modelType == RAINBOW_END_PANEL) {
       return new RainbowModel3D(1);
     } else {
       return null;

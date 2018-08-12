@@ -5,6 +5,7 @@ import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.LXPattern;
 import heronarts.lx.color.LXColor;
+import heronarts.lx.parameter.BooleanParameter;
 import heronarts.lx.parameter.CompoundParameter;
 
 import java.util.logging.Logger;
@@ -20,6 +21,8 @@ public class PanelWire extends LXPattern {
       new CompoundParameter("Fps", 1.0, GLOBAL_FRAME_RATE)
           .setDescription("Controls the frames per second.");
   public CompoundParameter lengthKnob = new CompoundParameter("length", 5.0, 1.0, 450.0);
+  public BooleanParameter endPanelKnob = new BooleanParameter("end", false);
+
   public int currentPanel = 0;
   public int headPos = 0;
   protected double currentFrame = 0.0;
@@ -32,6 +35,7 @@ public class PanelWire extends LXPattern {
     addParameter(fpsKnob);
     fpsKnob.setValue(5.0);
     addParameter(lengthKnob);
+    addParameter(endPanelKnob);
   }
 
   public void run(double deltaMs) {
@@ -121,7 +125,7 @@ public class PanelWire extends LXPattern {
         }
 
         // H-variant panel (end of rainbow) has special wiring due to frame mounting.
-        if (panelNum == numPanels - 1) {
+        if (panelNum == numPanels - 1 && endPanelKnob.getValueb()) {
           // The first 300 leds are the typical wiring.
           if (wireLedPos < 300) {
             colNumFromLeft = wireLedPos / pointsHighPerPanel;
