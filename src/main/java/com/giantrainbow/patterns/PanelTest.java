@@ -1,7 +1,7 @@
 package com.giantrainbow.patterns;
 
-import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
+import heronarts.p3lx.P3LX;
 import java.util.logging.Logger;
 
 /**
@@ -17,8 +17,8 @@ public class PanelTest extends PGPixelPerfect {
   private int curBlockPosY;
   private long currentPanelTestFrame;
 
-  public PanelTest(LX lx) {
-    super(lx, "");
+  public PanelTest(P3LX lx) {
+    super(lx, null);
     curBlockPosX = 0;
     curBlockPosY = 0;
     curBlockPanel = 0;

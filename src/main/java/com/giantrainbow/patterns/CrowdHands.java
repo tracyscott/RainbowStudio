@@ -6,7 +6,6 @@ package com.giantrainbow.patterns;
 
 import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
 import static com.giantrainbow.RainbowStudio.inputManager;
-import static com.giantrainbow.RainbowStudio.pApplet;
 import static processing.core.PApplet.lerp;
 import static processing.core.PApplet.max;
 import static processing.core.PApplet.round;
@@ -15,8 +14,8 @@ import static processing.core.PConstants.P2D;
 
 import com.giantrainbow.input.InputManager;
 import com.giantrainbow.input.LowPassFilter;
-import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
+import heronarts.p3lx.P3LX;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -120,7 +119,7 @@ public class CrowdHands extends PGPixelPerfect {
     }
   }
 
-  public CrowdHands(LX lx) {
+  public CrowdHands(P3LX lx) {
     super(lx, P2D);
   }
 
@@ -137,7 +136,7 @@ public class CrowdHands extends PGPixelPerfect {
     // Image from:
     // http://www.ghostride.com/body-parts/cartoon-hands.html
     // http://www.ghostride.com/media/catalog/product/cache/1/image/9df78eab33525d08d6e5fb8d27136e95/b/p/bp_hands-cartoon.jpg
-    handsImage = new PImageWrapper(pApplet.requestImage("images/bp_hands-cartoon_transparent.png"));
+    handsImage = new PImageWrapper(applet.requestImage("images/bp_hands-cartoon_transparent.png"));
 
     startX = START_X * pg.width;
     binSize = (END_X - START_X)*pg.width/3.0f;

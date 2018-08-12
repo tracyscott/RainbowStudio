@@ -12,8 +12,8 @@ import static processing.core.PConstants.HSB;
 import static processing.core.PConstants.P2D;
 import static processing.core.PConstants.TWO_PI;
 
-import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
+import heronarts.p3lx.P3LX;
 
 /**
  * Based on: <a href="http://www.openprocessing.org/sketch/146637">Dragon Tail 3D</a>
@@ -31,7 +31,7 @@ public class DragonTail extends PGPixelPerfect {
 
   private int[] col = new int[num];
 
-  public DragonTail(LX lx) {
+  public DragonTail(P3LX lx) {
     super(lx, P2D);
   }
 

@@ -5,9 +5,9 @@ import static processing.core.PConstants.P3D;
 import static processing.core.PConstants.PI;
 
 import com.giantrainbow.model.RainbowBaseModel;
-import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.parameter.CompoundParameter;
+import heronarts.p3lx.P3LX;
 
 @LXCategory(LXCategory.FORM)
 public class PG3DSimple extends PGTexture {
@@ -15,7 +15,7 @@ public class PG3DSimple extends PGTexture {
       new CompoundParameter("size", 1.0, 30.0)
           .setDescription("Size");
 
-  public PG3DSimple(LX lx) {
+  public PG3DSimple(P3LX lx) {
     super(lx, P3D);
     fpsKnob.setValue(30);
     sizeKnob.setValue(20);

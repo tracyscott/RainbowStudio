@@ -92,10 +92,6 @@ public class RainbowStudio extends PApplet {
   private static final int RAINBOW_END_PANEL = 8;
   private static final int MODEL_TYPE = FULL_RAINBOW; // RAINBOW_PANEL, RAINBOW_PANEL_4 or FULL_RAINBOW
 
-  // Used for PixelFlow.  Needs a reference to pApplet for setting up
-  // OpenGL Context.
-  public static PApplet pApplet;
-
   // This is a dumb way to do this, but store some project-common things here
   public static InputManager inputManager;
 
@@ -155,7 +151,6 @@ public class RainbowStudio extends PApplet {
   @Override
   public void setup() {
     // Processing setup, constructs the window and the LX instance
-    pApplet = this;
     frameRate(GLOBAL_FRAME_RATE);
 
     LXModel model = buildModel(MODEL_TYPE);
@@ -320,7 +315,7 @@ public class RainbowStudio extends PApplet {
 
     private static final String KEY_STDMODE_TIME = "stdModeTime";
     private static final String KEY_STDMODE_FADETIME = "stdModeFadeTime";
-    
+
     private static final String KEY_AUDIOMONITOR_MINTHR = "minThr";
     private static final String KEY_AUDIOMONITOR_AVGTS = "avgTs";
     private static final String KEY_AUDIOMONITOR_QUIETT = "quietT";

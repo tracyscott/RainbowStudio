@@ -1,8 +1,8 @@
 package com.giantrainbow.patterns;
 
 import com.giantrainbow.model.RainbowBaseModel;
-import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
+import heronarts.p3lx.P3LX;
 
 /**
  * Pixel perfect animated GIFs.  Uses base class with directory data/gifpp, default file of life2.gif, and
@@ -10,7 +10,7 @@ import heronarts.lx.LXCategory;
  */
 @LXCategory(LXCategory.FORM)
 public class RainbowGIFPP extends RainbowGIFBase {
-  public RainbowGIFPP(LX lx) {
+  public RainbowGIFPP(P3LX lx) {
     super(lx, ((RainbowBaseModel)lx.model).pointsWide, ((RainbowBaseModel)lx.model).pointsHigh,
         "gifpp/",
         "life2",

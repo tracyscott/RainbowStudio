@@ -6,7 +6,6 @@ package com.giantrainbow.patterns;
 
 import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
 import static com.giantrainbow.RainbowStudio.inputManager;
-import static com.giantrainbow.RainbowStudio.pApplet;
 import static processing.core.PApplet.floor;
 import static processing.core.PApplet.max;
 import static processing.core.PApplet.min;
@@ -15,9 +14,9 @@ import static processing.core.PConstants.P2D;
 import static processing.core.PConstants.THRESHOLD;
 
 import com.giantrainbow.input.InputManager;
-import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.parameter.BooleanParameter;
+import heronarts.p3lx.P3LX;
 import java.util.logging.Logger;
 import processing.core.PGraphics;
 import processing.core.PImage;
@@ -75,7 +74,7 @@ public class CheckerMove extends PGPixelPerfect {
       new BooleanParameter("Gray Scale", false)
           .setDescription("Gray scale");
 
-  public CheckerMove(LX lx) {
+  public CheckerMove(P3LX lx) {
     super(lx, P2D);
 
     addParameter(grayScaleToggle);
@@ -95,7 +94,7 @@ public class CheckerMove extends PGPixelPerfect {
     squaresH = (pg.height + squareSize - 1)/squareSize;
     logger.info("squareSize=" + squareSize + " squares=(" + squaresW + ", " + squaresH + ")");
 
-    screen = pApplet.createGraphics(squaresW*squareSize, squaresH*squareSize, P2D);
+    screen = applet.createGraphics(squaresW*squareSize, squaresH*squareSize, P2D);
     screen.noSmooth();
     screen.beginDraw();
     screen.noStroke();
@@ -103,7 +102,7 @@ public class CheckerMove extends PGPixelPerfect {
 
     // Note that using an image makes the alpha get weird when copying between the graphics
     // context and the image; thus using a Graphics context
-    moveImage = pApplet.createGraphics(screen.width, screen.height, P2D);
+    moveImage = applet.createGraphics(screen.width, screen.height, P2D);
     moveTime = MOVE_TIME;
 
     // Reset

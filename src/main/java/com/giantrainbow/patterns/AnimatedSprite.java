@@ -7,8 +7,8 @@ import static processing.core.PConstants.P2D;
 import static processing.core.PConstants.PI;
 
 import com.giantrainbow.model.RainbowBaseModel;
-import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
+import heronarts.p3lx.P3LX;
 import processing.core.PImage;
 
 @LXCategory(LXCategory.FORM)
@@ -21,7 +21,7 @@ public class AnimatedSprite extends PGTexture {
   private PImage[] images;
   int spriteWidth = 0;
 
-  public AnimatedSprite(LX lx) {
+  public AnimatedSprite(P3LX lx) {
     super(lx, P2D);
 //    String filename = "spritepp/" + SPRITE_NAME;
     for (int i = 0; i < images.length; i++) {
