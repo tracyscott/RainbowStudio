@@ -17,6 +17,11 @@ import java.util.logging.Logger;
 
 import static processing.core.PApplet.ceil;
 
+/**
+ * PLEASE ADD SIMPLE/BASIC JAVADOCS!
+ * Love,
+ *     -Shawn
+ */
 public class Output {
   private static final Logger logger = Logger.getLogger(Output.class.getName());
 
