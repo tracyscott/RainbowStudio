@@ -1,6 +1,6 @@
 {
   "version": "0.1",
-  "timestamp": 1534108087214,
+  "timestamp": 1534119383612,
   "engine": {
     "id": 1,
     "class": "heronarts.lx.LXEngine",
@@ -46,9 +46,9 @@
           "label": "MULTI",
           "arm": false,
           "selected": false,
-          "enabled": true,
+          "enabled": false,
           "cue": false,
-          "fader": 1.0,
+          "fader": 0.003,
           "crossfadeGroup": 0,
           "blendMode": 0
         },
@@ -256,9 +256,9 @@
           "label": "GIF",
           "arm": false,
           "selected": false,
-          "enabled": false,
+          "enabled": true,
           "cue": false,
-          "fader": 0.007,
+          "fader": 0.625,
           "crossfadeGroup": 0,
           "blendMode": 0,
           "midiMonitor": false,
@@ -303,7 +303,7 @@
           "selected": false,
           "enabled": true,
           "cue": false,
-          "fader": 1.0,
+          "fader": 0.375,
           "crossfadeGroup": 0,
           "blendMode": 0,
           "midiMonitor": false,
@@ -581,7 +581,7 @@
       "modulationColor": -65372,
       "parameters": {
         "label": "Output",
-        "enabled": true,
+        "enabled": false,
         "mode": 0,
         "fps": 0.0,
         "gamma": 0,
@@ -601,7 +601,15 @@
         "pixlite1Ip": "192.168.1.175",
         "pixlite1Port": "6454",
         "pixlite2Ip": "192.168.2.134",
-        "pixlite2Port": "6455"
+        "pixlite2Port": "6455",
+        "midiCtrlMidiCh": 9.0,
+        "midiCtrlNxtGame": 37.0,
+        "midiCtrlPrvGame": 36.0,
+        "midiCtrlAudioM": 40.0,
+        "midiCtrlStdM": 41.0,
+        "midiCtlrInstrM": 42.0,
+        "midiCtrlInterM": 43.0,
+        "midiCtrlAutoAu": 48.0
       }
     },
     "modulation": {
@@ -627,7 +635,7 @@
             "phase": 0.0,
             "exp": 0.0
           },
-          "basis": 0.5171951957810981
+          "basis": 0.7488121999824167
         },
         {
           "id": 216,
@@ -650,7 +658,7 @@
             "phase": 0.0,
             "exp": 0.0
           },
-          "basis": 0.9467905394768303
+          "basis": 0.19195536394347545
         }
       ],
       "modulations": [

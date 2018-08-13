@@ -11,6 +11,8 @@ import heronarts.lx.studio.LXStudio;
 import heronarts.p3lx.ui.UI2dContainer;
 import heronarts.p3lx.ui.component.UICollapsibleSection;
 import heronarts.p3lx.ui.component.UIDropMenu;
+import heronarts.p3lx.ui.component.UIKnob;
+import heronarts.p3lx.ui.component.UITextBox;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +25,25 @@ public class UIMidiControl extends UICollapsibleSection implements LXMidiListene
 
   public static StringParameter midiControl = new StringParameter("MIDI Control", "NONE");
   public static DiscreteParameter midiChoice = new DiscreteParameter("midictrl", 0, 10);
-  public static UIDropMenu midiChoices;
+
+  public static DiscreteParameter midiChP = new DiscreteParameter("MidiCh", 9, 0, 32 );
+  public static DiscreteParameter nextGameP = new DiscreteParameter("NxtGm", 48, 0, 127);
+  public static DiscreteParameter prevGameP = new DiscreteParameter("PrvGm",49, 0, 127);
+  public static DiscreteParameter audioModeP = new DiscreteParameter("AudioM", 40, 0, 127);
+  public static DiscreteParameter standardModeP = new DiscreteParameter("StdM", 41, 0, 127);
+  public static DiscreteParameter instrumentModeP = new DiscreteParameter("InstrM", 42, 0, 127);
+  public static DiscreteParameter interactiveModeP = new DiscreteParameter("InterM", 43, 0, 127);
+  public static DiscreteParameter autoAudioP = new DiscreteParameter("AutoAu", 48, 0, 127);
+
+  public static UIKnob midiCh;
+  public static UIKnob nextGame;
+  public static UIKnob prevGame;
+  public static UIKnob audioMode;
+  public static UIKnob standardMode;
+  public static UIKnob instrumentMode;
+  public static UIKnob interactiveMode;
+  public static UIKnob autoAudio;
+
   protected static LX lx;
   protected static UIModeSelector modeSelector;
 
@@ -34,31 +54,28 @@ public class UIMidiControl extends UICollapsibleSection implements LXMidiListene
     setChildMargin(2);
     this.lx = lx;
     this.modeSelector = modeSelector;
+    UI2dContainer knobsContainer = new UI2dContainer(0, 30, getContentWidth(), 45);
+    knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
+    knobsContainer.setPadding(0, 0, 0, 0);
+    midiCh = addKnob(midiChP, knobsContainer);
+    nextGame = addKnob(nextGameP, knobsContainer);
+    prevGame = addKnob(prevGameP, knobsContainer);
+    audioMode = addKnob(audioModeP, knobsContainer);
+    knobsContainer.addToContainer(this);
+    knobsContainer = new UI2dContainer(0, 30, getContentWidth(), 45);
+    knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
+    knobsContainer.setPadding(0, 0, 0, 0);
+    standardMode = addKnob(standardModeP, knobsContainer);
+    instrumentMode = addKnob(instrumentModeP, knobsContainer);
+    interactiveMode = addKnob(interactiveModeP, knobsContainer);
+    autoAudio = addKnob(autoAudioP, knobsContainer);
+    knobsContainer.addToContainer(this);
+  }
 
-    LXMidiEngine midi = lx.engine.midi;
-
-    List<String> midiInputs = new ArrayList<String>();
-    midiInputs.add("NONE");
-    logger.info("Checking midi inputs");
-    for (LXMidiInput input: midi.inputs) {
-      logger.info("midi input: " + input.getName() + ": " + input.getDescription());
-      midiInputs.add(input.getName());
-    }
-    midiChoices = new UIDropMenu(0f,0f, ui.leftPane.global.getContentWidth(), 20f, midiChoice);
-    String[] choices = new String[midiInputs.size()];
-    choices = midiInputs.toArray(choices);
-    midiChoices.setOptions(choices);
-    midiChoices.addToContainer(this);
-
-    // Find target output for passing MIDI through
-
-    for (LXMidiOutput output : midi.outputs) {
-      logger.info(output.getName() + ": " + output.getDescription());
-      if (output.getName().equalsIgnoreCase("rainbowStudioOut")) {
-        midiThroughOutput = output;
-        midiThroughOutput.open();
-      }
-    }
+  protected UIKnob addKnob(DiscreteParameter p, UI2dContainer container) {
+    UIKnob uiKnob = new UIKnob(p);
+    uiKnob.addToContainer(container);
+    return uiKnob;
   }
 
   public void aftertouchReceived(MidiAftertouch aftertouch) {
@@ -71,46 +88,33 @@ public class UIMidiControl extends UICollapsibleSection implements LXMidiListene
     logger.info("noteOffReceived");
   }
   public void noteOnReceived(MidiNoteOn note) {
-    int prevGamePitch = 48;
-    int nextGamePitch = 50;
-    int modeSelectionChannel = 9;
-    int gameSelectionChannel = 0;
-    int audioModePitch = 40;
-    int standardModePitch = 41;
-    int instrumentModePitch = 42;
-    int interactiveModePitch = 43;
-    int autoAudioModePitch = 48;
-
-    logger.info("noteOnReceived" + note.getPitch() + " ch: " + note.getChannel());
-    if (note.getChannel() == gameSelectionChannel) {
-      if (note.getPitch() == prevGamePitch) {
+    logger.info("noteOnReceived: " + note.getPitch() + " ch: " + note.getChannel());
+    if (note.getChannel() == midiChP.getValuei()) {
+      if (note.getPitch() == prevGameP.getValuei()) {
         LXChannelBus interactive = UtilsForLX.getChannelByLabel(lx, "INTERACTIVE");
         if (interactive != null) {
           ((LXChannel) interactive).goPrev();
         }
-      } else if (note.getPitch() == nextGamePitch) {
+      }
+      if (note.getPitch() == nextGameP.getValuei()) {
         LXChannelBus interactive = UtilsForLX.getChannelByLabel(lx, "INTERACTIVE");
         if (interactive != null) {
           ((LXChannel) interactive).goNext();
         }
       }
-    }
-
-    if (note.getChannel() == modeSelectionChannel) {
-      if (note.getPitch() == audioModePitch) {
+      if (note.getPitch() == audioModeP.getValuei()) {
         modeSelector.audioModeP.setValue(true);
       }
-
-      if (note.getPitch() == standardModePitch) {
+      if (note.getPitch() == standardModeP.getValuei()) {
         modeSelector.standardModeP.setValue(true);
       }
-      if (note.getPitch() == instrumentModePitch) {
+      if (note.getPitch() == instrumentModeP.getValuei()) {
         modeSelector.instrumentModeP.setValue(true);
       }
-      if (note.getPitch() == interactiveModePitch) {
+      if (note.getPitch() == interactiveModeP.getValuei()) {
         modeSelector.interactiveModeP.setValue(true);
       }
-      if (note.getPitch() == autoAudioModePitch) {
+      if (note.getPitch() == autoAudioP.getValuei()) {
         logger.info("Setting autoAudioModeP");
         modeSelector.autoAudioModeP.toggle();
       }
