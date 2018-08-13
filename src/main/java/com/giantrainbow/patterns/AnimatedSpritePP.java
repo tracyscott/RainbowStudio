@@ -13,7 +13,7 @@ import heronarts.p3lx.ui.UI2dContainer;
 import heronarts.p3lx.ui.component.UIButton;
 import heronarts.p3lx.ui.component.UIItemList;
 import heronarts.p3lx.ui.component.UIKnob;
-import heronarts.p3lx.ui.component.UITextBox;https://github.com/heronarts/LXStudio
+import heronarts.p3lx.ui.component.UITextBox;
 import java.util.ArrayList;
 import java.util.List;
 import processing.core.PConstants;
