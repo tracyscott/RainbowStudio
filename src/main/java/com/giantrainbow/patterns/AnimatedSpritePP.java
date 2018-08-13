@@ -13,12 +13,16 @@ import heronarts.p3lx.ui.UI2dContainer;
 import heronarts.p3lx.ui.component.UIButton;
 import heronarts.p3lx.ui.component.UIItemList;
 import heronarts.p3lx.ui.component.UIKnob;
-import heronarts.p3lx.ui.component.UITextBox;
+import heronarts.p3lx.ui.component.UITextBox;https://github.com/heronarts/LXStudio
 import java.util.ArrayList;
 import java.util.List;
 import processing.core.PConstants;
 import processing.core.PImage;
 
+/**
+ * A pattern which loads a (possibly animated) GIF and draws it along the arc of the rainbow with
+ * configurable speed and direction.
+ */
 @LXCategory(LXCategory.FORM)
 public class AnimatedSpritePP extends PGPixelPerfect implements CustomDeviceUI {
 
