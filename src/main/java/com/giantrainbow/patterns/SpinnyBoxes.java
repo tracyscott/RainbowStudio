@@ -7,10 +7,12 @@ import static processing.core.PConstants.RGB;
 
 import com.giantrainbow.RainbowStudio;
 import com.giantrainbow.canvas.Canvas;
+import com.giantrainbow.model.space.Space3D;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.parameter.CompoundParameter;
 import java.util.Random;
+import org.joml.Vector3f;
 import processing.core.PImage;
 import processing.core.PVector;
 
@@ -26,13 +28,32 @@ public class SpinnyBoxes extends CanvasPattern3D {
     speedKnob.setValue(1);
     addParameter(speedKnob);
 
+    Vector3f eye = new Vector3f(0, Space3D.MIN_Y + 6, 60);
+
+    space = new Space3D(eye);
     boxes = new Box[100];
     rnd = new Random();
     texture = makeTexture();
 
+    int trials = 0;
     for (int i = 0; i < boxes.length; i++) {
-      boxes[i] = new Box();
+      Box b;
+      do {
+        b = new Box();
+        trials++;
+      } while (!space.testBox(
+          b.X - b.radius(),
+          b.Y - b.radius(),
+          b.Z - b.radius(),
+          b.X + b.radius(),
+          b.Y + b.radius(),
+          b.Z + b.radius()));
+
+      boxes[i] = b;
     }
+
+    System.err.printf(
+        "Found boxes by %.1f%% rejection sampling\n", 100. * (float) boxes.length / (float) trials);
   }
 
   PImage makeTexture() {
@@ -47,8 +68,6 @@ public class SpinnyBoxes extends CanvasPattern3D {
       img.pixels[i] = RAINBOW_PALETTE[xi];
     }
     img.updatePixels();
-
-    img.save("/Users/jmacd/Desktop/texture.png");
     return img;
   }
 
@@ -56,6 +75,7 @@ public class SpinnyBoxes extends CanvasPattern3D {
   Box boxes[];
   double elapsed;
   PImage texture;
+  Space3D space;
 
   final float maxSize = 150;
 
@@ -73,9 +93,12 @@ public class SpinnyBoxes extends CanvasPattern3D {
     }
 
     Box() {
-      X = rnd.nextFloat() * canvas.width();
-      Y = rnd.nextFloat() * canvas.height();
-      Z = rnd.nextFloat() * canvas.width();
+      // TODO: Can't get `perspective` call below working right, these
+      // set the sampling space boundary but aren't working w/
+      // perspective below.
+      X = 0;
+      Y = 0;
+      Z = 0;
       W = (int) (rnd.nextFloat() * maxSize);
 
       C = rgb(rnd.nextInt(255), rnd.nextInt(255), rnd.nextInt(255));
@@ -138,6 +161,21 @@ public class SpinnyBoxes extends CanvasPattern3D {
     pg.lights();
     pg.noStroke();
     pg.background(0);
+
+    pg.camera(
+        space.eye.x,
+        space.eye.y,
+        space.eye.z,
+        space.center.x,
+        space.center.y,
+        space.center.z,
+        0,
+        1,
+        0);
+
+    // TODO: Can't get this working right. Perspective should match the Space3D's eye position.
+    //
+    // pg.perspective(space.fovy(), space.aspect(), 0, Float.POSITIVE_INFINITY);
 
     for (Box box : boxes) {
       box.draw();

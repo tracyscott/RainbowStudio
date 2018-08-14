@@ -336,6 +336,8 @@ public class Map {
     }
 
     img.updatePixels();
-    img.save("/Users/jmacd/Desktop/map.png");
+
+    // Note: to see the map.
+    // img.save("/Users/jmacd/Desktop/map.png");
   }
 }

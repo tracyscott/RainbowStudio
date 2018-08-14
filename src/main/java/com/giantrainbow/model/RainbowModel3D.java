@@ -6,7 +6,6 @@ import static processing.core.PApplet.cos;
 import static processing.core.PApplet.radians;
 import static processing.core.PApplet.sin;
 
-import com.giantrainbow.model.space.Space3D;
 import heronarts.lx.LX;
 import heronarts.lx.model.LXAbstractFixture;
 import heronarts.lx.model.LXPoint;
@@ -40,8 +39,6 @@ public class RainbowModel3D extends RainbowBaseModel {
     pointsHigh = 30;
 
     perimeter = new ArrayList<LXPoint>();
-
-    new Space3D();
 
     // Left edge & right perimeters
     double z = 0;
