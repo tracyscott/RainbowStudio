@@ -1,11 +1,13 @@
 package com.giantrainbow.patterns;
 
+import static com.giantrainbow.RainbowStudio.pApplet;
 import static processing.core.PApplet.cos;
 import static processing.core.PApplet.radians;
 import static processing.core.PApplet.sin;
 import static processing.core.PConstants.P2D;
 import static processing.core.PConstants.PI;
 
+import com.giantrainbow.PathUtils;
 import com.giantrainbow.model.RainbowBaseModel;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
@@ -13,7 +15,8 @@ import processing.core.PImage;
 
 @LXCategory(LXCategory.FORM)
 public class AnimatedSprite extends PGTexture {
-  public static final String SPRITE_NAME = "smallcat.gif";
+  private static final String SPRITE_DIR = "spritepp/";
+  private static final String SPRITE_NAME = "smallcat.gif";
 
   float angle = 0.0f;
   float minAngle = 0.0f;
@@ -23,7 +26,8 @@ public class AnimatedSprite extends PGTexture {
 
   public AnimatedSprite(LX lx) {
     super(lx, P2D);
-//    String filename = "spritepp/" + SPRITE_NAME;
+
+    images = PathUtils.loadSprite(pApplet, SPRITE_DIR + SPRITE_NAME);
     for (int i = 0; i < images.length; i++) {
       images[i].loadPixels();
       // assume frames are the same size.
