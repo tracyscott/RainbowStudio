@@ -46,8 +46,9 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     "Hello!",
   };
 
-  int currentStringIndex = 0;
+  int currentStringIndex;
   String currentString;
+
   int textGapPixels = 10;
   PFont font;
   int fontSize = pg.height;
@@ -78,6 +79,11 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
       pg.textFont(font);
     }
     doRedraw = true;
+
+    if (textItemList.getItems().size() > 0) {
+      textItemList.setFocusIndex(0);
+    }
+    currentStringIndex = -1;
   }
 
   @Override
@@ -89,7 +95,21 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   }
 
   public void redrawTextBuffer() {
-    currentString = textItems.get(currentStringIndex).getLabel();
+    UIItemList.Item item = textItemList.getFocusedItem();
+    if (item == null) {
+      return;
+    }
+    currentString = item.getLabel();
+
+    // Find which is the focused index
+    List<? extends UIItemList.Item> items = textItemList.getItems();
+    currentStringIndex = -1;
+    for (int i = 0; i < items.size(); i++) {
+      if (currentString.equals(items.get(i).getLabel())) {
+        currentStringIndex = i;
+        break;
+      }
+    }
 
     if (textImage != null) {
       textImage.dispose();
@@ -117,23 +137,30 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   }
 
   public void draw(double deltaDrawMs) {
-    boolean needsRedraw =
-        doRedraw
-        || textImage == null
-        || textItemList.getFocusedItem() == null
-        || !textItemList.getFocusedItem().getLabel().equals(currentString)
+    boolean offscreen =
+        textImage == null
         || currentPos < -(textImage.width + textGapPixels)
         || (currentPos > pg.width && clockwise.getValueb());
+
+    boolean needsRedraw =
+        doRedraw
+        || textItemList.getFocusedItem() == null
+        || !textItemList.getFocusedItem().getLabel().equals(currentString)
+        || offscreen;
+
     if (needsRedraw) {
-      redrawTextBuffer();
-      textItemList.setFocusIndex(currentStringIndex);
-      currentStringIndex++;
-      if (currentStringIndex >= textItems.size()) {
-        currentStringIndex = 0;
+      if (offscreen) {
+        currentStringIndex++;
+        if (currentStringIndex >= textItems.size()) {
+          currentStringIndex = 0;
+        }
+        textItemList.setFocusIndex(currentStringIndex);
       }
+      redrawTextBuffer();
     }
+
     // Optimization to not re-render if we haven't moved far enough since last frame.
-    if (round(currentPos) != lastPos) {
+    if (textImage != null && round(currentPos) != lastPos) {
       pg.background(0);
       pg.image(textImage, round(currentPos), 0);
       lastPos = round(currentPos);
