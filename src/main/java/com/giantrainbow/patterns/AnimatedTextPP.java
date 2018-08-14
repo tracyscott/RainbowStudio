@@ -1,11 +1,12 @@
 package com.giantrainbow.patterns;
 
-import static com.giantrainbow.RainbowStudio.pApplet;
 import static processing.core.PApplet.ceil;
 import static processing.core.PApplet.round;
 
+import com.giantrainbow.RainbowStudio;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
+import heronarts.lx.parameter.BooleanParameter;
 import heronarts.lx.parameter.CompoundParameter;
 import heronarts.lx.parameter.StringParameter;
 import heronarts.p3lx.ui.CustomDeviceUI;
@@ -28,11 +29,12 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
 
   public final StringParameter textKnob = new StringParameter("str", "");
 
-  List<TextItem> textItems = new ArrayList<TextItem>();
+  List<TextItem> textItems = new ArrayList<>();
   UIItemList.ScrollList textItemList;
   private static final int CONTROLS_MIN_WIDTH = 120;
   public final CompoundParameter xSpeed =
       new CompoundParameter("XSpd", 0, 20).setDescription("X speed in pixels per frame");
+  public final BooleanParameter clockwise = new BooleanParameter("clockwise", false);
 
   int textBufferWidth = 200;
   PGraphics textImage;
@@ -54,23 +56,21 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     super(lx, "");
     addParameter(textKnob);
     addParameter(xSpeed);
+    addParameter(clockwise);
     String[] fontNames = PFont.list();
     for (String fontName : fontNames) {
       logger.info("Font: " + fontName);
     }
-    font = pApplet.createFont("04b", fontSize, true);
+    font = RainbowStudio.pApplet.createFont("04b", fontSize, true);
     for (int i = 0; i < defaultTexts.length; i++) {
       textItems.add(new TextItem(defaultTexts[i]));
     }
-
     redrawTextBuffer(textBufferWidth);
     xSpeed.setValue(5);
   }
 
   public void redrawTextBuffer(int bufferWidth) {
-    textImage = pApplet.createGraphics(bufferWidth, 30);
-    currentPos = pg.width + 1;
-    lastPos = pg.width + 2;
+    textImage = RainbowStudio.pApplet.createGraphics(bufferWidth, 30);
     textImage.noSmooth();
     textImage.beginDraw();
     textImage.background(0);
@@ -91,26 +91,29 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
       textImage.text(currentText, 0, fontSize - 3);
       textImage.endDraw();
     }
+    currentPos = clockwise.getValueb()
+        ? -renderedTextWidth + textGapPixels
+        : pg.width + 1;
+    lastPos = Integer.MIN_VALUE;
   }
 
   public void draw(double deltaDrawMs) {
-    if (currentPos < 0 - (renderedTextWidth + textGapPixels)) {
-      currentPos = pg.width + +1;
-      lastPos = pg.width + 2;
+    boolean offScreen = currentPos < 0 - (renderedTextWidth + textGapPixels)
+      || currentPos > pg.width && clockwise.getValueb();
+    if (offScreen) {
       currentString++;
       if (currentString >= textItems.size()) {
         currentString = 0;
       }
       redrawTextBuffer(renderedTextWidth);
     }
-    // Optimization to not re-render if we haven't moved far enough
-    // since last frame.
+    // Optimization to not re-render if we haven't moved far enough since last frame.
     if (round(currentPos) != lastPos) {
       pg.background(0);
       pg.image(textImage, round(currentPos), 0);
       lastPos = round(currentPos);
     }
-    currentPos -= xSpeed.getValue();
+    currentPos += xSpeed.getValue() * (clockwise.getValueb() ? 1 : -1);
   }
 
   /**
@@ -128,6 +131,13 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     knobsContainer.setPadding(3, 3, 3, 3);
     new UIKnob(xSpeed).addToContainer(knobsContainer);
     new UIKnob(fpsKnob).addToContainer(knobsContainer);
+    new UIButton()
+        .setParameter(clockwise)
+        .setLabel("clock\nwise")
+        .setTextOffset(0,12)
+        .setWidth(24)
+        .setHeight(16)
+        .addToContainer(knobsContainer);
     knobsContainer.addToContainer(device);
 
     UI2dContainer textEntryLine = new UI2dContainer(0, 0, device.getWidth(), 30);
@@ -143,7 +153,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     new UIButton(device.getContentWidth() - 20, 0, 20, 20) {
       @Override
         public void onToggle(boolean on) {
-        if (on) {
+        if (on && !textKnob.getString().isEmpty()) {
           textItems.add(new TextItem(textKnob.getString()));
           textItemList.setItems(textItems);
           textKnob.setValue("");

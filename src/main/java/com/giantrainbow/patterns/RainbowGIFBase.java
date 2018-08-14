@@ -1,6 +1,7 @@
 package com.giantrainbow.patterns;
 
 import com.giantrainbow.PathUtils;
+import com.giantrainbow.RainbowStudio;
 import heronarts.lx.LX;
 import heronarts.lx.LXPattern;
 import heronarts.lx.parameter.BooleanParameter;
@@ -68,13 +69,13 @@ abstract class RainbowGIFBase extends LXPattern implements CustomDeviceUI {
   }
 
   /**
-   * Calls {@link PathUtils#loadSprite(String)} but also keeps track of the current position.
-   * This prepends {@link #filesDir} and appends ".gif".
+   * Calls {@link PathUtils#loadSprite(processing.core.PApplet, String)} but also keeps track of
+   * the current position. This prepends {@link #filesDir} and appends ".gif".
    *
    * @param gifname the sprite's name, not including parent paths or the ".gif" suffix
    */
   private void loadGif(String gifname) {
-    PImage[] newImages = PathUtils.loadSprite(filesDir + gifname + ".gif");
+    PImage[] newImages = PathUtils.loadSprite(RainbowStudio.pApplet, filesDir + gifname + ".gif");
     for (PImage image : newImages) {
       image.resize(imageWidth, imageHeight);
     }

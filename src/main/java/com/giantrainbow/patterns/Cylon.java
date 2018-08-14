@@ -4,7 +4,6 @@
 package com.giantrainbow.patterns;
 
 import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
-import static com.giantrainbow.RainbowStudio.pApplet;
 import static com.giantrainbow.colors.Colors.BLACK;
 import static processing.core.PApplet.sin;
 import static processing.core.PConstants.P2D;
@@ -14,7 +13,6 @@ import com.giantrainbow.UtilsForLX;
 import com.giantrainbow.colors.Colors;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
-import heronarts.lx.parameter.CompoundParameter;
 import java.io.File;
 import java.util.logging.Logger;
 
@@ -27,7 +25,7 @@ import java.util.logging.Logger;
  * @author Shawn Silverman
  */
 @LXCategory(LXCategory.FORM)
-public class Cylon extends PGPixelPerfect {
+public class Cylon extends P3PixelPerfectBase {
   private static final Logger logger = Logger.getLogger(Cylon.class.getName());
 
   private static final int INFINITE_PERIOD = Integer.MAX_VALUE;
@@ -42,10 +40,6 @@ public class Cylon extends PGPixelPerfect {
   private final float HELMET_CORNER_RADIUS = HELMET_STROKE_WIDTH * 2;
 
   private static final String SOUND_FILE = "sounds/cylon_eye.wav";
-
-  private final CompoundParameter speedKnob =
-      new CompoundParameter("Speed", 0.5, 0.0, 1.0)
-          .setDescription("Cycles per second");
 
   private int period;  // In ms
   private final int wavelength = pg.width * 2;  // Wavelength is twice the width
@@ -64,7 +58,6 @@ public class Cylon extends PGPixelPerfect {
     period = INITIAL_PERIOD;
     speedKnob.setValue(1000.0 / period);
 
-
     // Watch for future speed changes
     speedKnob.addListener(lxParameter -> {
       double v = lxParameter.getValue();
@@ -77,10 +70,8 @@ public class Cylon extends PGPixelPerfect {
       adjustPeriod(System.currentTimeMillis() - startTime, p);
     });
 
-    addParameter(speedKnob);
-
     // Write the audio to a temp file because LX's audio engine only works with File
-    audioFile = UtilsForLX.copyAudioForOutput(pApplet, SOUND_FILE, lx.engine.audio.output);
+    audioFile = UtilsForLX.copyAudioForOutput(applet, SOUND_FILE, lx.engine.audio.output);
   }
 
   @Override

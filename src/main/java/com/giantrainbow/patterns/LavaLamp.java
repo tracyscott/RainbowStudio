@@ -4,7 +4,6 @@
 package com.giantrainbow.patterns;
 
 import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
-import static com.giantrainbow.RainbowStudio.pApplet;
 import static com.giantrainbow.colors.Colors.BLACK;
 import static com.giantrainbow.colors.Colors.WHITE;
 import static processing.core.PApplet.constrain;
@@ -25,7 +24,7 @@ import processing.core.PImage;
  * Based on: <a href="http://openprocessing.org/sketch/4675">Rorschach Generator</a>
  */
 @LXCategory(LXCategory.FORM)
-public class LavaLamp extends PGPixelPerfect {
+public class LavaLamp extends P3PixelPerfectBase {
   private static final float COLOR_CHANGE_TIME = 10.0f;
   private static final float DEFAULT_FPS = GLOBAL_FRAME_RATE;
 
@@ -33,7 +32,7 @@ public class LavaLamp extends PGPixelPerfect {
 
   private static final int N_BALLS = 42;
   private static final float BOUNDARY_THRESHOLD = 0.1f;
-  private static final float V_MAX = 3;
+  private static final float V_MAX = 0.6f;
 
   private float[][] balls;  // i: x, y, vx, vy
 
@@ -51,12 +50,6 @@ public class LavaLamp extends PGPixelPerfect {
 
   public LavaLamp(LX lx) {
     super(lx, P2D);
-
-    fpsKnob.addListener(lxParameter -> {
-          if (lxParameter.getValue() > 0.0) {
-            speedScale = 3.0f / fpsKnob.getValuef();
-          }
-        });
 
     addParameter(blackOnlyToggle);
   }
@@ -125,6 +118,7 @@ public class LavaLamp extends PGPixelPerfect {
   }
 
   private void moveBalls() {
+    float speedScale = speedKnob.getValuef();
     for(float[] ball : balls) {
       if (ball[0] <= 0 || ball[0] >= pg.width) {
         ball[2] = -ball[2];
@@ -134,8 +128,8 @@ public class LavaLamp extends PGPixelPerfect {
         ball[3] = -ball[3];
       }
 
-      ball[2] += pApplet.random(-0.1f, 0.1f);
-      ball[3] += pApplet.random(-0.1f, 0.1f);
+      ball[2] += applet.random(-0.1f, 0.1f);
+      ball[3] += applet.random(-0.1f, 0.1f);
       ball[2] = constrain(ball[2], -V_MAX, V_MAX);
       ball[3] = constrain(ball[3], -V_MAX, V_MAX);
 
@@ -145,7 +139,7 @@ public class LavaLamp extends PGPixelPerfect {
   }
 
   private void generateCircleImage() {
-    ballImage = pApplet.createImage(radius * 2, radius * 2, ARGB);
+    ballImage = applet.createImage(radius * 2, radius * 2, ARGB);
     for(int x = 0; x <= radius; x++) {
       for (int y = 0; y <= radius; y++) {
         float r2 = pow(x - radius, 2) + pow(y - radius, 2);
@@ -166,10 +160,10 @@ public class LavaLamp extends PGPixelPerfect {
 
   private void generateBalls() {
     for (float[] ball : balls) {
-      ball[0] = pApplet.random(radius, pg.width - radius);
-      ball[1] = pApplet.random(radius, pg.height - radius);
-      ball[2] = pApplet.random(-V_MAX, V_MAX);
-      ball[3] = pApplet.random(-V_MAX, V_MAX);
+      ball[0] = applet.random(radius, pg.width - radius);
+      ball[1] = applet.random(radius, pg.height - radius);
+      ball[2] = applet.random(-V_MAX, V_MAX);
+      ball[3] = applet.random(-V_MAX, V_MAX);
     }
   }
 }

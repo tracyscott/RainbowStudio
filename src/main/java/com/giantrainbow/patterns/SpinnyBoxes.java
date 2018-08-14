@@ -1,11 +1,11 @@
 package com.giantrainbow.patterns;
 
-import static com.giantrainbow.RainbowStudio.pApplet;
 import static com.giantrainbow.colors.Colors.RAINBOW_PALETTE;
 import static com.giantrainbow.colors.Colors.rgb;
 import static processing.core.PConstants.PI;
 import static processing.core.PConstants.RGB;
 
+import com.giantrainbow.RainbowStudio;
 import com.giantrainbow.canvas.Canvas;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
@@ -36,7 +36,7 @@ public class SpinnyBoxes extends CanvasPattern3D {
   }
 
   PImage makeTexture() {
-    PImage img = pApplet.createImage(canvas.width(), canvas.width(), RGB);
+    PImage img = RainbowStudio.pApplet.createImage(canvas.width(), canvas.width(), RGB);
 
     img.loadPixels();
     for (int i = 0; i < img.pixels.length; i++) {

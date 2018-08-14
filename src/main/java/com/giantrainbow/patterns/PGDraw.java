@@ -1,8 +1,8 @@
 package com.giantrainbow.patterns;
 
-import static com.giantrainbow.RainbowStudio.pApplet;
 import static processing.core.PApplet.ceil;
 
+import com.giantrainbow.RainbowStudio;
 import com.giantrainbow.model.RainbowBaseModel;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
@@ -38,7 +38,7 @@ public class PGDraw extends LXPattern {
     float radiusInWorldPixels = RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot;
     imageWidth = ceil(radiusInWorldPixels * 2.0f);
     imageHeight = ceil(radiusInWorldPixels);
-    pg = pApplet.createGraphics(imageWidth, imageHeight);
+    pg = RainbowStudio.pApplet.createGraphics(imageWidth, imageHeight);
     addParameter(fpsKnob);
     addParameter(antialiasKnob);
     fpsKnob.setValue(10.0);

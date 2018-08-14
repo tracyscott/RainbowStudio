@@ -1,6 +1,6 @@
 {
   "version": "0.1",
-  "timestamp": 1533710396689,
+  "timestamp": 1534119383612,
   "engine": {
     "id": 1,
     "class": "heronarts.lx.LXEngine",
@@ -15,7 +15,7 @@
       "crossfader": 0.4655172396451235,
       "crossfaderBlendMode": 0,
       "speed": 1.0,
-      "focusedChannel": 4,
+      "focusedChannel": 8,
       "cueA": false,
       "cueB": false,
       "multithreaded": false,
@@ -46,9 +46,9 @@
           "label": "MULTI",
           "arm": false,
           "selected": false,
-          "enabled": true,
+          "enabled": false,
           "cue": false,
-          "fader": 0.015,
+          "fader": 0.003,
           "crossfadeGroup": 0,
           "blendMode": 0
         },
@@ -63,7 +63,7 @@
           "label": "FORM",
           "arm": false,
           "selected": false,
-          "enabled": true,
+          "enabled": false,
           "cue": false,
           "fader": 1.0,
           "crossfadeGroup": 0,
@@ -114,7 +114,7 @@
                     "phase": 0.0,
                     "exp": 0.0
                   },
-                  "basis": 0.643213847874321
+                  "basis": 0.2497895599383268
                 }
               ],
               "modulations": [
@@ -152,7 +152,7 @@
           "label": "COLOR",
           "arm": false,
           "selected": false,
-          "enabled": true,
+          "enabled": false,
           "cue": false,
           "fader": 1.0,
           "crossfadeGroup": 0,
@@ -210,7 +210,7 @@
           "label": "TEXTURE",
           "arm": false,
           "selected": false,
-          "enabled": true,
+          "enabled": false,
           "cue": false,
           "fader": 1.0,
           "crossfadeGroup": 0,
@@ -255,10 +255,10 @@
         "parameters": {
           "label": "GIF",
           "arm": false,
-          "selected": true,
+          "selected": false,
           "enabled": true,
           "cue": false,
-          "fader": 0.016,
+          "fader": 0.625,
           "crossfadeGroup": 0,
           "blendMode": 0,
           "midiMonitor": false,
@@ -303,7 +303,7 @@
           "selected": false,
           "enabled": true,
           "cue": false,
-          "fader": 1.0,
+          "fader": 0.375,
           "crossfadeGroup": 0,
           "blendMode": 0,
           "midiMonitor": false,
@@ -430,7 +430,7 @@
         "parameters": {
           "label": "INTERACTIVE",
           "arm": false,
-          "selected": false,
+          "selected": true,
           "enabled": false,
           "cue": false,
           "fader": 1.0,
@@ -447,22 +447,39 @@
         },
         "effects": [],
         "clips": [],
-        "patternIndex": 0,
+        "patternIndex": 1,
         "patterns": [
           {
-            "id": 366,
-            "class": "heronarts.lx.pattern.IteratorPattern",
-            "modulationColor": -43776,
+            "id": 490,
+            "class": "com.giantrainbow.patterns.Pong",
+            "modulationColor": -5308161,
             "parameters": {
-              "label": "Iterator",
-              "speed": 10.0
+              "label": "Pong"
             },
             "modulation": {
               "modulators": [],
               "modulations": [],
               "triggers": []
             },
-            "autoCycleEnabled": false
+            "autoCycleEnabled": true
+          },
+          {
+            "id": 492,
+            "class": "com.giantrainbow.patterns.FlamingoRace",
+            "modulationColor": -16711764,
+            "parameters": {
+              "label": "FlamingoRace",
+              "Fps": 1.0,
+              "XSpd": 5.0,
+              "FireW": 8,
+              "JumpW": 20
+            },
+            "modulation": {
+              "modulators": [],
+              "modulations": [],
+              "triggers": []
+            },
+            "autoCycleEnabled": true
           }
         ]
       }
@@ -523,7 +540,7 @@
           "Band-3": 0.0,
           "Band-4": 0.0,
           "Band-5": 0.0,
-          "Band-6": 0.04159859927235898,
+          "Band-6": 0.0,
           "Band-7": 0.0,
           "Band-8": 0.0,
           "Band-9": 0.0,
@@ -564,7 +581,7 @@
       "modulationColor": -65372,
       "parameters": {
         "label": "Output",
-        "enabled": true,
+        "enabled": false,
         "mode": 0,
         "fps": 0.0,
         "gamma": 0,
@@ -573,6 +590,9 @@
     },
     "components": {
       "rainbowSettings": {
+        "minThr": -80.0,
+        "avgTs": 3.0,
+        "quietT": 60.0,
         "stdModeTime": 2000.0,
         "stdModeFadeTime": 1000.0,
         "gammaRed": 3.0,
@@ -581,7 +601,15 @@
         "pixlite1Ip": "192.168.1.175",
         "pixlite1Port": "6454",
         "pixlite2Ip": "192.168.2.134",
-        "pixlite2Port": "6455"
+        "pixlite2Port": "6455",
+        "midiCtrlMidiCh": 9.0,
+        "midiCtrlNxtGame": 37.0,
+        "midiCtrlPrvGame": 36.0,
+        "midiCtrlAudioM": 40.0,
+        "midiCtrlStdM": 41.0,
+        "midiCtlrInstrM": 42.0,
+        "midiCtrlInterM": 43.0,
+        "midiCtrlAutoAu": 48.0
       }
     },
     "modulation": {
@@ -607,7 +635,7 @@
             "phase": 0.0,
             "exp": 0.0
           },
-          "basis": 0.880990566413013
+          "basis": 0.7488121999824167
         },
         {
           "id": 216,
@@ -630,7 +658,7 @@
             "phase": 0.0,
             "exp": 0.0
           },
-          "basis": 0.4457901907737347
+          "basis": 0.19195536394347545
         }
       ],
       "modulations": [
@@ -724,7 +752,20 @@
       }
     },
     "midi": {
-      "inputs": [],
+      "inputs": [
+        {
+          "name": "LK Mini MIDI",
+          "channel": true,
+          "control": false,
+          "sync": false
+        },
+        {
+          "name": "LK Mini InControl",
+          "channel": true,
+          "control": false,
+          "sync": false
+        }
+      ],
       "surfaces": [],
       "mapping": [],
       "keyboard": false

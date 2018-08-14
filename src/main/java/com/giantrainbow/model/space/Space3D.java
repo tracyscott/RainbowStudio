@@ -42,7 +42,7 @@ public class Space3D {
     Matrix4f viewproj = view.mul(proj);
     Vector4f mypoint = new Vector4f(MIN_X + 1, MIN_Y + 1, -1, 1);
     Vector4f output = new Vector4f();
-    viewproj.transformProject(mypoint, output);
+    mypoint.mul(viewproj, output);
 
     System.err.println("mypoint" + mypoint + "\noutput" + output);
 

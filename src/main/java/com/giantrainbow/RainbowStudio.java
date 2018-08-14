@@ -29,6 +29,7 @@ import com.giantrainbow.model.RainbowModel3D;
 import com.giantrainbow.model.SimplePanel;
 import com.giantrainbow.ui.UIAudioMonitorLevels;
 import com.giantrainbow.ui.UIGammaSelector;
+import com.giantrainbow.ui.UIMidiControl;
 import com.giantrainbow.ui.UIModeSelector;
 import com.giantrainbow.ui.UIPixliteConfig;
 import com.google.common.reflect.ClassPath;
@@ -75,9 +76,11 @@ public class RainbowStudio extends PApplet {
   // Reference to top-level LX instance
   private heronarts.lx.studio.LXStudio lx;
 
+  public static PApplet pApplet;
+
   public static final boolean disableOutputOnStart = true;
   public static final int GLOBAL_FRAME_RATE = 60;
-  public static final boolean enableArtNet = true;
+  public static final boolean enableArtNet = false;
   public static final int ARTNET_PORT = 6454;
   public static final String LED_CONTROLLER_IP = "192.168.2.134";
 
@@ -88,11 +91,9 @@ public class RainbowStudio extends PApplet {
   private static final int RAINBOW_PANEL_4 = 4;
   private static final int RAINBOW_PANEL_2 = 5;
   private static final int RAINBOW_PANEL_1 = 6;
+  private static final int RAINBOW_START_PANEL = 7;
+  private static final int RAINBOW_END_PANEL = 8;
   private static final int MODEL_TYPE = FULL_RAINBOW; // RAINBOW_PANEL, RAINBOW_PANEL_4 or FULL_RAINBOW
-
-  // Used for PixelFlow.  Needs a reference to pApplet for setting up
-  // OpenGL Context.
-  public static PApplet pApplet;
 
   // This is a dumb way to do this, but store some project-common things here
   public static InputManager inputManager;
@@ -103,6 +104,7 @@ public class RainbowStudio extends PApplet {
   private static UIModeSelector modeSelector;
   private static UIAudioMonitorLevels audioMonitorLevels;
   private static UIPixliteConfig pixliteConfig;
+  public static UIMidiControl uiMidiControl;
 
   @Override
   public void settings() {
@@ -116,6 +118,7 @@ public class RainbowStudio extends PApplet {
    * @param lx the LX environment
    */
   private void registerAll(LXStudio lx) {
+    //lx.registerPattern(com.giantrainbow.patterns.ShaderToy.class);
     List<Class<? extends LXPattern>> patterns = lx.getRegisteredPatterns();
     List<Class<? extends LXEffect>> effects = lx.getRegisteredEffects();
     final String parentPackage = getClass().getPackage().getName();
@@ -153,8 +156,8 @@ public class RainbowStudio extends PApplet {
   @Override
   public void setup() {
     // Processing setup, constructs the window and the LX instance
-    pApplet = this;
     frameRate(GLOBAL_FRAME_RATE);
+    pApplet = this;
 
     LXModel model = buildModel(MODEL_TYPE);
     logger.info("Current renderer:" + sketchRenderer());
@@ -174,6 +177,8 @@ public class RainbowStudio extends PApplet {
         .setExpanded(false).addToContainer(lx.ui.leftPane.global);
     audioMonitorLevels = (UIAudioMonitorLevels) new UIAudioMonitorLevels(lx.ui).setExpanded(false).addToContainer(lx.ui.leftPane.global);
     pixliteConfig = (UIPixliteConfig) new UIPixliteConfig(lx.ui).setExpanded(false).addToContainer(lx.ui.leftPane.global);
+    uiMidiControl = (UIMidiControl) new UIMidiControl(lx.ui, lx, modeSelector).setExpanded(false).addToContainer(lx.ui.leftPane.global);
+    lx.engine.midi.addListener(uiMidiControl);
 
     if (MODEL_TYPE == RAINBOW_PANEL) {
       // Manually force the camera settings for a single panel.  A single panel is
@@ -209,7 +214,7 @@ public class RainbowStudio extends PApplet {
     if (enableArtNet) {
       switch (MODEL_TYPE) {
         case FULL_RAINBOW:
-          SimplePanel.configureOutputMultiPanel(lx, pixliteConfig);
+          SimplePanel.configureOutputMultiPanel(lx);
           break;
         case SRIKANTH_PANEL:
           SimplePanel.configureOutputSrikanthPanel(lx);
@@ -218,14 +223,19 @@ public class RainbowStudio extends PApplet {
           SimplePanel.configureOutputRainbowPanel(lx);
           break;
         case RAINBOW_PANEL_4:
-          SimplePanel.configureOutputMultiPanel(lx, pixliteConfig);
+          SimplePanel.configureOutputMultiPanel(lx);
           break;
         case RAINBOW_PANEL_2:
-          SimplePanel.configureOutputMultiPanel(lx, pixliteConfig);
+          SimplePanel.configureOutputMultiPanel(lx);
           break;
         case RAINBOW_PANEL_1:
-          SimplePanel.configureOutputMultiPanel(lx, pixliteConfig);
+          SimplePanel.configureOutputMultiPanel(lx);
           break;
+        case RAINBOW_START_PANEL:
+          Output.configureOutputMultiPanel(lx, true, false);
+          break;
+        case RAINBOW_END_PANEL:
+          Output.configureOutputMultiPanel(lx, false, true);
       }
     }
     if (disableOutputOnStart)
@@ -313,7 +323,7 @@ public class RainbowStudio extends PApplet {
 
     private static final String KEY_STDMODE_TIME = "stdModeTime";
     private static final String KEY_STDMODE_FADETIME = "stdModeFadeTime";
-    
+
     private static final String KEY_AUDIOMONITOR_MINTHR = "minThr";
     private static final String KEY_AUDIOMONITOR_AVGTS = "avgTs";
     private static final String KEY_AUDIOMONITOR_QUIETT = "quietT";
@@ -326,6 +336,15 @@ public class RainbowStudio extends PApplet {
     private static final String KEY_PIXLITE1_PORT = "pixlite1Port";
     private static final String KEY_PIXLITE2_IP = "pixlite2Ip";
     private static final String KEY_PIXLITE2_PORT = "pixlite2Port";
+    private static final String KEY_MIDICTRL_MIDICH = "midiCtrlMidiCh";
+    private static final String KEY_MIDICTRL_NXTGAME = "midiCtrlNxtGame";
+    private static final String KEY_MIDICTRL_PRVGAME = "midiCtrlPrvGame";
+    private static final String KEY_MIDICTRL_AUDIOM = "midiCtrlAudioM";
+    private static final String KEY_MIDICTRL_STDM = "midiCtrlStdM";
+    private static final String KEY_MIDICTRL_INSTRM = "midiCtlrInstrM";
+    private static final String KEY_MIDICTRL_INTERM = "midiCtrlInterM";
+    private static final String KEY_MIDICTRL_AUTOAU = "midiCtrlAutoAu";
+
 
     @Override
     public void save(LX lx, JsonObject obj) {
@@ -341,6 +360,15 @@ public class RainbowStudio extends PApplet {
       obj.addProperty(KEY_PIXLITE1_PORT, UIPixliteConfig.pixlite1PortP.getString());
       obj.addProperty(KEY_PIXLITE2_IP, UIPixliteConfig.pixlite2IpP.getString());
       obj.addProperty(KEY_PIXLITE2_PORT, UIPixliteConfig.pixlite2PortP.getString());
+
+      obj.addProperty(KEY_MIDICTRL_MIDICH, UIMidiControl.midiChP.getValue());
+      obj.addProperty(KEY_MIDICTRL_NXTGAME, UIMidiControl.nextGameP.getValue());
+      obj.addProperty(KEY_MIDICTRL_PRVGAME, UIMidiControl.prevGameP.getValue());
+      obj.addProperty(KEY_MIDICTRL_AUDIOM, UIMidiControl.audioModeP.getValue());
+      obj.addProperty(KEY_MIDICTRL_STDM, UIMidiControl.standardModeP.getValue());
+      obj.addProperty(KEY_MIDICTRL_INSTRM, UIMidiControl.instrumentModeP.getValue());
+      obj.addProperty(KEY_MIDICTRL_INTERM, UIMidiControl.interactiveModeP.getValue());
+      obj.addProperty(KEY_MIDICTRL_AUTOAU, UIMidiControl.autoAudioP.getValue());
     }
 
     @Override
@@ -382,6 +410,22 @@ public class RainbowStudio extends PApplet {
       if (obj.has(KEY_PIXLITE2_PORT)) {
         UIPixliteConfig.pixlite2PortP.setValue(obj.get(KEY_PIXLITE2_PORT).getAsString());
       }
+      if (obj.has(KEY_MIDICTRL_MIDICH))
+        UIMidiControl.midiChP.setValue(obj.get(KEY_MIDICTRL_MIDICH).getAsInt());
+      if (obj.has(KEY_MIDICTRL_NXTGAME))
+        UIMidiControl.nextGameP.setValue(obj.get(KEY_MIDICTRL_NXTGAME).getAsInt());
+      if (obj.has(KEY_MIDICTRL_PRVGAME))
+        UIMidiControl.prevGameP.setValue(obj.get(KEY_MIDICTRL_PRVGAME).getAsInt());
+      if (obj.has(KEY_MIDICTRL_AUDIOM))
+        UIMidiControl.audioModeP.setValue(obj.get(KEY_MIDICTRL_AUDIOM).getAsInt());
+      if (obj.has(KEY_MIDICTRL_STDM))
+        UIMidiControl.standardModeP.setValue(obj.get(KEY_MIDICTRL_STDM).getAsInt());
+      if (obj.has(KEY_MIDICTRL_INSTRM))
+        UIMidiControl.instrumentModeP.setValue(obj.get(KEY_MIDICTRL_INSTRM).getAsInt());
+      if (obj.has(KEY_MIDICTRL_INTERM))
+        UIMidiControl.interactiveModeP.setValue(obj.get(KEY_MIDICTRL_INTERM).getAsInt());
+      if (obj.has(KEY_MIDICTRL_AUTOAU))
+        UIMidiControl.autoAudioP.setValue(obj.get(KEY_MIDICTRL_AUTOAU).getAsInt());
     }
   }
 
@@ -395,7 +439,7 @@ public class RainbowStudio extends PApplet {
   }
 
   public void onUIReady(LXStudio lx, LXStudio.UI ui) {
-    // Add custom UI components here
+
   }
 
   public void draw() {
@@ -436,6 +480,10 @@ public class RainbowStudio extends PApplet {
     } else if (modelType == RAINBOW_PANEL_2) {
       return new RainbowModel3D(2);
     } else if (modelType == RAINBOW_PANEL_1) {
+      return new RainbowModel3D(1);
+    } else if (modelType == RAINBOW_START_PANEL) {
+      return new RainbowModel3D(1);
+    } else if (modelType == RAINBOW_END_PANEL) {
       return new RainbowModel3D(1);
     } else {
       return null;

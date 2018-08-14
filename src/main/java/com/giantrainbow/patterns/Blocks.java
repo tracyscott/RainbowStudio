@@ -5,7 +5,6 @@
 package com.giantrainbow.patterns;
 
 import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
-import static com.giantrainbow.RainbowStudio.pApplet;
 import static com.giantrainbow.colors.Colors.BLACK;
 import static com.giantrainbow.colors.Colors.WHITE;
 import static processing.core.PApplet.lerp;
@@ -37,7 +36,7 @@ import processing.core.PShape;
  * @author Shawn Silverman
  */
 @LXCategory(LXCategory.FORM)
-public class Blocks extends PGPixelPerfect {
+public class Blocks extends P3PixelPerfectBase {
   private Box[] boxes;
 
   private static final int SEGMENT_W = 15 * 4;
@@ -63,7 +62,7 @@ public class Blocks extends PGPixelPerfect {
       boxes[i] = new Box(BOX_W, BOX_H);
     }
 
-    font = pApplet.createFont("fonts/Roboto/Roboto-Bold.ttf", PANEL_H);
+    font = applet.createFont("fonts/Roboto/Roboto-Bold.ttf", PANEL_H);
 
     // From: https://commons.wikimedia.org/wiki/File:Burning-Man.svg
     // Linked from: https://eplaya.burningman.org/viewtopic.php?t=54052
@@ -95,10 +94,12 @@ public class Blocks extends PGPixelPerfect {
 
     for (int i = 0; i < boxes.length; i++) {
       if (boxes[i].isDone()) {
+        float start = lerp(2, 0, speedKnob.getValuef());
+        float stop = lerp(0, -2, speedKnob.getValuef());
         boxes[i].restart(
             Colors.randomColor(4),
             HALF_PI * (random.nextBoolean()  ? -1 : 1),
-            pow(2.0f, lerp(1, -1, random.nextInt(boxes.length)/(boxes.length - 1.0f))));
+            pow(2.0f, lerp(start, stop, random.nextFloat())));
       }
 
       pg.pushMatrix();
