@@ -37,6 +37,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   public final BooleanParameter clockwise = new BooleanParameter("clockwise", false);
 
   PGraphics textImage;
+  volatile boolean doRedraw;
   float currentPos = 0.0f;
   int lastPos = 0;
   String[] defaultTexts = {
@@ -45,7 +46,8 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     "Hello!",
   };
 
-  int currentString = 0;
+  int currentStringIndex = 0;
+  String currentString;
   int textGapPixels = 10;
   PFont font;
   int fontSize = pg.height;
@@ -75,13 +77,24 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     } else {
       pg.textFont(font);
     }
-    redrawTextBuffer();
+    doRedraw = true;
+  }
+
+  @Override
+  protected void tearDown() {
+    if (textImage != null) {
+      textImage.dispose();
+      textImage = null;
+    }
   }
 
   public void redrawTextBuffer() {
-    String currentText = textItems.get(currentString).getLabel();
+    currentString = textItems.get(currentStringIndex).getLabel();
 
-    textImage = RainbowStudio.pApplet.createGraphics(ceil(pg.textWidth(currentText)), pg.height);
+    if (textImage != null) {
+      textImage.dispose();
+    }
+    textImage = RainbowStudio.pApplet.createGraphics(ceil(pg.textWidth(currentString)), pg.height);
     textImage.noSmooth();
     textImage.beginDraw();
     textImage.background(0);
@@ -92,25 +105,32 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
       textImage.textSize(fontSize);
     }
 
-    textImage.text(currentText, 0, textImage.height - textImage.textDescent());
+    textImage.text(currentString, 0, textImage.height - textImage.textDescent());
     textImage.endDraw();
 
     currentPos = clockwise.getValueb()
         ? -textImage.width + textGapPixels
         : pg.width + 1;
     lastPos = Integer.MIN_VALUE;
+
+    doRedraw = false;
   }
 
   public void draw(double deltaDrawMs) {
-    boolean offScreen =
-        currentPos < -(textImage.width + textGapPixels)
-        || currentPos > pg.width && clockwise.getValueb();
-    if (offScreen) {
-      currentString++;
-      if (currentString >= textItems.size()) {
-        currentString = 0;
-      }
+    boolean needsRedraw =
+        doRedraw
+        || textImage == null
+        || textItemList.getFocusedItem() == null
+        || !textItemList.getFocusedItem().getLabel().equals(currentString)
+        || currentPos < -(textImage.width + textGapPixels)
+        || (currentPos > pg.width && clockwise.getValueb());
+    if (needsRedraw) {
       redrawTextBuffer();
+      textItemList.setFocusIndex(currentStringIndex);
+      currentStringIndex++;
+      if (currentStringIndex >= textItems.size()) {
+        currentStringIndex = 0;
+      }
     }
     // Optimization to not re-render if we haven't moved far enough since last frame.
     if (round(currentPos) != lastPos) {
