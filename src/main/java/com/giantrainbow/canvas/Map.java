@@ -176,7 +176,7 @@ public class Map {
   /**
    * buildWeight computes the relative weight of each subpixel using a gaussian kernel w/ standard
    * deviation set according to the subpixel density and the aliasing confidence level. (I think I'm
-   * saying this right)
+   * saying this right).
    */
   void buildWeights(LXPoint lxp) {
     int end = positions[lxp.index + 1];
@@ -336,6 +336,8 @@ public class Map {
     }
 
     img.updatePixels();
-    img.save("/Users/jmacd/Desktop/map.png");
+
+    // Note: to see the map.
+    // img.save("/Users/jmacd/Desktop/map.png");
   }
 }
