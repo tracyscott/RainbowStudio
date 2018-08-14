@@ -15,7 +15,7 @@ import processing.core.PGraphics;
 /** Abstract base class for all Processing PGraphics drawing and mapping to the Rainbow. */
 abstract class PGBase extends LXPattern {
   public final CompoundParameter fpsKnob =
-      new CompoundParameter("Fps", 1.0, GLOBAL_FRAME_RATE)
+      new CompoundParameter("Fps", GLOBAL_FRAME_RATE, 0.0, GLOBAL_FRAME_RATE)
           .setDescription("Controls the frames per second.");
 
   protected PGraphics pg;
