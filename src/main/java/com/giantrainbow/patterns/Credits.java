@@ -144,7 +144,6 @@ public class Credits extends P3PixelPerfectBase {
       textPG.background(BLACK, 0);  // Make the background alpha=0 in case of overlap
       textPG.fill(WHITE);
       textPG.textFont(font);
-      textPG.textSize(size);
       textPG.text(s, 0, (textPG.height - size)/2 + font.ascent()*size);
       textPG.endDraw();
 
