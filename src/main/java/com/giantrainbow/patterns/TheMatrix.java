@@ -6,6 +6,7 @@ package com.giantrainbow.patterns;
 import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
 import static com.giantrainbow.RainbowStudio.pApplet;
 import static com.giantrainbow.colors.Colors.BLACK;
+import static com.giantrainbow.colors.Colors.GREEN;
 import static processing.core.PConstants.P2D;
 
 import heronarts.lx.LX;
@@ -47,7 +48,7 @@ public class TheMatrix extends PGTexture {
     float yInc = MAX_Y_INCREMENT * speedKnob.getValuef();
     pg.fill(0, 10);
     pg.rect(0, 0, pg.width, pg.height);
-    pg.fill(0, pg.height/2, 0);
+    pg.fill(GREEN);
     for (float x = X_INCREMENT; x < pg.width; x += X_INCREMENT) {
       float y = (frameCount*yInc + pApplet.noise(x)*pg.height*x)%pg.height;
       pg.text((char) random.nextInt(256), x, y);
