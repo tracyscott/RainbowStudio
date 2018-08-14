@@ -50,7 +50,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   int renderedTextWidth = 0;
   int textGapPixels = 10;
   PFont font;
-  int fontSize = 30;
+  int fontSize = pg.height;
 
   public AnimatedTextPP(LX lx) {
     super(lx, "");
@@ -88,7 +88,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
       textImage.endDraw();
       redrawTextBuffer(renderedTextWidth + 10);
     } else {
-      textImage.text(currentText, 0, fontSize - 3);
+      textImage.text(currentText, 0, pg.height - textImage.textDescent());
       textImage.endDraw();
     }
     currentPos = clockwise.getValueb()
