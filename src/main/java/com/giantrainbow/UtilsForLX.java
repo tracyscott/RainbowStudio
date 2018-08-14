@@ -3,6 +3,8 @@
  */
 package com.giantrainbow;
 
+import heronarts.lx.LX;
+import heronarts.lx.LXChannelBus;
 import heronarts.lx.audio.LXAudioOutput;
 import java.io.File;
 import java.io.IOException;
@@ -71,5 +73,21 @@ public final class UtilsForLX {
       logger.log(Level.SEVERE, "Error copying audio file", ex);
     }
     return audioFile;
+  }
+
+  /**
+   * Retrieve a LXChannelBus by name.  LXChannelBus can either be an LXChannel or
+   * an LXGroup (group of channels).
+   *
+   * @param lx LX
+   * @param label Name of channel
+   * @return An LXChannelBus with a matching name.
+   */
+  public static LXChannelBus getChannelByLabel(LX lx, String label) {
+    for (LXChannelBus channelBus : lx.engine.channels) {
+      if (label.equalsIgnoreCase(channelBus.getLabel()))
+        return channelBus;
+    }
+    return null;
   }
 }

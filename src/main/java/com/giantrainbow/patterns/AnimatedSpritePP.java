@@ -4,6 +4,7 @@ import com.giantrainbow.PathUtils;
 import com.giantrainbow.RainbowStudio;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
+import heronarts.lx.parameter.BooleanParameter;
 import heronarts.lx.parameter.CompoundParameter;
 import heronarts.lx.parameter.StringParameter;
 import heronarts.p3lx.ui.CustomDeviceUI;
@@ -18,28 +19,30 @@ import java.util.List;
 import processing.core.PConstants;
 import processing.core.PImage;
 
+/**
+ * A pattern which loads a (possibly animated) GIF and draws it along the arc of the rainbow with
+ * configurable speed and direction.
+ */
 @LXCategory(LXCategory.FORM)
 public class AnimatedSpritePP extends PGPixelPerfect implements CustomDeviceUI {
+
+  private static final int CONTROLS_MIN_WIDTH = 120;
+  private static final String SPRITE_DIR = "spritepp/";
+
   public final StringParameter spriteFileKnob = new StringParameter("sprite", "smallcat");
   public final CompoundParameter xSpeed =
       new CompoundParameter("XSpd", 1, 20)
           .setDescription("X speed in pixels per frame");
+  public final BooleanParameter clockwise = new BooleanParameter("clockwise", false);
 
-  List<FileItem> fileItems = new ArrayList<>();
-  UIItemList.ScrollList fileItemList;
-  List<String> spriteFiles;
-  private static final int CONTROLS_MIN_WIDTH = 120;
-
-  private static final String FILENAME = "smallcat.gif";
-
-  private static final String SPRITE_DIR = "spritepp/";
-
+  private List<FileItem> fileItems = new ArrayList<>();
+  private UIItemList.ScrollList fileItemList;
+  private List<String> spriteFiles;
   private PImage[] images;
   private int currentPos;
 
   public AnimatedSpritePP(LX lx) {
     super(lx, null);
-    addParameter(xSpeed);
     xSpeed.setValue(5);
     loadSprite(spriteFileKnob.getString());
     spriteFiles = PathUtils.findDataFiles(SPRITE_DIR, ".gif");
@@ -61,11 +64,14 @@ public class AnimatedSpritePP extends PGPixelPerfect implements CustomDeviceUI {
     pg.background(0);
     try {
       PImage frameImg = images[((int)currentFrame)%images.length];
-      if (currentPos < 0 - frameImg.width) {
-        currentPos = pg.width + frameImg.width + 1;
+      boolean offScreen = currentPos < 0 - frameImg.width || currentPos > frameImg.width + pg.width;
+      if (offScreen) {
+        currentPos = clockwise.getValueb()
+            ? 0 - frameImg.width + 1
+            : pg.width + frameImg.width + 1;
       }
       pg.image(frameImg, currentPos, 0);
-      currentPos -= xSpeed.getValue();
+      currentPos += (xSpeed.getValue() * (clockwise.getValueb() ? 1 : -1));
     }
     catch (ArrayIndexOutOfBoundsException ex) {
       // handle race condition when reloading images.
@@ -73,7 +79,7 @@ public class AnimatedSpritePP extends PGPixelPerfect implements CustomDeviceUI {
   }
 
   /**
-   * Calls {@link PathUtils#loadSprite(String)} but also keeps track of the current position.
+   * Calls {@link PathUtils#loadSprite} but also keeps track of the current position.
    * This prepends {@link #SPRITE_DIR} and appends ".gif".
    *
    * @param path the sprite's name, not including parent paths or the ".gif" suffix
@@ -82,8 +88,8 @@ public class AnimatedSpritePP extends PGPixelPerfect implements CustomDeviceUI {
     images = PathUtils.loadSprite(RainbowStudio.pApplet, SPRITE_DIR + path + ".gif");
 
     if (images.length > 0) {
-      // Start off the screen to the right.
-      currentPos = pg.width + images[0].width + 1;
+      // Start off the image off-screen
+      currentPos = 0 - images[0].width + 1;
     }
   }
 
@@ -101,6 +107,13 @@ public class AnimatedSpritePP extends PGPixelPerfect implements CustomDeviceUI {
     knobsContainer.setPadding(3, 3, 3, 3);
     new UIKnob(xSpeed).addToContainer(knobsContainer);
     new UIKnob(fpsKnob).addToContainer(knobsContainer);
+    new UIButton()
+        .setParameter(clockwise)
+        .setLabel("clock\nwise")
+        .setTextOffset(0,12)
+        .setWidth(24)
+        .setHeight(16)
+        .addToContainer(knobsContainer);
     knobsContainer.addToContainer(device);
 
     UI2dContainer filenameEntry = new UI2dContainer(0, 0, device.getWidth(), 30);
