@@ -36,7 +36,6 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
       new CompoundParameter("XSpd", 0, 20).setDescription("X speed in pixels per frame");
   public final BooleanParameter clockwise = new BooleanParameter("clockwise", false);
 
-  int textBufferWidth = 200;
   PGraphics textImage;
   float currentPos = 0.0f;
   int lastPos = 0;
@@ -47,7 +46,6 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   };
 
   int currentString = 0;
-  int renderedTextWidth = 0;
   int textGapPixels = 10;
   PFont font;
   int fontSize = pg.height;
@@ -59,18 +57,31 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     addParameter(clockwise);
     String[] fontNames = PFont.list();
     for (String fontName : fontNames) {
-      logger.info("Font: " + fontName);
+      logger.fine("Font: " + fontName);
     }
     font = RainbowStudio.pApplet.createFont("04b", fontSize, true);
     for (int i = 0; i < defaultTexts.length; i++) {
       textItems.add(new TextItem(defaultTexts[i]));
     }
-    redrawTextBuffer(textBufferWidth);
     xSpeed.setValue(5);
   }
 
-  public void redrawTextBuffer(int bufferWidth) {
-    textImage = RainbowStudio.pApplet.createGraphics(bufferWidth, 30);
+
+  @Override
+  protected void setup() {
+    // Set the font here so that we can use it for sizing
+    if (font == null) {
+      pg.textSize(fontSize);
+    } else {
+      pg.textFont(font);
+    }
+    redrawTextBuffer();
+  }
+
+  public void redrawTextBuffer() {
+    String currentText = textItems.get(currentString).getLabel();
+
+    textImage = RainbowStudio.pApplet.createGraphics(ceil(pg.textWidth(currentText)), pg.height);
     textImage.noSmooth();
     textImage.beginDraw();
     textImage.background(0);
@@ -80,32 +91,26 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     } else {
       textImage.textSize(fontSize);
     }
-    String currentText = textItems.get(currentString).getLabel();
-    renderedTextWidth = ceil(textImage.textWidth(currentText));
-    // If the text was clipped, try again with a larger width.
-    if (renderedTextWidth + 1 >= bufferWidth) {
-      logger.info("text clipped: renderedTextWidth=" + renderedTextWidth);
-      textImage.endDraw();
-      redrawTextBuffer(renderedTextWidth + 10);
-    } else {
-      textImage.text(currentText, 0, pg.height - textImage.textDescent());
-      textImage.endDraw();
-    }
+
+    textImage.text(currentText, 0, textImage.height - textImage.textDescent());
+    textImage.endDraw();
+
     currentPos = clockwise.getValueb()
-        ? -renderedTextWidth + textGapPixels
+        ? -textImage.width + textGapPixels
         : pg.width + 1;
     lastPos = Integer.MIN_VALUE;
   }
 
   public void draw(double deltaDrawMs) {
-    boolean offScreen = currentPos < 0 - (renderedTextWidth + textGapPixels)
-      || currentPos > pg.width && clockwise.getValueb();
+    boolean offScreen =
+        currentPos < -(textImage.width + textGapPixels)
+        || currentPos > pg.width && clockwise.getValueb();
     if (offScreen) {
       currentString++;
       if (currentString >= textItems.size()) {
         currentString = 0;
       }
-      redrawTextBuffer(renderedTextWidth);
+      redrawTextBuffer();
     }
     // Optimization to not re-render if we haven't moved far enough since last frame.
     if (round(currentPos) != lastPos) {
