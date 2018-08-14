@@ -5,10 +5,10 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 ; SetTimer, CheckForExe, 5000 ;frequency
 Loop
 {
+	Sleep 30000
 	Process, Exist, FL64.exe
     if not Errorlevel {
         Run, C:\Program Files (x86)\Image-Line\FL Studio 20\FL64.exe "C:\Users\tracy\Documents\Image-Line\FL Studio\Projects\midimapped.flp", C:\Program Files (x86)\Image-Line\FL Studio 20
-		Sleep 40000
+		Sleep 30000
 	}
-	Sleep 20000
 }
