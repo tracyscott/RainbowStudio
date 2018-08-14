@@ -2,11 +2,10 @@ package com.giantrainbow.model.space;
 
 import org.joml.Matrix4f; // https://github.com/JOML-CI/JOML
 import org.joml.Vector3f;
-import org.joml.Vector4f;
 
 public class Space3D {
   // The rainbow is centered at X=0
-  public final float EYE_Z = -70;
+  public final float EYE_Z = 70;
   public final float EYE_Y = 6;
   public final float EYE_X = 0;
 
@@ -39,13 +38,8 @@ public class Space3D {
     Matrix4f proj = new Matrix4f();
     Matrix4f.projViewFromRectangle(eye, lowerLeft, xAxis, yAxis, FAR_CLIP, false, proj, view);
 
-    Matrix4f viewproj = view.mul(proj);
-    Vector4f mypoint = new Vector4f(MIN_X + 1, MIN_Y + 1, -1, 1);
-    Vector4f output = new Vector4f();
-    mypoint.mul(viewproj, output);
+    Matrix4f viewproj = proj.mul(view);
 
-    System.err.println("mypoint" + mypoint + "\noutput" + output);
-
-    System.err.println("x = " + (output.x / output.w) + "\ny = " + (output.y / output.w));
+    System.err.println("Test mypoint: " + viewproj.testPoint(MIN_X + 1, EYE_Y + MIN_Y + 1, -1));
   }
 }
