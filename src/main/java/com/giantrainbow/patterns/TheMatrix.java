@@ -18,7 +18,7 @@ import heronarts.lx.parameter.CompoundParameter;
 public class TheMatrix extends PGTexture {
   private static final float FONT_SIZE = 15.0f;
   private static final float X_INCREMENT = 2 * FONT_SIZE;
-  private static final float MAX_Y_INCREMENT = 6.0f;
+  private static final float MAX_Y_INCREMENT = FONT_SIZE / 2;
 
   private int frameCount;
 
