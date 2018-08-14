@@ -29,7 +29,7 @@ public class Credits extends P3PixelPerfectBase {
 
   private static final float SPRING_K = 20.0f;  // Maximum
   private static final float DAMPING = 0.3f;
-  private static final float TEXT_HEIGHT = 0.5f;  // Relative to pg.height
+  private static final float TEXT_HEIGHT = 0.7f;  // Relative to pg.height
 
   private static final float VELOCITY = 100.0f;  // Maximum
   private static final float COMPRESSION = 0.8f;  // Relative to pg.width
@@ -56,6 +56,10 @@ public class Credits extends P3PixelPerfectBase {
     super(lx, P2D);
 
     font = applet.createFont("fonts/Roboto/Roboto-Black.ttf", pg.height*TEXT_HEIGHT);
+    // Can get these fonts from fonts.google.com:
+//    font = applet.createFont("fonts/Fontdiner_Swanky/FontdinerSwanky-Regular.ttf", pg.height*TEXT_HEIGHT);
+//    font = applet.createFont("fonts/Slackey/Slackey-Regular.ttf", pg.height*TEXT_HEIGHT);
+//    font = applet.createFont("fonts/Galindo/Galindo-Regular.ttf", pg.height*TEXT_HEIGHT);
 
     addParameter(stiffnessKnob);
   }
