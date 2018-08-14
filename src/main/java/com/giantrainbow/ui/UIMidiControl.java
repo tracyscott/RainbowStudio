@@ -10,12 +10,8 @@ import heronarts.lx.parameter.StringParameter;
 import heronarts.lx.studio.LXStudio;
 import heronarts.p3lx.ui.UI2dContainer;
 import heronarts.p3lx.ui.component.UICollapsibleSection;
-import heronarts.p3lx.ui.component.UIDropMenu;
 import heronarts.p3lx.ui.component.UIKnob;
-import heronarts.p3lx.ui.component.UITextBox;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
 
 public class UIMidiControl extends UICollapsibleSection implements LXMidiListener  {
@@ -52,8 +48,8 @@ public class UIMidiControl extends UICollapsibleSection implements LXMidiListene
     setTitle("MIDI CTRL");
     setLayout(UI2dContainer.Layout.VERTICAL);
     setChildMargin(2);
-    this.lx = lx;
-    this.modeSelector = modeSelector;
+    UIMidiControl.lx = lx;
+    UIMidiControl.modeSelector = modeSelector;
     UI2dContainer knobsContainer = new UI2dContainer(0, 30, getContentWidth(), 45);
     knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
     knobsContainer.setPadding(0, 0, 0, 0);
