@@ -44,7 +44,9 @@ public class AnimatedSpritePP extends PGPixelPerfect implements CustomDeviceUI {
   public AnimatedSpritePP(LX lx) {
     super(lx, null);
     xSpeed.setValue(5);
-    loadSprite(spriteFileKnob.getString());
+    addParameter(xSpeed);
+    addParameter(spriteFileKnob);
+    addParameter(clockwise);
     spriteFiles = PathUtils.findDataFiles(SPRITE_DIR, ".gif");
     for (String filename : spriteFiles) {
       // Use a name that's suitable for the knob
@@ -61,6 +63,9 @@ public class AnimatedSpritePP extends PGPixelPerfect implements CustomDeviceUI {
   }
 
   public void draw(double deltaMs) {
+    if (images == null && !spriteFileKnob.getString().isEmpty()) {
+      loadSprite(spriteFileKnob.getString());
+    }
     pg.background(0);
     try {
       PImage frameImg = images[((int)currentFrame)%images.length];
