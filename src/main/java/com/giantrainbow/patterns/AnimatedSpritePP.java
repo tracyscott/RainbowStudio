@@ -16,7 +16,6 @@ import heronarts.p3lx.ui.component.UIKnob;
 import heronarts.p3lx.ui.component.UITextBox;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import processing.core.PConstants;
 import processing.core.PImage;
 
