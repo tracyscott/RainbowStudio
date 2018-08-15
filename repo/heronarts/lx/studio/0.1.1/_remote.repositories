@@ -1,4 +1,4 @@
 #NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
-#Tue Aug 14 17:11:47 PDT 2018
-studio-0.1.0-alpha.jar>=
-studio-0.1.0-alpha.pom>=
+#Wed Aug 15 16:17:10 PDT 2018
+studio-0.1.1.pom>=
+studio-0.1.1.jar>=
