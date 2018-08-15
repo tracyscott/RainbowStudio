@@ -10,7 +10,6 @@ import static processing.core.PApplet.max;
 import static processing.core.PConstants.P2D;
 
 import com.giantrainbow.PathUtils;
-import com.giantrainbow.RainbowStudio;
 import com.giantrainbow.UtilsForLX;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
@@ -40,7 +39,7 @@ import processing.core.PImage;
  * @author Shawn Silverman
  */
 @LXCategory(LXCategory.FORM)
-public class NyanCat extends PGPixelPerfect {
+public class NyanCat extends P3PixelPerfectBase {
   private static final Logger logger = Logger.getLogger(NyanCat.class.getName());
 
   private static final int BACKGROUND_COLOR = 0xff0f4d8f;
@@ -83,7 +82,7 @@ public class NyanCat extends PGPixelPerfect {
   public NyanCat(LX lx) {
     super(lx, P2D);
 
-    catFrames = PathUtils.loadSprite(RainbowStudio.pApplet, SPRITE_FILE);
+    catFrames = PathUtils.loadSprite(applet, SPRITE_FILE);
     maxImgWidth = 0;
     int maxImgHeight = 0;
     for (PImage img : catFrames) {
@@ -93,10 +92,10 @@ public class NyanCat extends PGPixelPerfect {
     }
 
     catX = -maxImgWidth;
-    catY = (pg.height - maxImgHeight)/2;
+    catY = (float) ((pg.height - maxImgHeight)/2);
 
     // Write the audio to a temp file because LX's audio engine only works with File
-    audioFile = UtilsForLX.copyAudioForOutput(RainbowStudio.pApplet, SOUND_FILE, lx.engine.audio.output);
+    audioFile = UtilsForLX.copyAudioForOutput(applet, SOUND_FILE, lx.engine.audio.output);
   }
 
   @Override
@@ -200,7 +199,7 @@ public class NyanCat extends PGPixelPerfect {
         }
         float alpha = 255.0f;
         if (i > RAINBOW_SEGMENT_COUNT/2) {
-          alpha = map(i, RAINBOW_SEGMENT_COUNT/2, RAINBOW_SEGMENT_COUNT - 1, 255.0f, 25.0f);
+          alpha = map(i, (float) (RAINBOW_SEGMENT_COUNT/2), RAINBOW_SEGMENT_COUNT - 1, 255.0f, 25.0f);
         }
         for (int j = 0; j < RAINBOW_COLORS.length; j++) {
           pg.fill(RAINBOW_COLORS[j], alpha);
