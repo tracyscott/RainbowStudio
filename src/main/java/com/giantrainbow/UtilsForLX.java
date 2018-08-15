@@ -6,12 +6,15 @@ package com.giantrainbow;
 import heronarts.lx.LX;
 import heronarts.lx.LXChannelBus;
 import heronarts.lx.audio.LXAudioOutput;
+import heronarts.p3lx.ui.component.UIItemList;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import processing.core.PApplet;
@@ -89,5 +92,29 @@ public final class UtilsForLX {
         return channelBus;
     }
     return null;
+  }
+
+  /**
+   * Gets the focused index of a {@link UIItemList}. This assumes that the {@link UIItemList.Item}
+   * implementation impements the {@code equals()} method.
+   * <p>
+   * This returns -1 if there is no focused index.</p>
+   *
+   * @param list the {@link UIItemList}
+   * @return the focused index, or -1 if there is no focused index.
+   */
+  public static int getFocusedIndex(UIItemList itemList) {
+    UIItemList.Item focused = itemList.getFocusedItem();
+    if (focused == null) {
+      return -1;
+    }
+
+    List<? extends UIItemList.Item> items = itemList.getItems();
+    for (int i = 0; i < items.size(); i++) {
+      if (Objects.equals(focused, items.get(i))) {
+        return i;
+      }
+    }
+    return -1;
   }
 }

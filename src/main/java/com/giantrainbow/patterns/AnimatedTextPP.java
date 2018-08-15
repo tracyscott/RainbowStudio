@@ -4,6 +4,7 @@ import static processing.core.PApplet.ceil;
 import static processing.core.PApplet.round;
 
 import com.giantrainbow.RainbowStudio;
+import com.giantrainbow.UtilsForLX;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.parameter.BooleanParameter;
@@ -18,6 +19,7 @@ import heronarts.p3lx.ui.component.UIKnob;
 import heronarts.p3lx.ui.component.UITextBox;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Logger;
 import processing.core.PConstants;
 import processing.core.PFont;
@@ -46,8 +48,8 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     "Hello!",
   };
 
-  int currentStringIndex;
-  String currentString;
+  int currIndex;
+  UIItemList.Item currItem;
 
   int textGapPixels = 10;
   PFont font;
@@ -67,6 +69,11 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
       textItems.add(new TextItem(defaultTexts[i]));
     }
     xSpeed.setValue(5);
+
+    currIndex = -1;
+    if (textItems.size() > 0) {
+      currIndex = 0;
+    }
   }
 
 
@@ -81,9 +88,12 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     doRedraw = true;
 
     if (textItemList.getItems().size() > 0) {
-      textItemList.setFocusIndex(0);
+      if (currIndex < 0) {
+        currIndex = 0;
+      }
+      textItemList.setFocusIndex(currIndex);
+      currItem = textItemList.getFocusedItem();
     }
-    currentStringIndex = -1;
   }
 
   @Override
@@ -99,22 +109,12 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     if (item == null) {
       return;
     }
-    currentString = item.getLabel();
-
-    // Find which is the focused index
-    List<? extends UIItemList.Item> items = textItemList.getItems();
-    currentStringIndex = -1;
-    for (int i = 0; i < items.size(); i++) {
-      if (currentString.equals(items.get(i).getLabel())) {
-        currentStringIndex = i;
-        break;
-      }
-    }
+    String label = item.getLabel();
 
     if (textImage != null) {
       textImage.dispose();
     }
-    textImage = RainbowStudio.pApplet.createGraphics(ceil(pg.textWidth(currentString)), pg.height);
+    textImage = RainbowStudio.pApplet.createGraphics(ceil(pg.textWidth(label)), pg.height);
     textImage.noSmooth();
     textImage.beginDraw();
     textImage.background(0);
@@ -125,7 +125,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
       textImage.textSize(fontSize);
     }
 
-    textImage.text(currentString, 0, textImage.height - textImage.textDescent());
+    textImage.text(label, 0, textImage.height - textImage.textDescent());
     textImage.endDraw();
 
     currentPos = clockwise.getValueb()
@@ -145,18 +145,24 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     boolean needsRedraw =
         doRedraw
         || textItemList.getFocusedItem() == null
-        || !textItemList.getFocusedItem().getLabel().equals(currentString)
+        || !Objects.equals(textItemList.getFocusedItem(), currItem)
         || offscreen;
 
     if (needsRedraw) {
       if (offscreen) {
-        currentStringIndex++;
-        if (currentStringIndex >= textItems.size()) {
-          currentStringIndex = 0;
+        if (textImage != null) {
+          if (!textItems.isEmpty()) {
+            // Increment only if we're not starting fresh
+            currIndex = (currIndex + 1)%textItems.size();
+          }
         }
-        textItemList.setFocusIndex(currentStringIndex);
+        textItemList.setFocusIndex(currIndex);
       }
-      redrawTextBuffer();
+      currItem = textItemList.getFocusedItem();
+      currIndex = UtilsForLX.getFocusedIndex(textItemList);
+      if (currIndex >= 0) {
+        redrawTextBuffer();
+      }
     }
 
     // Optimization to not re-render if we haven't moved far enough since last frame.
@@ -240,6 +246,27 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     public void onDelete() {
       textItems.remove(this);
       textItemList.removeItem(this);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hashCode(text);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (obj == this) {
+        return true;
+      }
+      if (obj == null || !(obj instanceof TextItem)) {
+        return false;
+      }
+      return Objects.equals(this.text, ((TextItem) obj).text);
+    }
+
+    @Override
+    public String toString() {
+      return text;
     }
   }
 }
