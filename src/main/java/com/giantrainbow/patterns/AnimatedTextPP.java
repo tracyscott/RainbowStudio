@@ -159,7 +159,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
         textItemList.setFocusIndex(currIndex);
       }
       currItem = textItemList.getFocusedItem();
-      currIndex = UtilsForLX.getFocusedIndex(textItemList);
+      currIndex = textItemList.getFocusedIndex();
       if (currIndex >= 0) {
         redrawTextBuffer();
       }
