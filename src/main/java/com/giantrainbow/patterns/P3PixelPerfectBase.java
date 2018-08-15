@@ -1,6 +1,7 @@
 package com.giantrainbow.patterns;
 
 import com.giantrainbow.RainbowStudio;
+import com.giantrainbow.model.RainbowBaseModel;
 import heronarts.lx.LX;
 import heronarts.lx.parameter.CompoundParameter;
 import heronarts.p3lx.P3LXPattern;
@@ -16,7 +17,7 @@ import processing.core.PApplet;
  * <li>Be "pixel-perfect", in RainbowStudio parlance.</li>
  * </ol>
  */
-abstract class P3PixelPerfectBase extends PGPixelPerfect {
+abstract class P3PixelPerfectBase extends PGBase {
   /** Controls speed in the range 0-1. Defaults to 0.5. */
   public final CompoundParameter speedKnob =
       new CompoundParameter("Speed", 0.5, 0.0, 1.0)
@@ -32,10 +33,17 @@ abstract class P3PixelPerfectBase extends PGPixelPerfect {
    * @param drawMode the draw mode
    */
   protected P3PixelPerfectBase(LX lx, String drawMode) {
-    super(lx, drawMode);
+    super(lx,
+        ((RainbowBaseModel)lx.model).pointsWide,
+        ((RainbowBaseModel)lx.model).pointsHigh,
+        drawMode);
 
     this.applet = RainbowStudio.pApplet;
 
     addParameter(speedKnob);
+  }
+
+  protected final void imageToPoints() {
+    RenderImageUtil.imageToPointsPixelPerfect(colors, pg);
   }
 }
