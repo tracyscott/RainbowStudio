@@ -24,6 +24,7 @@ uniform vec3  iChannelResolution[4]; // image/buffer/sound    Input texture reso
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
   vec2 c = fragCoord / iResolution.xy;
+  c.x *= 0.3;  // Scale it in the X direction for a better visual fit.
   fragColor = vec4(1.0, 1.0, 1.0, 1.0);
   float mag = texture(iChannel0, vec2(0.5*c.x, 0.5*c.y)).r;
   if (c.y > mag) {

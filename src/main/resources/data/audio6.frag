@@ -23,10 +23,11 @@ uniform vec3  iChannelResolution[4]; // image/buffer/sound    Input texture reso
 
 void mainImage( out vec4 o,  vec2 i )
 {
-    vec3 r=vec3(1,0,0);
-    vec3 y=vec3(1,1,0);
-    vec3 g=vec3(0,1,0);
-    vec3 b=vec3(0,0,1);
+
+    vec3 r=vec3(1.0,0.,0.);
+    vec3 y=vec3(1.,1.,0.);
+    vec3 g=vec3(0.,1.,0.);
+    vec3 b=vec3(0.,0.,1.);
     vec3 ca[19];
     ca[1]=b*2./6.+r*4./6.;
     ca[2]=b*1./6.+r*5./6.;
@@ -47,7 +48,7 @@ void mainImage( out vec4 o,  vec2 i )
     ca[17]=b*4./6.+r*2./6.;
     ca[18]=b*3./6.+r*3./6.;
     
-    vec2 uv = (i - .01*iResolution.xy)/(iResolution.y); //(i - .5*iResolution.xy)/iResolution.y;
+    vec2 uv = (i - .01*iResolution.xy)/(iResolution.y); //(i - 0.5*iResolution.xy)/iResolution.y;
     
     uv.y = uv.y - 0.4;
     uv.y = uv.y * 0.06;
@@ -57,18 +58,18 @@ void mainImage( out vec4 o,  vec2 i )
     uv.y += 0.01 * sin(20.0*cos(5.0*uv.x)/sin(iTime));
     uv.x = uv.x * 4.0;
     int c=0;
-    float bandDensity = 80.;
+    float bandDensity = 80.0;
     float bandIntensity = 0.148;
-    for (float x=0.; x<bandDensity;x+=4./bandDensity )
+    for (float x=0.0; x<bandDensity;x+=4.0/bandDensity )
     {       
         c+=1;
-        vec4 color=vec4(ca[c%18+1],0);
+        vec4 color=vec4(ca[c%18+1],0.0);
+        
         float fftVal = texture(iChannel0, vec2(80.0-x/160.0, 0.)).r * 2.0;
-        fftVal = 10.0 * iMouse.x * fftVal;
-        float len = length(uv/8.0 - .1 * x * vec2(4.0, 0));
+        fftVal = 2.0 * iMouse.x * fftVal;
+        float len = length(uv/8.0 - .1 * x * vec2(4.0, 0.0));
         len = len * 30.0;
         o+=color*vec4(fftVal*bandIntensity/len);
     }
-    
-    o+=vec4(0,0,0,0);
+    o+=vec4(0.0, 0.0, 0.0, 1.0);
 }
