@@ -31,12 +31,10 @@ public class RainbowModel3D extends RainbowBaseModel {
   public ArrayList<LXPoint> perimeter;
 
   public RainbowModel3D(int numPanels) {
-    super(new Fixture(numPanels));
+    super(new Fixture(numPanels), numPanels * 15, 30);
     float arc = (numPanels * 15.0f - 1) * RainbowBaseModel.rainbowThetaInc;
     this.thetaStart = 90.0f - arc/2.0f;
     this.thetaFinish = 90.0f + arc/2.0f;
-    pointsWide = numPanels * 15;
-    pointsHigh = 30;
 
     perimeter = new ArrayList<LXPoint>();
 
