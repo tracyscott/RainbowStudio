@@ -126,13 +126,13 @@
         <dependency>
             <groupId>heronarts.lx</groupId>
             <artifactId>studio</artifactId>
-            <version>1.0.0</version>
+            <version>0.1.0-alpha</version>
         </dependency>
 
         <dependency>
             <groupId>heronarts.lx</groupId>
             <artifactId>studio-p3</artifactId>
-            <version>1.0.0</version>
+            <version>0.1.0-alpha</version>
         </dependency>
 
         <dependency>

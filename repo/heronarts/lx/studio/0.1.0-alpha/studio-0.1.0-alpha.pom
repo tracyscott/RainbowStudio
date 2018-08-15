@@ -4,6 +4,6 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>heronarts.lx</groupId>
   <artifactId>studio</artifactId>
-  <version>1.0.0</version>
+  <version>0.1.0-alpha</version>
   <description>POM was created from install:install-file</description>
 </project>

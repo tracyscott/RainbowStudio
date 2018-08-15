@@ -3,10 +3,10 @@
   <groupId>heronarts.lx</groupId>
   <artifactId>studio-p3</artifactId>
   <versioning>
-    <release>1.0.0</release>
+    <release>0.1.0-alpha</release>
     <versions>
-      <version>1.0.0</version>
+      <version>0.1.0-alpha</version>
     </versions>
-    <lastUpdated>20180802070318</lastUpdated>
+    <lastUpdated>20180815001218</lastUpdated>
   </versioning>
 </metadata>
