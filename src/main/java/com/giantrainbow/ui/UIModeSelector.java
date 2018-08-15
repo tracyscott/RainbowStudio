@@ -287,24 +287,33 @@ public class UIModeSelector extends UICollapsibleSection {
     public double avgDb = 0.0;
     public long sampleCount = 0;
     public double avgTimeRemaining;
-    public double avgTime = 3000.0;
 
     public void loop(double deltaMs) {
       // TODO(tracy): We need a number of samples over time and then decide if we should switch
       // based on that.
       if (!autoAudioModeP.isOn()) return;
 
+      double gainDelta = 0.5;
+      double reduceThreshold = 45.0;
+      double gainThreshold = 10.0;
       double currentDb = lx.engine.audio.meter.getDecibels();
+
       avgTimeRemaining -= deltaMs;
       sampleCount++;
       avgDb = avgDb + currentDb/sampleCount;
       if (avgTimeRemaining > 0.0)
         return;
-      System.out.println("avgDb:" + avgDb);
-      System.out.println("checking for switch");
       // We are done averaging samples, reset our variables.
       sampleCount = 0;
       avgTimeRemaining = UIAudioMonitorLevels.avgTimeP.getValue() * 1000.0;
+
+      // We have built our dB level average over some seconds, check to see if we should
+      // perform AutoGain Control
+      if (avgDb > reduceThreshold) {
+        lx.engine.audio.meter.gain.setValue(lx.engine.audio.meter.gain.getValue() - gainDelta);
+      } else if (avgDb < gainThreshold) {
+        lx.engine.audio.meter.gain.setValue(lx.engine.audio.meter.gain.getValue() + gainDelta);
+      }
 
       if (avgDb > UIAudioMonitorLevels.minThresholdP.getValue()
           //&& deltaLastModeSwap > UIAudioMonitorLevels.quietTimeP.getValue() * 1000.0
@@ -314,7 +323,6 @@ public class UIModeSelector extends UICollapsibleSection {
         UIModeSelector.this.interactiveMode.setActive(false);
         UIModeSelector.this.instrumentMode.setActive(false);
         UIModeSelector.this.audioMode.setActive(true);
-        // UIModeSelector.this.setAudioChannelEnabled(true);
         audioMode = true;
         deltaLastModeSwap = 0.0;
       } else if (avgDb < UIAudioMonitorLevels.minThresholdP.getValue()

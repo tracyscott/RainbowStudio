@@ -11,11 +11,11 @@ public class UIAudioMonitorLevels extends UICollapsibleSection {
       new BoundedParameter("MinThr", -80.0, -100.0, 40.0);
   public static BoundedParameter avgTimeP =
       new BoundedParameter("AvgTS", 1.0, 3.0, 30.0);
-  public static BoundedParameter quietTimeP =
-      new BoundedParameter("QuietT", 60.0, 0.0, 180.0);
+  public static BoundedParameter gainIncP =
+      new BoundedParameter("GainInc", 1.0, 0.1, 5.0);
   public static UIKnob minThreshold;
   public static UIKnob avgTime;
-  public static UIKnob quietTime;
+  public static UIKnob gainInc;
 
   public UIAudioMonitorLevels(final LXStudio.UI ui) {
     super(ui, 0, 0, ui.leftPane.global.getContentWidth(), 200);
@@ -30,8 +30,8 @@ public class UIAudioMonitorLevels extends UICollapsibleSection {
     minThreshold.addToContainer(knobsContainer);
     avgTime = new UIKnob(avgTimeP);
     avgTime.addToContainer(knobsContainer);
-    quietTime = new UIKnob(quietTimeP);
-    quietTime.addToContainer(knobsContainer);
+    gainInc = new UIKnob(gainIncP);
+    gainInc.addToContainer(knobsContainer);
     knobsContainer.addToContainer(this);
   }
 }
