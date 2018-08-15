@@ -209,7 +209,7 @@ class RenderImageUtil {
     }
   }
 
-  /**
+  /*
    * Render an image on the rainbow. Includes an option for antialiasing.
    * This method assumes that the image has been scaled to correspond
    * to the bounding box size of the rainbow arc.  The pixel density is
