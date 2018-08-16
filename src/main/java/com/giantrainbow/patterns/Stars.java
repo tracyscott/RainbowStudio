@@ -19,8 +19,10 @@ import processing.core.PConstants;
 public class Stars extends PGPixelPerfect {
 
 
-  public final CompoundParameter numStarParam = new CompoundParameter("stars", 50, 200, 1000);
-  public final CompoundParameter newStarParam = new CompoundParameter("newStars", 1, 2, 200);
+  public final CompoundParameter numStarParam =
+      new CompoundParameter("stars", pg.height, pg.height, pg.width * pg.height / 10);
+  public final CompoundParameter newStarParam =
+      new CompoundParameter("twinkle", 1, 2, pg.width * pg.height / 1000);
 
   private static ThreadLocalRandom rando = ThreadLocalRandom.current();
   private int xoffset = 0;
