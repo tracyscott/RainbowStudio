@@ -42,7 +42,7 @@ public class GameOfLife extends P3PixelPerfectBase {
   private static final float SCALE = 4.0f;  // Global size scale factor
   private static final float MAX_RING_MULT = 2.0f;
 
-  // For tracking repeats so we can reset
+  /** For tracking repeats so we can reset. */
   private static final int HISTORY_SIZE = 6;
 
   private Grid grid;
