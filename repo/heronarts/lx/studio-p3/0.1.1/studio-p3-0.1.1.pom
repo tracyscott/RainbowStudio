@@ -3,7 +3,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <groupId>heronarts.lx</groupId>
-  <artifactId>studio</artifactId>
-  <version>1.0.0</version>
+  <artifactId>studio-p3</artifactId>
+  <version>0.1.1</version>
   <description>POM was created from install:install-file</description>
 </project>

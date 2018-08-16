@@ -23,16 +23,21 @@ import java.util.logging.Logger;
 public abstract class RainbowBaseModel extends LXModel {
   private static final Logger logger = Logger.getLogger(RainbowBaseModel.class.getName());
 
-  public RainbowBaseModel(LXFixture fixture) {
+  public final int pointsWide;
+  public final int pointsHigh;
+  public float thetaStart;
+  public float thetaFinish;
+
+  public RainbowBaseModel(LXFixture fixture, int width, int height) {
     super(fixture);
+    this.pointsWide = width;
+    this.pointsHigh =  height;
 
     logger.info("X: " + xMin + " - " + xMax);
     logger.info("Y: " + yMin + " - " + yMax);
+    logger.info("pointsWide: " + pointsWide);
+    logger.info("pointsHigh: " + pointsHigh);
   }
-  public int pointsWide;
-  public int pointsHigh;
-  public float thetaStart;
-  public float thetaFinish;
 
   // From CAD drawings.  Note that these numbers are off the mechanical dimensions, so
   // there might still be some small adjustments.  Also, the variables below have the

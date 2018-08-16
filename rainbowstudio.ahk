@@ -7,10 +7,10 @@ Loop
 {
     ;Process, Exist, RainbowStudio
 	;IfWinExist RainbowStudio
+	Sleep 30000  ; Sleep first to avoid machine startup timing issues.
 	Process, Exist, java.exe
     if not Errorlevel {
         Run, C:\Users\tracy\Documents\Processing\RainbowStudio\rainbowstudio.bat, C:\Users\tracy\Documents\Processing\RainbowStudio
-		Sleep 40000
+		Sleep 30000
 	}
-	Sleep 20000
 }

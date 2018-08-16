@@ -4,6 +4,7 @@ import static processing.core.PApplet.ceil;
 import static processing.core.PApplet.round;
 
 import com.giantrainbow.RainbowStudio;
+import com.giantrainbow.UtilsForLX;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.parameter.BooleanParameter;
@@ -18,6 +19,7 @@ import heronarts.p3lx.ui.component.UIKnob;
 import heronarts.p3lx.ui.component.UITextBox;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Logger;
 import processing.core.PConstants;
 import processing.core.PFont;
@@ -36,8 +38,8 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
       new CompoundParameter("XSpd", 0, 20).setDescription("X speed in pixels per frame");
   public final BooleanParameter clockwise = new BooleanParameter("clockwise", false);
 
-  int textBufferWidth = 200;
   PGraphics textImage;
+  volatile boolean doRedraw;
   float currentPos = 0.0f;
   int lastPos = 0;
   String[] defaultTexts = {
@@ -46,8 +48,9 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     "Hello!",
   };
 
-  int currentString = 0;
-  int renderedTextWidth = 0;
+  int currIndex;
+  UIItemList.Item currItem;
+
   int textGapPixels = 10;
   PFont font;
   int fontSize = pg.height;
@@ -59,18 +62,59 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     addParameter(clockwise);
     String[] fontNames = PFont.list();
     for (String fontName : fontNames) {
-      logger.info("Font: " + fontName);
+      logger.fine("Font: " + fontName);
     }
     font = RainbowStudio.pApplet.createFont("04b", fontSize, true);
     for (int i = 0; i < defaultTexts.length; i++) {
       textItems.add(new TextItem(defaultTexts[i]));
     }
-    redrawTextBuffer(textBufferWidth);
     xSpeed.setValue(5);
+
+    currIndex = -1;
+    if (textItems.size() > 0) {
+      currIndex = 0;
+    }
   }
 
-  public void redrawTextBuffer(int bufferWidth) {
-    textImage = RainbowStudio.pApplet.createGraphics(bufferWidth, 30);
+
+  @Override
+  protected void setup() {
+    // Set the font here so that we can use it for sizing
+    if (font == null) {
+      pg.textSize(fontSize);
+    } else {
+      pg.textFont(font);
+    }
+    doRedraw = true;
+
+    if (textItemList.getItems().size() > 0) {
+      if (currIndex < 0) {
+        currIndex = 0;
+      }
+      textItemList.setFocusIndex(currIndex);
+      currItem = textItemList.getFocusedItem();
+    }
+  }
+
+  @Override
+  protected void tearDown() {
+    if (textImage != null) {
+      textImage.dispose();
+      textImage = null;
+    }
+  }
+
+  public void redrawTextBuffer() {
+    UIItemList.Item item = textItemList.getFocusedItem();
+    if (item == null) {
+      return;
+    }
+    String label = item.getLabel();
+
+    if (textImage != null) {
+      textImage.dispose();
+    }
+    textImage = RainbowStudio.pApplet.createGraphics(ceil(pg.textWidth(label)), pg.height);
     textImage.noSmooth();
     textImage.beginDraw();
     textImage.background(0);
@@ -80,35 +124,49 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     } else {
       textImage.textSize(fontSize);
     }
-    String currentText = textItems.get(currentString).getLabel();
-    renderedTextWidth = ceil(textImage.textWidth(currentText));
-    // If the text was clipped, try again with a larger width.
-    if (renderedTextWidth + 1 >= bufferWidth) {
-      logger.info("text clipped: renderedTextWidth=" + renderedTextWidth);
-      textImage.endDraw();
-      redrawTextBuffer(renderedTextWidth + 10);
-    } else {
-      textImage.text(currentText, 0, pg.height - textImage.textDescent());
-      textImage.endDraw();
-    }
+
+    textImage.text(label, 0, textImage.height - textImage.textDescent());
+    textImage.endDraw();
+
     currentPos = clockwise.getValueb()
-        ? -renderedTextWidth + textGapPixels
+        ? -textImage.width + textGapPixels
         : pg.width + 1;
     lastPos = Integer.MIN_VALUE;
+
+    doRedraw = false;
   }
 
   public void draw(double deltaDrawMs) {
-    boolean offScreen = currentPos < 0 - (renderedTextWidth + textGapPixels)
-      || currentPos > pg.width && clockwise.getValueb();
-    if (offScreen) {
-      currentString++;
-      if (currentString >= textItems.size()) {
-        currentString = 0;
+    boolean offscreen =
+        textImage == null
+        || currentPos < -(textImage.width + textGapPixels)
+        || (currentPos > pg.width && clockwise.getValueb());
+
+    boolean needsRedraw =
+        doRedraw
+        || textItemList.getFocusedItem() == null
+        || !Objects.equals(textItemList.getFocusedItem(), currItem)
+        || offscreen;
+
+    if (needsRedraw) {
+      if (offscreen) {
+        if (textImage != null) {
+          if (!textItems.isEmpty()) {
+            // Increment only if we're not starting fresh
+            currIndex = (currIndex + 1)%textItems.size();
+          }
+        }
+        textItemList.setFocusIndex(currIndex);
       }
-      redrawTextBuffer(renderedTextWidth);
+      currItem = textItemList.getFocusedItem();
+      currIndex = textItemList.getFocusedIndex();
+      if (currIndex >= 0) {
+        redrawTextBuffer();
+      }
     }
+
     // Optimization to not re-render if we haven't moved far enough since last frame.
-    if (round(currentPos) != lastPos) {
+    if (textImage != null && round(currentPos) != lastPos) {
       pg.background(0);
       pg.image(textImage, round(currentPos), 0);
       lastPos = round(currentPos);
@@ -188,6 +246,27 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     public void onDelete() {
       textItems.remove(this);
       textItemList.removeItem(this);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hashCode(text);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (obj == this) {
+        return true;
+      }
+      if (obj == null || !(obj instanceof TextItem)) {
+        return false;
+      }
+      return Objects.equals(this.text, ((TextItem) obj).text);
+    }
+
+    @Override
+    public String toString() {
+      return text;
     }
   }
 }

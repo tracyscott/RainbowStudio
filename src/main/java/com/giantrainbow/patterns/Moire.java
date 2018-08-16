@@ -12,7 +12,6 @@ import static processing.core.PApplet.sqrt;
 import static processing.core.PConstants.P2D;
 import static processing.core.PConstants.RADIUS;
 
-import com.giantrainbow.RainbowStudio;
 import com.giantrainbow.colors.ColorRainbow;
 import com.giantrainbow.colors.Colors;
 import com.giantrainbow.input.InputManager;
@@ -30,7 +29,7 @@ import java.util.List;
  * @author Shawn Silverman
  */
 @LXCategory(LXCategory.FORM)
-public class Moire extends PGPixelPerfect {
+public class Moire extends P3PixelPerfectBase {
   private static final int POINT_COUNT = 4;
   private static final int RADIUS_PER_WIDTH = 25;
 
@@ -84,7 +83,7 @@ public class Moire extends PGPixelPerfect {
 
     pg.ellipseMode(RADIUS);
 
-    radiusInc = pg.width / RADIUS_PER_WIDTH;
+    radiusInc = (float) (pg.width / RADIUS_PER_WIDTH);
     points.clear();
     for (int i = 0; i < POINT_COUNT; i++) {
       points.add(new Point());
@@ -113,7 +112,7 @@ public class Moire extends PGPixelPerfect {
     pg.background(BLACK);
     pg.noStroke();
     ColorRainbow[] rainbows = this.rainbows;
-    float h = pg.height / rainbows.length;
+    float h = (float) (pg.height / rainbows.length);
     for (int i = 0; i < rainbows.length; i++) {
       pg.fill(rainbows[i].get(pg, fpsKnob.getValuef()));
       pg.rect(0, i*h, pg.width, h);
@@ -145,7 +144,7 @@ public class Moire extends PGPixelPerfect {
     private LowPassFilter filter;  // For filtering radius decay
 
     Point() {
-      radiusInc = Moire.this.radiusInc * RainbowStudio.pApplet.random(0.5f, 0.8f);
+      radiusInc = Moire.this.radiusInc * applet.random(0.5f, 0.8f);
       noiseInc = 0.07f / fpsKnob.getValuef();
       fpsKnob.addListener(lxParameter -> noiseInc = 0.07f / lxParameter.getValuef());
 
@@ -157,10 +156,10 @@ public class Moire extends PGPixelPerfect {
     void drawCircles(float beatLevel, float dt) {
       noiseX += noiseInc;
       noiseY += noiseInc;
-      RainbowStudio.pApplet.noiseSeed(seed);
+      applet.noiseSeed(seed);
 
-      float x = map(RainbowStudio.pApplet.noise(noiseX, 0), 0.0f, 1.0f, -radiusInc, pg.width + radiusInc);
-      float y = map(RainbowStudio.pApplet.noise(0, noiseY), 0.0f, 1.0f, -pg.height, pg.height + pg.height);
+      float x = map(applet.noise(noiseX, 0), 0.0f, 1.0f, -radiusInc, pg.width + radiusInc);
+      float y = map(applet.noise(0, noiseY), 0.0f, 1.0f, -pg.height, pg.height + pg.height);
       float maxRadius = 2.0f*sqrt(pg.width*pg.width + pg.height*pg.height);
       float radius = 0.0f;
       beatLevel = filter.next(beatLevel, dt);

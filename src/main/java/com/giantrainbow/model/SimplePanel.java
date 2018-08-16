@@ -38,15 +38,11 @@ public class SimplePanel extends RainbowBaseModel {
   public static final int UNIVERSE = 0;
 
   public SimplePanel(int width, int height) {
-      super(new Fixture(width, height));
-      pointsWide = width;
-      pointsHigh = height;
+      super(new Fixture(width, height), width, height);
   }
 
   public SimplePanel() {
-    super(new Fixture());
-    pointsWide = LED_WIDTH;
-    pointsHigh = LED_HEIGHT;
+    super(new Fixture(), LED_WIDTH, LED_HEIGHT);
   }
 
   public static class Fixture extends LXAbstractFixture {
