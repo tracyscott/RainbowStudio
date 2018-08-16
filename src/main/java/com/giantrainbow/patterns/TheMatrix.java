@@ -6,12 +6,12 @@ package com.giantrainbow.patterns;
 import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
 import static com.giantrainbow.RainbowStudio.pApplet;
 import static com.giantrainbow.colors.Colors.BLACK;
-import static com.giantrainbow.colors.Colors.GREEN;
 import static processing.core.PConstants.P2D;
 
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.parameter.CompoundParameter;
+import java.awt.Color;
 
 // Inspired from the code here:
 // https://forum.processing.org/one/topic/challenge-re-create-the-iconic-matrix-visual-effect-in-most-succinct-and-flexible-algorithm.html
@@ -27,10 +27,15 @@ public class TheMatrix extends PGTexture {
       new CompoundParameter("Speed", 0.5, 0.0, 1.0)
           .setDescription("Speed control");
 
+  private final int mainColor;
+
   public TheMatrix(LX lx) {
     super(lx, P2D);
 
     addParameter(speedKnob);
+
+    // Slightly desaturated green
+    mainColor = Color.HSBtoRGB(1.0f/3.0f, 0.9f, 1.0f);
   }
 
   @Override
@@ -48,7 +53,7 @@ public class TheMatrix extends PGTexture {
     float yInc = MAX_Y_INCREMENT * speedKnob.getValuef();
     pg.fill(0, 10);
     pg.rect(0, 0, pg.width, pg.height);
-    pg.fill(GREEN);
+    pg.fill(mainColor);
     for (float x = X_INCREMENT; x < pg.width; x += X_INCREMENT) {
       float y = (frameCount*yInc + pApplet.noise(x)*pg.height*x)%pg.height;
       pg.text((char) random.nextInt(256), x, y);
