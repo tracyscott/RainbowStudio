@@ -152,7 +152,7 @@ public class UIModeSelector extends UICollapsibleSection {
       if (lx.engine.audio.input.device.getObject().isAvailable()) {
         this.standardMode.setActive(true);
         lx.engine.audio.enabled.setValue(true);
-        this.addLoopTask(new AudioMonitor());
+        lx.engine.addLoopTask(new AudioMonitor());
       } else {
         logger.warning("Audio Input device is not available!");
       }
@@ -160,7 +160,7 @@ public class UIModeSelector extends UICollapsibleSection {
       logger.warning("Audio Input is null.");
     }
 
-    this.addLoopTask(new StandardModeCycle());
+    lx.engine.addLoopTask(new StandardModeCycle());
   }
 
   // TODO(tracy): We need to bring down everybody else's faders while bringing
@@ -270,7 +270,9 @@ public class UIModeSelector extends UICollapsibleSection {
         if (currentPlayingChannel >= standardModeChannels.size()) {
           currentPlayingChannel = 0;
         }
+        // logger.info("previous: " + currentChannel.getLabel());
         currentChannel = standardModeChannels.get(currentPlayingChannel);
+        // logger.info("current: " + currentChannel.getLabel());
         if (currentChannel != null) {
           currentChannel.enabled.setValue(true);
           currentChannelPlayTime = 0.0; // Reset play time counter.
