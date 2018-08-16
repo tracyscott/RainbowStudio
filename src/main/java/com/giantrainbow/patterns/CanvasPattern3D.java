@@ -7,7 +7,7 @@ import heronarts.lx.LX;
 
 /**
  * CanvasPattern3D supports 3D-drawing into a linear array of pixels, then anti-aliasing into true
- * rainbow pixels. [WIP]
+ * rainbow pixels.
  */
 abstract class CanvasPattern3D extends PGBase {
   Canvas canvas;
