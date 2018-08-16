@@ -29,7 +29,7 @@ abstract class P3PixelPerfectBase extends PGBase {
    * Subclasses, in order to be loaded by LXStudio, must have a constructor containing just the
    * first parameter.
    *
-   * @param lx the {@link LX} object
+   * @param lx the {@link LX} context
    * @param drawMode the draw mode
    */
   protected P3PixelPerfectBase(LX lx, String drawMode) {
