@@ -13,9 +13,15 @@ public class UIAudioMonitorLevels extends UICollapsibleSection {
       new BoundedParameter("AvgTS", 1.0, 3.0, 30.0);
   public static BoundedParameter gainIncP =
       new BoundedParameter("GainInc", 1.0, 0.1, 5.0);
+  public static BoundedParameter reduceThrshP =
+      new BoundedParameter("RThrsh", 45.0, 10.0, 50.0);
+  public static BoundedParameter gainThrshP =
+      new BoundedParameter("GThrsh", 20.0, 1.0, 40.0);
   public static UIKnob minThreshold;
   public static UIKnob avgTime;
   public static UIKnob gainInc;
+  public static UIKnob reduceThrsh;
+  public static UIKnob gainThrsh;
 
   public UIAudioMonitorLevels(final LXStudio.UI ui) {
     super(ui, 0, 0, ui.leftPane.global.getContentWidth(), 200);
@@ -32,6 +38,15 @@ public class UIAudioMonitorLevels extends UICollapsibleSection {
     avgTime.addToContainer(knobsContainer);
     gainInc = new UIKnob(gainIncP);
     gainInc.addToContainer(knobsContainer);
+    knobsContainer.addToContainer(this);
+    knobsContainer =
+        new UI2dContainer(0, 30, ui.leftPane.global.getContentWidth(), 45);
+    knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
+    knobsContainer.setPadding(0, 0, 0, 0);
+    reduceThrsh = new UIKnob(reduceThrshP);
+    reduceThrsh.addToContainer(knobsContainer);
+    gainThrsh = new UIKnob(gainThrshP);
+    gainThrsh.addToContainer(knobsContainer);
     knobsContainer.addToContainer(this);
   }
 }

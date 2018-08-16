@@ -327,6 +327,8 @@ public class RainbowStudio extends PApplet {
     private static final String KEY_AUDIOMONITOR_MINTHR = "minThr";
     private static final String KEY_AUDIOMONITOR_AVGTS = "avgTs";
     private static final String KEY_AUDIOMONITOR_GAININC = "gainInc";
+    private static final String KEY_AUDIOMONITOR_RTHRSH = "reduceThrsh";
+    private static final String KEY_AUDIOMONITOR_GTHRSH = "gainThrsh";
 
     private static final String KEY_GAMMA_RED = "gammaRed";
     private static final String KEY_GAMMA_GREEN = "gammaGreen";
@@ -351,6 +353,9 @@ public class RainbowStudio extends PApplet {
       obj.addProperty(KEY_AUDIOMONITOR_MINTHR, UIAudioMonitorLevels.minThresholdP.getValue());
       obj.addProperty(KEY_AUDIOMONITOR_AVGTS, UIAudioMonitorLevels.avgTimeP.getValue());
       obj.addProperty(KEY_AUDIOMONITOR_GAININC, UIAudioMonitorLevels.gainIncP.getValue());
+      obj.addProperty(KEY_AUDIOMONITOR_RTHRSH, UIAudioMonitorLevels.reduceThrshP.getValue());
+      obj.addProperty(KEY_AUDIOMONITOR_GTHRSH, UIAudioMonitorLevels.gainThrshP.getValue());
+
       obj.addProperty(KEY_STDMODE_TIME, UIModeSelector.timePerChannelP.getValue());
       obj.addProperty(KEY_STDMODE_FADETIME, UIModeSelector.fadeTimeP.getValue());
       obj.addProperty(KEY_GAMMA_RED, UIGammaSelector.redGamma.getValue());
@@ -382,6 +387,12 @@ public class RainbowStudio extends PApplet {
       }
       if (obj.has(KEY_AUDIOMONITOR_GAININC)) {
         UIAudioMonitorLevels.gainIncP.setValue(obj.get(KEY_AUDIOMONITOR_GAININC).getAsDouble());
+      }
+      if (obj.has(KEY_AUDIOMONITOR_RTHRSH)) {
+        UIAudioMonitorLevels.reduceThrshP.setValue(obj.get(KEY_AUDIOMONITOR_RTHRSH).getAsDouble());
+      }
+      if (obj.has(KEY_AUDIOMONITOR_GTHRSH)) {
+        UIAudioMonitorLevels.gainThrshP.setValue(obj.get(KEY_AUDIOMONITOR_GTHRSH).getAsDouble());
       }
       if (obj.has(KEY_STDMODE_TIME)) {
         UIModeSelector.timePerChannelP.setValue(obj.get(KEY_STDMODE_TIME).getAsDouble());

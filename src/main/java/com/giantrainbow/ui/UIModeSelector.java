@@ -295,9 +295,10 @@ public class UIModeSelector extends UICollapsibleSection {
       // based on that.
       if (!autoAudioModeP.isOn()) return;
 
-      double gainDelta = 0.5;
-      double reduceThreshold = 45.0;
-      double gainThreshold = 10.0;
+      double gainDelta = UIAudioMonitorLevels.gainIncP.getValue();
+      double reduceThreshold = UIAudioMonitorLevels.reduceThrshP.getValue();//45.0;
+
+      double gainThreshold = UIAudioMonitorLevels.gainThrshP.getValue(); // 10.0;
       double currentDb = lx.engine.audio.meter.getDecibels();
 
       avgTimeRemaining -= deltaMs;
