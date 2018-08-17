@@ -151,7 +151,7 @@
             "parameters": {
               "label": "CheckerMove",
               "Fps": 60.0,
-              "Gray Scale": false
+              "Monochrome": false
             },
             "modulation": {
               "modulators": [],
@@ -281,7 +281,7 @@
             "parameters": {
               "label": "LavaLamp",
               "Fps": 60.0,
-              "B \u0026 W": false
+              "Monochrome": false
             },
             "modulation": {
               "modulators": [],
