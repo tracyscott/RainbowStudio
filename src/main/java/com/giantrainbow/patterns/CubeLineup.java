@@ -1,7 +1,6 @@
 package com.giantrainbow.patterns;
 
 import static com.giantrainbow.colors.Colors.RAINBOW_PALETTE;
-import static com.giantrainbow.colors.Colors.rgb;
 import static processing.core.PConstants.PI;
 import static processing.core.PConstants.RGB;
 
@@ -79,7 +78,6 @@ public class CubeLineup extends CanvasPattern3D {
   Space3D space;
 
   public class Box {
-    int C;
     PVector R;
     int W;
     float rotation;
@@ -90,7 +88,6 @@ public class CubeLineup extends CanvasPattern3D {
 
     Box() {
       W = (int) (rnd.nextFloat() * MAX_SIZE);
-      C = rgb(rnd.nextInt(255), rnd.nextInt(255), rnd.nextInt(255));
       R = PVector.random3D();
     }
 
@@ -98,8 +95,6 @@ public class CubeLineup extends CanvasPattern3D {
       pg.beginShape();
 
       pg.texture(texture);
-
-      pg.fill(C);
 
       pg.vertex(-radius(), -radius(), zoff, 0, 0);
       pg.vertex(+radius(), -radius(), zoff, canvas.width(), 0);

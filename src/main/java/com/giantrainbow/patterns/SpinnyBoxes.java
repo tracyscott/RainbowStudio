@@ -1,39 +1,40 @@
 package com.giantrainbow.patterns;
 
-import static com.giantrainbow.colors.Colors.RAINBOW_PALETTE;
-import static com.giantrainbow.colors.Colors.rgb;
 import static processing.core.PConstants.PI;
-import static processing.core.PConstants.RGB;
 
-import com.giantrainbow.RainbowStudio;
 import com.giantrainbow.canvas.Canvas;
+import com.giantrainbow.colors.Colors;
 import com.giantrainbow.model.space.Space3D;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.parameter.CompoundParameter;
 import java.util.Random;
 import org.joml.Vector3f;
-import processing.core.PImage;
 import processing.core.PVector;
 
 @LXCategory(LXCategory.FORM)
 public class SpinnyBoxes extends CanvasPattern3D {
 
+  public final int MAX_SIZE = 150;
+  public final int MAX_CUBES = 1000;
+  public final float MAX_SPEED = 100000;
+
   public final CompoundParameter speedKnob =
-      new CompoundParameter("Speed", 1, 20).setDescription("Speed.");
+      new CompoundParameter("Speed", MAX_SPEED / 5, 10, MAX_SPEED).setDescription("Speed");
+  public final CompoundParameter countKnob =
+      new CompoundParameter("Count", MAX_CUBES / 5, 10, MAX_CUBES).setDescription("Count");
 
   public SpinnyBoxes(LX lx) {
     super(lx, new Canvas(lx.model));
-    fpsKnob.setValue(60);
-    speedKnob.setValue(1);
     addParameter(speedKnob);
+    addParameter(countKnob);
+    removeParameter(fpsKnob);
 
     Vector3f eye = new Vector3f(0, Space3D.MIN_Y + 6, 60);
 
     space = new Space3D(eye);
-    boxes = new Box[100];
+    boxes = new Box[MAX_CUBES];
     rnd = new Random();
-    texture = makeTexture();
 
     int trials = 0;
     for (int i = 0; i < boxes.length; i++) {
@@ -42,12 +43,7 @@ public class SpinnyBoxes extends CanvasPattern3D {
         b = new Box();
         trials++;
       } while (!space.testBox(
-          b.X - b.radius(),
-          b.Y - b.radius(),
-          b.Z - b.radius(),
-          b.X + b.radius(),
-          b.Y + b.radius(),
-          b.Z + b.radius()));
+          -b.radius(), -b.radius(), -b.radius(), b.radius(), b.radius(), b.radius()));
 
       boxes[i] = b;
     }
@@ -56,68 +52,48 @@ public class SpinnyBoxes extends CanvasPattern3D {
         "Found boxes by %.1f%% rejection sampling\n", 100. * (float) boxes.length / (float) trials);
   }
 
-  PImage makeTexture() {
-    PImage img = RainbowStudio.pApplet.createImage(canvas.width(), canvas.width(), RGB);
-
-    img.loadPixels();
-    for (int i = 0; i < img.pixels.length; i++) {
-      float x = (float) (i % canvas.width()) / (float) canvas.width();
-      float x6 = x * 6;
-      int xi = (int) x6;
-
-      img.pixels[i] = RAINBOW_PALETTE[xi];
-    }
-    img.updatePixels();
-    return img;
-  }
-
   Random rnd;
   Box boxes[];
   double elapsed;
-  PImage texture;
   Space3D space;
 
-  final float maxSize = 150;
-
   public class Box {
-    float X;
-    float Y;
-    float Z;
-    int C;
     PVector R;
     int W;
-    float S;
+    float rotation;
 
     float radius() {
       return (float) W / 2;
     }
 
-    Box() {
-      // TODO: Can't get `perspective` call below working right, these
-      // set the sampling space boundary but aren't working w/
-      // perspective below.
-      X = 0;
-      Y = 0;
-      Z = 0;
-      W = (int) (rnd.nextFloat() * maxSize);
-
-      C = rgb(rnd.nextInt(255), rnd.nextInt(255), rnd.nextInt(255));
-      R = PVector.random3D();
-      S = rnd.nextFloat();
+    float partW() {
+      return W / (float) Colors.RAINBOW_PALETTE.length;
     }
 
-    void drawRect(float zoff) {
-      pg.beginShape();
+    Box() {
+      W = (int) (rnd.nextFloat() * MAX_SIZE);
+      R = PVector.random3D();
+    }
 
-      pg.texture(texture);
+    void drawPart(float zoff, int C, int part) {
+      pg.beginShape();
 
       pg.fill(C);
 
-      pg.vertex(-radius(), -radius(), zoff, 0, 0);
-      pg.vertex(+radius(), -radius(), zoff, canvas.width(), 0);
-      pg.vertex(+radius(), +radius(), zoff, canvas.width(), canvas.height());
-      pg.vertex(-radius(), +radius(), zoff, 0, canvas.height());
+      float xmin = -radius() + (float) part * partW();
+      float xmax = xmin + partW();
+
+      pg.vertex(xmin, -radius(), zoff);
+      pg.vertex(xmax, -radius(), zoff);
+      pg.vertex(xmax, +radius(), zoff);
+      pg.vertex(xmin, +radius(), zoff);
       pg.endShape();
+    }
+
+    void drawRect(float zoff) {
+      for (int i = 0; i < Colors.RAINBOW_PALETTE.length; i++) {
+        drawPart(zoff, Colors.RAINBOW_PALETTE[i], i);
+      }
     }
 
     void drawSides() {
@@ -146,19 +122,22 @@ public class SpinnyBoxes extends CanvasPattern3D {
     void draw() {
       pg.pushMatrix();
 
-      pg.translate(X, Y, -Z);
-      pg.rotate((float) (speedKnob.getValue() * elapsed * PI / 10000.), R.x, R.y, R.z);
+      pg.rotate(rotation, R.x, R.y, R.z);
 
       draw3Sides();
 
       pg.popMatrix();
     }
+
+    void update() {
+      rotation = (float) (elapsed / 10000);
+    }
   };
 
   public void draw(double deltaMs) {
-    elapsed += deltaMs;
+    double speed = Math.log10(speedKnob.getValue());
+    elapsed += deltaMs * speed;
 
-    pg.lights();
     pg.noStroke();
     pg.background(0);
 
@@ -173,12 +152,12 @@ public class SpinnyBoxes extends CanvasPattern3D {
         1,
         0);
 
-    // TODO: Can't get this working right. Perspective should match the Space3D's eye position.
-    //
-    // pg.perspective(space.fovy(), space.aspect(), 0, Float.POSITIVE_INFINITY);
+    for (Box b : boxes) {
+      b.update();
+    }
 
-    for (Box box : boxes) {
-      box.draw();
+    for (int i = 0; i < (int) countKnob.getValue(); i++) {
+      boxes[i].draw();
     }
   }
 }
