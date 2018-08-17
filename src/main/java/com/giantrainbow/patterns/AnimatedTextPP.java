@@ -154,6 +154,13 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
           if (!textItems.isEmpty()) {
             // Increment only if we're not starting fresh
             currIndex = (currIndex + 1)%textItems.size();
+            // In order to not randomly fade out text in the middle of playing, the channel
+            // scheduling code in UIModeSelector will disable fading between standard-mode
+            // channels while text is playing.  In order for that to not wreak havoc, this
+            // pattern will need to advance to another pattern when the entire chunk of text
+            // has been displayed. This also implies that a standard-mode channel should not
+            // consist of only AnimatedTextPP patterns otherwise channel switching will stall.
+            getChannel().goNext();
           }
         }
         textItemList.setFocusIndex(currIndex);
