@@ -24,14 +24,12 @@ public class CubeLineup extends CanvasPattern3D {
   public final float MAX_SPEED = 100000;
 
   public final CompoundParameter speedKnob =
-      new CompoundParameter("Speed", 10000, 10, MAX_SPEED).setDescription("Speed");
+      new CompoundParameter("Speed", MAX_SPEED / 5, 10, MAX_SPEED).setDescription("Speed");
   public final CompoundParameter countKnob =
-      new CompoundParameter("Count", 100, 10, MAX_CUBES).setDescription("Count");
+      new CompoundParameter("Count", MAX_CUBES / 5, 10, MAX_CUBES).setDescription("Count");
 
   public CubeLineup(LX lx) {
     super(lx, new Canvas(lx.model));
-    speedKnob.setValue(1);
-    countKnob.setValue(MAX_CUBES / 2);
     addParameter(speedKnob);
     addParameter(countKnob);
     removeParameter(fpsKnob);
