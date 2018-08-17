@@ -32,13 +32,13 @@ public class GameOfLife extends P3PixelPerfectBase {
   private static final float COLOR_CHANGE_TIME = 5.0f;
 
   /** The maximum grid update rate. */
-  private static final float MAX_UPDATE_RATE = 40;
+  private static final float MAX_UPDATE_RATE = 20;
 
   /**
    * Time to maintain the game after detecting a repeat. This should be a multiple of
    * 1/{@link #MAX_UPDATE_RATE}.
    */
-  private static final float MAINTAIN_TIME = 4.0f;
+  private static final float MAINTAIN_TIME = 3.5f;
 
   private static final float SCALE = 4.0f;  // Global size scale factor
   private static final float MAX_RING_MULT = 2.0f;
