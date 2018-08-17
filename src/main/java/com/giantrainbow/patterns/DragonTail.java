@@ -66,7 +66,7 @@ public class DragonTail extends P3PixelPerfectBase {
         startY = map(i, 0, startX.length, -stepY, stepY);
         float y = pg.height*0.55f + startY + map(sin(theta + offset), -1, 1, -stepY, stepY);
         pg.fill(col[i], 70, 90);
-        pg.ellipse(x - pg.width/6, y, sz, sz);
+        pg.ellipse((float) (x - pg.width/6), y, sz, sz);
       }
     }
     pg.filter(DILATE);
