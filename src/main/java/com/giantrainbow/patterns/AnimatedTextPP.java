@@ -40,10 +40,12 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
 
   PGraphics textImage;
   volatile boolean doRedraw;
+  boolean blankUntilReactivated = false;
   float currentPos = 0.0f;
   int lastPos = 0;
+  // TODO: Change the defaultTexts to Larry Harvey quotes.
   String[] defaultTexts = {
-    "City of orgies, walks and joys,      City whom that I have lived and sung in your midst will one day make      Not the pageants of you, not your shifting tableaus, your spectacles, repay me,      Not the interminable rows of your houses, nor the ships at the wharves,      Nor the processions in the streets, nor the bright windows with goods in them,      Nor to converse with learn'd persons, or bear my share in the soiree or feast;      Not those, but as I pass O Manhattan, your frequent and swift flash of eyes offering me love,      Offering response to my own—these repay me,      Lovers, continual lovers, only repay me.",
+    //"City of orgies, walks and joys,      City whom that I have lived and sung in your midst will one day make      Not the pageants of you, not your shifting tableaus, your spectacles, repay me,      Not the interminable rows of your houses, nor the ships at the wharves,      Nor the processions in the streets, nor the bright windows with goods in them,      Nor to converse with learn'd persons, or bear my share in the soiree or feast;      Not those, but as I pass O Manhattan, your frequent and swift flash of eyes offering me love,      Offering response to my own—these repay me,      Lovers, continual lovers, only repay me.",
     "What's up?",
     "Hello!",
   };
@@ -104,6 +106,13 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     }
   }
 
+  @Override
+  public void onActive() {
+    // Reset the guard that prevents the next text item from starting to show
+    // while we are performing our fade transition to the next pattern.
+    blankUntilReactivated = false;
+  }
+
   public void redrawTextBuffer() {
     UIItemList.Item item = textItemList.getFocusedItem();
     if (item == null) {
@@ -137,6 +146,12 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   }
 
   public void draw(double deltaDrawMs) {
+    // Once we have finished with one text item, keep that final blank buffer rendering to the
+    // screen until the next time our pattern is activated.  This prevents the next text item
+    // from bleeding into the visuals while we are fade transitioning to the next pattern.
+    if (blankUntilReactivated)
+      return;
+
     boolean offscreen =
         textImage == null
         || currentPos < -(textImage.width + textGapPixels)
@@ -161,6 +176,10 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
             // has been displayed. This also implies that a standard-mode channel should not
             // consist of only AnimatedTextPP patterns otherwise channel switching will stall.
             getChannel().goNext();
+            // Prevent next text item from starting while we are in a next-pattern fade
+            // transition.  Otherwise, we have to disable transitions for all patterns in
+            // the channel containing this AnimatedTextPP.
+            blankUntilReactivated = true;
           }
         }
         textItemList.setFocusIndex(currIndex);
