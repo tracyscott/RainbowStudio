@@ -6,6 +6,7 @@ import static processing.core.PConstants.RGB;
 
 import com.giantrainbow.RainbowStudio;
 import com.giantrainbow.canvas.Canvas;
+import com.giantrainbow.colors.Colors;
 import com.giantrainbow.model.space.Space3D;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
@@ -86,21 +87,34 @@ public class CubeLineup extends CanvasPattern3D {
       return (float) W / 2;
     }
 
+    float partW() {
+      return W / (float) Colors.RAINBOW_PALETTE.length;
+    }
+
     Box() {
       W = (int) (rnd.nextFloat() * MAX_SIZE);
       R = PVector.random3D();
     }
 
-    void drawRect(float zoff) {
+    void drawPart(float zoff, int C, int part) {
       pg.beginShape();
 
-      pg.texture(texture);
+      pg.fill(C);
 
-      pg.vertex(-radius(), -radius(), zoff, 0, 0);
-      pg.vertex(+radius(), -radius(), zoff, canvas.width(), 0);
-      pg.vertex(+radius(), +radius(), zoff, canvas.width(), canvas.height());
-      pg.vertex(-radius(), +radius(), zoff, 0, canvas.height());
+      float xmin = -radius() + (float) part * partW();
+      float xmax = xmin + partW();
+
+      pg.vertex(xmin, -radius(), zoff);
+      pg.vertex(xmax, -radius(), zoff);
+      pg.vertex(xmax, +radius(), zoff);
+      pg.vertex(xmin, +radius(), zoff);
       pg.endShape();
+    }
+
+    void drawRect(float zoff) {
+      for (int i = 0; i < Colors.RAINBOW_PALETTE.length; i++) {
+        drawPart(zoff, Colors.RAINBOW_PALETTE[i], i);
+      }
     }
 
     void drawSides() {
