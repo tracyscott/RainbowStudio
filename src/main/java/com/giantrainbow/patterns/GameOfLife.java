@@ -5,6 +5,7 @@ package com.giantrainbow.patterns;
 
 import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
 import static com.giantrainbow.colors.Colors.BLACK;
+import static com.giantrainbow.colors.Colors.WHITE;
 import static processing.core.PApplet.lerp;
 import static processing.core.PConstants.P2D;
 
@@ -76,6 +77,9 @@ public class GameOfLife extends P3PixelPerfectBase {
   private final CompoundParameter ringSizeKnob =
       new CompoundParameter("Circle Size", 0.5f, 0.0f, 1.0f)
           .setDescription("Changes the circle size");
+  private final BooleanParameter monochromeToggle =
+      new BooleanParameter("Monochrome", false)
+          .setDescription("Toggles monochrome mode");
 
   public GameOfLife(LX lx) {
     super(lx, P2D);
@@ -90,6 +94,7 @@ public class GameOfLife extends P3PixelPerfectBase {
     addParameter(resetBtn);
     addParameter(ringModeBtn);
     addParameter(ringSizeKnob);
+    addParameter(monochromeToggle);
   }
 
   @Override
@@ -126,7 +131,9 @@ public class GameOfLife extends P3PixelPerfectBase {
     // Draw the current state
 
     pg.background(BLACK);
-    int c = rainbow.get(pg, updateRate);
+    int c = monochromeToggle.isOn()
+        ? WHITE
+        : rainbow.get(pg, updateRate);
     if (ringModeBtn.isOn()) {
       pg.stroke(c);
       pg.noFill();
