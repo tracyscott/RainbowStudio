@@ -4,7 +4,6 @@ import static processing.core.PApplet.ceil;
 import static processing.core.PApplet.round;
 
 import com.giantrainbow.RainbowStudio;
-import com.giantrainbow.UtilsForLX;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.parameter.BooleanParameter;
@@ -149,18 +148,20 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     // Once we have finished with one text item, keep that final blank buffer rendering to the
     // screen until the next time our pattern is activated.  This prevents the next text item
     // from bleeding into the visuals while we are fade transitioning to the next pattern.
-    if (blankUntilReactivated)
+    if (blankUntilReactivated) {
       return;
+    }
 
     boolean offscreen =
         textImage == null
         || currentPos < -(textImage.width + textGapPixels)
         || (currentPos > pg.width && clockwise.getValueb());
 
+    // NOTE: Don't redraw when the selection changes
     boolean needsRedraw =
         doRedraw
         || textItemList.getFocusedItem() == null
-        || !Objects.equals(textItemList.getFocusedItem(), currItem)
+//        || !Objects.equals(textItemList.getFocusedItem(), currItem)
         || offscreen;
 
     if (needsRedraw) {
