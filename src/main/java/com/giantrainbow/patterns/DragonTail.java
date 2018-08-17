@@ -27,7 +27,7 @@ public class DragonTail extends P3PixelPerfectBase {
   private int step = 50;
   private float sz = 8;
   private int[] startX = new int[num];
-  private float theta, offset, x, y, startY;
+  private float theta, offset, startY;
 
   private int[] col = new int[num];
 
