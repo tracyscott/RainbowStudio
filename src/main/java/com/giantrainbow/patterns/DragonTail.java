@@ -19,7 +19,7 @@ import heronarts.lx.LXCategory;
  * Based on: <a href="http://www.openprocessing.org/sketch/146637">Dragon Tail 3D</a>
  */
 @LXCategory(LXCategory.FORM)
-public class DragonTail extends PGPixelPerfect {
+public class DragonTail extends P3PixelPerfectBase {
   private static final float deltaTheta = 0.0523f * 30;
 
   private int num = 9;
