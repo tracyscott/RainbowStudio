@@ -1,11 +1,7 @@
 package com.giantrainbow.patterns;
 
-import static com.giantrainbow.colors.Colors.RAINBOW_PALETTE;
 import static processing.core.PConstants.PI;
-import static processing.core.PConstants.RGB;
 
-import com.giantrainbow.RainbowStudio;
-import com.giantrainbow.canvas.Canvas;
 import com.giantrainbow.colors.Colors;
 import com.giantrainbow.model.space.Space3D;
 import heronarts.lx.LX;
@@ -29,7 +25,7 @@ public class CubeLineup extends CanvasPattern3D {
       new CompoundParameter("Count", MAX_CUBES / 5, 10, MAX_CUBES).setDescription("Count");
 
   public CubeLineup(LX lx) {
-    super(lx, new Canvas(lx.model));
+    super(lx);
     addParameter(speedKnob);
     addParameter(countKnob);
     removeParameter(fpsKnob);
@@ -39,7 +35,6 @@ public class CubeLineup extends CanvasPattern3D {
     space = new Space3D(eye);
     boxes = new Box[MAX_CUBES];
     rnd = new Random();
-    texture = makeTexture();
 
     int trials = 0;
     for (int i = 0; i < boxes.length; i++) {
@@ -55,21 +50,6 @@ public class CubeLineup extends CanvasPattern3D {
 
     System.err.printf(
         "Found boxes by %.1f%% rejection sampling\n", 100. * (float) boxes.length / (float) trials);
-  }
-
-  PImage makeTexture() {
-    PImage img = RainbowStudio.pApplet.createImage(canvas.width(), canvas.width(), RGB);
-
-    img.loadPixels();
-    for (int i = 0; i < img.pixels.length; i++) {
-      float x = (float) (i % canvas.width()) / (float) canvas.width();
-      float x6 = x * 6;
-      int xi = (int) x6;
-
-      img.pixels[i] = RAINBOW_PALETTE[xi];
-    }
-    img.updatePixels();
-    return img;
   }
 
   Random rnd;
@@ -178,6 +158,9 @@ public class CubeLineup extends CanvasPattern3D {
     }
 
     for (int i = 0; i < (int) countKnob.getValue(); i++) {
+      if (i >= boxes.length) {
+        break;
+      }
       boxes[i].draw();
     }
   }

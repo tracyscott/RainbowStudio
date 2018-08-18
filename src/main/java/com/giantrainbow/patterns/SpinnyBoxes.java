@@ -2,7 +2,6 @@ package com.giantrainbow.patterns;
 
 import static processing.core.PConstants.PI;
 
-import com.giantrainbow.canvas.Canvas;
 import com.giantrainbow.colors.Colors;
 import com.giantrainbow.model.space.Space3D;
 import heronarts.lx.LX;
@@ -24,13 +23,35 @@ public class SpinnyBoxes extends CanvasPattern3D {
   public final CompoundParameter countKnob =
       new CompoundParameter("Count", MAX_CUBES / 5, 10, MAX_CUBES).setDescription("Count");
 
+  public final CompoundParameter X =
+      new CompoundParameter("X", 0, -1000, +1000).setDescription("X");
+  public final CompoundParameter Y =
+      new CompoundParameter("Y", 0, -1000, +1000).setDescription("Y");
+  public final CompoundParameter Z =
+      new CompoundParameter("Z", 0, -1000, +1000).setDescription("Z");
+
+  public final CompoundParameter E =
+      new CompoundParameter("E", 0, -1000, +1000).setDescription("E");
+  public final CompoundParameter F =
+      new CompoundParameter("F", 0, -1000, +1000).setDescription("F");
+  public final CompoundParameter G =
+      new CompoundParameter("G", 0, -1000, +1000).setDescription("G");
+
   public SpinnyBoxes(LX lx) {
-    super(lx, new Canvas(lx.model));
+    super(lx);
     addParameter(speedKnob);
     addParameter(countKnob);
     removeParameter(fpsKnob);
 
-    Vector3f eye = new Vector3f(0, Space3D.MIN_Y + 6, 60);
+    addParameter(X);
+    addParameter(Y);
+    addParameter(Z);
+
+    addParameter(E);
+    addParameter(F);
+    addParameter(G);
+
+    Vector3f eye = new Vector3f(0, 0, 0);
 
     space = new Space3D(eye);
     boxes = new Box[MAX_CUBES];
@@ -142,12 +163,12 @@ public class SpinnyBoxes extends CanvasPattern3D {
     pg.background(0);
 
     pg.camera(
-        space.eye.x,
-        space.eye.y,
-        space.eye.z,
-        space.center.x,
-        space.center.y,
-        space.center.z,
+        space.eye.x + (float) X.getValue(),
+        space.eye.y + (float) Y.getValue(),
+        space.eye.z + (float) Z.getValue(),
+        space.center.x + (float) E.getValue(),
+        space.center.y + (float) F.getValue(),
+        space.center.z + (float) G.getValue(),
         0,
         1,
         0);
