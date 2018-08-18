@@ -12,30 +12,46 @@ import heronarts.lx.parameter.CompoundParameter;
 import java.util.Random;
 import processing.core.PImage;
 
+// TODO Rotate the whole model on the origin?  Rotate each orbit w.r.t. the origin?
+// Swap positions when not overlapping.
+
+/**
+ * SpinnyDiscs animates a number of variable sized, rotating color wheels in 2D space. They are
+ * implemented as a texture mapped circle w/ alpha surround. The balls are positioned by a
+ * https://en.wikipedia.org/wiki/Lissajous_curve.
+ */
 @LXCategory(LXCategory.FORM)
 public class SpinnyDiscs extends CanvasPattern2D {
   public final float EXPANSION = 1.25f;
   public final float MAX_SIZE = 100;
-  public final float BACKGROUND_SPEED = 0.1f;
+  public final float BACKGROUND_SPEED = 10f;
   public final float BACKGROUND_SAT = 1;
   public final float BACKGROUND_BRIGHT = .15f;
   public final float MOVEMENT_RANGE = 0.5f; // Movement range as a ratio of width/height
-  public final float MAX_SPEED = 5f; // Speed range
-  public final float MSHZ = 1 / 10000f; // Arbitrary slowdown of the millisecond counter
+  public final float MAX_SPEED = 10f; // Speed range
+  public final float MSHZ = 1 / 100000f; // Arbitrary slowdown of the millisecond counter
 
   public final int BALL_COUNT = 1000;
 
+  // Speed determines the overall speed of the entire pattern.
   public final CompoundParameter speedKnob =
-      new CompoundParameter("Speed", 5, 1, 20).setDescription("Speed");
+      new CompoundParameter("Speed", 10, 0, 20).setDescription("Speed");
+  // Count determines the number of balls that render.  They are
+  // animated continuously, so raising and lower the number will
+  // show/hide them while they continue moving with the animation.
   public final CompoundParameter countKnob =
       new CompoundParameter("Count", 100, 1, BALL_COUNT).setDescription("Count");
 
-  public final CompoundParameter aKnob = new CompoundParameter("a", 0.5, -1, 1).setDescription("a");
+  // The "a" paramter of a Lissajous curve that moves all the balls.
+  public final CompoundParameter aKnob = new CompoundParameter("a", 5, -10, 10).setDescription("a");
+
+  // The "b" paramter of a Lissajous curve that moves all the balls.
   public final CompoundParameter bKnob =
-      new CompoundParameter("b", 0.25, -1, 1).setDescription("b");
+      new CompoundParameter("b", 2.5, -10, 10).setDescription("b");
+
+  // The "delta" paramter of a Lissajous curve that moves all the balls.
   public final CompoundParameter deltaKnob =
-      new CompoundParameter("delta", Math.PI / 4, -Math.PI / 2, Math.PI / 2)
-          .setDescription("delta");
+      new CompoundParameter("delta", 0, -Math.PI / 2, Math.PI / 2).setDescription("delta");
 
   Ball balls[];
   float elapsed;
@@ -127,6 +143,7 @@ public class SpinnyDiscs extends CanvasPattern2D {
       balls[i].S = MAX_SPEED * 2f * (rnd.nextFloat() - 0.5f);
     }
 
+    removeParameter(fpsKnob);
     addParameter(speedKnob);
     addParameter(countKnob);
     addParameter(aKnob);
