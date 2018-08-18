@@ -5,6 +5,7 @@ import static processing.core.PConstants.RGB;
 
 import com.giantrainbow.RainbowStudio;
 import com.giantrainbow.colors.Colors;
+import com.giantrainbow.model.space.Lissajous;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.parameter.CompoundParameter;
@@ -15,6 +16,13 @@ import processing.core.PImage;
 public class SpinnyDiscs extends CanvasPattern2D {
   public final float EXPANSION = 1.25f;
   public final float MAX_SIZE = 100;
+  public final float BACKGROUND_SPEED = 0.1f;
+  public final float BACKGROUND_SAT = 1;
+  public final float BACKGROUND_BRIGHT = .15f;
+  public final float MOVEMENT_RANGE = 0.5f; // Movement range as a ratio of width/height
+  public final float MAX_SPEED = 5f; // Speed range
+  public final float MSHZ = 1 / 10000f; // Arbitrary slowdown of the millisecond counter
+
   public final int BALL_COUNT = 1000;
 
   public final CompoundParameter speedKnob =
@@ -22,8 +30,15 @@ public class SpinnyDiscs extends CanvasPattern2D {
   public final CompoundParameter countKnob =
       new CompoundParameter("Count", 100, 1, BALL_COUNT).setDescription("Count");
 
+  public final CompoundParameter aKnob = new CompoundParameter("a", 0.5, -1, 1).setDescription("a");
+  public final CompoundParameter bKnob =
+      new CompoundParameter("b", 0.25, -1, 1).setDescription("b");
+  public final CompoundParameter deltaKnob =
+      new CompoundParameter("delta", Math.PI / 4, -Math.PI / 2, Math.PI / 2)
+          .setDescription("delta");
+
   Ball balls[];
-  double elapsed;
+  float elapsed;
   PImage texture;
   float xmax;
   float ymax;
@@ -106,19 +121,24 @@ public class SpinnyDiscs extends CanvasPattern2D {
       balls[i] = new Ball();
       balls[i].X = xmax * rnd.nextFloat();
       balls[i].Y = ymax * rnd.nextFloat();
+      balls[i].A = xmax * rnd.nextFloat() * MOVEMENT_RANGE;
+      balls[i].B = ymax * rnd.nextFloat() * MOVEMENT_RANGE;
       balls[i].R = MAX_SIZE * rnd.nextFloat();
-      balls[i].S = rnd.nextFloat();
+      balls[i].S = MAX_SPEED * 2f * (rnd.nextFloat() - 0.5f);
     }
 
     addParameter(speedKnob);
     addParameter(countKnob);
+    addParameter(aKnob);
+    addParameter(bKnob);
+    addParameter(deltaKnob);
   }
 
   public void draw(double deltaMs) {
     double speed = speedKnob.getValue();
-    elapsed += deltaMs * speed;
+    elapsed += (float) (deltaMs * speed);
 
-    pg.background(Colors.BLACK);
+    pg.background(Colors.hsb(elapsed * BACKGROUND_SPEED * MSHZ, BACKGROUND_SAT, BACKGROUND_BRIGHT));
 
     for (int i = 0; i < countKnob.getValue(); i++) {
       if (i >= balls.length) {
@@ -131,15 +151,23 @@ public class SpinnyDiscs extends CanvasPattern2D {
   public class Ball {
     float X;
     float Y;
+    float A;
+    float B;
     float R;
     float S;
-    float rotation;
 
     void draw() {
       pg.pushMatrix();
 
-      pg.translate(xoff + X, yoff + Y);
-      pg.rotate((float) elapsed * S / 1000f);
+      float a = (float) aKnob.getValue();
+      float b = (float) bKnob.getValue();
+      float delta = (float) deltaKnob.getValue();
+      float position = (float) elapsed * S * MSHZ;
+      float x = Lissajous.locationX(A, a, delta, position);
+      float y = Lissajous.locationY(B, b, position);
+
+      pg.translate(-xoff + X + x, -yoff + Y + y);
+      pg.rotate(position);
 
       pg.beginShape();
       pg.noStroke();
