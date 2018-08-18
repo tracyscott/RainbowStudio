@@ -13,10 +13,14 @@ import processing.core.PImage;
 
 @LXCategory(LXCategory.FORM)
 public class SpinnyDiscs extends CanvasPattern2D {
+  public final float EXPANSION = 1.25f;
+  public final float MAX_SIZE = 100;
+  public final int BALL_COUNT = 1000;
+
   public final CompoundParameter speedKnob =
       new CompoundParameter("Speed", 5, 1, 20).setDescription("Speed");
   public final CompoundParameter countKnob =
-      new CompoundParameter("Count", 100, 1, 10000).setDescription("Count");
+      new CompoundParameter("Count", 100, 1, BALL_COUNT).setDescription("Count");
 
   Ball balls[];
   double elapsed;
@@ -76,10 +80,6 @@ public class SpinnyDiscs extends CanvasPattern2D {
     return img;
   }
 
-  public final float EXPANSION = 1.25f;
-  public final float MAX_SIZE = 100;
-  public final int BALL_COUNT = 10000;
-
   public SpinnyDiscs(LX lx) {
     super(lx);
 
@@ -98,7 +98,7 @@ public class SpinnyDiscs extends CanvasPattern2D {
     pg.noLights();
     pg.textureWrap(CLAMP);
 
-    pg.smooth(8);
+    pg.smooth(2);
 
     Random rnd = new Random();
 
