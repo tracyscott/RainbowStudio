@@ -9,11 +9,14 @@ import com.giantrainbow.model.space.Lissajous;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.parameter.CompoundParameter;
+import java.util.ArrayList;
 import java.util.Random;
+import org.joml.sampling.Callback2d;
+import org.joml.sampling.PoissonSampling.Disk;
 import processing.core.PImage;
 
 // TODO Rotate the whole model on the origin?  Rotate each orbit w.r.t. the origin?
-// Swap positions when not overlapping.
+// Swap positions when not overlapping.  Different speeds for rotation / translation.
 
 /**
  * SpinnyDiscs animates a number of variable sized, rotating color wheels in 2D space. They are
@@ -22,7 +25,6 @@ import processing.core.PImage;
  */
 @LXCategory(LXCategory.FORM)
 public class SpinnyDiscs extends CanvasPattern2D {
-  public final float EXPANSION = 1.25f;
   public final float MAX_SIZE = 100;
   public final float BACKGROUND_SPEED = 10f;
   public final float BACKGROUND_SAT = 1;
@@ -56,10 +58,7 @@ public class SpinnyDiscs extends CanvasPattern2D {
   Ball balls[];
   float elapsed;
   PImage texture;
-  float xmax;
-  float ymax;
-  float xoff;
-  float yoff;
+  float xoff, yoff;
 
   PImage makeTexture() {
     PImage img = RainbowStudio.pApplet.createImage(canvas.width(), canvas.width(), RGB);
@@ -114,34 +113,62 @@ public class SpinnyDiscs extends CanvasPattern2D {
   public SpinnyDiscs(LX lx) {
     super(lx);
 
+    Random rnd = new Random();
+
     this.elapsed = 0;
     this.balls = new Ball[BALL_COUNT];
     this.texture = makeTexture();
 
-    float xsize = canvas.width();
-    float ysize = canvas.height();
-
-    this.xmax = xsize * EXPANSION;
-    this.ymax = ysize * EXPANSION;
-    this.xoff = (xmax - xsize) / 2;
-    this.yoff = (ymax - ysize) / 2;
+    float radius =
+        (float)
+            Math.sqrt(
+                (canvas.width() / 2) * (canvas.width() / 2) + canvas.height() * canvas.height());
 
     pg.noLights();
     pg.textureWrap(CLAMP);
-
     pg.smooth(2);
 
-    Random rnd = new Random();
+    this.xoff = canvas.width() / 2;
+    this.yoff = 0;
 
-    for (int i = 0; i < balls.length; i++) {
-      balls[i] = new Ball();
-      balls[i].X = xmax * rnd.nextFloat();
-      balls[i].Y = ymax * rnd.nextFloat();
-      balls[i].A = xmax * rnd.nextFloat() * MOVEMENT_RANGE;
-      balls[i].B = ymax * rnd.nextFloat() * MOVEMENT_RANGE;
-      balls[i].R = MAX_SIZE * rnd.nextFloat();
-      balls[i].S = MAX_SPEED * 2f * (rnd.nextFloat() - 0.5f);
+    int minDist = 20;
+    for (; ; ) {
+      ArrayList<Ball> list = new ArrayList<Ball>();
+      new Disk(
+          rnd.nextLong(),
+          radius,
+          minDist,
+          25,
+          new Callback2d() {
+            public void onNewSample(float x, float y) {
+              Ball ball = new Ball();
+              ball.X = x;
+              ball.Y = y;
+              ball.A = 2 * radius * rnd.nextFloat() * MOVEMENT_RANGE;
+              ball.B = 2 * radius * rnd.nextFloat() * MOVEMENT_RANGE;
+              ball.R = MAX_SIZE * rnd.nextFloat();
+              ball.S = MAX_SPEED * 2f * (rnd.nextFloat() - 0.5f);
+              list.add(ball);
+            }
+          });
+
+      if (list.size() < BALL_COUNT) {
+        minDist /= 2;
+        System.err.println("TOO FEW BALLS: " + list.size() + " " + minDist);
+        continue;
+      }
+
+      if (list.size() > BALL_COUNT * 1.1) {
+        minDist += 1;
+        System.err.println("TOO FEW BALLS: " + list.size() + " " + minDist);
+        continue;
+      }
+
+      balls = list.toArray(balls);
+      break;
     }
+
+    System.err.println("OK BALLS: " + balls.length + " " + minDist);
 
     removeParameter(fpsKnob);
     addParameter(speedKnob);
@@ -183,7 +210,7 @@ public class SpinnyDiscs extends CanvasPattern2D {
       float x = Lissajous.locationX(A, a, delta, position);
       float y = Lissajous.locationY(B, b, position);
 
-      pg.translate(-xoff + X + x, -yoff + Y + y);
+      pg.translate(xoff + X + x, yoff + Y + y);
       pg.rotate(position);
 
       pg.beginShape();
