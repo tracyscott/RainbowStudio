@@ -10,13 +10,15 @@ import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.parameter.CompoundParameter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 import org.joml.sampling.Callback2d;
 import org.joml.sampling.PoissonSampling.Disk;
 import processing.core.PImage;
 
-// TODO Rotate the whole model on the origin?  Rotate each orbit w.r.t. the origin?
-// Swap positions when not overlapping.  Different speeds for rotation / translation.
+// TODO Rotate each orbit w.r.t. the origin?
+// TODO Swap positions when not overlapping.
+// TODO Reject samples inside outer radius and inside inner radius?
 
 /**
  * SpinnyDiscs animates a number of variable sized, rotating color wheels in 2D space. They are
@@ -25,12 +27,13 @@ import processing.core.PImage;
  */
 @LXCategory(LXCategory.FORM)
 public class SpinnyDiscs extends CanvasPattern2D {
-  public final float MAX_SIZE = 100;
+  public final float MAX_SIZE = 10;
   public final float BACKGROUND_SPEED = 10f;
   public final float BACKGROUND_SAT = 1;
   public final float BACKGROUND_BRIGHT = .15f;
-  public final float MOVEMENT_RANGE = 0.5f; // Movement range as a ratio of width/height
-  public final float MAX_SPEED = 10f; // Speed range
+  public final float MOVEMENT_RANGE = 0; // Movement range as a ratio of width/height
+  public final float MAX_ROTATE_SPEED = 0f; // Speed range 20
+  public final float MAX_TRANSLATE_SPEED = 0f; // Speed range 10
   public final float MSHZ = 1 / 100000f; // Arbitrary slowdown of the millisecond counter
 
   public final int BALL_COUNT = 1000;
@@ -48,8 +51,7 @@ public class SpinnyDiscs extends CanvasPattern2D {
   public final CompoundParameter aKnob = new CompoundParameter("a", 5, -10, 10).setDescription("a");
 
   // The "b" paramter of a Lissajous curve that moves all the balls.
-  public final CompoundParameter bKnob =
-      new CompoundParameter("b", 2.5, -10, 10).setDescription("b");
+  public final CompoundParameter bKnob = new CompoundParameter("b", 4, -10, 10).setDescription("b");
 
   // The "delta" paramter of a Lissajous curve that moves all the balls.
   public final CompoundParameter deltaKnob =
@@ -57,7 +59,7 @@ public class SpinnyDiscs extends CanvasPattern2D {
 
   // The "rotate" paramter determines how fast the whole thing spins.
   public final CompoundParameter rotateKnob =
-      new CompoundParameter("rotate", 5, -100, 100).setDescription("rotate");
+      new CompoundParameter("rotate", 0, -100, 100).setDescription("rotate");
 
   Ball balls[];
   float elapsed;
@@ -113,6 +115,10 @@ public class SpinnyDiscs extends CanvasPattern2D {
     return img;
   }
 
+  float distance(float x0, float y0, float x1, float y1) {
+    return (float) Math.sqrt((x0 - x1) * (x0 - x1) + (y0 - y1) * (y0 - y1));
+  }
+
   public SpinnyDiscs(LX lx) {
     super(lx);
 
@@ -122,10 +128,7 @@ public class SpinnyDiscs extends CanvasPattern2D {
     this.balls = new Ball[BALL_COUNT];
     this.texture = makeTexture();
 
-    float radius =
-        (float)
-            Math.sqrt(
-                (canvas.width() / 2) * (canvas.width() / 2) + canvas.height() * canvas.height());
+    float radius = distance(0, 0, canvas.width() / 2, canvas.height());
 
     pg.textureWrap(CLAMP);
 
@@ -145,7 +148,8 @@ public class SpinnyDiscs extends CanvasPattern2D {
               ball.A = 2 * radius * rnd.nextFloat() * MOVEMENT_RANGE;
               ball.B = 2 * radius * rnd.nextFloat() * MOVEMENT_RANGE;
               ball.R = MAX_SIZE * rnd.nextFloat();
-              ball.S = MAX_SPEED * 2f * (rnd.nextFloat() - 0.5f);
+              ball.ST = MAX_TRANSLATE_SPEED * 2f * (rnd.nextFloat() - 0.5f);
+              ball.SR = MAX_ROTATE_SPEED * 2f * (rnd.nextFloat() - 0.5f);
               list.add(ball);
             }
           });
@@ -159,6 +163,8 @@ public class SpinnyDiscs extends CanvasPattern2D {
         minDist *= 1.25;
         continue;
       }
+
+      Collections.shuffle(list, rnd);
 
       balls = list.toArray(balls);
       break;
@@ -190,26 +196,34 @@ public class SpinnyDiscs extends CanvasPattern2D {
     }
   }
 
+  float a() {
+    return (float) (int) (aKnob.getValue() + 0.5);
+  }
+
+  float b() {
+    return (float) (int) (bKnob.getValue() + 0.5);
+  }
+
   public class Ball {
     float X;
     float Y;
     float A;
     float B;
     float R;
-    float S;
+    float ST; // Translation speed
+    float SR; // Rotation speed
 
     void draw() {
       pg.pushMatrix();
 
-      float a = (float) aKnob.getValue();
-      float b = (float) bKnob.getValue();
       float delta = (float) deltaKnob.getValue();
-      float position = (float) elapsed * S * MSHZ;
-      float x = Lissajous.locationX(A, a, delta, position);
-      float y = Lissajous.locationY(B, b, position);
+      float position = (float) elapsed * ST * MSHZ;
+      float rotation = (float) elapsed * SR * MSHZ;
+      float x = Lissajous.locationX(A, a(), delta, position);
+      float y = Lissajous.locationY(B, b(), position);
 
       pg.translate(X + x, Y + y);
-      pg.rotate(position);
+      pg.rotate(rotation);
 
       pg.beginShape();
       pg.noStroke();
