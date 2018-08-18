@@ -70,14 +70,14 @@ public class CheckerMove extends P3PixelPerfectBase {
   private long lastBeatsTime;
   private boolean beatsNotRandom;  // Indicates whether we are responding to beats
 
-  private final BooleanParameter grayScaleToggle =
-      new BooleanParameter("Gray Scale", false)
-          .setDescription("Gray scale");
+  private final BooleanParameter monochromeToggle =
+      new BooleanParameter("Monochrome", false)
+          .setDescription("Toggles monochrome mode");
 
   public CheckerMove(LX lx) {
     super(lx, P2D);
 
-    addParameter(grayScaleToggle);
+    addParameter(monochromeToggle);
   }
 
   @Override
@@ -251,7 +251,7 @@ public class CheckerMove extends P3PixelPerfectBase {
     pg.copy(screen,
         0, 0, pg.width, pg.height,
         0, 0, pg.width, pg.height);
-    if (grayScaleToggle.isOn()) {
+    if (monochromeToggle.isOn()) {
       // TODO: Find a faster way to do this
       pg.filter(THRESHOLD, BRIGHTNESS_THRESHOLD);
     }

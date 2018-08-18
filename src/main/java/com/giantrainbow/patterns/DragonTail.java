@@ -19,7 +19,7 @@ import heronarts.lx.LXCategory;
  * Based on: <a href="http://www.openprocessing.org/sketch/146637">Dragon Tail 3D</a>
  */
 @LXCategory(LXCategory.FORM)
-public class DragonTail extends PGPixelPerfect {
+public class DragonTail extends P3PixelPerfectBase {
   private static final float deltaTheta = 0.0523f * 30;
 
   private int num = 9;
@@ -27,7 +27,7 @@ public class DragonTail extends PGPixelPerfect {
   private int step = 50;
   private float sz = 8;
   private int[] startX = new int[num];
-  private float theta, offset, x, y, startY;
+  private float theta, offset, startY;
 
   private int[] col = new int[num];
 
@@ -66,7 +66,7 @@ public class DragonTail extends PGPixelPerfect {
         startY = map(i, 0, startX.length, -stepY, stepY);
         float y = pg.height*0.55f + startY + map(sin(theta + offset), -1, 1, -stepY, stepY);
         pg.fill(col[i], 70, 90);
-        pg.ellipse(x - pg.width/6, y, sz, sz);
+        pg.ellipse((float) (x - pg.width/6), y, sz, sz);
       }
     }
     pg.filter(DILATE);

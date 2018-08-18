@@ -49,8 +49,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Modifier;
 import java.util.List;
+import java.util.logging.FileHandler;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 import processing.core.PApplet;
 import processing.event.KeyEvent;
 
@@ -67,11 +70,40 @@ public class RainbowStudio extends PApplet {
 //    System.setProperty("jogl.debug", "true");
   }
 
+  /**
+   * Set the main logging level here.
+   *
+   * @param level the new logging level
+   */
+  public static void setLogLevel(Level level) {
+    // Change the logging level here
+    Logger root = Logger.getLogger("");
+    root.setLevel(level);
+    for (Handler h : root.getHandlers()) {
+      h.setLevel(level);
+    }
+  }
+
+  /**
+   * Adds logging to a file.
+   *
+   * @param filename log to this file
+   * @throws IOException if there was an error opening the file.
+   */
+  public static void addLogFileHandler(String filename) throws IOException {
+    Logger root = Logger.getLogger("");
+    Handler h = new FileHandler(filename);
+    h.setFormatter(new SimpleFormatter());
+    root.addHandler(h);
+  }
+
   private static final Logger logger = Logger.getLogger(RainbowStudio.class.getName());
 
   public static void main(String[] args) {
     PApplet.main(RainbowStudio.class.getName(), args);
   }
+
+  private static final String LOG_FILENAME = "rainbowstudio.log";
 
   // Reference to top-level LX instance
   private heronarts.lx.studio.LXStudio lx;
@@ -158,6 +190,12 @@ public class RainbowStudio extends PApplet {
     // Processing setup, constructs the window and the LX instance
     frameRate(GLOBAL_FRAME_RATE);
     pApplet = this;
+
+    try {
+      addLogFileHandler(LOG_FILENAME);
+    } catch (IOException ex) {
+      logger.log(Level.SEVERE, "Error creating log file: " + LOG_FILENAME, ex);
+    }
 
     LXModel model = buildModel(MODEL_TYPE);
     logger.info("Current renderer:" + sketchRenderer());

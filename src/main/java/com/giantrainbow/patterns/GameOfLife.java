@@ -5,6 +5,7 @@ package com.giantrainbow.patterns;
 
 import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
 import static com.giantrainbow.colors.Colors.BLACK;
+import static com.giantrainbow.colors.Colors.WHITE;
 import static processing.core.PApplet.lerp;
 import static processing.core.PConstants.P2D;
 
@@ -31,13 +32,13 @@ public class GameOfLife extends P3PixelPerfectBase {
   private static final float COLOR_CHANGE_TIME = 5.0f;
 
   /** The maximum grid update rate. */
-  private static final float MAX_UPDATE_RATE = 40;
+  private static final float MAX_UPDATE_RATE = 20;
 
   /**
    * Time to maintain the game after detecting a repeat. This should be a multiple of
    * 1/{@link #MAX_UPDATE_RATE}.
    */
-  private static final float MAINTAIN_TIME = 4.0f;
+  private static final float MAINTAIN_TIME = 3.5f;
 
   private static final float SCALE = 4.0f;  // Global size scale factor
   private static final float MAX_RING_MULT = 2.0f;
@@ -76,6 +77,9 @@ public class GameOfLife extends P3PixelPerfectBase {
   private final CompoundParameter ringSizeKnob =
       new CompoundParameter("Circle Size", 0.5f, 0.0f, 1.0f)
           .setDescription("Changes the circle size");
+  private final BooleanParameter monochromeToggle =
+      new BooleanParameter("Monochrome", false)
+          .setDescription("Toggles monochrome mode");
 
   public GameOfLife(LX lx) {
     super(lx, P2D);
@@ -90,6 +94,7 @@ public class GameOfLife extends P3PixelPerfectBase {
     addParameter(resetBtn);
     addParameter(ringModeBtn);
     addParameter(ringSizeKnob);
+    addParameter(monochromeToggle);
   }
 
   @Override
@@ -126,7 +131,9 @@ public class GameOfLife extends P3PixelPerfectBase {
     // Draw the current state
 
     pg.background(BLACK);
-    int c = rainbow.get(pg, updateRate);
+    int c = monochromeToggle.isOn()
+        ? WHITE
+        : rainbow.get(pg, updateRate);
     if (ringModeBtn.isOn()) {
       pg.stroke(c);
       pg.noFill();

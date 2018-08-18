@@ -41,6 +41,7 @@ abstract class P3PixelPerfectBase extends PGBase {
     this.applet = RainbowStudio.pApplet;
 
     addParameter(speedKnob);
+    removeParameter(fpsKnob);
   }
 
   protected final void imageToPoints() {

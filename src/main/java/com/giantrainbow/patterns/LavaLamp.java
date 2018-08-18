@@ -44,14 +44,14 @@ public class LavaLamp extends P3PixelPerfectBase {
   private ColorRainbow rainbow =
       new ColorRainbow(new ColorRainbow.NextRandomColor(6, COLOR_CHANGE_TIME, BLACK));
 
-  private final BooleanParameter blackOnlyToggle =
-      new BooleanParameter("B & W", false)
-          .setDescription("Toggles black-and-white-only mode");
+  private final BooleanParameter monochromeToggle =
+      new BooleanParameter("Monochrome", false)
+          .setDescription("Toggles monochrome mode");
 
   public LavaLamp(LX lx) {
     super(lx, P2D);
 
-    addParameter(blackOnlyToggle);
+    addParameter(monochromeToggle);
   }
 
   @Override
@@ -89,7 +89,7 @@ public class LavaLamp extends P3PixelPerfectBase {
   @Override
   protected void draw(double deltaDrawMs) {
     pg.colorMode(RGB, 255);
-    int bgColor = blackOnlyToggle.getValueb()
+    int bgColor = monochromeToggle.isOn()
         ? BLACK
         : rainbow.get(pg, fpsKnob.getValuef());
     int ballColor = complementColor(bgColor);

@@ -1,10 +1,8 @@
 package com.giantrainbow.ui;
 
 import com.giantrainbow.UtilsForLX;
-import heronarts.lx.LX;
-import heronarts.lx.LXChannel;
-import heronarts.lx.LXChannelBus;
-import heronarts.lx.LXLoopTask;
+import com.giantrainbow.patterns.AnimatedTextPP;
+import heronarts.lx.*;
 import heronarts.lx.parameter.BooleanParameter;
 import heronarts.lx.parameter.BoundedParameter;
 import heronarts.lx.studio.LXStudio;
@@ -163,37 +161,11 @@ public class UIModeSelector extends UICollapsibleSection {
     lx.engine.addLoopTask(new StandardModeCycle());
   }
 
-  // TODO(tracy): We need to bring down everybody else's faders while bringing
-  // up Audio faders.  We need to define Macros labeled
-  // AudioMode
-  // StandardMode
-  // LiveInstrumentMode
-  // InteractiveMode
-  // lx.engine.modulation.getModulators() where modulator.getLabel() == "Mode Selector"
-  // modulator is instance of MacroKnobs.macro1 macro2 ... macro5
-  // Not renamable, so we will just need to hard code it.
-
   public void setAudioChannelEnabled(boolean on) {
     LXChannelBus audioChannel = UtilsForLX.getChannelByLabel(lx, "AUDIO");
     if (audioChannel != null) audioChannel.enabled.setValue(on);
   }
 
-  // which channels to enable for standard mode?  We need to enable
-  // either a combination of Form+Color+Texture or we need to enable
-  // the Special channel.  Should we just bounce between those two
-  // channel groups based on some timing?  If so, how long should
-  // we spend on each group?  Also, how do we cleanly fade between
-  // them.  With a macro?  Need an envelope output to macro input
-  // or two envelope mappings with opposite polarity.  Need to
-  // programmatically trigger an envelope.  We need a separate
-  // envelope modulator to go the opposite direction.  Also, do
-  // we need to disable the Channel when the fader is at 0?  If we
-  // use envelopes, how do we know that fader is at 0?  LXChannelBus.fader
-  // Timing is not super critical, just extra cpu cycles
-  // Maybe hook into LXChannel.Listener interface to detect when we
-  // have played the last pattern in a channel.  If so, trigger
-  // a hop to another channel group.  What does patternWillChange
-  // do?
   public void setStandardChannelsEnabled(boolean on) {
     if (on) {
       LXChannelBus channel = standardModeChannels.get(currentPlayingChannel);
@@ -227,9 +199,36 @@ public class UIModeSelector extends UICollapsibleSection {
     public double channelFadeFullThreshold = 0.1; // At this value just set it to 1.  Deals with chunkiness around time.
     public double fadeTimeRemaining = 0.0;
 
+    // TODO(tracy): Audio-Standard mode switching with faders.
+    // When auto audio detection is fading in, we want to fade any active standard channels to 0
+    // and fully reset the Standard-mode channel switching state once we are faded to 0.
+    // (i.e. reset currentChannelPlayTime and fadeTimeRemaining).
+    // When auto audio detection is fading out, we want to fade in some standard channel, but it should
+    // be whatever the last currentChannel that was active in standard mode.  We need to reset
+    // the Standard-mode channel switching state so that we are only dealing with a single fader.
+    // i.e. reset currentChannelPlayTime and fadeTimeRemaining so we don't end up in a three-way
+    // fader situation.  Also make sure that autoAudioFadeTime is much less than currentChannelPlayTime
+    // or else we could end up in a three-way fader situation.
+
     public void loop(double deltaMs) {
       if (!UIModeSelector.this.standardModeP.getValueb())
         return;
+
+      // Disable Standard-mode channel switching for AnimatedTextPP patterns to prevent
+      // fading in the middle of text.  We achieve this by effectively stalling the
+      // currentChannelPlayTime until the current channel is no longer an
+      // AnimatedTextPP pattern.
+      // TODO(tracy): Make this work for ChannelGroup since we probably need to put
+      // text in the FORM channel of the MULTI group so that it can be multiplied times
+      // a color channel.
+      LXChannelBus channelBus = standardModeChannels.get(currentPlayingChannel);
+      if (channelBus instanceof LXChannel) {
+        LXChannel c = (LXChannel) channelBus;
+        LXPattern p = c.getActivePattern();
+        if (p instanceof AnimatedTextPP) {
+          currentChannelPlayTime = 0.0;
+        }
+      }
 
       fadeTime = UIModeSelector.fadeTimeP.getValue();
       timePerChannel = UIModeSelector.timePerChannelP.getValue();
@@ -322,6 +321,8 @@ public class UIModeSelector extends UICollapsibleSection {
           //&& deltaLastModeSwap > UIAudioMonitorLevels.quietTimeP.getValue() * 1000.0
           && !audioMode) {
         logger.info("Enabling audio mode, avgDb: " + avgDb);
+        // TODO: Start fading audio channel up, standard channels down.  Once standard-mode
+        // channels are faded down, reset the standard-mode channel switching state.
         UIModeSelector.this.standardMode.setActive(false);
         UIModeSelector.this.interactiveMode.setActive(false);
         UIModeSelector.this.instrumentMode.setActive(false);
@@ -332,6 +333,8 @@ public class UIModeSelector extends UICollapsibleSection {
           //&& deltaLastModeSwap > UIAudioMonitorLevels.quietTimeP.getValue() * 1000.0
           && audioMode) {
         logger.info("Disabling audio mode, avgDb: " + avgDb);
+        // TODO: Reset standard-mode state.  Start fading current Standard-mode
+        // channel up, audio channel down.
         UIModeSelector.this.interactiveMode.setActive(false);
         UIModeSelector.this.instrumentMode.setActive(false);
         UIModeSelector.this.setAudioChannelEnabled(false);

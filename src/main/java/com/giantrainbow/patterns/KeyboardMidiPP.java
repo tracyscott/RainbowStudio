@@ -18,7 +18,7 @@ import java.util.Queue;
 import java.util.logging.Logger;
 
 @LXCategory(LXCategory.FORM)
-public class KeyboardMidiPP extends LXPattern {
+public class KeyboardMidiPP extends MidiBase {
   private static final Logger logger = Logger.getLogger(KeyboardMidiPP.class.getName());
 
   public final CompoundParameter brightnessKnob =
@@ -30,24 +30,12 @@ public class KeyboardMidiPP extends LXPattern {
           .setDescription("Musical Keys");
 
   private final int MIDDLEC = 60;
-  private LXMidiOutput midiThroughOutput;
-  private LXMidiInput midiThroughInput;
 
   private Queue<Integer> keysPlayed = new LinkedList<>();
   private ArrayList<Integer> litColumns = new ArrayList<>();
 
   public KeyboardMidiPP(LX lx) {
     super(lx);
-    // Find target output for passing MIDI through
-    LXMidiEngine midi = lx.engine.midi;
-
-    for (LXMidiOutput output : midi.outputs) {
-      logger.info(output.getName() + ": " + output.getDescription());
-      if (output.getName().equalsIgnoreCase("rainbowStudioOut")) {
-        midiThroughOutput = output;
-        midiThroughOutput.open();
-      }
-    }
 
     brightnessKnob.setValue(30);
     keysKnob.setValue(25);
@@ -124,36 +112,37 @@ public class KeyboardMidiPP extends LXPattern {
 
   // Map a note to a hue
   public void noteOnReceived(MidiNoteOn note) {
+    // Only light up keys for specified midiCh.  Allow the drumkit to pass through
+    // though.
+    if (note.getChannel() == midiCh.getValuei()) {
+      // Collect all the Midi notes played
+      int midiNote = note.getPitch();
+      if (midiNote >= 0 && midiNote <= 127) {
+        keysPlayed.offer(midiNote);
+      }
+    }
 
-    // Collect all the Midi notes played
-    int midiNote = note.getPitch();
-    if ( midiNote >= 0 && midiNote <= 127) {
-      keysPlayed.offer(midiNote);
-    }
-    if (midiThroughOutput != null) {
-      midiThroughOutput.send(note);
-    }
+    super.noteOnReceived(note);
   }
 
   public void noteOffReceived(MidiNote note) {
-    // Releasing any note will turn it off.  Multiple notes can be
-    // on at once and to turn off when all notes are released we need
-    // to track the notes on and only go black once we have received
-    // note-off for all notes.
+    // Only keyboard notes should light up leds but let drumkit passthrough.
+    if (note.getChannel() == midiCh.getValuei()) {
+      // Releasing any note will turn it off.  Multiple notes can be
+      // on at once and to turn off when all notes are released we need
+      // to track the notes on and only go black once we have received
+      // note-off for all notes.
 
-    // Remove all the Midi notes played
-    int midiNote = note.getPitch();
-    if ( midiNote >= 0 && midiNote <= 127) {
-      try {
-        keysPlayed.remove(midiNote);
-      }
-      catch (Exception e) {
-        // Do nothing, keep operation going
+      // Remove all the Midi notes played
+      int midiNote = note.getPitch();
+      if (midiNote >= 0 && midiNote <= 127) {
+        try {
+          keysPlayed.remove(midiNote);
+        } catch (Exception e) {
+          // Do nothing, keep operation going
+        }
       }
     }
-    // Forward MIDI notes
-    if (midiThroughOutput != null) {
-      midiThroughOutput.send(note);
-    }
+    super.noteOffReceived(note);
   }
 }

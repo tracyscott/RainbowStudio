@@ -22,14 +22,16 @@ public class UIMidiControl extends UICollapsibleSection implements LXMidiListene
   public static StringParameter midiControl = new StringParameter("MIDI Control", "NONE");
   public static DiscreteParameter midiChoice = new DiscreteParameter("midictrl", 0, 10);
 
-  public static DiscreteParameter midiChP = new DiscreteParameter("MidiCh", 9, 0, 32 );
-  public static DiscreteParameter nextGameP = new DiscreteParameter("NxtGm", 48, 0, 127);
-  public static DiscreteParameter prevGameP = new DiscreteParameter("PrvGm",49, 0, 127);
-  public static DiscreteParameter audioModeP = new DiscreteParameter("AudioM", 40, 0, 127);
-  public static DiscreteParameter standardModeP = new DiscreteParameter("StdM", 41, 0, 127);
-  public static DiscreteParameter instrumentModeP = new DiscreteParameter("InstrM", 42, 0, 127);
-  public static DiscreteParameter interactiveModeP = new DiscreteParameter("InterM", 43, 0, 127);
-  public static DiscreteParameter autoAudioP = new DiscreteParameter("AutoAu", 48, 0, 127);
+  public static DiscreteParameter midiChP = new DiscreteParameter("MidiCh", 0, 0, 32 );
+  public static DiscreteParameter nextGameP = new DiscreteParameter("NxtGm", 0, 0, 127);
+  public static DiscreteParameter prevGameP = new DiscreteParameter("PrvGm",2, 0, 127);
+  public static DiscreteParameter audioModeP = new DiscreteParameter("AudioM", 3, 0, 127);
+  public static DiscreteParameter standardModeP = new DiscreteParameter("StdM", 4, 0, 127);
+  public static DiscreteParameter instrumentModeP = new DiscreteParameter("InstrM", 6, 0, 127);
+  public static DiscreteParameter interactiveModeP = new DiscreteParameter("InterM", 8, 0, 127);
+  public static DiscreteParameter autoAudioP = new DiscreteParameter("AutoAu", 9, 0, 127);
+
+  // cc 0, 2, 3, 4, 6, 8, 9, 11, 65
 
   public static UIKnob midiCh;
   public static UIKnob nextGame;
@@ -78,13 +80,46 @@ public class UIMidiControl extends UICollapsibleSection implements LXMidiListene
     logger.info("aftertouch");
   }
   public void controlChangeReceived(MidiControlChange cc) {
-    logger.info("cc");
+    logger.info("cc: " + cc.getCC() + "  value:" + cc.getValue() + " ch: " + cc.getChannel());
+    if (cc.getChannel() == midiChP.getValuei()) {
+      if (cc.getCC() == prevGameP.getValuei()) {
+        LXChannelBus interactive = UtilsForLX.getChannelByLabel(lx, "INTERACTIVE");
+        if (interactive != null) {
+          ((LXChannel) interactive).goPrev();
+        }
+      }
+      if (cc.getCC() == nextGameP.getValuei()) {
+        LXChannelBus interactive = UtilsForLX.getChannelByLabel(lx, "INTERACTIVE");
+        if (interactive != null) {
+          ((LXChannel) interactive).goNext();
+        }
+      }
+      if (cc.getCC() == audioModeP.getValuei()) {
+        modeSelector.audioModeP.setValue(true);
+      }
+      if (cc.getCC() == standardModeP.getValuei()) {
+        modeSelector.standardModeP.setValue(true);
+      }
+      if (cc.getCC() == instrumentModeP.getValuei()) {
+        modeSelector.instrumentModeP.setValue(true);
+      }
+      if (cc.getCC() == interactiveModeP.getValuei()) {
+        modeSelector.interactiveModeP.setValue(true);
+      }
+      if (cc.getCC() == autoAudioP.getValuei()) {
+        logger.info("Setting autoAudioModeP");
+        modeSelector.autoAudioModeP.toggle();
+      }
+    }
   }
+
   public void noteOffReceived(MidiNote note) {
     logger.info("noteOffReceived");
   }
   public void noteOnReceived(MidiNoteOn note) {
     logger.info("noteOnReceived: " + note.getPitch() + " ch: " + note.getChannel());
+    return; // Disable note based mode selection
+    /*
     if (note.getChannel() == midiChP.getValuei()) {
       if (note.getPitch() == prevGameP.getValuei()) {
         LXChannelBus interactive = UtilsForLX.getChannelByLabel(lx, "INTERACTIVE");
@@ -115,6 +150,7 @@ public class UIMidiControl extends UICollapsibleSection implements LXMidiListene
         modeSelector.autoAudioModeP.toggle();
       }
     }
+    */
   }
 
   public void pitchBendReceived(MidiPitchBend pitchBend) {
