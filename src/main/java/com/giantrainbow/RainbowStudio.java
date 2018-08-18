@@ -49,8 +49,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Modifier;
 import java.util.List;
+import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
+
 import processing.core.PApplet;
 import processing.event.KeyEvent;
 
@@ -158,6 +161,16 @@ public class RainbowStudio extends PApplet {
     // Processing setup, constructs the window and the LX instance
     frameRate(GLOBAL_FRAME_RATE);
     pApplet = this;
+
+    String logFilename = "rainbowstudio.log";
+    try {
+      FileHandler fh = new FileHandler(logFilename);
+      logger.addHandler(fh);
+      SimpleFormatter formatter = new SimpleFormatter();
+      fh.setFormatter(formatter);
+    } catch (IOException ioex) {
+      logger.info("Error creating log file: " + logFilename);
+    }
 
     LXModel model = buildModel(MODEL_TYPE);
     logger.info("Current renderer:" + sketchRenderer());

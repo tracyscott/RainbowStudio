@@ -26,10 +26,6 @@ public class BasicMidiPP extends MidiBase {
       new CompoundParameter("bars", 5, 6)
           .setDescription("Brightness");
 
-
-  private float currentHue = 100.0f;
-  private float currentBrightness = 0.0f;
-  LXMidiOutput midiThroughOutput;
   private int bar = -1;
 
   public BasicMidiPP(LX lx) {
@@ -59,38 +55,37 @@ public class BasicMidiPP extends MidiBase {
 
   // Map a note to a hue
   public void noteOnReceived(MidiNoteOn note) {
-    int pitch = note.getPitch();
-    logger.info("pitch: " + pitch);
-    // Start at note 60, White keys
-    if (pitch == 60) {
-      bar = 0;
-    } else if (pitch == 62) {
-      bar = 1;
-    } else if (pitch == 64) {
-      bar = 2;
-    } else if (pitch == 65) {
-      bar = 3;
-    } else if (pitch == 67) {
-      bar = 4;
-    } else if (pitch == 69) {
-      bar = 5;
+    if (note.getChannel() == midiCh.getValuei()) {
+
+      int pitch = note.getPitch();
+      // Start at note 60, White keys
+      if (pitch == 60) {
+        bar = 0;
+      } else if (pitch == 62) {
+        bar = 1;
+      } else if (pitch == 64) {
+        bar = 2;
+      } else if (pitch == 65) {
+        bar = 3;
+      } else if (pitch == 67) {
+        bar = 4;
+      } else if (pitch == 69) {
+        bar = 5;
+      }
     }
-    int velocity = note.getVelocity();
-    // NOTE: my mini keyboard generates between 48 & 72 (small keyboard)
-    currentHue = map(pitch, 48.0f, 72.0f, 0.0f, 100.0f);
-    currentBrightness = map(velocity, 0.0f, 127.0f, 0.0f, 100.0f);
 
     // Necessary to call for MIDI Through note forwarding.
     super.noteOnReceived(note);
   }
 
   public void noteOffReceived(MidiNote note) {
-    // Releasing any note will turn it off.  Multiple notes can be
-    // on at once and to turn off when all notes are released we need
-    // to track the notes on and only go black once we have received
-    // note-off for all notes.
-    currentBrightness = 0.0f;
-    bar = -1;
+    if (note.getChannel() == midiCh.getValuei()) {
+      // Releasing any note will turn it off.  Multiple notes can be
+      // on at once and to turn off when all notes are released we need
+      // to track the notes on and only go black once we have received
+      // note-off for all notes.
+      bar = -1;
+    }
 
     // Necessary to call for MIDI Through note forwarding.
     super.noteOffReceived(note);
