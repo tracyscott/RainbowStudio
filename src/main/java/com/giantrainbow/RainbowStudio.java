@@ -48,6 +48,8 @@ import heronarts.p3lx.ui.component.UIGLPointCloud;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Modifier;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
@@ -85,14 +87,16 @@ public class RainbowStudio extends PApplet {
   }
 
   /**
-   * Adds logging to a file.
+   * Adds logging to a file. The file name will be appended with a dash, date stamp, and
+   * the extension ".log".
    *
-   * @param filename log to this file
+   * @param prefix prefix of the log file name
    * @throws IOException if there was an error opening the file.
    */
-  public static void addLogFileHandler(String filename) throws IOException {
+  public static void addLogFileHandler(String prefix) throws IOException {
+    String suffix = new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
     Logger root = Logger.getLogger("");
-    Handler h = new FileHandler(filename);
+    Handler h = new FileHandler(prefix + "-" + suffix + ".log");
     h.setFormatter(new SimpleFormatter());
     root.addHandler(h);
   }
@@ -103,7 +107,7 @@ public class RainbowStudio extends PApplet {
     PApplet.main(RainbowStudio.class.getName(), args);
   }
 
-  private static final String LOG_FILENAME = "rainbowstudio.log";
+  private static final String LOG_FILENAME_PREFIX = "rainbowstudio";
 
   // Reference to top-level LX instance
   private heronarts.lx.studio.LXStudio lx;
@@ -192,9 +196,9 @@ public class RainbowStudio extends PApplet {
     pApplet = this;
 
     try {
-      addLogFileHandler(LOG_FILENAME);
+      addLogFileHandler(LOG_FILENAME_PREFIX);
     } catch (IOException ex) {
-      logger.log(Level.SEVERE, "Error creating log file: " + LOG_FILENAME, ex);
+      logger.log(Level.SEVERE, "Error creating log file: " + LOG_FILENAME_PREFIX, ex);
     }
 
     LXModel model = buildModel(MODEL_TYPE);
