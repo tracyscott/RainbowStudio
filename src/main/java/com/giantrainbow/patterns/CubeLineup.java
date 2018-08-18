@@ -1,12 +1,8 @@
 package com.giantrainbow.patterns;
 
-import static com.giantrainbow.colors.Colors.RAINBOW_PALETTE;
-import static com.giantrainbow.colors.Colors.rgb;
 import static processing.core.PConstants.PI;
-import static processing.core.PConstants.RGB;
 
-import com.giantrainbow.RainbowStudio;
-import com.giantrainbow.canvas.Canvas;
+import com.giantrainbow.colors.Colors;
 import com.giantrainbow.model.space.Space3D;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
@@ -24,14 +20,12 @@ public class CubeLineup extends CanvasPattern3D {
   public final float MAX_SPEED = 100000;
 
   public final CompoundParameter speedKnob =
-      new CompoundParameter("Speed", 10000, 10, MAX_SPEED).setDescription("Speed");
+      new CompoundParameter("Speed", MAX_SPEED / 5, 10, MAX_SPEED).setDescription("Speed");
   public final CompoundParameter countKnob =
-      new CompoundParameter("Count", 100, 10, MAX_CUBES).setDescription("Count");
+      new CompoundParameter("Count", MAX_CUBES / 5, 10, MAX_CUBES).setDescription("Count");
 
   public CubeLineup(LX lx) {
-    super(lx, new Canvas(lx.model));
-    speedKnob.setValue(1);
-    countKnob.setValue(MAX_CUBES / 2);
+    super(lx);
     addParameter(speedKnob);
     addParameter(countKnob);
     removeParameter(fpsKnob);
@@ -41,7 +35,6 @@ public class CubeLineup extends CanvasPattern3D {
     space = new Space3D(eye);
     boxes = new Box[MAX_CUBES];
     rnd = new Random();
-    texture = makeTexture();
 
     int trials = 0;
     for (int i = 0; i < boxes.length; i++) {
@@ -59,21 +52,6 @@ public class CubeLineup extends CanvasPattern3D {
         "Found boxes by %.1f%% rejection sampling\n", 100. * (float) boxes.length / (float) trials);
   }
 
-  PImage makeTexture() {
-    PImage img = RainbowStudio.pApplet.createImage(canvas.width(), canvas.width(), RGB);
-
-    img.loadPixels();
-    for (int i = 0; i < img.pixels.length; i++) {
-      float x = (float) (i % canvas.width()) / (float) canvas.width();
-      float x6 = x * 6;
-      int xi = (int) x6;
-
-      img.pixels[i] = RAINBOW_PALETTE[xi];
-    }
-    img.updatePixels();
-    return img;
-  }
-
   Random rnd;
   Box boxes[];
   double elapsed;
@@ -81,7 +59,6 @@ public class CubeLineup extends CanvasPattern3D {
   Space3D space;
 
   public class Box {
-    int C;
     PVector R;
     int W;
     float rotation;
@@ -90,24 +67,34 @@ public class CubeLineup extends CanvasPattern3D {
       return (float) W / 2;
     }
 
+    float partW() {
+      return W / (float) Colors.RAINBOW_PALETTE.length;
+    }
+
     Box() {
       W = (int) (rnd.nextFloat() * MAX_SIZE);
-      C = rgb(rnd.nextInt(255), rnd.nextInt(255), rnd.nextInt(255));
       R = PVector.random3D();
     }
 
-    void drawRect(float zoff) {
+    void drawPart(float zoff, int C, int part) {
       pg.beginShape();
-
-      pg.texture(texture);
 
       pg.fill(C);
 
-      pg.vertex(-radius(), -radius(), zoff, 0, 0);
-      pg.vertex(+radius(), -radius(), zoff, canvas.width(), 0);
-      pg.vertex(+radius(), +radius(), zoff, canvas.width(), canvas.height());
-      pg.vertex(-radius(), +radius(), zoff, 0, canvas.height());
+      float xmin = -radius() + (float) part * partW();
+      float xmax = xmin + partW();
+
+      pg.vertex(xmin, -radius(), zoff);
+      pg.vertex(xmax, -radius(), zoff);
+      pg.vertex(xmax, +radius(), zoff);
+      pg.vertex(xmin, +radius(), zoff);
       pg.endShape();
+    }
+
+    void drawRect(float zoff) {
+      for (int i = 0; i < Colors.RAINBOW_PALETTE.length; i++) {
+        drawPart(zoff, Colors.RAINBOW_PALETTE[i], i);
+      }
     }
 
     void drawSides() {
@@ -171,6 +158,9 @@ public class CubeLineup extends CanvasPattern3D {
     }
 
     for (int i = 0; i < (int) countKnob.getValue(); i++) {
+      if (i >= boxes.length) {
+        break;
+      }
       boxes[i].draw();
     }
   }
