@@ -50,6 +50,7 @@ import java.io.InputStream;
 import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.logging.FileHandler;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
@@ -68,6 +69,20 @@ public class RainbowStudio extends PApplet {
     // The second enables all
 //    System.setProperty("jogl.debug.Animator", "true");
 //    System.setProperty("jogl.debug", "true");
+  }
+
+  /**
+   * Set the main logging level here.
+   *
+   * @param level the new logging level
+   */
+  public static void setLogLevel(Level level) {
+    // Change the logging level here
+    Logger root = Logger.getLogger("");
+    root.setLevel(level);
+    for (Handler h : root.getHandlers()) {
+      h.setLevel(level);
+    }
   }
 
   private static final Logger logger = Logger.getLogger(RainbowStudio.class.getName());
