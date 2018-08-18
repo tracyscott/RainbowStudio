@@ -54,7 +54,6 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
-
 import processing.core.PApplet;
 import processing.event.KeyEvent;
 
@@ -85,11 +84,26 @@ public class RainbowStudio extends PApplet {
     }
   }
 
+  /**
+   * Adds logging to a file.
+   *
+   * @param filename log to this file
+   * @throws IOException if there was an error opening the file.
+   */
+  public static void addLogFileHandler(String filename) throws IOException {
+    Logger root = Logger.getLogger("");
+    Handler h = new FileHandler(filename);
+    h.setFormatter(new SimpleFormatter());
+    root.addHandler(h);
+  }
+
   private static final Logger logger = Logger.getLogger(RainbowStudio.class.getName());
 
   public static void main(String[] args) {
     PApplet.main(RainbowStudio.class.getName(), args);
   }
+
+  private static final String LOG_FILENAME = "rainbowstudio.log";
 
   // Reference to top-level LX instance
   private heronarts.lx.studio.LXStudio lx;
@@ -177,14 +191,10 @@ public class RainbowStudio extends PApplet {
     frameRate(GLOBAL_FRAME_RATE);
     pApplet = this;
 
-    String logFilename = "rainbowstudio.log";
     try {
-      FileHandler fh = new FileHandler(logFilename);
-      logger.addHandler(fh);
-      SimpleFormatter formatter = new SimpleFormatter();
-      fh.setFormatter(formatter);
-    } catch (IOException ioex) {
-      logger.info("Error creating log file: " + logFilename);
+      addLogFileHandler(LOG_FILENAME);
+    } catch (IOException ex) {
+      logger.log(Level.SEVERE, "Error creating log file: " + LOG_FILENAME, ex);
     }
 
     LXModel model = buildModel(MODEL_TYPE);
