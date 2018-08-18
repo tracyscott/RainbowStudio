@@ -16,8 +16,6 @@ import org.joml.sampling.Callback2d;
 import org.joml.sampling.PoissonSampling.Disk;
 import processing.core.PImage;
 
-// TODO Rotate each orbit w.r.t. the origin?
-
 /**
  * SpinnyDiscs animates a number of variable sized, rotating color wheels in 2D space. They are
  * implemented as a texture mapped circle w/ alpha surround. The balls are positioned by a
