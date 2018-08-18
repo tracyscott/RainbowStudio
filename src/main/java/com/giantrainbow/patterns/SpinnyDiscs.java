@@ -17,8 +17,6 @@ import org.joml.sampling.PoissonSampling.Disk;
 import processing.core.PImage;
 
 // TODO Rotate each orbit w.r.t. the origin?
-// TODO Swap positions when not overlapping.
-// TODO Reject samples inside outer radius and inside inner radius?
 
 /**
  * SpinnyDiscs animates a number of variable sized, rotating color wheels in 2D space. They are
@@ -30,10 +28,10 @@ public class SpinnyDiscs extends CanvasPattern2D {
   public final float MAX_SIZE = 10;
   public final float BACKGROUND_SPEED = 10f;
   public final float BACKGROUND_SAT = 1;
-  public final float BACKGROUND_BRIGHT = .15f;
-  public final float MOVEMENT_RANGE = 0; // Movement range as a ratio of width/height
-  public final float MAX_ROTATE_SPEED = 0f; // Speed range 20
-  public final float MAX_TRANSLATE_SPEED = 0f; // Speed range 10
+  public final float BACKGROUND_BRIGHT = .1f;
+  public final float MOVEMENT_RANGE = .5f; // Movement range as a ratio of width/height
+  public final float MAX_ROTATE_SPEED = 100f; // Speed range
+  public final float MAX_TRANSLATE_SPEED = 10f; // Speed range
   public final float MSHZ = 1 / 100000f; // Arbitrary slowdown of the millisecond counter
 
   public final int BALL_COUNT = 1000;
@@ -41,6 +39,11 @@ public class SpinnyDiscs extends CanvasPattern2D {
   // Speed determines the overall speed of the entire pattern.
   public final CompoundParameter speedKnob =
       new CompoundParameter("Speed", 5, 0, 10).setDescription("Speed");
+  public final CompoundParameter sizeKnob =
+      new CompoundParameter("Size", 5, 1, 10).setDescription("Size");
+  public final CompoundParameter rangeKnob =
+      new CompoundParameter("Range", .5, 0, 1).setDescription("Range");
+
   // Count determines the number of balls that render.  They are
   // animated continuously, so raising and lower the number will
   // show/hide them while they continue moving with the animation.
@@ -59,10 +62,11 @@ public class SpinnyDiscs extends CanvasPattern2D {
 
   // The "rotate" paramter determines how fast the whole thing spins.
   public final CompoundParameter rotateKnob =
-      new CompoundParameter("rotate", 0, -100, 100).setDescription("rotate");
+      new CompoundParameter("rotate", 0, -10, 10).setDescription("rotate");
 
   Ball balls[];
-  float elapsed;
+  float telapsed;
+  float relapsed;
   PImage texture;
 
   PImage makeTexture() {
@@ -124,7 +128,8 @@ public class SpinnyDiscs extends CanvasPattern2D {
 
     Random rnd = new Random();
 
-    this.elapsed = 0;
+    this.telapsed = 0;
+    this.relapsed = 0;
     this.balls = new Ball[BALL_COUNT];
     this.texture = makeTexture();
 
@@ -150,6 +155,7 @@ public class SpinnyDiscs extends CanvasPattern2D {
               ball.R = MAX_SIZE * rnd.nextFloat();
               ball.ST = MAX_TRANSLATE_SPEED * 2f * (rnd.nextFloat() - 0.5f);
               ball.SR = MAX_ROTATE_SPEED * 2f * (rnd.nextFloat() - 0.5f);
+              ball.Angle = (float) rnd.nextFloat() * (float) Math.PI;
               list.add(ball);
             }
           });
@@ -177,16 +183,21 @@ public class SpinnyDiscs extends CanvasPattern2D {
     addParameter(bKnob);
     addParameter(deltaKnob);
     addParameter(rotateKnob);
+    addParameter(sizeKnob);
+    addParameter(rangeKnob);
   }
 
   public void draw(double deltaMs) {
     double speed = speedKnob.getValue();
-    elapsed += (float) (deltaMs * speed);
+    telapsed += (float) (deltaMs * speed);
+    double rotate = rotateKnob.getValue();
+    relapsed += (float) (deltaMs * rotate);
 
-    pg.background(Colors.hsb(elapsed * BACKGROUND_SPEED * MSHZ, BACKGROUND_SAT, BACKGROUND_BRIGHT));
+    pg.background(
+        Colors.hsb(relapsed * BACKGROUND_SPEED * MSHZ, BACKGROUND_SAT, BACKGROUND_BRIGHT));
 
     pg.translate(canvas.width() / 2, 0);
-    pg.rotate(elapsed * (float) rotateKnob.getValue() * MSHZ);
+    pg.rotate(relapsed * (float) rotateKnob.getValue() * MSHZ);
 
     for (int i = 0; i < countKnob.getValue(); i++) {
       if (i >= balls.length) {
@@ -197,32 +208,37 @@ public class SpinnyDiscs extends CanvasPattern2D {
   }
 
   float a() {
-    return (float) (int) (aKnob.getValue() + 0.5);
+    return (float) aKnob.getValue();
   }
 
   float b() {
-    return (float) (int) (bKnob.getValue() + 0.5);
+    return (float) bKnob.getValue();
   }
 
   public class Ball {
-    float X;
-    float Y;
-    float A;
-    float B;
-    float R;
+    float X; // Y location
+    float Y; // X location
+    float A; // Lissajous B
+    float B; // Lissajous B
+    float R; // Radius
     float ST; // Translation speed
     float SR; // Rotation speed
+    float Angle; // Angle offset
 
     void draw() {
       pg.pushMatrix();
 
       float delta = (float) deltaKnob.getValue();
-      float position = (float) elapsed * ST * MSHZ;
-      float rotation = (float) elapsed * SR * MSHZ;
-      float x = Lissajous.locationX(A, a(), delta, position);
-      float y = Lissajous.locationY(B, b(), position);
+      float position = (float) telapsed * ST * MSHZ;
+      float rotation = (float) (relapsed + telapsed) * SR * MSHZ;
+      float range = (float) rangeKnob.getValue();
+      float x = Lissajous.locationX(range * A, a(), delta, position);
+      float y = Lissajous.locationY(range * B, b(), position);
 
-      pg.translate(X + x, Y + y);
+      pg.rotate(Angle);
+      pg.translate(x, y);
+      pg.rotate(-Angle);
+      pg.translate(X, Y);
       pg.rotate(rotation);
 
       pg.beginShape();
@@ -231,11 +247,12 @@ public class SpinnyDiscs extends CanvasPattern2D {
       pg.texture(texture);
 
       float w = canvas.width();
+      float r = R * (float) sizeKnob.getValue();
 
-      pg.vertex(-R, -R, 0, 0);
-      pg.vertex(R, -R, w, 0);
-      pg.vertex(R, R, w, w);
-      pg.vertex(-R, R, 0, w);
+      pg.vertex(-r, -r, 0, 0);
+      pg.vertex(r, -r, w, 0);
+      pg.vertex(r, r, w, w);
+      pg.vertex(-r, r, 0, w);
       pg.endShape();
 
       pg.popMatrix();
