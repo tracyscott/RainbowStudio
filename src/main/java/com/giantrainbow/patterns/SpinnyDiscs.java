@@ -37,7 +37,7 @@ public class SpinnyDiscs extends CanvasPattern2D {
 
   // Speed determines the overall speed of the entire pattern.
   public final CompoundParameter speedKnob =
-      new CompoundParameter("Speed", 10, 0, 20).setDescription("Speed");
+      new CompoundParameter("Speed", 5, 0, 10).setDescription("Speed");
   // Count determines the number of balls that render.  They are
   // animated continuously, so raising and lower the number will
   // show/hide them while they continue moving with the animation.
@@ -55,10 +55,13 @@ public class SpinnyDiscs extends CanvasPattern2D {
   public final CompoundParameter deltaKnob =
       new CompoundParameter("delta", 0, -Math.PI / 2, Math.PI / 2).setDescription("delta");
 
+  // The "rotate" paramter determines how fast the whole thing spins.
+  public final CompoundParameter rotateKnob =
+      new CompoundParameter("rotate", 5, -100, 100).setDescription("rotate");
+
   Ball balls[];
   float elapsed;
   PImage texture;
-  float xoff, yoff;
 
   PImage makeTexture() {
     PImage img = RainbowStudio.pApplet.createImage(canvas.width(), canvas.width(), RGB);
@@ -124,12 +127,7 @@ public class SpinnyDiscs extends CanvasPattern2D {
             Math.sqrt(
                 (canvas.width() / 2) * (canvas.width() / 2) + canvas.height() * canvas.height());
 
-    pg.noLights();
     pg.textureWrap(CLAMP);
-    pg.smooth(2);
-
-    this.xoff = canvas.width() / 2;
-    this.yoff = 0;
 
     int minDist = 20;
     for (; ; ) {
@@ -154,13 +152,11 @@ public class SpinnyDiscs extends CanvasPattern2D {
 
       if (list.size() < BALL_COUNT) {
         minDist /= 2;
-        System.err.println("TOO FEW BALLS: " + list.size() + " " + minDist);
         continue;
       }
 
-      if (list.size() > BALL_COUNT * 1.1) {
-        minDist += 1;
-        System.err.println("TOO FEW BALLS: " + list.size() + " " + minDist);
+      if (list.size() > BALL_COUNT * 1.25) {
+        minDist *= 1.25;
         continue;
       }
 
@@ -168,14 +164,13 @@ public class SpinnyDiscs extends CanvasPattern2D {
       break;
     }
 
-    System.err.println("OK BALLS: " + balls.length + " " + minDist);
-
     removeParameter(fpsKnob);
     addParameter(speedKnob);
     addParameter(countKnob);
     addParameter(aKnob);
     addParameter(bKnob);
     addParameter(deltaKnob);
+    addParameter(rotateKnob);
   }
 
   public void draw(double deltaMs) {
@@ -183,6 +178,9 @@ public class SpinnyDiscs extends CanvasPattern2D {
     elapsed += (float) (deltaMs * speed);
 
     pg.background(Colors.hsb(elapsed * BACKGROUND_SPEED * MSHZ, BACKGROUND_SAT, BACKGROUND_BRIGHT));
+
+    pg.translate(canvas.width() / 2, 0);
+    pg.rotate(elapsed * (float) rotateKnob.getValue() * MSHZ);
 
     for (int i = 0; i < countKnob.getValue(); i++) {
       if (i >= balls.length) {
@@ -210,7 +208,7 @@ public class SpinnyDiscs extends CanvasPattern2D {
       float x = Lissajous.locationX(A, a, delta, position);
       float y = Lissajous.locationY(B, b, position);
 
-      pg.translate(xoff + X + x, yoff + Y + y);
+      pg.translate(X + x, Y + y);
       pg.rotate(position);
 
       pg.beginShape();
