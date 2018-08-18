@@ -1,6 +1,6 @@
 {
   "version": "0.1",
-  "timestamp": 1534060641146,
+  "timestamp": 1534550251389,
   "engine": {
     "id": 1,
     "class": "heronarts.lx.LXEngine",
@@ -39,7 +39,7 @@
     },
     "channels": [
       {
-        "id": 494,
+        "id": 563,
         "class": "heronarts.lx.LXChannel",
         "modulationColor": -16714497,
         "parameters": {
@@ -80,7 +80,7 @@
             "autoCycleEnabled": false
           },
           {
-            "id": 495,
+            "id": 578,
             "class": "com.giantrainbow.patterns.AnimatedSpritePP",
             "modulationColor": -65454,
             "parameters": {
@@ -96,7 +96,7 @@
             "autoCycleEnabled": true
           },
           {
-            "id": 497,
+            "id": 580,
             "class": "com.giantrainbow.patterns.AnimatedTextPP",
             "modulationColor": -35328,
             "parameters": {
@@ -113,7 +113,7 @@
             "autoCycleEnabled": true
           },
           {
-            "id": 499,
+            "id": 582,
             "class": "com.giantrainbow.patterns.BasicMidiPP",
             "modulationColor": -15531777,
             "parameters": {
@@ -129,12 +129,12 @@
             "autoCycleEnabled": true
           },
           {
-            "id": 501,
+            "id": 584,
             "class": "com.giantrainbow.patterns.Blocks",
             "modulationColor": -16768257,
             "parameters": {
               "label": "Blocks",
-              "Fps": 60.0,
+              "Speed": 0.5,
               "Text": "R INBOW"
             },
             "modulation": {
@@ -150,7 +150,7 @@
             "modulationColor": -4352,
             "parameters": {
               "label": "CheckerMove",
-              "Fps": 60.0,
+              "Speed": 0.5,
               "Monochrome": false
             },
             "modulation": {
@@ -166,7 +166,7 @@
             "modulationColor": -16711765,
             "parameters": {
               "label": "CrowdHands",
-              "Fps": 60.0
+              "Speed": 0.5
             },
             "modulation": {
               "modulators": [],
@@ -181,7 +181,6 @@
             "modulationColor": -16735489,
             "parameters": {
               "label": "Cylon",
-              "Fps": 60.0,
               "Speed": 0.5
             },
             "modulation": {
@@ -197,7 +196,7 @@
             "modulationColor": -58624,
             "parameters": {
               "label": "DragonTail",
-              "Fps": 60.0
+              "Speed": 0.5
             },
             "modulation": {
               "modulators": [],
@@ -280,7 +279,7 @@
             "modulationColor": -65471,
             "parameters": {
               "label": "LavaLamp",
-              "Fps": 60.0,
+              "Speed": 0.5,
               "Monochrome": false
             },
             "modulation": {
@@ -312,7 +311,7 @@
             "modulationColor": -13762816,
             "parameters": {
               "label": "Moire",
-              "Fps": 60.0,
+              "Speed": 0.5,
               "Solid": false
             },
             "modulation": {
@@ -328,7 +327,7 @@
             "modulationColor": -1048832,
             "parameters": {
               "label": "NyanCat",
-              "Fps": 60.0
+              "Speed": 0.5
             },
             "modulation": {
               "modulators": [],
@@ -601,7 +600,22 @@
             "autoCycleEnabled": true
           },
           {
-            "id": 559,
+            "id": 646,
+            "class": "com.giantrainbow.patterns.SillyString",
+            "modulationColor": -16754433,
+            "parameters": {
+              "label": "SillyString",
+              "Speed": 0.5
+            },
+            "modulation": {
+              "modulators": [],
+              "modulations": [],
+              "triggers": []
+            },
+            "autoCycleEnabled": true
+          },
+          {
+            "id": 648,
             "class": "com.giantrainbow.patterns.Tutorial",
             "modulationColor": -16711835,
             "parameters": {
@@ -620,7 +634,7 @@
       }
     ],
     "master": {
-      "id": 18,
+      "id": 14,
       "class": "heronarts.lx.LXMasterChannel",
       "modulationColor": -16727041,
       "parameters": {
@@ -649,7 +663,7 @@
       }
     },
     "audio": {
-      "id": 20,
+      "id": 16,
       "class": "heronarts.lx.audio.LXAudioEngine",
       "modulationColor": -65366,
       "parameters": {
@@ -698,7 +712,7 @@
         }
       },
       "output": {
-        "id": 22,
+        "id": 18,
         "class": "heronarts.lx.audio.LXAudioOutput",
         "modulationColor": -16711762,
         "parameters": {
@@ -727,7 +741,9 @@
       "rainbowSettings": {
         "minThr": -80.0,
         "avgTs": 3.0,
-        "quietT": 60.0,
+        "gainInc": 1.0,
+        "reduceThrsh": 45.0,
+        "gainThrsh": 20.0,
         "stdModeTime": 2000.0,
         "stdModeFadeTime": 1000.0,
         "gammaRed": 3.0,
@@ -736,7 +752,15 @@
         "pixlite1Ip": "192.168.1.175",
         "pixlite1Port": "6454",
         "pixlite2Ip": "192.168.2.134",
-        "pixlite2Port": "6455"
+        "pixlite2Port": "6455",
+        "midiCtrlMidiCh": 9.0,
+        "midiCtrlNxtGame": 48.0,
+        "midiCtrlPrvGame": 49.0,
+        "midiCtrlAudioM": 40.0,
+        "midiCtrlStdM": 41.0,
+        "midiCtlrInstrM": 42.0,
+        "midiCtrlInterM": 43.0,
+        "midiCtrlAutoAu": 48.0
       }
     },
     "modulation": {
