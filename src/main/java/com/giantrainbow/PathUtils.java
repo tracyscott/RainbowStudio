@@ -7,6 +7,7 @@ import static processing.core.PConstants.ARGB;
 
 import com.google.common.reflect.ClassPath;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -67,6 +68,19 @@ public class PathUtils {
     }
 
     return frames.toArray(new PImage[0]);
+  }
+
+  /**
+   * Finds shader files.
+   */
+  public static List<String> findShaderFiles(String path) {
+    List<String> matches = new ArrayList<String>();
+    File shaderDir = new File(path);
+    for (final File fileEntry : shaderDir.listFiles()) {
+      if (fileEntry.getName().endsWith(".frag"))
+        matches.add(fileEntry.getName());
+    }
+    return matches;
   }
 
   /**
