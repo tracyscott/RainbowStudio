@@ -20,6 +20,8 @@ import processing.core.PImage;
  * SpinnyDiscs animates a number of variable sized, rotating color wheels in 2D space. They are
  * implemented as a texture mapped circle w/ alpha surround. The balls are positioned by a
  * https://en.wikipedia.org/wiki/Lissajous_curve.
+ *
+ * <p>TODO continuous, smooth adjustments. Smoother background pulse.
  */
 @LXCategory(LXCategory.FORM)
 public class SpinnyDiscs extends CanvasPattern2D {
@@ -28,8 +30,9 @@ public class SpinnyDiscs extends CanvasPattern2D {
   public final float BACKGROUND_SAT = 1;
   public final float BACKGROUND_BRIGHT = .1f;
   public final float MOVEMENT_RANGE = .5f; // Movement range as a ratio of width/height
-  public final float MAX_ROTATE_SPEED = 100f; // Speed range
-  public final float MAX_TRANSLATE_SPEED = 10f; // Speed range
+  public final float MAX_ROTATE_SPEED = 100f; // Speed range (individual balls)
+  public final float MAX_SPINNING_SPEED = 10f; // Speed range (whole canvas)
+  public final float MAX_TRANSLATE_SPEED = 5f; // Speed range
   public final float MSHZ = 1 / 100000f; // Arbitrary slowdown of the millisecond counter
 
   public final int BALL_COUNT = 1000;
@@ -149,7 +152,7 @@ public class SpinnyDiscs extends CanvasPattern2D {
               ball.X = x;
               ball.Y = y;
               ball.A = 2 * radius * rnd.nextFloat() * MOVEMENT_RANGE;
-              ball.B = 2 * radius * rnd.nextFloat() * MOVEMENT_RANGE;
+              ball.Bratio = rnd.nextFloat() + .5f;
               ball.R = MAX_SIZE * rnd.nextFloat();
               ball.ST = MAX_TRANSLATE_SPEED * 2f * (rnd.nextFloat() - 0.5f);
               ball.SR = MAX_ROTATE_SPEED * 2f * (rnd.nextFloat() - 0.5f);
@@ -191,11 +194,11 @@ public class SpinnyDiscs extends CanvasPattern2D {
     double rotate = rotateKnob.getValue();
     relapsed += (float) (deltaMs * rotate);
 
-    pg.background(
-        Colors.hsb(relapsed * BACKGROUND_SPEED * MSHZ, BACKGROUND_SAT, BACKGROUND_BRIGHT));
+    pg.background(Colors.BLACK);
+    // Colors.hsb(relapsed * BACKGROUND_SPEED * MSHZ, BACKGROUND_SAT, BACKGROUND_BRIGHT));
 
     pg.translate(canvas.width() / 2, 0);
-    pg.rotate(relapsed * (float) rotateKnob.getValue() * MSHZ);
+    pg.rotate(relapsed * MAX_SPINNING_SPEED * MSHZ);
 
     for (int i = 0; i < countKnob.getValue(); i++) {
       if (i >= balls.length) {
@@ -217,7 +220,7 @@ public class SpinnyDiscs extends CanvasPattern2D {
     float X; // Y location
     float Y; // X location
     float A; // Lissajous B
-    float B; // Lissajous B
+    float Bratio; // Lissajous B/A ratio
     float R; // Radius
     float ST; // Translation speed
     float SR; // Rotation speed
@@ -231,7 +234,7 @@ public class SpinnyDiscs extends CanvasPattern2D {
       float rotation = (float) (relapsed + telapsed) * SR * MSHZ;
       float range = (float) rangeKnob.getValue();
       float x = Lissajous.locationX(range * A, a(), delta, position);
-      float y = Lissajous.locationY(range * B, b(), position);
+      float y = Lissajous.locationY(range * A * Bratio, b(), position);
 
       pg.rotate(Angle);
       pg.translate(x, y);
