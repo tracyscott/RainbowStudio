@@ -97,9 +97,8 @@ public class SpinnyDiscs extends CanvasPattern2D {
 
     this.textureB = -1;
     this.textureW = this.textureLch.width;
-    this.textureA = new int[img.pixels.length];
+    this.textureA = new int[this.textureLch.width * this.textureLch.width];
 
-    // System.err.println("Look: " + this.textureLch.width);
     this.texture =
         RainbowStudio.pApplet.createImage(this.textureLch.width, this.textureLch.width, RGB);
 
@@ -186,19 +185,9 @@ public class SpinnyDiscs extends CanvasPattern2D {
                 (int) (dim * (double) lr + bright * (double) hr),
                 (int) (dim * (double) lg + bright * (double) hg),
                 (int) (dim * (double) lb + bright * (double) hb));
-
-        // System.err.println(
-        //     "NOTE: "
-        //         + Colors.red(this.texture.pixels[idx])
-        //         + " "
-        //         + Colors.green(this.texture.pixels[idx])
-        //         + " "
-        //         + Colors.blue(this.texture.pixels[idx])
-        //         + " "
-        //         + Colors.alpha(this.texture.pixels[idx]));
       }
     }
-    this.texture.mask(alpha);
+    this.texture.mask(this.textureA);
     this.texture.updatePixels();
   }
 
