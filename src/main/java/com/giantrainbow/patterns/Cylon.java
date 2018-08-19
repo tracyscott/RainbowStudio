@@ -57,7 +57,7 @@ public class Cylon extends P3PixelPerfectBase {
   private long runTime;  // The total pattern run time between setup() and tearDown(), in ms
   private final CompoundParameter maxRunTimeKnob =
       new CompoundParameter("Max Run Time", 0.5, 0.0, 1.0)
-          .setDescription("Sets the maximum run time, full for infinite");
+          .setDescription("Sets the maximum run time (0-" + MAX_RUN_TIME_RANGE + "s), full for infinite");
 
   public Cylon(LX lx) {
     super(lx, P2D);
