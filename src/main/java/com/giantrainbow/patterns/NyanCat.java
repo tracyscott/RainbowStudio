@@ -157,6 +157,7 @@ public class NyanCat extends P3PixelPerfectBase {
     catX += CAT_SPEED / fpsKnob.getValuef();
     if (catX - RAINBOW_SEGMENT_COUNT*RAINBOW_SEGMENT_WIDTH + RAINBOW_CAT_INTERSECT >= pg.width) {
       catX = -maxImgWidth;
+      getChannel().goNext();
     }
   }
 
