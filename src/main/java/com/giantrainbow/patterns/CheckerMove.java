@@ -5,7 +5,6 @@
 package com.giantrainbow.patterns;
 
 import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
-import static com.giantrainbow.RainbowStudio.inputManager;
 import static processing.core.PApplet.floor;
 import static processing.core.PApplet.max;
 import static processing.core.PApplet.min;
@@ -109,7 +108,7 @@ public class CheckerMove extends P3PixelPerfectBase {
     reset = true;
     state = CHOOSE_STATE;
 
-    beats = inputManager.getBeats();
+    beats = inputManager().getBeats();
     lastBeatsTime = 0L;
     beatsNotRandom = false;
   }
@@ -161,7 +160,7 @@ public class CheckerMove extends P3PixelPerfectBase {
           }
         }
 
-        beats = inputManager.getBeats(beats, 0);
+        beats = inputManager().getBeats(beats, 0);
         for (int i = 0; i < 3; i++) {
           if (beats.isBeat(i)) {
             lastBeatsTime = time;

@@ -1,10 +1,13 @@
 package com.giantrainbow.patterns;
 
 import com.giantrainbow.RainbowStudio;
+import com.giantrainbow.Registry;
+import com.giantrainbow.input.InputManager;
 import com.giantrainbow.model.RainbowBaseModel;
 import heronarts.lx.LX;
 import heronarts.lx.parameter.CompoundParameter;
 import heronarts.p3lx.P3LXPattern;
+import java.util.concurrent.ScheduledExecutorService;
 import processing.core.PApplet;
 
 /**
@@ -46,5 +49,19 @@ abstract class P3PixelPerfectBase extends PGBase {
 
   protected final void imageToPoints() {
     RenderImageUtil.imageToPointsPixelPerfect(colors, pg);
+  }
+
+  /**
+   * Returns an instance of the {@link InputManager}.
+   */
+  protected final InputManager inputManager() {
+    return ((RainbowStudio) applet).registry.get(Registry.Key.INPUT_MANAGER);
+  }
+
+  /**
+   * Returns an instance of the {@link ScheduledExecutorService}.
+   */
+  protected final ScheduledExecutorService exec() {
+    return ((RainbowStudio) applet).registry.get(Registry.Key.EXEC);
   }
 }
