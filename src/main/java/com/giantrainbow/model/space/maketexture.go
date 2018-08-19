@@ -18,7 +18,7 @@ type (
 const (
 	W         = 600
 	Center    = W / 2
-	Tolerance = 10
+	Tolerance = 0
 	R2        = (Center - Tolerance) * (Center - Tolerance)
 )
 
@@ -29,10 +29,10 @@ func main() {
 
 func writeTextures(pfx string, cfunc Cfunc) {
 	const (
-		num    = 10
-		factor = 0.10
+		num    = 21
+		factor = 0.05
 	)
-	for i := 1; i <= num; i++ {
+	for i := 0; i <= num; i++ {
 		l := float64(i) * factor
 		writeTexture(pfx, l, makeTexture(l, cfunc))
 	}

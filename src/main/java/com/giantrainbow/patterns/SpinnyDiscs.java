@@ -35,6 +35,7 @@ public class SpinnyDiscs extends CanvasPattern2D {
   public final float SPIN_RATE = 10f; // Speed range (whole canvas)
   public final float MAX_SPEED = 5f; // Speed range
   public final float MIN_SPEED = 1f; // Speed range
+  public final float BG_RATE = 100f;
   public final float AB_MAX = 6;
   public final float MSHZ = 1 / 100000f; // Arbitrary slowdown of the millisecond counter
 
@@ -50,6 +51,10 @@ public class SpinnyDiscs extends CanvasPattern2D {
 
   public final CompoundParameter brightKnob =
       new CompoundParameter("Bright", 0.5, 0, 1).setDescription("Bright");
+  public final CompoundParameter bgRateKnob =
+      new CompoundParameter("Background rate", 10, 1, 100).setDescription("Background rate");
+  public final CompoundParameter bgLevelKnob =
+      new CompoundParameter("Background level", 0.1, 0, 1).setDescription("Background level");
 
   // Count determines the number of balls that render.  They are
   // animated continuously, so raising and lower the number will
@@ -112,6 +117,8 @@ public class SpinnyDiscs extends CanvasPattern2D {
 
     pg.textureWrap(CLAMP);
 
+    computeBackground();
+
     int minDist = 20;
     for (; ; ) {
       ArrayList<Ball> list = new ArrayList<Ball>();
@@ -161,6 +168,8 @@ public class SpinnyDiscs extends CanvasPattern2D {
     addParameter(sizeKnob);
     addParameter(rangeKnob);
     addParameter(brightKnob);
+    addParameter(bgLevelKnob);
+    addParameter(bgRateKnob);
   }
 
   void setTexture(double bright) {
@@ -190,6 +199,31 @@ public class SpinnyDiscs extends CanvasPattern2D {
     this.texture.updatePixels();
   }
 
+  final int bgLevels = 1;
+  final int bgGradSize = 360;
+  final double brightIncr = 0.05;
+  final double brightOffset = 0.00;
+  int bgcolor[];
+
+  public void computeBackground() {
+    bgcolor = new int[bgLevels * bgGradSize];
+
+    for (int l = 0; l < bgLevels; l++) {
+      String file = String.format("images/lch-disc-%.02f.png", brightOffset + l * brightIncr);
+      PImage bgTexture = RainbowStudio.pApplet.loadImage(file);
+      bgTexture.loadPixels();
+      final int tolerance = 1;
+      final int center = bgTexture.width / 2;
+
+      for (int b = 0; b < bgGradSize; b++) {
+        final double theta = 2.0 * Math.PI * (double) b / (double) bgGradSize;
+        final int xpos = center + (int) (Math.cos(theta) * (double) (center - tolerance));
+        final int ypos = center + (int) (Math.sin(theta) * (double) (center - tolerance));
+        bgcolor[l * bgGradSize + b] = bgTexture.pixels[ypos * bgTexture.width + xpos];
+      }
+    }
+  }
+
   public void draw(double deltaMs) {
     double speed = speedKnob.getValue();
     telapsed += (float) (deltaMs * speed);
@@ -198,8 +232,15 @@ public class SpinnyDiscs extends CanvasPattern2D {
 
     setTexture(brightKnob.getValue());
 
-    pg.background(Colors.BLACK);
-    // Colors.hsb(relapsed * BACKGROUND_SPEED * MSHZ, BACKGROUND_SAT, BACKGROUND_BRIGHT));
+    int bgc =
+        bgcolor[(int) (telapsed * BG_RATE * (float) bgRateKnob.getValue() * MSHZ) % bgGradSize];
+    float bgl = (float) bgLevelKnob.getValue();
+
+    pg.background(
+        Colors.rgb(
+            (int) ((float) Colors.red(bgc) * bgl),
+            (int) ((float) Colors.green(bgc) * bgl),
+            (int) ((float) Colors.blue(bgc) * bgl)));
 
     pg.translate(canvas.width() / 2, 0);
     pg.rotate(relapsed * SPIN_RATE * MSHZ);
