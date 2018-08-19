@@ -16,7 +16,7 @@ type (
 )
 
 const (
-	W         = 1000
+	W         = 600
 	Center    = W / 2
 	Tolerance = 10
 	R2        = (Center - Tolerance) * (Center - Tolerance)

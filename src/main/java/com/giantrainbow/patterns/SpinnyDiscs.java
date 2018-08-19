@@ -31,9 +31,10 @@ public class SpinnyDiscs extends CanvasPattern2D {
   public final float BACKGROUND_BRIGHT = .1f;
 
   public final float MOVEMENT_RANGE = .5f; // Movement range as a ratio of width/height
-  public final float MAX_ROTATE_SPEED = 100f; // Speed range (individual balls)
-  public final float MAX_SPINNING_SPEED = 10f; // Speed range (whole canvas)
-  public final float MAX_TRANSLATE_SPEED = 8f; // Speed range
+  public final float ROTATE_RATE = 100f; // Speed range (individual balls)
+  public final float SPIN_RATE = 10f; // Speed range (whole canvas)
+  public final float MAX_SPEED = 5f; // Speed range
+  public final float MIN_SPEED = 1f; // Speed range
   public final float AB_MAX = 6;
   public final float MSHZ = 1 / 100000f; // Arbitrary slowdown of the millisecond counter
 
@@ -48,7 +49,7 @@ public class SpinnyDiscs extends CanvasPattern2D {
       new CompoundParameter("Range", .5, 0, 1).setDescription("Range");
 
   public final CompoundParameter brightKnob =
-      new CompoundParameter("Bright", 0, 0, 1).setDescription("Bright");
+      new CompoundParameter("Bright", 0.5, 0, 1).setDescription("Bright");
 
   // Count determines the number of balls that render.  They are
   // animated continuously, so raising and lower the number will
@@ -58,7 +59,8 @@ public class SpinnyDiscs extends CanvasPattern2D {
 
   // The "delta" paramter of a Lissajous curve that moves all the balls.
   public final CompoundParameter deltaKnob =
-      new CompoundParameter("Delta", 0, -Math.PI / 2, Math.PI / 2).setDescription("Delta");
+      new CompoundParameter("Delta", Math.PI / 4, -Math.PI / 2, Math.PI / 2)
+          .setDescription("Delta");
 
   // The "rotate" paramter determines how fast the whole thing spins.
   public final CompoundParameter rotateKnob =
@@ -70,7 +72,6 @@ public class SpinnyDiscs extends CanvasPattern2D {
 
   int textureA[];
   float textureW;
-  float textureB;
   PImage textureLch;
   PImage textureHsv;
   PImage texture;
@@ -95,14 +96,17 @@ public class SpinnyDiscs extends CanvasPattern2D {
     this.textureLch.loadPixels();
     this.textureHsv.loadPixels();
 
-    this.textureB = -1;
     this.textureW = this.textureLch.width;
     this.textureA = new int[this.textureLch.width * this.textureLch.width];
 
     this.texture =
         RainbowStudio.pApplet.createImage(this.textureLch.width, this.textureLch.width, RGB);
+    this.texture.loadPixels();
 
-    setTexture(0);
+    speedKnob.addListener(
+        lxParameter -> {
+          setTexture(lxParameter.getValue());
+        });
 
     float radius = distance(0, 0, canvas.width() / 2, canvas.height());
 
@@ -126,8 +130,8 @@ public class SpinnyDiscs extends CanvasPattern2D {
               ball.a = (rnd.nextFloat() * (AB_MAX - 1) + 1);
               ball.b = (rnd.nextFloat() * (AB_MAX - 1) + 1);
               ball.R = MIN_SIZE + (MAX_SIZE - MIN_SIZE) * rnd.nextFloat();
-              ball.ST = MAX_TRANSLATE_SPEED * 2f * (rnd.nextFloat() - 0.5f);
-              ball.SR = MAX_ROTATE_SPEED * 2f * (rnd.nextFloat() - 0.5f);
+              ball.ST = MIN_SPEED + (MAX_SPEED - MIN_SPEED) * 2f * (rnd.nextFloat() - 0.5f);
+              ball.SR = ROTATE_RATE * 2f * (rnd.nextFloat() - 0.5f);
               ball.Angle = (float) rnd.nextFloat() * (float) Math.PI;
               list.add(ball);
             }
@@ -160,11 +164,6 @@ public class SpinnyDiscs extends CanvasPattern2D {
   }
 
   void setTexture(double bright) {
-    if (bright == this.textureB) {
-      return;
-    }
-    this.texture.loadPixels();
-
     double dim = 1. - bright;
     for (int i = 0; i < this.textureLch.width; i++) {
       for (int j = 0; j < this.textureLch.width; j++) {
@@ -203,7 +202,7 @@ public class SpinnyDiscs extends CanvasPattern2D {
     // Colors.hsb(relapsed * BACKGROUND_SPEED * MSHZ, BACKGROUND_SAT, BACKGROUND_BRIGHT));
 
     pg.translate(canvas.width() / 2, 0);
-    pg.rotate(relapsed * MAX_SPINNING_SPEED * MSHZ);
+    pg.rotate(relapsed * SPIN_RATE * MSHZ);
 
     for (int i = 0; i < countKnob.getValue(); i++) {
       if (i >= balls.length) {
