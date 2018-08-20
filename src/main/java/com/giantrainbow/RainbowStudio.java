@@ -143,7 +143,7 @@ public class RainbowStudio extends PApplet {
 
   @Override
   public void settings() {
-    size(800, 720, P3D);
+    size(1024, 600, P3D);
   }
 
   /**
@@ -153,7 +153,6 @@ public class RainbowStudio extends PApplet {
    * @param lx the LX environment
    */
   private void registerAll(LXStudio lx) {
-    //lx.registerPattern(com.giantrainbow.patterns.ShaderToy.class);
     List<Class<? extends LXPattern>> patterns = lx.getRegisteredPatterns();
     List<Class<? extends LXEffect>> effects = lx.getRegisteredEffects();
     final String parentPackage = getClass().getPackage().getName();
@@ -191,7 +190,6 @@ public class RainbowStudio extends PApplet {
   @Override
   public void setup() {
     // Processing setup, constructs the window and the LX instance
-    frameRate(GLOBAL_FRAME_RATE);
     pApplet = this;
 
     try {
@@ -313,6 +311,7 @@ public class RainbowStudio extends PApplet {
     fullscreenContext.setVisible(false);
 
     lx.ui.setTopLevelKeyEventHandler(new TopLevelKeyEventHandler());
+    frameRate(GLOBAL_FRAME_RATE);
   }
 
   public class TopLevelKeyEventHandler extends UIEventHandler {
