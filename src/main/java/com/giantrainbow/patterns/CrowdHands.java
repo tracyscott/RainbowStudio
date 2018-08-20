@@ -5,7 +5,6 @@
 package com.giantrainbow.patterns;
 
 import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
-import static com.giantrainbow.RainbowStudio.inputManager;
 import static processing.core.PApplet.lerp;
 import static processing.core.PApplet.max;
 import static processing.core.PApplet.round;
@@ -129,7 +128,7 @@ public class CrowdHands extends P3PixelPerfectBase {
 
     pg.colorMode(HSB, 1.0f);
 
-    tau = inputManager.getAudioSampleSize() / inputManager.getAudioSampleRate() * 30;
+    tau = inputManager().getAudioSampleSize() / inputManager().getAudioSampleRate() * 30;
     lastTime = 0L;
     handsQueue.clear();
 
@@ -141,7 +140,7 @@ public class CrowdHands extends P3PixelPerfectBase {
     startX = START_X * pg.width;
     binSize = (END_X - START_X)*pg.width/3.0f;
 
-    beats = inputManager.getBeats();
+    beats = inputManager().getBeats();
   }
 
   @Override
@@ -157,7 +156,7 @@ public class CrowdHands extends P3PixelPerfectBase {
     }
 
     // Get all the scaled beat levels
-    beats = inputManager.getBeats(beats, 0);
+    beats = inputManager().getBeats(beats, 0);
 
     // dt
     float dt = (time - lastTime)/1000.0f;

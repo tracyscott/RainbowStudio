@@ -5,13 +5,14 @@
 package com.giantrainbow.patterns;
 
 import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
-import static com.giantrainbow.RainbowStudio.inputManager;
 import static com.giantrainbow.colors.Colors.BLACK;
 import static processing.core.PApplet.map;
 import static processing.core.PApplet.sqrt;
 import static processing.core.PConstants.P2D;
 import static processing.core.PConstants.RADIUS;
 
+import com.giantrainbow.RainbowStudio;
+import com.giantrainbow.Registry;
 import com.giantrainbow.colors.ColorRainbow;
 import com.giantrainbow.colors.Colors;
 import com.giantrainbow.input.InputManager;
@@ -99,7 +100,7 @@ public class Moire extends P3PixelPerfectBase {
         ? solidRainbows
         : multiRainbows;
 
-    beats = inputManager.getBeats();
+    beats = ((RainbowStudio) applet).registry.get(Registry.Key.INPUT_MANAGER).getBeats();
   }
 
   @Override
@@ -122,7 +123,7 @@ public class Moire extends P3PixelPerfectBase {
     pg.noFill();
 
     // TODO: Sound input
-    beats = inputManager.getBeats(beats, 0);
+    beats = inputManager().getBeats(beats, 0);
     for (int i = 0; i < points.size(); i++) {
       float beatLevel = 0.0f;
       if (i < 3) {
@@ -149,7 +150,7 @@ public class Moire extends P3PixelPerfectBase {
       fpsKnob.addListener(lxParameter -> noiseInc = 0.07f / lxParameter.getValuef());
 
       filter = new LowPassFilter(
-          inputManager.getAudioSampleSize() / inputManager.getAudioSampleRate() * 4,
+          inputManager().getAudioSampleSize() / inputManager().getAudioSampleRate() * 4,
           1.0f);
     }
 

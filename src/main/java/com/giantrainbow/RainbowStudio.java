@@ -23,7 +23,6 @@
 
 package com.giantrainbow;
 
-import com.giantrainbow.input.InputManager;
 import com.giantrainbow.model.RainbowBaseModel;
 import com.giantrainbow.model.RainbowModel3D;
 import com.giantrainbow.model.SimplePanel;
@@ -131,8 +130,8 @@ public class RainbowStudio extends PApplet {
   private static final int RAINBOW_END_PANEL = 8;
   private static final int MODEL_TYPE = FULL_RAINBOW; // RAINBOW_PANEL, RAINBOW_PANEL_4 or FULL_RAINBOW
 
-  // This is a dumb way to do this, but store some project-common things here
-  public static InputManager inputManager;
+  /** Stores a registry of commonly-used global things. */
+  public Registry registry;
 
   public static boolean fullscreenMode = false;
   private static UI3dContext fullscreenContext;
@@ -210,7 +209,7 @@ public class RainbowStudio extends PApplet {
     lx = new LXStudio(this, model, MULTITHREADED && !getGraphics().isGL());
 
     // Common components stored (dumbly) as static variables
-    inputManager = new InputManager(lx);
+    registry = new Registry(this, lx);
 
     lx.ui.setResizable(RESIZABLE);
 
