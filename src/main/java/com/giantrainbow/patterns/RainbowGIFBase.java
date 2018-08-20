@@ -55,13 +55,11 @@ abstract class RainbowGIFBase extends LXPattern implements CustomDeviceUI {
     this.imageWidth = imageWidth;
     this.imageHeight = imageHeight;
     this.includeAntialias = includeAntialias;
-    gifKnob.setValue(defaultFile);
 
     if (!dir.endsWith("/")) {
       dir = dir + "/";
     }
     filesDir = dir;
-    loadGif(gifKnob.getString());
     reloadFileList();
 
     addParameter(fpsKnob);
