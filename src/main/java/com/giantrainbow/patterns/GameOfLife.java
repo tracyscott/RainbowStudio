@@ -71,7 +71,10 @@ public class GameOfLife extends P3PixelPerfectBase {
   private final BooleanParameter resetBtn =
       new BooleanParameter("Reset").setMode(BooleanParameter.Mode.MOMENTARY)
           .setDescription("Reset the game");
-  private final BooleanParameter ringModeBtn =
+  private final BooleanParameter wrapToggle =
+      new BooleanParameter("Wrap", true)
+          .setDescription("Wrapping makes the space toroidal");
+  private final BooleanParameter ringModeToggle =
       new BooleanParameter("Ring Mode", true)
           .setDescription("Draw with ring mode");
   private final CompoundParameter ringSizeKnob =
@@ -84,15 +87,17 @@ public class GameOfLife extends P3PixelPerfectBase {
   public GameOfLife(LX lx) {
     super(lx, P2D);
 
-    grid = new Grid((int) (pg.width/SCALE), (int) (pg.height/SCALE), false);
+    grid = new Grid((int) (pg.width/SCALE), (int) (pg.height/SCALE), wrapToggle.isOn());
     resetBtn.addListener(lxParameter -> {
       if (((BooleanParameter) lxParameter).isOn()) {
         grid.randomize();
       }
     });
+    wrapToggle.addListener(lxParameter -> grid.setWrap(((BooleanParameter) lxParameter).isOn()));
 
     addParameter(resetBtn);
-    addParameter(ringModeBtn);
+    addParameter(wrapToggle);
+    addParameter(ringModeToggle);
     addParameter(ringSizeKnob);
     addParameter(monochromeToggle);
   }
@@ -134,7 +139,7 @@ public class GameOfLife extends P3PixelPerfectBase {
     int c = monochromeToggle.isOn()
         ? WHITE
         : rainbow.get(pg, updateRate);
-    if (ringModeBtn.isOn()) {
+    if (ringModeToggle.isOn()) {
       pg.stroke(c);
       pg.noFill();
     } else {
@@ -192,7 +197,7 @@ public class GameOfLife extends P3PixelPerfectBase {
   private static final class Grid {
     private final int width;
     private final int height;
-    private final boolean wrap;
+    private boolean wrap;
     private final int[][] states;  // 1 for alive and 0 for dead
 
     private int whichGrid;
@@ -214,6 +219,31 @@ public class GameOfLife extends P3PixelPerfectBase {
       randomize();
 
       whichGrid = 0;
+    }
+
+    /**
+     * Sets wrap mode.
+     */
+    void setWrap(boolean flag) {
+      this.wrap = flag;
+      if (flag) {
+        return;
+      }
+
+      // Fill the edges with zero
+      for (int i = 0; i < 2; i++) {
+        int[] grid = states[i];
+        for (int x = 0; x < width; x++) {
+          grid[x] = 0;
+          grid[grid.length - width + x] = 0;
+        }
+        int index = width;
+        for (int y = 1; y < height - 1; y++) {
+          grid[index] = 0;
+          grid[index + width - 1] = 0;
+          index += width;
+        }
+      }
     }
 
     /**
@@ -317,7 +347,7 @@ public class GameOfLife extends P3PixelPerfectBase {
     /**
      * To assist in debugging.
      */
-    private String toString(int[] grid) {
+    String toString(int[] grid) {
       StringBuilder buf = new StringBuilder();
       int index = 0;
       for (int y = 0; y < height; y++) {
