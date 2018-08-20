@@ -95,8 +95,8 @@ public class SpinnyDiscs extends CanvasPattern2D {
     this.balls = new Ball[BALL_COUNT];
 
     // The texture files are square.
-    this.textureLch = RainbowStudio.pApplet.loadImage("images/lch-disc-0.60.png");
-    this.textureHsv = RainbowStudio.pApplet.loadImage("images/hsv-disc-1.00.png");
+    this.textureLch = RainbowStudio.pApplet.loadImage("images/lch-disc-level=0.60-sat=1.00.png");
+    this.textureHsv = RainbowStudio.pApplet.loadImage("images/hsv-disc-level=1.00-sat=1.00.png");
 
     this.textureLch.loadPixels();
     this.textureHsv.loadPixels();
@@ -209,7 +209,8 @@ public class SpinnyDiscs extends CanvasPattern2D {
     bgcolor = new int[bgLevels * bgGradSize];
 
     for (int l = 0; l < bgLevels; l++) {
-      String file = String.format("images/lch-disc-%.02f.png", brightOffset + l * brightIncr);
+      String file =
+          String.format("images/lch-disc-level=%.02f-sat=1.00.png", brightOffset + l * brightIncr);
       PImage bgTexture = RainbowStudio.pApplet.loadImage(file);
       bgTexture.loadPixels();
       final int tolerance = 1;
