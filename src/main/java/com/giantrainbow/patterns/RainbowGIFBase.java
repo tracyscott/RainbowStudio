@@ -4,9 +4,7 @@ import com.giantrainbow.PathUtils;
 import com.giantrainbow.RainbowStudio;
 import heronarts.lx.LX;
 import heronarts.lx.LXPattern;
-import heronarts.lx.parameter.BooleanParameter;
-import heronarts.lx.parameter.CompoundParameter;
-import heronarts.lx.parameter.StringParameter;
+import heronarts.lx.parameter.*;
 import heronarts.p3lx.ui.CustomDeviceUI;
 import heronarts.p3lx.ui.UI;
 import heronarts.p3lx.ui.UI2dContainer;
@@ -17,6 +15,8 @@ import heronarts.p3lx.ui.component.UISwitch;
 import heronarts.p3lx.ui.component.UITextBox;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
+
 import processing.core.PConstants;
 import processing.core.PImage;
 
@@ -26,6 +26,8 @@ import processing.core.PImage;
  * with direct 1:1 pixel mappings (with bend distortion in physical space).
  */
 abstract class RainbowGIFBase extends LXPattern implements CustomDeviceUI {
+  private static final Logger logger = Logger.getLogger(RainbowGIFBase.class.getName());
+
   public final CompoundParameter fpsKnob =
       new CompoundParameter("Fps", 1.0, 60.0)
           .setDescription("Controls the frames per second.");
@@ -65,6 +67,13 @@ abstract class RainbowGIFBase extends LXPattern implements CustomDeviceUI {
     addParameter(fpsKnob);
     if (includeAntialias) addParameter(antialiasKnob);
     addParameter(gifKnob);
+    gifKnob.addListener(new LXParameterListener() {
+      @Override
+      public void onParameterChanged(LXParameter parameter) {
+        StringParameter gKnob = (StringParameter) parameter;
+        loadGif(gKnob.getString());
+      }
+    });
     fpsKnob.setValue(10);
   }
 
@@ -75,6 +84,7 @@ abstract class RainbowGIFBase extends LXPattern implements CustomDeviceUI {
    * @param gifname the sprite's name, not including parent paths or the ".gif" suffix
    */
   private void loadGif(String gifname) {
+    logger.info("Loading gif: " + gifname);
     PImage[] newImages = PathUtils.loadSprite(RainbowStudio.pApplet, filesDir + gifname + ".gif");
     for (PImage image : newImages) {
       image.resize(imageWidth, imageHeight);

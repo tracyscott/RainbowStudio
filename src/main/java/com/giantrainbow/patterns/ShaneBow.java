@@ -6,6 +6,8 @@ import heronarts.lx.parameter.BooleanParameter;
 import heronarts.lx.parameter.CompoundParameter;
 import processing.core.PConstants;
 
+import java.util.logging.Logger;
+
 //TODO: Tie the xRate to the ambient noise?
 //TODO: Reintroduce hueOffset?
 
@@ -18,7 +20,6 @@ import processing.core.PConstants;
  */
 @LXCategory(LXCategory.FORM)
 public class ShaneBow extends PGPixelPerfect {
-
   public final CompoundParameter xRateParam = new CompoundParameter("xRate", 0, 2, 10);
   public final CompoundParameter xStartParam = new CompoundParameter("xStart", 1, 1, pg.width + 1);
   public final BooleanParameter clockwiseParam = new BooleanParameter("clockwise", true);
@@ -45,8 +46,8 @@ public class ShaneBow extends PGPixelPerfect {
     float blockWidth = blockWidthParam.getValuef();
     float blockRate = Math.max(0.1f, blockWidth / pg.width);
     boolean clockwise = clockwiseParam.getValueb();
-    System.out.format("clockwise: %s | xStart: %s + xRate: %s | blockWidth: %s + blockRate: %s%n",
-        clockwise, xStart, xRate, blockWidth, blockRate);
+    //System.out.format("clockwise: %s | xStart: %s + xRate: %s | blockWidth: %s + blockRate: %s%n",
+    //    clockwise, xStart, xRate, blockWidth, blockRate);
 
     // Draw the blocks
     pg.background(0);

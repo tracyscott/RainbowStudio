@@ -105,7 +105,7 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
         shaderDir = null;
       }
     }
-    shaderFiles = PathUtils.findShaderFiles(LOCAL_SHADER_DIR);
+    shaderFiles = PathUtils.findDataFiles(SHADER_DATA_DIR, ".frag"); //findShaderFiles(LOCAL_SHADER_DIR);
     Collections.sort(shaderFiles);
     for (String filename : shaderFiles) {
       // Copy all the shaders locally
