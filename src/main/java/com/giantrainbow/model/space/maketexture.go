@@ -6,6 +6,7 @@ import (
 	"image/color"
 	"image/png"
 	"math"
+	"math/rand"
 	"os"
 
 	colorful "github.com/lucasb-eyer/go-colorful"
@@ -34,8 +35,7 @@ const (
 
 var LCHSat = StepConfig{num: 20, step: 0.05, init: 0}
 var HSVSat = StepConfig{num: 20, step: 0.05, init: 0}
-var UnrealSat = StepConfig{num: 50, step: 0.02, init: 0}
-var UnrealBright = StepConfig{num: 100, step: 0.01, init: 1.00}
+var UnrealBright = StepConfig{num: 40, step: 0.01, init: 1.3}
 
 func saturateLchDisc(sat float64) VariableFunc {
 	return func(arg float64) (ParamFunc, string) {
@@ -53,14 +53,6 @@ func saturateHsvDisc(sat float64) VariableFunc {
 	}
 }
 
-func saturateUnrealDisc(sat float64) VariableFunc {
-	return func(arg float64) (ParamFunc, string) {
-		return func (theta, _ float64) colorful.Color {
-			return colorful.Hcl(theta, sat, arg)
-		}, fmt.Sprintf("level=%.2f-sat=%.2f", arg, sat)
-	}
-}
-
 func brightnessUnrealDisc(level float64) VariableFunc {
 	return func(arg float64) (ParamFunc, string) {
 		return func (theta, _ float64) colorful.Color {
@@ -71,12 +63,188 @@ func brightnessUnrealDisc(level float64) VariableFunc {
 
 func main() {
 	// Fully saturated, real-color discs
-	LCHSat.writeDiscTextures("lch", saturateLchDisc(1))
-	HSVSat.writeDiscTextures("hsv", saturateHsvDisc(1))
+	// LCHSat.writeDiscTextures("lch", saturateLchDisc(1))
+	// HSVSat.writeDiscTextures("hsv", saturateHsvDisc(1))
 
-	// Over saturated/bright unreal colors
-	for level := 1.02; level <= 1.3; level += .07 {
-		UnrealBright.writeDiscTextures("unreal", brightnessUnrealDisc(level))
+	// // Over saturated/bright unreal colors
+	// for level := 1.02; level <= 1.3; level += .07 {
+	// 	UnrealBright.writeDiscTextures("unreal", brightnessUnrealDisc(level))
+	// }
+
+
+	files := []string{
+		"unreal-disc-level=1.02-sat=1.30.png",
+		"unreal-disc-level=1.02-sat=1.31.png",
+		"unreal-disc-level=1.02-sat=1.32.png",
+		"unreal-disc-level=1.02-sat=1.33.png",
+		"unreal-disc-level=1.02-sat=1.34.png",
+		"unreal-disc-level=1.02-sat=1.35.png",
+		"unreal-disc-level=1.02-sat=1.36.png",
+		"unreal-disc-level=1.02-sat=1.37.png",
+		"unreal-disc-level=1.02-sat=1.38.png",
+		"unreal-disc-level=1.02-sat=1.39.png",
+		"unreal-disc-level=1.02-sat=1.40.png",
+		"unreal-disc-level=1.02-sat=1.41.png",
+		"unreal-disc-level=1.02-sat=1.42.png",
+		"unreal-disc-level=1.02-sat=1.43.png",
+		"unreal-disc-level=1.02-sat=1.44.png",
+		"unreal-disc-level=1.02-sat=1.45.png",
+		"unreal-disc-level=1.02-sat=1.46.png",
+		"unreal-disc-level=1.02-sat=1.47.png",
+		"unreal-disc-level=1.02-sat=1.48.png",
+		"unreal-disc-level=1.02-sat=1.49.png",
+		"unreal-disc-level=1.02-sat=1.50.png",
+		"unreal-disc-level=1.02-sat=1.51.png",
+		"unreal-disc-level=1.02-sat=1.52.png",
+		"unreal-disc-level=1.02-sat=1.53.png",
+		"unreal-disc-level=1.02-sat=1.54.png",
+		"unreal-disc-level=1.02-sat=1.55.png",
+		"unreal-disc-level=1.02-sat=1.56.png",
+		"unreal-disc-level=1.02-sat=1.57.png",
+		"unreal-disc-level=1.02-sat=1.58.png",
+		"unreal-disc-level=1.02-sat=1.59.png",
+		"unreal-disc-level=1.02-sat=1.60.png",
+		"unreal-disc-level=1.02-sat=1.61.png",
+		"unreal-disc-level=1.02-sat=1.62.png",
+		"unreal-disc-level=1.02-sat=1.63.png",
+		"unreal-disc-level=1.02-sat=1.64.png",
+		"unreal-disc-level=1.02-sat=1.65.png",
+		"unreal-disc-level=1.02-sat=1.66.png",
+		"unreal-disc-level=1.02-sat=1.67.png",
+		"unreal-disc-level=1.02-sat=1.68.png",
+		"unreal-disc-level=1.02-sat=1.69.png",
+		"unreal-disc-level=1.02-sat=1.70.png",
+		"unreal-disc-level=1.09-sat=1.30.png",
+		"unreal-disc-level=1.09-sat=1.31.png",
+		"unreal-disc-level=1.09-sat=1.32.png",
+		"unreal-disc-level=1.09-sat=1.33.png",
+		"unreal-disc-level=1.09-sat=1.34.png",
+		"unreal-disc-level=1.09-sat=1.35.png",
+		"unreal-disc-level=1.09-sat=1.36.png",
+		"unreal-disc-level=1.09-sat=1.37.png",
+		"unreal-disc-level=1.09-sat=1.38.png",
+		"unreal-disc-level=1.09-sat=1.39.png",
+		"unreal-disc-level=1.09-sat=1.40.png",
+		"unreal-disc-level=1.09-sat=1.41.png",
+		"unreal-disc-level=1.09-sat=1.42.png",
+		"unreal-disc-level=1.09-sat=1.43.png",
+		"unreal-disc-level=1.09-sat=1.44.png",
+		"unreal-disc-level=1.09-sat=1.45.png",
+		"unreal-disc-level=1.09-sat=1.46.png",
+		"unreal-disc-level=1.09-sat=1.47.png",
+		"unreal-disc-level=1.09-sat=1.48.png",
+		"unreal-disc-level=1.09-sat=1.49.png",
+		"unreal-disc-level=1.09-sat=1.50.png",
+		"unreal-disc-level=1.09-sat=1.51.png",
+		"unreal-disc-level=1.09-sat=1.52.png",
+		"unreal-disc-level=1.09-sat=1.53.png",
+		"unreal-disc-level=1.09-sat=1.54.png",
+		"unreal-disc-level=1.09-sat=1.55.png",
+		"unreal-disc-level=1.09-sat=1.56.png",
+		"unreal-disc-level=1.09-sat=1.57.png",
+		"unreal-disc-level=1.09-sat=1.58.png",
+		"unreal-disc-level=1.09-sat=1.59.png",
+		"unreal-disc-level=1.09-sat=1.60.png",
+		"unreal-disc-level=1.09-sat=1.61.png",
+		"unreal-disc-level=1.09-sat=1.62.png",
+		"unreal-disc-level=1.09-sat=1.63.png",
+		"unreal-disc-level=1.09-sat=1.64.png",
+		"unreal-disc-level=1.09-sat=1.65.png",
+		"unreal-disc-level=1.09-sat=1.66.png",
+		"unreal-disc-level=1.09-sat=1.67.png",
+		"unreal-disc-level=1.09-sat=1.68.png",
+		"unreal-disc-level=1.09-sat=1.69.png",
+		"unreal-disc-level=1.09-sat=1.70.png",
+		"unreal-disc-level=1.16-sat=1.30.png",
+		"unreal-disc-level=1.16-sat=1.31.png",
+		"unreal-disc-level=1.16-sat=1.32.png",
+		"unreal-disc-level=1.16-sat=1.33.png",
+		"unreal-disc-level=1.16-sat=1.34.png",
+		"unreal-disc-level=1.16-sat=1.35.png",
+		"unreal-disc-level=1.16-sat=1.36.png",
+		"unreal-disc-level=1.16-sat=1.37.png",
+		"unreal-disc-level=1.16-sat=1.38.png",
+		"unreal-disc-level=1.16-sat=1.39.png",
+		"unreal-disc-level=1.16-sat=1.40.png",
+		"unreal-disc-level=1.16-sat=1.41.png",
+		"unreal-disc-level=1.16-sat=1.42.png",
+		"unreal-disc-level=1.16-sat=1.43.png",
+		"unreal-disc-level=1.16-sat=1.44.png",
+		"unreal-disc-level=1.16-sat=1.45.png",
+		"unreal-disc-level=1.16-sat=1.46.png",
+		"unreal-disc-level=1.16-sat=1.47.png",
+		"unreal-disc-level=1.16-sat=1.48.png",
+		"unreal-disc-level=1.16-sat=1.49.png",
+		"unreal-disc-level=1.16-sat=1.50.png",
+		"unreal-disc-level=1.16-sat=1.51.png",
+		"unreal-disc-level=1.16-sat=1.52.png",
+		"unreal-disc-level=1.16-sat=1.53.png",
+		"unreal-disc-level=1.16-sat=1.54.png",
+		"unreal-disc-level=1.16-sat=1.55.png",
+		"unreal-disc-level=1.16-sat=1.56.png",
+		"unreal-disc-level=1.16-sat=1.57.png",
+		"unreal-disc-level=1.16-sat=1.58.png",
+		"unreal-disc-level=1.16-sat=1.59.png",
+		"unreal-disc-level=1.16-sat=1.60.png",
+		"unreal-disc-level=1.16-sat=1.61.png",
+		"unreal-disc-level=1.16-sat=1.62.png",
+		"unreal-disc-level=1.16-sat=1.63.png",
+		"unreal-disc-level=1.16-sat=1.64.png",
+		"unreal-disc-level=1.16-sat=1.65.png",
+		"unreal-disc-level=1.16-sat=1.66.png",
+		"unreal-disc-level=1.16-sat=1.67.png",
+		"unreal-disc-level=1.16-sat=1.68.png",
+		"unreal-disc-level=1.16-sat=1.69.png",
+		"unreal-disc-level=1.16-sat=1.70.png",
+		"unreal-disc-level=1.23-sat=1.30.png",
+		"unreal-disc-level=1.23-sat=1.31.png",
+		"unreal-disc-level=1.23-sat=1.32.png",
+		"unreal-disc-level=1.23-sat=1.33.png",
+		"unreal-disc-level=1.23-sat=1.34.png",
+		"unreal-disc-level=1.23-sat=1.35.png",
+		"unreal-disc-level=1.23-sat=1.36.png",
+		"unreal-disc-level=1.23-sat=1.37.png",
+		"unreal-disc-level=1.23-sat=1.38.png",
+		"unreal-disc-level=1.23-sat=1.39.png",
+		"unreal-disc-level=1.23-sat=1.40.png",
+		"unreal-disc-level=1.23-sat=1.41.png",
+		"unreal-disc-level=1.23-sat=1.42.png",
+		"unreal-disc-level=1.23-sat=1.43.png",
+		"unreal-disc-level=1.23-sat=1.44.png",
+		"unreal-disc-level=1.23-sat=1.45.png",
+		"unreal-disc-level=1.23-sat=1.46.png",
+		"unreal-disc-level=1.23-sat=1.47.png",
+		"unreal-disc-level=1.23-sat=1.48.png",
+		"unreal-disc-level=1.23-sat=1.49.png",
+		"unreal-disc-level=1.23-sat=1.50.png",
+		"unreal-disc-level=1.23-sat=1.51.png",
+		"unreal-disc-level=1.23-sat=1.52.png",
+		"unreal-disc-level=1.23-sat=1.53.png",
+		"unreal-disc-level=1.23-sat=1.54.png",
+		"unreal-disc-level=1.23-sat=1.55.png",
+		"unreal-disc-level=1.23-sat=1.56.png",
+		"unreal-disc-level=1.23-sat=1.57.png",
+		"unreal-disc-level=1.23-sat=1.58.png",
+		"unreal-disc-level=1.23-sat=1.59.png",
+		"unreal-disc-level=1.23-sat=1.60.png",
+		"unreal-disc-level=1.23-sat=1.61.png",
+		"unreal-disc-level=1.23-sat=1.62.png",
+		"unreal-disc-level=1.23-sat=1.63.png",
+		"unreal-disc-level=1.23-sat=1.64.png",
+		"unreal-disc-level=1.23-sat=1.65.png",
+		"unreal-disc-level=1.23-sat=1.66.png",
+		"unreal-disc-level=1.23-sat=1.67.png",
+		"unreal-disc-level=1.23-sat=1.68.png",
+		"unreal-disc-level=1.23-sat=1.69.png",
+		"unreal-disc-level=1.23-sat=1.70.png",
+	}
+
+	rand.Shuffle(len(files), func(i, j int) {
+		files[i], files[j] = files[j], files[i]
+	})
+
+	for _, f := range files[0:25] {
+		fmt.Printf("%q\n", f)
 	}
 }
 
