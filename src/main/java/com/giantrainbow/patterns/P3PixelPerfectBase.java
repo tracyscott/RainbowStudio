@@ -12,6 +12,7 @@ import com.google.common.annotations.Beta;
 import heronarts.lx.LX;
 import heronarts.lx.LXPattern;
 import heronarts.lx.parameter.CompoundParameter;
+import heronarts.p3lx.P3LX;
 import heronarts.p3lx.P3LXPattern;
 import java.util.Random;
 import java.util.concurrent.ScheduledExecutorService;
@@ -59,10 +60,14 @@ abstract class P3PixelPerfectBase extends LXPattern {
   protected P3PixelPerfectBase(LX lx, String drawMode) {
     super(lx);
 
-    this.applet = RainbowStudio.pApplet;
+    if (lx instanceof P3LX) {
+      this.applet = ((P3LX) lx).applet;
+    } else {
+      this.applet = RainbowStudio.pApplet;
+    }
 
     int width = ((RainbowBaseModel) lx.model).pointsWide;
-    int height = ((RainbowBaseModel)lx.model).pointsHigh;
+    int height = ((RainbowBaseModel) lx.model).pointsHigh;
     if (P3D.equals(drawMode) || P2D.equals(drawMode)) {
       pg = RainbowStudio.pApplet.createGraphics(width, height, drawMode);
     } else {
