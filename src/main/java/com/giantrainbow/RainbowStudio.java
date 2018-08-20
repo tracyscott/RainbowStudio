@@ -403,7 +403,7 @@ public class RainbowStudio extends PApplet {
       obj.addProperty(KEY_STDMODE_TIME2, UIModeSelector.timePerChannelP2.getValue());
       obj.addProperty(KEY_STDMODE_TIME3, UIModeSelector.timePerChannelP3.getValue());
       obj.addProperty(KEY_STDMODE_FADETIME, UIModeSelector.fadeTimeP.getValue());
-      
+
       obj.addProperty(KEY_GAMMA_RED, UIGammaSelector.redGamma.getValue());
       obj.addProperty(KEY_GAMMA_GREEN, UIGammaSelector.greenGamma.getValue());
       obj.addProperty(KEY_GAMMA_BLUE, UIGammaSelector.blueGamma.getValue());
