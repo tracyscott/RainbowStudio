@@ -38,10 +38,17 @@ public class UnrealDiscs extends AbstractSpinnyDiscs {
     "images/unreal-disc-level=1.23-sat=1.65.png",
   };
 
+  BackgroundPulse pulse;
+
   public UnrealDiscs(LX lx) {
     super(lx);
 
+    pulse = new BackgroundPulse(this);
+
     textures = new PImage[inputs.length];
+
+    sizeKnob.setValue(10);
+    pulse.levelKnob.setValue(0);
 
     for (int i = 0; i < inputs.length; i++) {
       this.textures[i] = RainbowStudio.pApplet.loadImage(inputs[i]);
@@ -57,7 +64,6 @@ public class UnrealDiscs extends AbstractSpinnyDiscs {
   }
 
   int getBackground(double deltaMs) {
-    // @@@
-    return 0;
+    return pulse.get(deltaMs);
   }
 };

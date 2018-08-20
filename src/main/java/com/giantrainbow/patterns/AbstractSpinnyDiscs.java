@@ -35,7 +35,7 @@ public abstract class AbstractSpinnyDiscs extends CanvasPattern2D {
   public final CompoundParameter speedKnob =
       new CompoundParameter("Speed", 5, 0, 10).setDescription("Speed");
   public final CompoundParameter sizeKnob =
-      new CompoundParameter("Size", 5, 1, 10).setDescription("Size");
+      new CompoundParameter("Size", 5, 1, 15).setDescription("Size");
   public final CompoundParameter rangeKnob =
       new CompoundParameter("Range", .5, 0, 1).setDescription("Range");
 
