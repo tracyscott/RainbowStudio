@@ -26,6 +26,17 @@ uniform vec3  iChannelResolution[4]; // image/buffer/sound    Input texture reso
 #define PI 3.14159265358979323846
 #define TWO_PI 6.28318530717958647693
 
+// LGBT 6 Bands  (228,3,3) (255,140,0) (255,237,0) (0,128,38) (0,77,255) (117,7,135)
+// 
+/*
+0: 0.4588235294117647-0.027450980392156862-0.5294117647058824
+1: 0.0-0.30196078431372547-1.0
+2: 0.0-0.5019607843137255-0.14901960784313725
+3: 1.0-0.9294117647058824-0.0
+4: 1.0-0.5490196078431373-0.0
+5: 0.8941176470588236-0.011764705882352941-0.011764705882352941
+*/
+// Bisexual (214, 2, 112) 123p (155,79,150) 61p  (0,56,168) 123p, so 2:1
 
 vec2 rotate2D (vec2 _st, float _angle) {
   _st -= 0.5;
@@ -89,6 +100,7 @@ float triangle (vec2 _st,
 
 void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
     vec2 st = fragCoord/iResolution.xy;
+    vec2 uv = fragCoord/iResolution.xy;
 
     st = tile(st,4.0);
     //st = rotateTile(st);
@@ -107,6 +119,20 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
                          0.001);
 
     vec3 color = vec3(pattern);
+    // Multiply the flag color.
+    if (uv.y >= 0.0 && uv.y <=1./6.) {
+      color *= vec3(0.458,0.0274,0.529);
+    } else if (uv.y <= 2./6.) {
+      color *= vec3(0.0, 0.302, 1.0);
+    } else if (uv.y <= 3./6.) {
+      color *= vec3(0.0, 0.502, 0.149);
+    } else if (uv.y <= 4./6.) {
+      color *= vec3(1.0, 0.929, 0.0);
+    } else if (uv.y <= 5./6.) {
+      color *= vec3(1.0, 0.549, 0.0);
+    } else if (uv.y <= 1.0) {
+      color *= vec3(0.894, 0.0118, 0.0118);
+    }
 
     fragColor = vec4(color,1.0);
 }
