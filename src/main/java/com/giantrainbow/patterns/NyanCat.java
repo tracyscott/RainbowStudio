@@ -3,7 +3,6 @@
  */
 package com.giantrainbow.patterns;
 
-import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
 import static com.giantrainbow.colors.Colors.WHITE;
 import static processing.core.PApplet.map;
 import static processing.core.PApplet.max;
@@ -100,8 +99,6 @@ public class NyanCat extends P3PixelPerfectBase {
 
   @Override
   public void setup() {
-    fpsKnob.setValue(GLOBAL_FRAME_RATE);
-
     // Create fresh stars
     stars.clear();
     int x = 0;
@@ -154,7 +151,7 @@ public class NyanCat extends P3PixelPerfectBase {
     cat.draw(catX, catY);
 
     // Update the cat position
-    catX += CAT_SPEED / fpsKnob.getValuef();
+    catX += CAT_SPEED / frameRate;
     if (catX - RAINBOW_SEGMENT_COUNT*RAINBOW_SEGMENT_WIDTH + RAINBOW_CAT_INTERSECT >= pg.width) {
       catX = -maxImgWidth;
       getChannel().goNext();

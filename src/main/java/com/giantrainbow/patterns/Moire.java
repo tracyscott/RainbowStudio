@@ -4,7 +4,6 @@
  */
 package com.giantrainbow.patterns;
 
-import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
 import static com.giantrainbow.colors.Colors.BLACK;
 import static processing.core.PApplet.map;
 import static processing.core.PApplet.sqrt;
@@ -80,8 +79,6 @@ public class Moire extends P3PixelPerfectBase {
 
   @Override
   public void setup() {
-    fpsKnob.setValue(GLOBAL_FRAME_RATE);
-
     pg.ellipseMode(RADIUS);
 
     radiusInc = (float) (pg.width / RADIUS_PER_WIDTH);
@@ -91,10 +88,10 @@ public class Moire extends P3PixelPerfectBase {
     }
 
     for (ColorRainbow cr : multiRainbows) {
-      cr.reset(fpsKnob.getValuef());
+      cr.reset(frameRate);
     }
     for (ColorRainbow cr : solidRainbows) {
-      cr.reset(fpsKnob.getValuef());
+      cr.reset(frameRate);
     }
     this.rainbows = solidToggle.isOn()
         ? solidRainbows
@@ -115,7 +112,7 @@ public class Moire extends P3PixelPerfectBase {
     ColorRainbow[] rainbows = this.rainbows;
     float h = (float) (pg.height / rainbows.length);
     for (int i = 0; i < rainbows.length; i++) {
-      pg.fill(rainbows[i].get(pg, fpsKnob.getValuef()));
+      pg.fill(rainbows[i].get(pg, frameRate));
       pg.rect(0, i*h, pg.width, h);
     }
 
@@ -146,8 +143,7 @@ public class Moire extends P3PixelPerfectBase {
 
     Point() {
       radiusInc = Moire.this.radiusInc * applet.random(0.5f, 0.8f);
-      noiseInc = 0.07f / fpsKnob.getValuef();
-      fpsKnob.addListener(lxParameter -> noiseInc = 0.07f / lxParameter.getValuef());
+      noiseInc = 0.07f / frameRate;
 
       filter = new LowPassFilter(
           inputManager().getAudioSampleSize() / inputManager().getAudioSampleRate() * 4,

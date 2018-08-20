@@ -3,7 +3,6 @@
  */
 package com.giantrainbow.patterns;
 
-import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
 import static com.giantrainbow.colors.Colors.BLACK;
 import static processing.core.PApplet.sin;
 import static processing.core.PConstants.P2D;
@@ -88,8 +87,6 @@ public class Cylon extends P3PixelPerfectBase {
 
   @Override
   public void setup() {
-    fpsKnob.setValue(GLOBAL_FRAME_RATE);
-
     // Start the audio
     if (audioFile != null) {
       logger.info("Starting audio: " + audioFile);

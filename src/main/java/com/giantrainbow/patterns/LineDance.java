@@ -4,7 +4,6 @@
  */
 package com.giantrainbow.patterns;
 
-import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
 import static com.giantrainbow.colors.Colors.BLACK;
 import static com.giantrainbow.colors.Colors.WHITE;
 import static processing.core.PApplet.round;
@@ -51,8 +50,6 @@ public class LineDance extends P3PixelPerfectBase {
 
   @Override
   public void setup() {
-    fpsKnob.setValue(GLOBAL_FRAME_RATE);
-
     // Reset
     sensitivity = SENSITIVITY_VALUE;
     auto = true;

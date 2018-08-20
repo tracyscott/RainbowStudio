@@ -3,7 +3,6 @@
  */
 package com.giantrainbow.patterns;
 
-import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
 import static processing.core.PApplet.map;
 import static processing.core.PApplet.round;
 import static processing.core.PApplet.sin;
@@ -37,8 +36,6 @@ public class DragonTail extends P3PixelPerfectBase {
 
   @Override
   public void setup() {
-    fpsKnob.setValue(GLOBAL_FRAME_RATE);
-
     //    size(500, 300);
     pg.colorMode(HSB, 360, 100, 100);
 
@@ -71,6 +68,6 @@ public class DragonTail extends P3PixelPerfectBase {
     }
     pg.filter(DILATE);
 
-    theta += deltaTheta / fpsKnob.getValuef();
+    theta += deltaTheta / frameRate;
   }
 }
