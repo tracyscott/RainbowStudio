@@ -42,8 +42,6 @@ public class SillyString extends P3PixelPerfectBase {
 
   public SillyString(LX lx) {
     super(lx, P2D);
-
-    fpsKnob.addListener(lxParameter -> setParams(lxParameter.getValuef()));
   }
 
   private void initNoise() {
@@ -67,7 +65,7 @@ public class SillyString extends P3PixelPerfectBase {
     }
 
     initNoise();
-    setParams(fpsKnob.getValuef());
+    setParams(frameRate);
   }
 
   @Override
@@ -147,7 +145,7 @@ public class SillyString extends P3PixelPerfectBase {
      * @param dt the time delta
      */
     void draw(float dt) {
-      int stroke = rainbow.get(pg, fpsKnob.getValuef());
+      int stroke = rainbow.get(pg, frameRate);
       pg.stroke(stroke);
       if (v.x == 0.0f && v.y == 0.0f) {
         // This is necessary for when the particles are stopped

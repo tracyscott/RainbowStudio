@@ -35,13 +35,10 @@ abstract class P3PixelPerfectBase extends LXPattern {
       new CompoundParameter("Speed", 0.5, 0.0, 1.0)
           .setDescription("Controls the speed, if used.");
 
-  /** UNUSED. */
-  public final CompoundParameter fpsKnob =
-      new CompoundParameter("Fps", GLOBAL_FRAME_RATE, 0.0, GLOBAL_FRAME_RATE)
-          .setDescription("Controls the frames per second.");
-
   protected final PApplet applet;
   protected final PGraphics pg;
+
+  protected final float frameRate = GLOBAL_FRAME_RATE;
 
   /** Indicates whether {@link #setup()} has been called. */
   private boolean setupCalled;

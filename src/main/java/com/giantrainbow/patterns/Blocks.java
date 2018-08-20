@@ -4,7 +4,6 @@
  */
 package com.giantrainbow.patterns;
 
-import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
 import static com.giantrainbow.colors.Colors.BLACK;
 import static com.giantrainbow.colors.Colors.WHITE;
 import static processing.core.PApplet.lerp;
@@ -74,10 +73,6 @@ public class Blocks extends P3PixelPerfectBase {
 
   @Override
   public void setup() {
-    // Default parameter setup
-    fpsKnob.setValue(GLOBAL_FRAME_RATE);
-
-    // Graphics context setup
     pg.colorMode(HSB, 1.0f);
     pg.textFont(font);
   }
@@ -145,7 +140,7 @@ public class Blocks extends P3PixelPerfectBase {
       this.color1 = this.color2;
       this.color2 = color2;
       this.angle2 = angle2;
-      this.totalTicks = max(round(duration * fpsKnob.getValuef()), 1);
+      this.totalTicks = max(round(duration * frameRate), 1);
       this.tick = 0;
       this.t = 0.0f;
     }

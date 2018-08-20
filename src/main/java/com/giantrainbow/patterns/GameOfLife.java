@@ -3,7 +3,6 @@
  */
 package com.giantrainbow.patterns;
 
-import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
 import static com.giantrainbow.colors.Colors.BLACK;
 import static com.giantrainbow.colors.Colors.WHITE;
 import static processing.core.PApplet.lerp;
@@ -104,9 +103,7 @@ public class GameOfLife extends P3PixelPerfectBase {
 
   @Override
   protected void setup() {
-    fpsKnob.setValue(GLOBAL_FRAME_RATE);
-
-    rainbow.reset(fpsKnob.getValuef());
+    rainbow.reset(frameRate);
     reset();
     state = State.RUNNING;
   }

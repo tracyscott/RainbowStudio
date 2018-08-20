@@ -4,7 +4,6 @@
  */
 package com.giantrainbow.patterns;
 
-import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
 import static processing.core.PApplet.floor;
 import static processing.core.PApplet.max;
 import static processing.core.PApplet.min;
@@ -86,8 +85,6 @@ public class CheckerMove extends P3PixelPerfectBase {
 
   @Override
   public void setup() {
-    fpsKnob.setValue(GLOBAL_FRAME_RATE);
-
     squareSize = (pg.width + SQUARE_SIZE_DIVISOR - 1)/SQUARE_SIZE_DIVISOR;
     squaresW = (pg.width + squareSize - 1)/squareSize;
     squaresH = (pg.height + squareSize - 1)/squareSize;
@@ -179,11 +176,11 @@ public class CheckerMove extends P3PixelPerfectBase {
         if (edge % 2 == 0) {
           int n = max(1, squaresH - barWidth + 1);
           barStart = random.nextInt(n);
-          moveCount = (int) (moveTime * fpsKnob.getValuef() / 1000.0f / squareSize);//squaresW / 14;
+          moveCount = (int) (moveTime * frameRate / 1000.0f / squareSize);//squaresW / 14;
         } else {
           int n = max(1, squaresW - barWidth + 1);
           barStart = random.nextInt(n);
-          moveCount = (int) (moveTime * fpsKnob.getValuef() / 1000.0f / squareSize);//squaresH / 4;
+          moveCount = (int) (moveTime * frameRate / 1000.0f / squareSize);//squaresH / 4;
         }
 
         barStart *= squareSize;
@@ -192,7 +189,7 @@ public class CheckerMove extends P3PixelPerfectBase {
 
         // Pixels per frame = pixels-per-s * s-per-frame
         if (moveTime > 0) {
-          pixelsPerFrame = max(1, floor((float) movePixelsTotal / moveTime / fpsKnob.getValuef()));
+          pixelsPerFrame = max(1, floor((float) movePixelsTotal / moveTime / frameRate));
         } else {
           pixelsPerFrame = 1;
         }
