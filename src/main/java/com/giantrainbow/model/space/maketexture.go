@@ -1,3 +1,8 @@
+// Installation: `go get github.com/lucasb-eyer/go-colorful`
+// Usage: `go run maketexture.go`
+//
+// This tool spits out a bunch of textures, some of which have been
+// copied into the resources directory, used in ../../patterns.
 package main
 
 import (
