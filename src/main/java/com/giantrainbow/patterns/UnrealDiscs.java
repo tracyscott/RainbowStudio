@@ -56,7 +56,7 @@ public class UnrealDiscs extends AbstractSpinnyDiscs {
     return true;
   }
 
-  int getBackground() {
+  int getBackground(double deltaMs) {
     // @@@
     return 0;
   }

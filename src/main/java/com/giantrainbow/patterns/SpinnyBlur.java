@@ -14,7 +14,7 @@ public class SpinnyBlur extends SpinnyDiscsRainbow {
     return false;
   }
 
-  int getBackground() {
+  int getBackground(double deltaMs) {
     return 0;
   }
 };

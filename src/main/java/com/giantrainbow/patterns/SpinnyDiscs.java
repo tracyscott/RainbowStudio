@@ -6,16 +6,18 @@ import heronarts.lx.LXCategory;
 @LXCategory(LXCategory.FORM)
 public class SpinnyDiscs extends SpinnyDiscsRainbow {
 
+  BackgroundPulse pulse;
+
   public SpinnyDiscs(LX lx) {
     super(lx);
+    pulse = new BackgroundPulse(this);
   }
 
   boolean hasBackground() {
     return true;
   }
 
-  int getBackground() {
-    // @@@
-    return 0;
+  int getBackground(double deltaMs) {
+    return pulse.get(deltaMs);
   }
 };

@@ -133,7 +133,7 @@ public abstract class AbstractSpinnyDiscs extends CanvasPattern2D {
     relapsed += (float) (deltaMs * rotate);
 
     if (hasBackground()) {
-      pg.background(getBackground());
+      pg.background(getBackground(deltaMs));
     }
 
     pg.translate(canvas.width() / 2, 0);
@@ -197,7 +197,7 @@ public abstract class AbstractSpinnyDiscs extends CanvasPattern2D {
 
   abstract PImage getTexture(int number);
 
-  abstract int getBackground();
+  abstract int getBackground(double deltaMs);
 
   abstract boolean hasBackground();
 }
