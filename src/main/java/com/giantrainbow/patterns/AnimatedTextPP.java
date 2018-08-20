@@ -42,11 +42,31 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   boolean blankUntilReactivated = false;
   float currentPos = 0.0f;
   int lastPos = 0;
+  boolean autoCycleWasEnabled = false;
+
   // TODO: Change the defaultTexts to Larry Harvey quotes.
   String[] defaultTexts = {
     //"City of orgies, walks and joys,      City whom that I have lived and sung in your midst will one day make      Not the pageants of you, not your shifting tableaus, your spectacles, repay me,      Not the interminable rows of your houses, nor the ships at the wharves,      Nor the processions in the streets, nor the bright windows with goods in them,      Nor to converse with learn'd persons, or bear my share in the soiree or feast;      Not those, but as I pass O Manhattan, your frequent and swift flash of eyes offering me love,      Offering response to my own—these repay me,      Lovers, continual lovers, only repay me.",
-    "What's up?",
-    "Hello!",
+    "It avoids a self-conscious relationship to the act. We live in the most self-conscious society in the history of mankind. There are good things in that, but there are also terrible things. The worst of it is, that we find it hard to give ourselves to the cultural process.",
+      "If all of your self worth and esteem is invested in how much you consume, how many likes you get, or other quantifiable measures, the desire to simply possess things trumps our ability or capability to make moral connections with people around us.",
+      "I've learned never to expect people to be better than they are, but to always have faith that they can be more.",
+      "Black Rock gives us all a chance to heal, to become ourselves.",
+      "Well it seems to me, that all real communities grow out of a shared confrontation with survival. Communities are not produced by sentiment or mere goodwill. They grow out of a shared struggle. Our situation in the desert is an incubator for community.",
+      "Burning Man is like a big family picnic. Would you sell things to one another at a family picnic? No, you'd share things.",
+      "We take people to the threshold of religion. Our aim is to induce immediate experience that is beyond the odd, beyond the strange, and beyond the weird. It verges on the wholly other.",
+      "We've been civilized from the beginning. In the desert, it's a baroque city like Paris or Rome.",
+      "People give because they identify with Burning Man, with our city, with our civic life. The idea of giving something to the citizens of Black Rock City has enormous appeal to them because it enhances their sense of who they are and magnifies their sense of being. That's a spiritual reward.",
+      "I'll believe in utopia when I meet my first perfect person, and this community is made up of 70,000 imperfect persons.",
+      "I grew up on a farm in Oregon, an adopted child, with one sibling, and parents the age of all my peers' grandparents. We lived in isolation from the people around us, and it was always a struggle to cope with as a child. The heart can really expire under those conditions. I always felt like I was looking at the world from the outside.",
+      "Belief is thought at rest.",
+      "We see culture as a self-organising thing.",
+      "People out here build whole worlds out of nothing, through cooperating.",
+      "The essence of the desert is that you are free to create your own world, your own visionary reality. … Both Burning Man and the Internet make it possible to regather the tribe of mankind.",
+      "What we have to do is make progress in the quality of connection between people, not the quantity of consumption.",
+      "What counts is the connection, not the commodity.",
+      "I elevated passions into duties (p.s. that's not enough...)",
+      "Instead of doing art about the state of society, we do art that creates society around it.",
+      "So when they say we’re a cult, we reply that it’s a self-service cult. You wash your own brain.",
   };
 
   int currIndex;
@@ -110,6 +130,8 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     // Reset the guard that prevents the next text item from starting to show
     // while we are performing our fade transition to the next pattern.
     blankUntilReactivated = false;
+    autoCycleWasEnabled = getChannel().autoCycleEnabled.getValueb();
+    getChannel().autoCycleEnabled.setValue(false);
   }
 
   public void redrawTextBuffer() {
@@ -181,6 +203,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
             // transition.  Otherwise, we have to disable transitions for all patterns in
             // the channel containing this AnimatedTextPP.
             blankUntilReactivated = true;
+            getChannel().autoCycleEnabled.setValue(autoCycleWasEnabled);
           }
         }
         textItemList.setFocusIndex(currIndex);

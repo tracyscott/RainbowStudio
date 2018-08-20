@@ -218,15 +218,26 @@ public class UIModeSelector extends UICollapsibleSection {
       // fading in the middle of text.  We achieve this by effectively stalling the
       // currentChannelPlayTime until the current channel is no longer an
       // AnimatedTextPP pattern.
-      // TODO(tracy): Make this work for ChannelGroup since we probably need to put
-      // text in the FORM channel of the MULTI group so that it can be multiplied times
-      // a color channel.
       LXChannelBus channelBus = standardModeChannels.get(currentPlayingChannel);
       if (channelBus instanceof LXChannel) {
         LXChannel c = (LXChannel) channelBus;
-        LXPattern p = c.getActivePattern();
-        if (p instanceof AnimatedTextPP) {
-          currentChannelPlayTime = 0.0;
+        if (c.patterns.size() > 0) {
+          LXPattern p = c.getActivePattern();
+          if (p instanceof AnimatedTextPP) {
+            currentChannelPlayTime = 0.0;
+          }
+        }
+      } else if (channelBus instanceof LXGroup) {
+        LXGroup g = (LXGroup) channelBus;
+        if (g.channels.size() > 0) {
+          for (LXChannel c : g.channels) {
+            if (c.patterns.size() > 0) {
+              LXPattern p = c.getActivePattern();
+              if (p instanceof AnimatedTextPP) {
+                currentChannelPlayTime = 0.0;
+              }
+            }
+          }
         }
       }
 
