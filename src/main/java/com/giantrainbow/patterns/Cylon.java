@@ -13,6 +13,7 @@ import com.giantrainbow.UtilsForLX;
 import com.giantrainbow.colors.Colors;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
+import heronarts.lx.parameter.CompoundParameter;
 import java.io.File;
 import java.util.logging.Logger;
 
@@ -41,13 +42,22 @@ public class Cylon extends P3PixelPerfectBase {
 
   private static final String SOUND_FILE = "sounds/cylon_eye.wav";
 
+  private static final float MAX_RUN_TIME_RANGE = 20.0f; // In seconds
+
+  // Wave
   private int period;  // In ms
   private final int wavelength = pg.width * 2;  // Wavelength is twice the width
   private long phi;
-
   private long startTime;
 
+  // Audio
   private File audioFile;
+
+  // Run time
+  private long runTime;  // The total pattern run time between setup() and tearDown(), in ms
+  private final CompoundParameter maxRunTimeKnob =
+      new CompoundParameter("Max Run Time", 0.5, 0.0, 1.0)
+          .setDescription("Sets the maximum run time (0-" + MAX_RUN_TIME_RANGE + "s), full for infinite");
 
   public Cylon(LX lx) {
     super(lx, P2D);
@@ -72,6 +82,8 @@ public class Cylon extends P3PixelPerfectBase {
 
     // Write the audio to a temp file because LX's audio engine only works with File
     audioFile = UtilsForLX.copyAudioForOutput(applet, SOUND_FILE, lx.engine.audio.output);
+
+    addParameter(maxRunTimeKnob);
   }
 
   @Override
@@ -85,6 +97,8 @@ public class Cylon extends P3PixelPerfectBase {
       lx.engine.audio.output.looping.setValue(true);
       lx.engine.audio.output.play.setValue(true);
     }
+
+    runTime = 0L;
   }
 
   @Override
@@ -101,6 +115,14 @@ public class Cylon extends P3PixelPerfectBase {
   @Override
   protected void draw(double deltaDrawMs) {
     pg.background(BLACK);
+
+    runTime += deltaDrawMs;
+    float maxRunTime = maxRunTimeKnob.getValuef();
+    if (maxRunTime < 1.0f) {
+      if (runTime > maxRunTime * MAX_RUN_TIME_RANGE * 1000.0f) {
+        getChannel().goNext();
+      }
+    }
 
     // The wave front will be in the range 0 to width*2
     int v = frontAt(System.currentTimeMillis() - startTime);

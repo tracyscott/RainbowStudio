@@ -5,7 +5,6 @@
 package com.giantrainbow.patterns;
 
 import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
-import static com.giantrainbow.RainbowStudio.inputManager;
 import static com.giantrainbow.colors.Colors.BLACK;
 import static com.giantrainbow.colors.Colors.WHITE;
 import static processing.core.PApplet.round;
@@ -23,7 +22,7 @@ import heronarts.lx.parameter.CompoundParameter;
  * @author Shawn Silverman
  */
 @LXCategory(LXCategory.FORM)
-public class LineDance extends PGPixelPerfect {
+public class LineDance extends P3PixelPerfectBase {
   private static final float SENSITIVITY_SCALE = 20.0f;
   private static final float SENSITIVITY_VALUE = 0.7f;
 
@@ -61,7 +60,7 @@ public class LineDance extends PGPixelPerfect {
     lastTintDelta = 0;
 
     // Setup
-    sample = new float[inputManager.getAudioSampleSize()];
+    sample = new float[inputManager().getAudioSampleSize()];
 
     pg.colorMode(HSB, 255);
     pg.background(BLACK);
@@ -95,7 +94,7 @@ public class LineDance extends PGPixelPerfect {
 //    pg.tint(245, 250, 255);
 //    pg.image(img, 0, 0);
 
-    sample = inputManager.getAudioSample(sample);
+    sample = inputManager().getAudioSample(sample);
     int n = sample.length;
     boolean silent = true;
     for (int i = n; --i >= 0; ) {
