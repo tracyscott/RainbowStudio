@@ -44,6 +44,8 @@ public class ColorShapes extends AbstractSpinnyDiscs {
     colors[0] = RainbowStudio.pApplet.loadImage("images/xyy-square-lookup.png");
     colors[1] = RainbowStudio.pApplet.loadImage("images/xyz-square-lookup.png");
 
+    countKnob.setValue(750);
+
     for (int i = 0; i < props.length; i++) {
       shapes[i] = RainbowStudio.pApplet.loadImage(props[i]);
     }
