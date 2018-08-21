@@ -8,6 +8,8 @@ public class SpinnyRainbowDash extends AbstractSpinnyRainbow {
 
   public SpinnyRainbowDash(LX lx) {
     super(lx);
+
+    rotateKnob.setValue(3.5);
   }
 
   boolean hasBackground() {
