@@ -211,7 +211,7 @@ func main() {
 
 	// Shapes: Starfish
 	const starc = 1.5
-	steps(9).writeDiscTextures("star", func(km1 float64) (ParamFunc, string) {
+	steps(13).writeDiscTextures("star", func(km1 float64) (ParamFunc, string) {
 		k := km1 + 1
 		return func(degrees, radius float64) colorful.Color {
 			rc := (RADIUS / (1 + starc)) * (starc + math.Cos(k*degrees*DegToRad))
