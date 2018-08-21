@@ -57,12 +57,14 @@ public abstract class AbstractSpinnyDiscs extends CanvasPattern2D {
   Ball balls[];
   float telapsed;
   float relapsed;
+  int frame;
 
   public AbstractSpinnyDiscs(LX lx) {
     super(lx);
 
     Random rnd = new Random();
 
+    this.frame = 0;
     this.telapsed = 0;
     this.relapsed = 0;
     this.balls = new Ball[BALL_COUNT];
@@ -134,6 +136,9 @@ public abstract class AbstractSpinnyDiscs extends CanvasPattern2D {
 
     if (hasBackground()) {
       pg.background(getBackground(deltaMs));
+    } else if (frame == 0) {
+      frame++;
+      pg.background(0);
     }
 
     pg.translate(canvas.width() / 2, 0);
