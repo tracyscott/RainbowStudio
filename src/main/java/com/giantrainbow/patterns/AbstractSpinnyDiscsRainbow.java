@@ -8,7 +8,7 @@ import heronarts.lx.LX;
 import heronarts.lx.parameter.CompoundParameter;
 import processing.core.PImage;
 
-public abstract class SpinnyDiscsRainbow extends AbstractSpinnyDiscs {
+public abstract class AbstractSpinnyDiscsRainbow extends AbstractSpinnyDiscs {
 
   public final CompoundParameter brightKnob =
       new CompoundParameter("Bright", 0.5, 0, 1).setDescription("Bright");
@@ -20,7 +20,7 @@ public abstract class SpinnyDiscsRainbow extends AbstractSpinnyDiscs {
   PImage textureHsv; // Bright
   PImage texture; // Blended from the above
 
-  public SpinnyDiscsRainbow(LX lx) {
+  public AbstractSpinnyDiscsRainbow(LX lx) {
     super(lx);
 
     // The texture files are square.

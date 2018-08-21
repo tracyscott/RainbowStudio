@@ -10,7 +10,7 @@ import processing.core.PGraphics;
 import processing.core.PImage;
 
 @LXCategory(LXCategory.FORM)
-public class Flowers extends AbstractSpinnyDiscs {
+public class SpinnyFlowers extends AbstractSpinnyDiscs {
 
   PImage textures[];
 
@@ -30,7 +30,7 @@ public class Flowers extends AbstractSpinnyDiscs {
 
   BackgroundPulse pulse;
 
-  public Flowers(LX lx) {
+  public SpinnyFlowers(LX lx) {
     super(lx);
 
     PImage shapes[];

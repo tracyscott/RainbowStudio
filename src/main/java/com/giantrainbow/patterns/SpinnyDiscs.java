@@ -4,7 +4,7 @@ import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 
 @LXCategory(LXCategory.FORM)
-public class SpinnyDiscs extends SpinnyDiscsRainbow {
+public class SpinnyDiscs extends AbstractSpinnyDiscsRainbow {
 
   BackgroundPulse pulse;
 

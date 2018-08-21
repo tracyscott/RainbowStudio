@@ -6,7 +6,7 @@ import heronarts.lx.LXCategory;
 import processing.core.PImage;
 
 @LXCategory(LXCategory.FORM)
-public class UnrealDiscs extends AbstractSpinnyDiscs {
+public class SpinnyUnreal extends AbstractSpinnyDiscs {
 
   PImage textures[];
 
@@ -40,7 +40,7 @@ public class UnrealDiscs extends AbstractSpinnyDiscs {
 
   BackgroundPulse pulse;
 
-  public UnrealDiscs(LX lx) {
+  public SpinnyUnreal(LX lx) {
     super(lx);
 
     pulse = new BackgroundPulse(this);
