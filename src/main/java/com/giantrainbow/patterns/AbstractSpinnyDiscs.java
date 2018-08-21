@@ -127,6 +127,9 @@ public abstract class AbstractSpinnyDiscs extends CanvasPattern2D {
   }
 
   public void draw(double deltaMs) {
+    if (telapsed == 0) {
+      pg.background(0);
+    }
     double speed = speedKnob.getValue();
     telapsed += (float) (deltaMs * speed);
     double rotate = rotateKnob.getValue();

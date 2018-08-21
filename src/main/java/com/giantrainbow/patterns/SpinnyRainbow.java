@@ -4,13 +4,15 @@ import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 
 @LXCategory(LXCategory.FORM)
-public class SpinnyDiscs extends SpinnyDiscsRainbow {
+public class SpinnyRainbow extends AbstractSpinnyRainbow {
 
   BackgroundPulse pulse;
 
-  public SpinnyDiscs(LX lx) {
+  public SpinnyRainbow(LX lx) {
     super(lx);
     pulse = new BackgroundPulse(this);
+
+    speedKnob.setValue(2.5);
   }
 
   boolean hasBackground() {
