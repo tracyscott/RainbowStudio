@@ -11,6 +11,8 @@ public class SpinnyRainbow extends AbstractSpinnyRainbow {
   public SpinnyRainbow(LX lx) {
     super(lx);
     pulse = new BackgroundPulse(this);
+
+    speedKnob.setValue(2.5);
   }
 
   boolean hasBackground() {

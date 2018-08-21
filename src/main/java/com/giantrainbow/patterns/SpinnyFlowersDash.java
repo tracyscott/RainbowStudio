@@ -4,10 +4,13 @@ import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 
 @LXCategory(LXCategory.FORM)
-public class SpinnyRainbowDash extends AbstractSpinnyRainbow {
+public class SpinnyFlowersDash extends AbstractSpinnyFlowers {
 
-  public SpinnyRainbowDash(LX lx) {
+  public SpinnyFlowersDash(LX lx) {
     super(lx);
+
+    rotateKnob.setValue(3.5);
+    sizeKnob.setValue(7.5);
   }
 
   boolean hasBackground() {
