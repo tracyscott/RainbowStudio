@@ -13,7 +13,7 @@ public class BackgroundPulse {
   public final CompoundParameter rateKnob =
       new CompoundParameter("BG rate", 2000, 0, 10000).setDescription("BG rate");
   public final CompoundParameter levelKnob =
-      new CompoundParameter("BG level", 0.25, 0, 1).setDescription("BG level");
+      new CompoundParameter("BG level", 0.15, 0, 1).setDescription("BG level");
 
   double elapsed;
   int colors[];

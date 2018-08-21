@@ -4,7 +4,7 @@ import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 
 @LXCategory(LXCategory.FORM)
-public class SpinnyRainbowDash extends AbstractSpinnyDiscsRainbow {
+public class SpinnyRainbowDash extends AbstractSpinnyRainbow {
 
   public SpinnyRainbowDash(LX lx) {
     super(lx);
