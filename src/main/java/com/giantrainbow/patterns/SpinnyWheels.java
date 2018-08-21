@@ -22,8 +22,18 @@ public class SpinnyWheels extends AbstractSpinnyDiscs {
     this.textures = new PImage[BALL_COUNT];
 
     PImage shape = RainbowStudio.pApplet.loadImage("images/spin-disc-k=1.png");
-    PImage palette = RainbowStudio.pApplet.loadImage("images/lab-square-lookup.png");
+    PImage shape2 = RainbowStudio.pApplet.createImage(shape.width, shape.width, RGB);
+    shape2.loadPixels();
 
+    // Reflection
+    for (int x = 0; x < shape.width; x++) {
+      for (int y = 0; y < shape.width; y++) {
+        shape2.pixels[x + shape.width * y] = shape.pixels[(shape.width - 1 - x) + shape.width * y];
+      }
+    }
+    shape2.updatePixels();
+
+    PImage palette = RainbowStudio.pApplet.loadImage("images/lab-square-lookup.png");
     Random rnd = new Random();
 
     countKnob.setValue(500);
@@ -38,7 +48,7 @@ public class SpinnyWheels extends AbstractSpinnyDiscs {
       for (int p = 0; p < textures[i].pixels.length; p++) {
         textures[i].pixels[p] = c;
       }
-      textures[i].mask(shape);
+      textures[i].mask(i % 2 == 0 ? shape : shape2);
     }
   }
 
