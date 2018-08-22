@@ -17,7 +17,8 @@ public class CubeLineup extends CanvasPattern3D {
 
   public final int MAX_SIZE = 150;
   public final int MAX_CUBES = 300;
-  public final float MAX_SPEED = 10000000;
+  public final float MAX_SPEED = 100;
+  public final float SPEED_RATE = 4;
 
   public final float ROLL_RATE = 4;
   public final float MSHZ = 1.f / 10000.f;
@@ -25,7 +26,8 @@ public class CubeLineup extends CanvasPattern3D {
   public final Vector3f DEFAULT_EYE = new Vector3f(0, Space3D.MIN_Y + 6, 60);
 
   public final CompoundParameter speedKnob =
-      new CompoundParameter("Speed", Math.sqrt(MAX_SPEED), 10, MAX_SPEED).setDescription("Speed");
+      new CompoundParameter("Speed", 0 * Math.sqrt(MAX_SPEED), -MAX_SPEED, MAX_SPEED)
+          .setDescription("Speed");
   public final CompoundParameter rollKnob =
       new CompoundParameter("Roll", 0.15, -1, 1).setDescription("Roll");
   public final CompoundParameter countKnob =
@@ -142,7 +144,16 @@ public class CubeLineup extends CanvasPattern3D {
   };
 
   public void draw(double deltaMs) {
-    double speed = Math.log10(speedKnob.getValue());
+    double speed = 0;
+    double knob = Math.abs(speedKnob.getValue());
+    double direction = knob < 0 ? -1. : 1.;
+
+    if (knob > 10) {
+      speed = Math.log10(knob);
+    } else {
+      speed = knob / 10;
+    }
+    speed *= direction * SPEED_RATE;
     elapsed += deltaMs * speed;
 
     double rollspeed = rollKnob.getValue();
