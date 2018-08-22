@@ -16,6 +16,16 @@ public abstract class AbstractSpinnyWheels extends AbstractSpinnyDiscs {
 
     this.textures = new PImage[BALL_COUNT];
 
+    new Thread(
+            new Runnable() {
+              public void run() {
+                loadTextures();
+              }
+            })
+        .start();
+  }
+
+  void loadTextures() {
     PImage shape = RainbowStudio.pApplet.loadImage("images/spin-disc-k=1.png");
     PImage shape2 = RainbowStudio.pApplet.createImage(shape.width, shape.width, RGB);
     shape2.loadPixels();
@@ -32,20 +42,27 @@ public abstract class AbstractSpinnyWheels extends AbstractSpinnyDiscs {
     Random rnd = new Random();
 
     for (int i = 0; i < BALL_COUNT; i++) {
-      textures[i] = RainbowStudio.pApplet.createImage(shape.width, shape.width, RGB);
+
+      PImage img = RainbowStudio.pApplet.createImage(shape.width, shape.width, RGB);
 
       int x = rnd.nextInt(palette.width);
       int y = rnd.nextInt(palette.width);
       int c = palette.pixels[x * palette.width + y];
 
-      for (int p = 0; p < textures[i].pixels.length; p++) {
-        textures[i].pixels[p] = c;
+      for (int p = 0; p < img.pixels.length; p++) {
+        img.pixels[p] = c;
       }
-      textures[i].mask(i % 2 == 0 ? shape : shape2);
+      img.mask(i % 2 == 0 ? shape : shape2);
+
+      synchronized (textures) {
+        textures[i] = img;
+      }
     }
   }
 
   PImage getTexture(int number) {
-    return this.textures[number % textures.length];
+    synchronized (textures) {
+      return this.textures[number % textures.length];
+    }
   }
 };

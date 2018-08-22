@@ -23,19 +23,6 @@ public abstract class AbstractSpinnyRainbow extends AbstractSpinnyDiscs {
   public AbstractSpinnyRainbow(LX lx) {
     super(lx);
 
-    // The texture files are square.
-    this.textureLch = RainbowStudio.pApplet.loadImage("images/lch-disc-level=0.60-sat=1.00.png");
-    this.textureHsv = RainbowStudio.pApplet.loadImage("images/hsv-disc-level=1.00-sat=1.00.png");
-
-    this.textureLch.loadPixels();
-    this.textureHsv.loadPixels();
-
-    this.textureA = new int[this.textureLch.width * this.textureLch.width];
-
-    this.texture =
-        RainbowStudio.pApplet.createImage(this.textureLch.width, this.textureLch.width, RGB);
-    this.texture.loadPixels();
-
     addParameter(brightKnob);
 
     brightKnob.addListener(
@@ -43,14 +30,47 @@ public abstract class AbstractSpinnyRainbow extends AbstractSpinnyDiscs {
           setTexture(lxParameter.getValue());
         });
 
+    new Thread(
+            new Runnable() {
+              public void run() {
+                loadTextures();
+              }
+            })
+        .start();
+  }
+
+  void loadTextures() {
+    // The texture files are square.
+    this.textureLch = RainbowStudio.pApplet.loadImage("images/lch-disc-level=0.60-sat=1.00.png");
+    this.textureHsv = RainbowStudio.pApplet.loadImage("images/hsv-disc-level=1.00-sat=1.00.png");
+
+    this.textureLch.loadPixels();
+    this.textureHsv.loadPixels();
+
+    int ta[] = new int[this.textureLch.width * this.textureLch.width];
+    PImage img =
+        RainbowStudio.pApplet.createImage(this.textureLch.width, this.textureLch.width, RGB);
+
+    synchronized (this) {
+      this.textureA = ta;
+      this.texture = img;
+    }
+
     setTexture(brightKnob.getValue());
   }
 
   PImage getTexture(int number) {
-    return this.texture;
+    synchronized (this) {
+      return this.texture;
+    }
   }
 
   void setTexture(double bright) {
+    synchronized (this) {
+      if (this.textureA == null || this.texture == null) {
+        return;
+      }
+    }
     double dim = 1. - bright;
     for (int i = 0; i < this.textureLch.width; i++) {
       for (int j = 0; j < this.textureLch.width; j++) {
@@ -74,6 +94,9 @@ public abstract class AbstractSpinnyRainbow extends AbstractSpinnyDiscs {
       }
     }
     this.texture.mask(this.textureA);
-    this.texture.updatePixels();
+
+    synchronized (this) {
+      this.texture.updatePixels();
+    }
   }
 };

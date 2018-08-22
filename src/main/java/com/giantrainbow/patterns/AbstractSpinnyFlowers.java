@@ -4,7 +4,9 @@ import static processing.core.PConstants.RGB;
 
 import com.giantrainbow.RainbowStudio;
 import heronarts.lx.LX;
+import heronarts.p3lx.P3LX;
 import java.util.Random;
+import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PImage;
 
@@ -29,12 +31,26 @@ public abstract class AbstractSpinnyFlowers extends AbstractSpinnyDiscs {
   public AbstractSpinnyFlowers(LX lx) {
     super(lx);
 
-    PImage shapes[];
+    this.textures = new PImage[BALL_COUNT];
 
-    shapes = new PImage[props.length];
-    textures = new PImage[BALL_COUNT];
+    PApplet applet = ((P3LX) lx).applet;
 
+    // TODO: this was recommended:
+    // ScheduledExecutorService executor = ((RainbowStudio)
+    // applet).registry.get(Registry.Key.EXEC);
+    new Thread(
+            new Runnable() {
+              public void run() {
+                loadTextures();
+              }
+            })
+        .start();
+  }
+
+  void loadTextures() {
+    PImage shapes[] = new PImage[props.length];
     PImage colors[] = new PImage[2];
+
     colors[0] = RainbowStudio.pApplet.loadImage("images/xyy-square-lookup.png");
     colors[1] = RainbowStudio.pApplet.loadImage("images/xyz-square-lookup.png");
 
@@ -48,9 +64,7 @@ public abstract class AbstractSpinnyFlowers extends AbstractSpinnyDiscs {
     for (int i = 0; i < BALL_COUNT; i++) {
       PImage shape = shapes[i % shapes.length];
       PImage color = colors[i % colors.length];
-
-      textures[i] = RainbowStudio.pApplet.createImage(shape.width, shape.width, RGB);
-      textures[i].loadPixels();
+      PImage img = RainbowStudio.pApplet.createImage(shape.width, shape.width, RGB);
 
       int d = color.width - shape.width;
       int x = rnd.nextInt(color.width - shape.width);
@@ -64,14 +78,21 @@ public abstract class AbstractSpinnyFlowers extends AbstractSpinnyDiscs {
       graphics.translate(x + d / 2, y + d / 2);
       graphics.rotate((float) theta);
 
-      textures[i].copy(graphics, 0, 0, shape.width, shape.width, 0, 0, shape.width, shape.width);
-      textures[i].mask(shape);
+      img.copy(graphics, 0, 0, shape.width, shape.width, 0, 0, shape.width, shape.width);
+      img.mask(shape);
+
       graphics.popMatrix();
       graphics.endDraw();
+
+      synchronized (textures) {
+        textures[i] = img;
+      }
     }
   }
 
   PImage getTexture(int number) {
-    return this.textures[number % textures.length];
+    synchronized (textures) {
+      return this.textures[number % textures.length];
+    }
   }
 };
