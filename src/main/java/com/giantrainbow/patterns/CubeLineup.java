@@ -16,33 +16,40 @@ import processing.core.PVector;
 public class CubeLineup extends CanvasPattern3D {
 
   public final int MAX_SIZE = 150;
-  public final int MAX_CUBES = 1000;
+  public final int MAX_CUBES = 300;
   public final float MAX_SPEED = 100000;
 
-  // public final float MAX_EYE_RADIUS_RATIO = 1.0;
+  public final float ROLL_RATE = 4;
+  public final float MSHZ = 1.f / 10000.f;
+
+  public final Vector3f DEFAULT_EYE = new Vector3f(0, Space3D.MIN_Y + 6, 60);
 
   public final CompoundParameter speedKnob =
-      new CompoundParameter("Speed", MAX_SPEED / 5, 10, MAX_SPEED).setDescription("Speed");
+      new CompoundParameter("Speed", Math.sqrt(MAX_SPEED), 10, MAX_SPEED).setDescription("Speed");
+  public final CompoundParameter rollKnob =
+      new CompoundParameter("Roll", 0.15, -1, 1).setDescription("Roll");
   public final CompoundParameter countKnob =
-      new CompoundParameter("Count", MAX_CUBES / 5, 10, MAX_CUBES).setDescription("Count");
+      new CompoundParameter("Count", MAX_CUBES / 20, 10, MAX_CUBES).setDescription("Count");
 
   public CubeLineup(LX lx) {
     super(lx);
     addParameter(speedKnob);
     addParameter(countKnob);
+    addParameter(rollKnob);
     removeParameter(fpsKnob);
 
-    Vector3f eye = new Vector3f(0, Space3D.MIN_Y + 6, 60);
-
-    space = new Space3D(eye);
+    space = new Space3D(DEFAULT_EYE);
     boxes = new Box[MAX_CUBES];
-    rnd = new Random();
+    Random rnd = new Random();
+
+    eye = new PVector(space.eye.x, space.eye.y, space.eye.z);
+    center = new PVector(space.center.x, space.center.y, space.center.z);
 
     int trials = 0;
     for (int i = 0; i < boxes.length; i++) {
       Box b;
       do {
-        b = new Box();
+        b = new Box(rnd);
         trials++;
       } while (!space.testBox(
           -b.radius(), -b.radius(), -b.radius(), b.radius(), b.radius(), b.radius()));
@@ -54,11 +61,13 @@ public class CubeLineup extends CanvasPattern3D {
         "Found boxes by %.1f%% rejection sampling\n", 100. * (float) boxes.length / (float) trials);
   }
 
-  Random rnd;
   Box boxes[];
   double elapsed;
+  double relapsed;
   PImage texture;
   Space3D space;
+  PVector eye;
+  PVector center;
 
   public class Box {
     PVector R;
@@ -73,7 +82,7 @@ public class CubeLineup extends CanvasPattern3D {
       return W / (float) Colors.RAINBOW_PALETTE.length;
     }
 
-    Box() {
+    Box(Random rnd) {
       W = (int) (rnd.nextFloat() * MAX_SIZE);
       R = PVector.random3D();
     }
@@ -141,18 +150,23 @@ public class CubeLineup extends CanvasPattern3D {
     double speed = Math.log10(speedKnob.getValue());
     elapsed += deltaMs * speed;
 
+    double rollspeed = rollKnob.getValue();
+    relapsed += deltaMs * rollspeed;
+
     pg.noStroke();
     pg.background(0);
 
+    float theta = ((float) relapsed) * ROLL_RATE * MSHZ;
+
     pg.camera(
-        space.eye.x,
-        space.eye.y,
-        space.eye.z,
-        space.center.x,
-        space.center.y,
-        space.center.z,
-        0,
-        1,
+        eye.x,
+        eye.y,
+        eye.z,
+        center.x,
+        center.y,
+        center.z,
+        (float) Math.sin(theta),
+        (float) Math.cos(theta),
         0);
 
     for (Box b : boxes) {
