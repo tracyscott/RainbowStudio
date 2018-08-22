@@ -359,6 +359,9 @@ public class RainbowStudio extends PApplet {
     }
 
     private static final String KEY_STDMODE_TIME = "stdModeTime";
+    private static final String KEY_STDMODE_TIME2 = "stdModeTime2";
+    private static final String KEY_STDMODE_TIME3 = "stdModeTime3";
+
     private static final String KEY_STDMODE_FADETIME = "stdModeFadeTime";
 
     private static final String KEY_AUDIOMONITOR_MINTHR = "minThr";
@@ -394,7 +397,10 @@ public class RainbowStudio extends PApplet {
       obj.addProperty(KEY_AUDIOMONITOR_GTHRSH, UIAudioMonitorLevels.gainThrshP.getValue());
 
       obj.addProperty(KEY_STDMODE_TIME, UIModeSelector.timePerChannelP.getValue());
+      obj.addProperty(KEY_STDMODE_TIME2, UIModeSelector.timePerChannelP2.getValue());
+      obj.addProperty(KEY_STDMODE_TIME3, UIModeSelector.timePerChannelP3.getValue());
       obj.addProperty(KEY_STDMODE_FADETIME, UIModeSelector.fadeTimeP.getValue());
+
       obj.addProperty(KEY_GAMMA_RED, UIGammaSelector.redGamma.getValue());
       obj.addProperty(KEY_GAMMA_GREEN, UIGammaSelector.greenGamma.getValue());
       obj.addProperty(KEY_GAMMA_BLUE, UIGammaSelector.blueGamma.getValue());
@@ -433,6 +439,12 @@ public class RainbowStudio extends PApplet {
       }
       if (obj.has(KEY_STDMODE_TIME)) {
         UIModeSelector.timePerChannelP.setValue(obj.get(KEY_STDMODE_TIME).getAsDouble());
+      }
+      if (obj.has(KEY_STDMODE_TIME2)) {
+        UIModeSelector.timePerChannelP2.setValue(obj.get(KEY_STDMODE_TIME2).getAsDouble());
+      }
+      if (obj.has(KEY_STDMODE_TIME3)) {
+        UIModeSelector.timePerChannelP3.setValue(obj.get(KEY_STDMODE_TIME3).getAsDouble());
       }
       if (obj.has(KEY_STDMODE_FADETIME)) {
         UIModeSelector.fadeTimeP.setValue(obj.get(KEY_STDMODE_FADETIME).getAsDouble());

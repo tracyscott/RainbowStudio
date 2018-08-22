@@ -2,7 +2,7 @@ package com.giantrainbow.patterns;
 
 import static processing.core.PConstants.P2D;
 
-import com.giantrainbow.canvas.Canvas;
+import com.giantrainbow.model.RainbowModel3D;
 import heronarts.lx.LX;
 
 /**
@@ -11,7 +11,7 @@ import heronarts.lx.LX;
  */
 abstract class CanvasPattern2D extends CanvasPattern {
   public CanvasPattern2D(LX lx) {
-    super(lx, new Canvas(lx.model), P2D);
+    super(lx, ((RainbowModel3D) lx.model).canvas, P2D);
   }
 
   // Implement drawing code here.

@@ -1,6 +1,7 @@
 package com.giantrainbow.canvas;
 
 import heronarts.lx.model.LXModel;
+import heronarts.lx.model.LXPoint;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -17,8 +18,8 @@ public class Canvas {
   /** Map contains the (static) mapping function from sub-pixel to rainbow pixel. */
   public Map map;
 
-  public Canvas(LXModel model) {
-    map = Map.newFromModel(model);
+  public Canvas(LXModel model, LXPoint perimeter[]) {
+    map = Map.newFromModel(model, perimeter);
     buffer = new Buffer(map.size());
   }
 

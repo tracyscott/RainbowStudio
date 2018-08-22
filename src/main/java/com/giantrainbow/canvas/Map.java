@@ -4,9 +4,7 @@ import static com.giantrainbow.colors.Colors.blue;
 import static com.giantrainbow.colors.Colors.green;
 import static com.giantrainbow.colors.Colors.red;
 import static com.giantrainbow.colors.Colors.rgb;
-import static processing.core.PConstants.RGB;
 
-import com.giantrainbow.model.RainbowModel3D;
 import com.github.davidmoten.rtree.Entry;
 import com.github.davidmoten.rtree.RTree;
 import com.github.davidmoten.rtree.geometry.Geometries;
@@ -16,8 +14,6 @@ import heronarts.lx.model.LXPoint;
 import java.util.ArrayList;
 import java.util.HashSet;
 import org.apache.commons.math3.distribution.TDistribution;
-import processing.core.PApplet;
-import processing.core.PImage;
 
 /** Map constructs a mapping from sub-sampled pixel to true pixel in the rainbow canvas. */
 public class Map {
@@ -53,10 +49,10 @@ public class Map {
   float pyMax = Float.NEGATIVE_INFINITY;
 
   /** newFromModel constructs a map using the points of the LXModel. */
-  public static Map newFromModel(LXModel model) {
+  public static Map newFromModel(LXModel model, LXPoint perimeter[]) {
     try {
       Map map = new Map();
-      map.buildFromModel(model);
+      map.buildFromModel(model, perimeter);
       // map.dumpMap(model);
       return map;
     } catch (Exception e) {
@@ -89,10 +85,10 @@ public class Map {
    * buildFromModel computes the subpixel-to-pixel mapping, excluding points that are nearest to the
    * perimeter or outside: `positions`, `subpixels`, and `isnear` are computed.
    */
-  void buildFromModel(LXModel model) {
+  void buildFromModel(LXModel model, LXPoint perimeterList[]) {
     // TODO: Add a model-perimeter interface to support testing w/ other
     // panel configurations.
-    for (LXPoint pt : ((RainbowModel3D) model).perimeter) {
+    for (LXPoint pt : perimeterList) {
       pxMin = Math.min(pxMin, pt.x);
       pyMin = Math.min(pyMin, pt.y);
       pxMax = Math.max(pxMax, pt.x);
@@ -121,7 +117,7 @@ public class Map {
     }
 
     // Build the Rtree from the perimeter set.
-    for (LXPoint lxp : ((RainbowModel3D) model).perimeter) {
+    for (LXPoint lxp : perimeterList) {
       tree = tree.add(lxp, Geometries.point(lxp.x, lxp.y));
       perimeter.add(lxp);
     }
@@ -286,58 +282,58 @@ public class Map {
     return rgb((int) r, (int) g, (int) b);
   }
 
-  public void dumpMap(LXModel model) {
-    final int trueWidth = RainbowModel3D.LED_WIDTH;
+  // public void dumpMap(LXModel model) {
+  //   final int trueWidth = RainbowModel3D.LED_WIDTH;
 
-    PApplet app = new PApplet();
-    PImage img = app.createImage(width, height, RGB);
-    img.loadPixels();
+  //   PApplet app = new PApplet();
+  //   PImage img = app.createImage(width, height, RGB);
+  //   img.loadPixels();
 
-    for (int i = 0; i < size(); i++) {
-      img.pixels[i] = app.color(100);
-    }
+  //   for (int i = 0; i < size(); i++) {
+  //     img.pixels[i] = app.color(100);
+  //   }
 
-    // (Four-color it.)
-    int[] coloring = {
-      rgb(255, 0, 0), rgb(0, 255, 0), rgb(0, 0, 255), rgb(255, 255, 0),
-    };
+  //   // (Four-color it.)
+  //   int[] coloring = {
+  //     rgb(255, 0, 0), rgb(0, 255, 0), rgb(0, 0, 255), rgb(255, 255, 0),
+  //   };
 
-    for (int c : coloring) {
-      System.err.println("  Colors " + red(c) + " " + green(c) + " " + blue(c));
-    }
+  //   for (int c : coloring) {
+  //     System.err.println("  Colors " + red(c) + " " + green(c) + " " + blue(c));
+  //   }
 
-    for (LXPoint lxp : model.points) {
-      int idx = lxp.index;
-      int end = positions[idx + 1];
+  //   for (LXPoint lxp : model.points) {
+  //     int idx = lxp.index;
+  //     int end = positions[idx + 1];
 
-      int trueX = lxp.index % trueWidth;
-      int trueY = lxp.index / trueWidth;
+  //     int trueX = lxp.index % trueWidth;
+  //     int trueY = lxp.index / trueWidth;
 
-      int color = coloring[(trueX % 2) + (trueY % 2) * 2];
+  //     int color = coloring[(trueX % 2) + (trueY % 2) * 2];
 
-      float maxw = Float.NEGATIVE_INFINITY;
-      for (int off = positions[idx]; off < end; off++) {
-        maxw = Math.max(subweights[off], maxw);
-      }
+  //     float maxw = Float.NEGATIVE_INFINITY;
+  //     for (int off = positions[idx]; off < end; off++) {
+  //       maxw = Math.max(subweights[off], maxw);
+  //     }
 
-      for (int off = positions[idx]; off < end; off++) {
-        int subidx = subpixels[off];
-        float w = subweights[off] / maxw;
+  //     for (int off = positions[idx]; off < end; off++) {
+  //       int subidx = subpixels[off];
+  //       float w = subweights[off] / maxw;
 
-        int subx = subXpos(subidx);
-        int suby = subYpos(subidx);
+  //       int subx = subXpos(subidx);
+  //       int suby = subYpos(subidx);
 
-        img.pixels[(height - suby - 1) * width + subx] =
-            rgb(
-                (int) (w * (float) red(color)),
-                (int) (w * (float) green(color)),
-                (int) (w * (float) blue(color)));
-      }
-    }
+  //       img.pixels[(height - suby - 1) * width + subx] =
+  //           rgb(
+  //               (int) (w * (float) red(color)),
+  //               (int) (w * (float) green(color)),
+  //               (int) (w * (float) blue(color)));
+  //     }
+  //   }
 
-    img.updatePixels();
+  //   img.updatePixels();
 
-    // Note: to see the map.
-    // img.save("/Users/jmacd/Desktop/map.png");
-  }
+  //   // Note: to see the map.
+  //   // img.save("/Users/jmacd/Desktop/map.png");
+  // }
 }
