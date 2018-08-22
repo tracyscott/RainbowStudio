@@ -16,7 +16,7 @@ import processing.core.PVector;
 public class CubeLineup extends CanvasPattern3D {
 
   public final int MAX_SIZE = 150;
-  public final int MAX_CUBES = 300;
+  public final int MAX_CUBES = 200;
   public final float MAX_SPEED = 100;
   public final float SPEED_RATE = 4;
 
@@ -26,10 +26,10 @@ public class CubeLineup extends CanvasPattern3D {
   public final Vector3f DEFAULT_EYE = new Vector3f(0, Space3D.MIN_Y + 6, 60);
 
   public final CompoundParameter speedKnob =
-      new CompoundParameter("Speed", 0 * Math.sqrt(MAX_SPEED), -MAX_SPEED, MAX_SPEED)
+      new CompoundParameter("Speed", Math.sqrt(MAX_SPEED), -MAX_SPEED, MAX_SPEED)
           .setDescription("Speed");
   public final CompoundParameter rollKnob =
-      new CompoundParameter("Roll", 0.15, -1, 1).setDescription("Roll");
+      new CompoundParameter("Roll", -0.15, -1, 1).setDescription("Roll");
   public final CompoundParameter countKnob =
       new CompoundParameter("Count", 25, 10, MAX_CUBES).setDescription("Count");
 

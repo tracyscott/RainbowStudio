@@ -50,6 +50,7 @@ public abstract class AbstractSpinnyRainbow extends AbstractSpinnyDiscs {
     int ta[] = new int[this.textureLch.width * this.textureLch.width];
     PImage img =
         RainbowStudio.pApplet.createImage(this.textureLch.width, this.textureLch.width, RGB);
+    img.loadPixels();
 
     synchronized (this) {
       this.textureA = ta;
