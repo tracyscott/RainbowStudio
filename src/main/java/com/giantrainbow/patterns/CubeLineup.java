@@ -19,6 +19,8 @@ public class CubeLineup extends CanvasPattern3D {
   public final int MAX_CUBES = 1000;
   public final float MAX_SPEED = 100000;
 
+  // public final float MAX_EYE_RADIUS_RATIO = 1.0;
+
   public final CompoundParameter speedKnob =
       new CompoundParameter("Speed", MAX_SPEED / 5, 10, MAX_SPEED).setDescription("Speed");
   public final CompoundParameter countKnob =
