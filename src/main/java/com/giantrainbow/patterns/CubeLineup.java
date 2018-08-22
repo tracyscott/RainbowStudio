@@ -17,7 +17,7 @@ public class CubeLineup extends CanvasPattern3D {
 
   public final int MAX_SIZE = 150;
   public final int MAX_CUBES = 300;
-  public final float MAX_SPEED = 100000;
+  public final float MAX_SPEED = 10000000;
 
   public final float ROLL_RATE = 4;
   public final float MSHZ = 1.f / 10000.f;
@@ -29,7 +29,7 @@ public class CubeLineup extends CanvasPattern3D {
   public final CompoundParameter rollKnob =
       new CompoundParameter("Roll", 0.15, -1, 1).setDescription("Roll");
   public final CompoundParameter countKnob =
-      new CompoundParameter("Count", MAX_CUBES / 20, 10, MAX_CUBES).setDescription("Count");
+      new CompoundParameter("Count", 25, 10, MAX_CUBES).setDescription("Count");
 
   public CubeLineup(LX lx) {
     super(lx);
@@ -72,7 +72,6 @@ public class CubeLineup extends CanvasPattern3D {
   public class Box {
     PVector R;
     int W;
-    float rotation;
 
     float radius() {
       return (float) W / 2;
@@ -134,15 +133,11 @@ public class CubeLineup extends CanvasPattern3D {
     void draw() {
       pg.pushMatrix();
 
-      pg.rotate(rotation, R.x, R.y, R.z);
+      pg.rotate((float) (elapsed / 10000), R.x, R.y, R.z);
 
       draw3Sides();
 
       pg.popMatrix();
-    }
-
-    void update() {
-      rotation = (float) (elapsed / 10000);
     }
   };
 
@@ -168,10 +163,6 @@ public class CubeLineup extends CanvasPattern3D {
         (float) Math.sin(theta),
         (float) Math.cos(theta),
         0);
-
-    for (Box b : boxes) {
-      b.update();
-    }
 
     for (int i = 0; i < (int) countKnob.getValue(); i++) {
       if (i >= boxes.length) {
