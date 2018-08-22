@@ -206,9 +206,6 @@ public class RainbowStudio extends PApplet {
     logger.info("Multithreaded actually: " + (MULTITHREADED && !getGraphics().isGL()));
     lx = new LXStudio(this, model, MULTITHREADED && !getGraphics().isGL());
 
-    // Common components stored (dumbly) as static variables
-    registry = new Registry(this, lx);
-
     lx.ui.setResizable(RESIZABLE);
 
     modeSelector = (UIModeSelector) new UIModeSelector(lx.ui, lx).setExpanded(true).addToContainer(lx.ui.leftPane.global);
@@ -484,6 +481,9 @@ public class RainbowStudio extends PApplet {
     // Add custom components or output drivers here
     // Register settings
     lx.engine.registerComponent("rainbowSettings", new Settings(lx, ui));
+
+    // Common components
+    registry = new Registry(this, lx);
 
     // Register any patterns and effects LX doesn't recognize
     registerAll(lx);
