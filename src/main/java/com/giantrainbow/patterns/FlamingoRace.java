@@ -232,7 +232,8 @@ public class FlamingoRace extends PGPixelPerfect {
           fireworksSequence--;
           if (fireworksSequence == 0) {
             currentFireworksFrame = -1;
-            framesUntilStart = framesUntilStartInit;
+            getChannel().goNext();
+            //framesUntilStart = framesUntilStartInit;
           }
         }
       }

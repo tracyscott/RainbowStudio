@@ -105,33 +105,35 @@ public class Pong extends MidiBase {
       } else {
         colors[p.index] = 0xff000000;
       }
-      drawScore(-2, p, rowNumber, columnPos);
-      drawScore(-1, p, rowNumber, columnPos);
-      drawScore(1, p, rowNumber, columnPos);
-      drawScore(2, p, rowNumber, columnPos);
+      drawScore(p, rowNumber, columnPos);
 
+      if (playerTwoWins == 3 || playerOneWins == 3) {
+        getChannel().goNext();
+        playerOneWins = 0;
+        playerTwoWins = 0;
+      }
       pointNumber++;
     }
   }
 
-  public void drawScore(int position, LXPoint p, int rowPos, int colPos) {
-     if (position == -2 && playerOneWins >= 2) {
+  public void drawScore(LXPoint p, int rowPos, int colPos) {
+     if (playerOneWins >= 2) {
        if (rowPos >= 24 && rowPos < 28 && colPos >= 210 - 24 && colPos < 210 - 20) {
          colors[p.index] = LXColor.rgba(255, 0, 0, 255);
        }
      }
-     if (position == -1 && playerOneWins >= 1) {
+     if (playerOneWins >= 1) {
        if (rowPos >= 24 && rowPos < 28 && colPos >= 210 - 32 && colPos < 210 - 28) {
          colors[p.index] = LXColor.rgba(0, 255, 0, 255);
        }
      }
 
-    if (position == 2 && playerTwoWins >= 2) {
+    if (playerTwoWins >= 2) {
       if (rowPos >= 24 && rowPos < 28 && colPos < 234 && colPos >= 230) {
         colors[p.index] = LXColor.rgba(255, 0, 0, 255);
       }
     }
-    if (position == 1 && playerTwoWins >= 1) {
+    if (playerTwoWins >= 1) {
       if (rowPos >= 24 && rowPos < 28 && colPos < 242 && colPos >= 238) {
         colors[p.index] = LXColor.rgba(0, 255, 0, 255);
       }

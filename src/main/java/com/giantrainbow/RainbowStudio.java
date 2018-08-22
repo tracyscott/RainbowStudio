@@ -301,6 +301,7 @@ public class RainbowStudio extends PApplet {
     // toggleFullscreen() will set the
     // standard UI components visibility to false and the larger
     // fullscreenContext visibility to true.
+    /*
     UIGLPointCloud fullScreenPointCloud = new UIGLPointCloud(lx);
     fullscreenContext = new UI3dContext(lx.ui);
     fullscreenContext.addComponent(fullScreenPointCloud);
@@ -308,6 +309,7 @@ public class RainbowStudio extends PApplet {
     fullscreenContext.setVisible(false);
 
     lx.ui.setTopLevelKeyEventHandler(new TopLevelKeyEventHandler());
+    */
     frameRate(GLOBAL_FRAME_RATE);
   }
 
