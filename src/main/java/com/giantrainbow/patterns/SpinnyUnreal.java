@@ -50,13 +50,28 @@ public class SpinnyUnreal extends AbstractSpinnyDiscs {
     sizeKnob.setValue(10);
     pulse.levelKnob.setValue(0);
 
+    new Thread(
+            new Runnable() {
+              public void run() {
+                loadTextures();
+              }
+            })
+        .start();
+  }
+
+  void loadTextures() {
     for (int i = 0; i < inputs.length; i++) {
-      this.textures[i] = RainbowStudio.pApplet.loadImage(inputs[i]);
+      PImage img = RainbowStudio.pApplet.loadImage(inputs[i]);
+      synchronized (textures) {
+        this.textures[i] = img;
+      }
     }
   }
 
   PImage getTexture(int number) {
-    return this.textures[number % textures.length];
+    synchronized (textures) {
+      return textures[number % textures.length];
+    }
   }
 
   boolean hasBackground() {

@@ -164,6 +164,11 @@ public abstract class AbstractSpinnyDiscs extends CanvasPattern2D {
     float Angle; // Angle offset
 
     void draw() {
+      PImage texture = getTexture(Num);
+      if (texture == null) {
+        return;
+      }
+
       pg.pushMatrix();
 
       float delta = (float) deltaKnob.getValue();
@@ -181,8 +186,6 @@ public abstract class AbstractSpinnyDiscs extends CanvasPattern2D {
 
       pg.beginShape();
       pg.noStroke();
-
-      PImage texture = getTexture(Num);
       pg.texture(texture);
 
       float w = texture.width;
