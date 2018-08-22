@@ -62,6 +62,7 @@ public class SpinnyUnreal extends AbstractSpinnyDiscs {
   void loadTextures() {
     for (int i = 0; i < inputs.length; i++) {
       PImage img = RainbowStudio.pApplet.loadImage(inputs[i]);
+      img.loadPixels();
       synchronized (textures) {
         this.textures[i] = img;
       }
