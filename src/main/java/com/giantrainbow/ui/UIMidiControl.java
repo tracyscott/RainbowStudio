@@ -114,10 +114,9 @@ public class UIMidiControl extends UICollapsibleSection implements LXMidiListene
   }
 
   public void noteOffReceived(MidiNote note) {
-    logger.info("noteOffReceived");
   }
   public void noteOnReceived(MidiNoteOn note) {
-    logger.info("noteOnReceived: " + note.getPitch() + " ch: " + note.getChannel());
+    //logger.info("noteOnReceived: " + note.getPitch() + " ch: " + note.getChannel());
     return; // Disable note based mode selection
     /*
     if (note.getChannel() == midiChP.getValuei()) {

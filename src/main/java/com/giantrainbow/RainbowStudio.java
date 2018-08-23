@@ -113,7 +113,7 @@ public class RainbowStudio extends PApplet {
 
   public static PApplet pApplet;
 
-  public static final boolean disableOutputOnStart = true;
+  public static final boolean disableOutputOnStart = false;
   public static final int GLOBAL_FRAME_RATE = 60;
   public static final boolean enableArtNet = false;
   public static final int ARTNET_PORT = 6454;
