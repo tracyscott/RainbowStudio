@@ -54,8 +54,12 @@ public abstract class AbstractSpinnyFlowers extends AbstractSpinnyDiscs {
     colors[0] = RainbowStudio.pApplet.loadImage("images/xyy-square-lookup.png");
     colors[1] = RainbowStudio.pApplet.loadImage("images/xyz-square-lookup.png");
 
+    colors[0].loadPixels();
+    colors[1].loadPixels();
+
     for (int i = 0; i < props.length; i++) {
       shapes[i] = RainbowStudio.pApplet.loadImage(props[i]);
+      shapes[i].loadPixels();
     }
 
     PGraphics graphics = RainbowStudio.pApplet.createGraphics(shapes[0].width, shapes[0].width);
@@ -65,6 +69,7 @@ public abstract class AbstractSpinnyFlowers extends AbstractSpinnyDiscs {
       PImage shape = shapes[i % shapes.length];
       PImage color = colors[i % colors.length];
       PImage img = RainbowStudio.pApplet.createImage(shape.width, shape.width, RGB);
+      img.loadPixels();
 
       int d = color.width - shape.width;
       int x = rnd.nextInt(color.width - shape.width);
@@ -80,6 +85,7 @@ public abstract class AbstractSpinnyFlowers extends AbstractSpinnyDiscs {
 
       img.copy(graphics, 0, 0, shape.width, shape.width, 0, 0, shape.width, shape.width);
       img.mask(shape);
+      img.updatePixels();
 
       graphics.popMatrix();
       graphics.endDraw();

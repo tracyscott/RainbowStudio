@@ -147,14 +147,14 @@ func writeTexture(pfx, kind, desc string, img image.Image) {
 }
 
 func main() {
-	// // Fully saturated, real-color discs
-	// LCHSat.writeDiscTextures("lch", saturateLchDisc(1))
-	// HSVSat.writeDiscTextures("hsv", saturateHsvDisc(1))
+	// Fully saturated, real-color discs
+	LCHSat.writeDiscTextures("lch", saturateLchDisc(1))
+	HSVSat.writeDiscTextures("hsv", saturateHsvDisc(1))
 
-	// // Over saturated/bright unreal colors
-	// for level := 1.02; level <= 1.3; level += .07 {
-	// 	UnrealBright.writeDiscTextures("unreal", brightnessUnrealDisc(level))
-	// }
+	// Over saturated/bright unreal colors
+	for level := 1.02; level <= 1.3; level += .07 {
+		UnrealBright.writeDiscTextures("unreal", brightnessUnrealDisc(level))
+	}
 
 	const LABLevel = 0.6
 
@@ -221,4 +221,56 @@ func main() {
 			return colorful.Color{}
 		}, fmt.Sprint("k=", int(k))
 	})
+
+	writeBlends()
+}
+
+type namedColor struct {
+	color colorful.Color
+	name  string
+}
+
+type colorPair struct {
+	left, right namedColor
+}
+
+func writeBlends() {
+	red := colorful.Color{R: 255}
+	blue := colorful.Color{B: 255}
+	green := colorful.Color{G: 255}
+	yellow := colorful.Color{R: 255, G: 255}
+
+	colors := []namedColor{{red, "red"}, {blue, "blue"}, {green, "green"}, {yellow, "yellow"}}
+
+	var pairs []colorPair
+
+	for i := range colors {
+		for j := range colors {
+			if i == j {
+				continue
+			}
+			pairs = append(pairs, colorPair{colors[i], colors[j]})
+		}
+	}
+
+	for _, cp := range pairs {
+		writeTexture("blend", cp.left.name, cp.right.name, blend(cp.left.color, cp.right.color))
+	}
+}
+
+func blend(col1, col2 colorful.Color) image.Image {
+	w := 420
+	h := 30
+	img := image.NewRGBA(image.Rect(0, 0, w, h))
+
+	// TODO: colorful's Blend* functions don't work well at the
+	// edges, needs internal clamping.  This shows it.
+	for i := 0; i < w; i++ {
+		c := col1.BlendHcl(col2, float64(i)/float64(w)).Clamped()
+		for j := 0; j < h; j++ {
+			img.Set(i, j, c)
+		}
+	}
+
+	return img
 }
