@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.giantrainbow.RainbowStudio.INTERACTIVE_SIDE;
 import static processing.core.PApplet.ceil;
 
 /**
@@ -23,7 +24,35 @@ import static processing.core.PApplet.ceil;
 public class Output {
   private static final Logger logger = Logger.getLogger(Output.class.getName());
 
-  /**
+    public static int panelsPerLedController1 = 16;  // Production values
+    public static int panelsPerLedController2 = 12;
+
+    /**
+     * Takes a panel number and assigns a new universe mapping.  Each panel is currently three universes.
+     * This will overwrite the appropriate entries in the default panelMap constructed assuming correct
+     * wiring.
+     * (TODO): Fix this for expanded mode.  Each output will be either 200 or 250 pixels, so always 2
+     * universes.  We also need to account for the possibility that the two outputs in expanded mode will
+     * be wired incorrectly to a single panel.  So we need the concept of panel "parts".  maybe part A/part B?
+     * I suppose it is possible that half of panel 3 will show up on the other half of panel 12 so that will
+     * need to be accounted for.  There needs to be a mapping from panel-part to universe.  We process the
+     * LXPoints in a "logical panel" order, so for each panel, we also need to track the current panel part #
+     * and lookup the remapping accordingly.
+     *
+     * @param panelMap
+     * @param panel
+     * @param mapToOutput
+     */
+    public static void remapPanel(Map<Integer, List<Integer>> panelMap, int panel, int mapToOutput) {
+        System.out.println("mapping panel: " + panel + " to " + mapToOutput);
+        List<Integer> universes = new ArrayList<Integer>();
+        universes.add(mapToOutput * 3);
+        universes.add(mapToOutput * 3 + 1);
+        universes.add(mapToOutput * 3 + 2);
+        panelMap.put(panel, universes);
+    }
+
+    /**
    * Multi-panel output.  Panels should be remappable to account for build time
    * issues/mistakes.  There are 2 Pixlite LongRange MKII's per side.  The first
    * Pixlite drives 16 panels with 450 leds each, 7200 leds.  The second drives 12 panels with
@@ -55,12 +84,15 @@ public class Output {
     // TODO(tracy): Use numPanels here for testing with fewer panels.  Use actual values for installation.
     // 16 for first controller and 12 for second controller also happens to work for test setup with 2 panels
     // and only a single controller.
-    int panelsPerLedController1 = 16;  // Production values
-    int panelsPerLedController2 = 12;
+
     int universesPerPanel = ceil((float)pointsPerPanel/(float)pointsPerUniverse);
 
     int maxColNumPerPanel = pointsWidePerPanel - 1;
     int currentLogicalPanel;
+    //if (!RainbowStudio.INTERACTIVE_SIDE) {
+        panelsPerLedController1 = 12;
+        panelsPerLedController2 = 16;
+    //}
     logger.info("numPanels= " + numPanels);
     logger.info("controller 1 panels: " + panelsPerLedController1);
     logger.info("controller 2 panels: " + panelsPerLedController2);
@@ -81,10 +113,41 @@ public class Output {
       panelMap.put(i, universesThisPanel);
     }
 
-    // Modify the mapping here
-    // panelMap.put(0, (15, 16, 17));
-    // panelMap.put(5, (0, 1, 2));
+    /*
+    if (INTERACTIVE_SIDE) {
+        remapPanel(panelMap, 1, 14);
+        remapPanel(panelMap, 15, 1);
+        remapPanel(panelMap, 14, 0);
+        remapPanel(panelMap, 13, 3);
+        remapPanel(panelMap, 12, 2);
+        remapPanel(panelMap, 11, 5);
+        remapPanel(panelMap, 10, 4);
+        remapPanel(panelMap, 9, 7);
+        remapPanel(panelMap, 8, 6);
+        remapPanel(panelMap, 7, 9);
+        remapPanel(panelMap, 6, 8);
+        remapPanel(panelMap, 5, 10);
+        remapPanel(panelMap, 4, 11);
+        remapPanel(panelMap, 3, 12);
+        remapPanel(panelMap, 2, 13);
+        remapPanel(panelMap, 1, 14);
+        remapPanel(panelMap, 0, 15);
 
+
+        remapPanel(panelMap, 16, 9); // 25
+        remapPanel(panelMap, 17, 10); // 26
+        remapPanel(panelMap, 18, 8); // 24
+        remapPanel(panelMap, 19, 11);  // 27
+        remapPanel(panelMap, 20, 0); // 16
+        remapPanel(panelMap, 21, 3); // 19
+        remapPanel(panelMap, 22, 1); // 17
+        remapPanel(panelMap, 23, 2);// 18
+        remapPanel(panelMap, 24, 6); // 22
+        remapPanel(panelMap, 25, 4); // 20 is at
+        remapPanel(panelMap, 26, 5); // 21
+        remapPanel(panelMap, 27, 7);
+    }
+    */
 
     // This iterates through all our points.  We also need to track our current logical
     // panel (which should just be globalLedPos / pointsPerPanel;
@@ -112,8 +175,9 @@ public class Output {
       if (endPanel && currentLogicalPanel == numPanels - 1)
         pointsPerThisPanel = 300 + 50 + 34;
       */
-
+      int skippedLeds = 0;
       for (int wireLedPos = 0; wireLedPos < pointsPerThisPanel; wireLedPos++) {
+        boolean skippedThisLed = false;
         int colNumFromLeft = -1;
         int colNumFromRight = -1;
         int rowNumFromBottom = -1;
@@ -123,6 +187,17 @@ public class Output {
         // below are very similar but mirrored about X.
         // Handle start panel, panel variant E special case.
         if (startPanel && currentLogicalPanel == 0) {
+            //logger.info("Start panel");
+          // NOTE(tracy): On playa change.  4 leds are removed from each end panel.  Removal of an LED shifts
+          // the universe position.  A pixel that exists in code does not have a dmx universe address.  For a
+          // removed pixel, we should not increment the universe number.  We also shouldn't attempt to map the
+          // pixel to an LXDatagram.
+          if (wireLedPos == 1 || wireLedPos == 2 || wireLedPos == 12 || wireLedPos == 13
+                    || wireLedPos == 46 || wireLedPos == 47 || wireLedPos == 57 || wireLedPos == 58) {
+              skippedLeds++;
+              skippedThisLed = true;
+              logger.info("Skipped led: " + wireLedPos);
+            }
           // First 300 leds (6 strands are wired normal but mirrored in X dimension, start at bottom right on front
           if (wireLedPos < 300) {
             colNumFromRight = wireLedPos / pointsHighPerPanel;
@@ -178,10 +253,21 @@ public class Output {
             }
           }
           //logger.info("colFromLeft: " + colNumFromLeft + " colFromRight:" + colNumFromRight);
-        } else if (endPanel && currentLogicalPanel <= numPanels - 1) {
+        } else if (endPanel && currentLogicalPanel == numPanels - 1) {
           // Handle end panel, panel variant H special case.
           // The first 300 leds are the typical wiring.
+            //logger.info("End panel");
           if (wireLedPos < 300) {
+            // NOTE(tracy): On playa change.  4 leds are removed from each end panel.  Removal of an LED shifts
+            // the universe position.  A pixel that exists in code does not have a dmx universe address.  For a
+            // removed pixel, we should not increment the universe number.  We also shouldn't attempt to map the
+            // pixel to an LXDatagram.
+            if (wireLedPos == 1 || wireLedPos == 2 || wireLedPos == 12 || wireLedPos == 13
+                  || wireLedPos == 46 || wireLedPos == 47 || wireLedPos == 57 || wireLedPos == 58) {
+              skippedLeds++;
+              skippedThisLed = true;
+              // System.out.println("Skipped led: " + wireLedPos);
+            }
             colNumFromLeft = wireLedPos / pointsHighPerPanel;
             colNumFromRight = maxColNumPerPanel - colNumFromLeft;
             if (colNumFromLeft % 2 == 0)
@@ -251,11 +337,16 @@ public class Output {
         // Which Panel-local universe are we in? 0,1,2?  Depends on our wireLedPos.  Then we also need to
         // check the Panel-Universe map in case something was wired up incorrectly and we need to
         // account for it in software.
-        int universeOffset = wireLedPos / pointsPerUniverse;
+        // Track number of skipped pixels and subtract that number from universeOffset.
+        // NOTE(tracy): Technically, we need to reset the skippedLeds counter each time we increment
+        // the universe number but the end panels are the only panels with skippedLeds and this
+        // works since all the skipped leds are always in the same universe number.
+        // TODO(tracy): Make this generally work.
+        int universeOffset = (wireLedPos - skippedLeds) / pointsPerUniverse;
         int currentPanelUniverse = panelUniverses.get(universeOffset);
 
         // Chunk by 170 for each universe.
-        int universeLedPos = wireLedPos % pointsPerUniverse;
+        int universeLedPos = (wireLedPos - skippedLeds) % pointsPerUniverse;
         // Convert from Panel-local wire position coordinates to global point coordinates.
         // Point 1,2 in Panel 2 is 420 * 2 + 1 + 2*30 = 901
         int globalPointIndex = 0;
@@ -268,8 +359,11 @@ public class Output {
           globalPointIndex = rowNumFromBottom * pointsWide + colNumFromLeft + currentLogicalPanel * pointsWidePerPanel;
         else
           globalPointIndex = -1;
-        // logger.info(wireLedPos + " colNum:" +colNumFromLeft + " rowNum:" + rowNumFromBottom + " pointIndex: " + globalPointIndex);
-        dmxChannelsForUniverse[universeLedPos] = globalPointIndex;
+        if (currentLogicalPanel == 0) {
+          //logger.info(wireLedPos + " colNum:" + colNumFromLeft + " rowNum:" + rowNumFromBottom + " pointIndex: " + globalPointIndex + " upos: " + universeLedPos);
+          //logger.info("skippedLeds: " + skippedLeds);
+        }
+        if (!skippedThisLed) dmxChannelsForUniverse[universeLedPos] = globalPointIndex;
         // Either we are on DMX channel 170, or we are at the end of the panel.
         if (universeLedPos == pointsPerUniverse - 1 || wireLedPos == pointsWidePerPanel * pointsHighPerPanel - 1) {
           // Construct with our custom datagram class that has lookup table Gamma correction and
@@ -288,6 +382,7 @@ public class Output {
             // appropriately for which chunk we are working on AND whether or not it is a start/end panel.
           //}
           ArtNetDatagram datagram = new RainbowDatagram(lx, dmxChannelsForUniverse, (universeLedPos+1)*3, currentPanelUniverse);
+          logger.info("Panel: " + currentLogicalPanel + " Universe: " + currentPanelUniverse);
           String ledControllerIp = "";
           int ledControllerPort = 0;
           List<ArtNetDatagram> whichLedControllerDatagrams = null;
@@ -296,9 +391,11 @@ public class Output {
             if (currentLogicalPanel < panelsPerLedController1) {
               // logger.info("Creating datagram for panel: " + currentLogicalPanel);
               ledControllerIp = UIPixliteConfig.pixlite1IpP.getString();
+              logger.info(UIPixliteConfig.pixlite1IpP.getString());
               ledControllerPort = Integer.parseInt(UIPixliteConfig.pixlite1PortP.getString());
               whichLedControllerDatagrams = ledControllersDatagrams.get(0);
             } else {
+              logger.info(UIPixliteConfig.pixlite2IpP.getString());
               ledControllerIp = UIPixliteConfig.pixlite2IpP.getString();
               ledControllerPort = Integer.parseInt(UIPixliteConfig.pixlite2PortP.getString());
               whichLedControllerDatagrams = ledControllersDatagrams.get(1);

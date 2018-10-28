@@ -6,9 +6,7 @@ import static processing.core.PApplet.round;
 import com.giantrainbow.RainbowStudio;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
-import heronarts.lx.parameter.BooleanParameter;
-import heronarts.lx.parameter.CompoundParameter;
-import heronarts.lx.parameter.StringParameter;
+import heronarts.lx.parameter.*;
 import heronarts.p3lx.ui.CustomDeviceUI;
 import heronarts.p3lx.ui.UI;
 import heronarts.p3lx.ui.UI2dContainer;
@@ -32,10 +30,14 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
 
   List<TextItem> textItems = new ArrayList<>();
   UIItemList.ScrollList textItemList;
-  private static final int CONTROLS_MIN_WIDTH = 120;
+  private static final int CONTROLS_MIN_WIDTH = 140;
   public final CompoundParameter xSpeed =
       new CompoundParameter("XSpd", 0, 20).setDescription("X speed in pixels per frame");
   public final BooleanParameter clockwise = new BooleanParameter("clockwise", false);
+  public final BooleanParameter oneShot = new BooleanParameter("oneShot", false);
+  public final BooleanParameter reset = new BooleanParameter("reset", false);
+  public final BooleanParameter advancePattern = new BooleanParameter("advP", true);
+
 
   PGraphics textImage;
   volatile boolean doRedraw;
@@ -78,9 +80,24 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
 
   public AnimatedTextPP(LX lx) {
     super(lx, "");
+    reset.addListener(new LXParameterListener() {
+      @Override
+      public void onParameterChanged(LXParameter p) {
+        blankUntilReactivated = false;
+        currItem = textItemList.getFocusedItem();
+        redrawTextBuffer();
+        BooleanParameter b = (BooleanParameter)p;
+        if (b.isOn()) {
+          b.setValue(false);
+        }
+      }
+    });
     addParameter(textKnob);
     addParameter(xSpeed);
     addParameter(clockwise);
+    addParameter(oneShot);
+    addParameter(reset);
+    addParameter(advancePattern);
     String[] fontNames = PFont.list();
     for (String fontName : fontNames) {
       logger.fine("Font: " + fontName);
@@ -198,11 +215,12 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
             // pattern will need to advance to another pattern when the entire chunk of text
             // has been displayed. This also implies that a standard-mode channel should not
             // consist of only AnimatedTextPP patterns otherwise channel switching will stall.
-            getChannel().goNext();
+            if (!oneShot.isOn() && advancePattern.isOn())
+              getChannel().goNext();
             // Prevent next text item from starting while we are in a next-pattern fade
             // transition.  Otherwise, we have to disable transitions for all patterns in
             // the channel containing this AnimatedTextPP.
-            blankUntilReactivated = true;
+            if (advancePattern.isOn() || oneShot.isOn()) blankUntilReactivated = true;
             getChannel().autoCycleEnabled.setValue(autoCycleWasEnabled);
           }
         }
@@ -246,9 +264,34 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
         .setWidth(24)
         .setHeight(16)
         .addToContainer(knobsContainer);
-    knobsContainer.addToContainer(device);
 
-    UI2dContainer textEntryLine = new UI2dContainer(0, 0, device.getWidth(), 30);
+    knobsContainer.addToContainer(device);
+    knobsContainer = new UI2dContainer(0, 30, device.getWidth(), 35);
+    knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
+    knobsContainer.setPadding(3, 3, 3, 3);
+    new UIButton()
+            .setParameter(oneShot)
+            .setLabel("oneShot")
+            .setTextOffset(0, 12)
+            .setWidth(28)
+            .setHeight(16)
+            .addToContainer(knobsContainer);
+    new UIButton()
+            .setParameter(reset)
+            .setLabel("reset")
+            .setTextOffset(0, 12)
+            .setWidth(24)
+            .setHeight(16)
+            .addToContainer(knobsContainer);
+    new UIButton()
+            .setParameter(advancePattern)
+            .setLabel("advP")
+            .setTextOffset(0, 12)
+            .setWidth(24)
+            .setHeight(16)
+            .addToContainer(knobsContainer);
+    knobsContainer.addToContainer(device);
+    UI2dContainer textEntryLine = new UI2dContainer(0, 0, device.getWidth(), 25);
     textEntryLine.setLayout(UI2dContainer.Layout.HORIZONTAL);
 
     new UITextBox(0, 0, device.getContentWidth() - 22, 20)
@@ -256,7 +299,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
         .setTextAlignment(PConstants.LEFT)
         .addToContainer(textEntryLine);
 
-    textItemList =  new UIItemList.ScrollList(ui, 0, 5, CONTROLS_MIN_WIDTH, 80);
+    textItemList =  new UIItemList.ScrollList(ui, 0, 5, CONTROLS_MIN_WIDTH, 60);
 
     new UIButton(device.getContentWidth() - 20, 0, 20, 20) {
       @Override
