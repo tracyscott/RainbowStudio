@@ -39,14 +39,16 @@ public class UIModeSelector extends UICollapsibleSection {
   public List<LXChannelBus> standardModeChannels = new ArrayList<LXChannelBus>(standardModeChannelNames.length);
   public int currentPlayingChannel = 0;
   public int previousPlayingChannel = 0;
+  public UIAudioMonitorLevels audioMonitorLevels;
 
-  public UIModeSelector(final LXStudio.UI ui, LX lx) {
+  public UIModeSelector(final LXStudio.UI ui, LX lx, UIAudioMonitorLevels audioMonitor) {
     super(ui, 0, 0, ui.leftPane.global.getContentWidth(), 200);
     setTitle("MODE");
     setLayout(UI2dContainer.Layout.VERTICAL);
     setChildMargin(2);
     this.lx = lx;
 
+    audioMonitorLevels = audioMonitor;
     // When enabled, audio monitoring can trigger automatic channel switching.
     autoMode = (UIButton) new UIButton(0, 0, getContentWidth(), 18)
     .setParameter(autoAudioModeP)
@@ -305,10 +307,10 @@ public class UIModeSelector extends UICollapsibleSection {
       // based on that.
       if (!autoAudioModeP.isOn()) return;
 
-      double gainDelta = UIAudioMonitorLevels.gainIncP.getValue();
-      double reduceThreshold = UIAudioMonitorLevels.reduceThrshP.getValue();//45.0;
-
-      double gainThreshold = UIAudioMonitorLevels.gainThrshP.getValue(); // 10.0;
+      double gainDelta = audioMonitorLevels.getCompoundParameter(UIAudioMonitorLevels.GAIN_INCREMENT).getValue();
+      double reduceThreshold = audioMonitorLevels.getCompoundParameter(UIAudioMonitorLevels.REDUCE_THRESHOLD).getValue();//45.0;
+      double gainThreshold = audioMonitorLevels.getCompoundParameter(UIAudioMonitorLevels.GAIN_THRESHOLD).getValue(); // 10.0;
+      double minThreshold = audioMonitorLevels.getCompoundParameter(UIAudioMonitorLevels.MIN_THRESHOLD).getValue();
       double currentDb = lx.engine.audio.meter.getDecibels();
 
       avgTimeRemaining -= deltaMs;
@@ -318,7 +320,7 @@ public class UIModeSelector extends UICollapsibleSection {
         return;
       // We are done averaging samples, reset our variables.
       sampleCount = 0;
-      avgTimeRemaining = UIAudioMonitorLevels.avgTimeP.getValue() * 1000.0;
+      avgTimeRemaining = audioMonitorLevels.getCompoundParameter(UIAudioMonitorLevels.AVG_TIME_SECS).getValue() * 1000.0;
 
       // We have built our dB level average over some seconds, check to see if we should
       // perform AutoGain Control
@@ -328,7 +330,7 @@ public class UIModeSelector extends UICollapsibleSection {
         lx.engine.audio.meter.gain.setValue(lx.engine.audio.meter.gain.getValue() + gainDelta);
       }
 
-      if (avgDb > UIAudioMonitorLevels.minThresholdP.getValue()
+      if (avgDb > minThreshold
           //&& deltaLastModeSwap > UIAudioMonitorLevels.quietTimeP.getValue() * 1000.0
           && !audioMode) {
         logger.info("Enabling audio mode, avgDb: " + avgDb);
@@ -340,7 +342,7 @@ public class UIModeSelector extends UICollapsibleSection {
         UIModeSelector.this.audioMode.setActive(true);
         audioMode = true;
         deltaLastModeSwap = 0.0;
-      } else if (avgDb < UIAudioMonitorLevels.minThresholdP.getValue()
+      } else if (avgDb < minThreshold
           //&& deltaLastModeSwap > UIAudioMonitorLevels.quietTimeP.getValue() * 1000.0
           && audioMode) {
         logger.info("Disabling audio mode, avgDb: " + avgDb);

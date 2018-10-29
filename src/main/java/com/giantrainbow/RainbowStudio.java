@@ -213,12 +213,12 @@ public class RainbowStudio extends PApplet {
 
     lx.ui.setResizable(RESIZABLE);
 
-    modeSelector = (UIModeSelector) new UIModeSelector(lx.ui, lx).setExpanded(true).addToContainer(lx.ui.leftPane.global);
-    gammaControls = (UIGammaSelector) new UIGammaSelector(lx.ui)
-        .setExpanded(false).addToContainer(lx.ui.leftPane.global);
     audioMonitorLevels = (UIAudioMonitorLevels) new UIAudioMonitorLevels(lx.ui).setExpanded(false).addToContainer(lx.ui.leftPane.global);
-    pixliteConfig = (UIPixliteConfig) new UIPixliteConfig(lx.ui).setExpanded(false).addToContainer(lx.ui.leftPane.global);
+    gammaControls = (UIGammaSelector) new UIGammaSelector(lx.ui).setExpanded(false).addToContainer(lx.ui.leftPane.global);
     uiMidiControl = (UIMidiControl) new UIMidiControl(lx.ui, lx, modeSelector).setExpanded(false).addToContainer(lx.ui.leftPane.global);
+    modeSelector = (UIModeSelector) new UIModeSelector(lx.ui, lx, audioMonitorLevels).setExpanded(true).addToContainer(lx.ui.leftPane.global);
+    pixliteConfig = (UIPixliteConfig) new UIPixliteConfig(lx.ui).setExpanded(false).addToContainer(lx.ui.leftPane.global);
+
     lx.engine.midi.addListener(uiMidiControl);
 
     if (MODEL_TYPE == RAINBOW_PANEL) {
@@ -365,119 +365,21 @@ public class RainbowStudio extends PApplet {
     private static final String KEY_STDMODE_TIME = "stdModeTime";
     private static final String KEY_STDMODE_FADETIME = "stdModeFadeTime";
 
-    private static final String KEY_AUDIOMONITOR_MINTHR = "minThr";
-    private static final String KEY_AUDIOMONITOR_AVGTS = "avgTs";
-    private static final String KEY_AUDIOMONITOR_GAININC = "gainInc";
-    private static final String KEY_AUDIOMONITOR_RTHRSH = "reduceThrsh";
-    private static final String KEY_AUDIOMONITOR_GTHRSH = "gainThrsh";
-
-    private static final String KEY_GAMMA_RED = "gammaRed";
-    private static final String KEY_GAMMA_GREEN = "gammaGreen";
-    private static final String KEY_GAMMA_BLUE = "gammaBlue";
-
-    private static final String KEY_PIXLITE1_IP = "pixlite1Ip";
-    private static final String KEY_PIXLITE1_PORT = "pixlite1Port";
-    private static final String KEY_PIXLITE2_IP = "pixlite2Ip";
-    private static final String KEY_PIXLITE2_PORT = "pixlite2Port";
-    private static final String KEY_MIDICTRL_MIDICH = "midiCtrlMidiCh";
-    private static final String KEY_MIDICTRL_NXTGAME = "midiCtrlNxtGame";
-    private static final String KEY_MIDICTRL_PRVGAME = "midiCtrlPrvGame";
-    private static final String KEY_MIDICTRL_AUDIOM = "midiCtrlAudioM";
-    private static final String KEY_MIDICTRL_STDM = "midiCtrlStdM";
-    private static final String KEY_MIDICTRL_INSTRM = "midiCtlrInstrM";
-    private static final String KEY_MIDICTRL_INTERM = "midiCtrlInterM";
-    private static final String KEY_MIDICTRL_AUTOAU = "midiCtrlAutoAu";
-
-
     @Override
     public void save(LX lx, JsonObject obj) {
-      obj.addProperty(KEY_AUDIOMONITOR_MINTHR, UIAudioMonitorLevels.minThresholdP.getValue());
-      obj.addProperty(KEY_AUDIOMONITOR_AVGTS, UIAudioMonitorLevels.avgTimeP.getValue());
-      obj.addProperty(KEY_AUDIOMONITOR_GAININC, UIAudioMonitorLevels.gainIncP.getValue());
-      obj.addProperty(KEY_AUDIOMONITOR_RTHRSH, UIAudioMonitorLevels.reduceThrshP.getValue());
-      obj.addProperty(KEY_AUDIOMONITOR_GTHRSH, UIAudioMonitorLevels.gainThrshP.getValue());
-
       obj.addProperty(KEY_STDMODE_TIME, UIModeSelector.timePerChannelP.getValue());
       obj.addProperty(KEY_STDMODE_FADETIME, UIModeSelector.fadeTimeP.getValue());
-      obj.addProperty(KEY_GAMMA_RED, UIGammaSelector.redGamma.getValue());
-      obj.addProperty(KEY_GAMMA_GREEN, UIGammaSelector.greenGamma.getValue());
-      obj.addProperty(KEY_GAMMA_BLUE, UIGammaSelector.blueGamma.getValue());
-      obj.addProperty(KEY_PIXLITE1_IP, UIPixliteConfig.pixlite1IpP.getString());
-      obj.addProperty(KEY_PIXLITE1_PORT, UIPixliteConfig.pixlite1PortP.getString());
-      obj.addProperty(KEY_PIXLITE2_IP, UIPixliteConfig.pixlite2IpP.getString());
-      obj.addProperty(KEY_PIXLITE2_PORT, UIPixliteConfig.pixlite2PortP.getString());
-
-      obj.addProperty(KEY_MIDICTRL_MIDICH, UIMidiControl.midiChP.getValue());
-      obj.addProperty(KEY_MIDICTRL_NXTGAME, UIMidiControl.nextGameP.getValue());
-      obj.addProperty(KEY_MIDICTRL_PRVGAME, UIMidiControl.prevGameP.getValue());
-      obj.addProperty(KEY_MIDICTRL_AUDIOM, UIMidiControl.audioModeP.getValue());
-      obj.addProperty(KEY_MIDICTRL_STDM, UIMidiControl.standardModeP.getValue());
-      obj.addProperty(KEY_MIDICTRL_INSTRM, UIMidiControl.instrumentModeP.getValue());
-      obj.addProperty(KEY_MIDICTRL_INTERM, UIMidiControl.interactiveModeP.getValue());
-      obj.addProperty(KEY_MIDICTRL_AUTOAU, UIMidiControl.autoAudioP.getValue());
     }
 
     @Override
     public void load(LX lx, JsonObject obj) {
       logger.info("Loading settings....");
-      if (obj.has(KEY_AUDIOMONITOR_AVGTS)) {
-        UIAudioMonitorLevels.avgTimeP.setValue(obj.get(KEY_AUDIOMONITOR_AVGTS).getAsDouble());
-      }
-      if (obj.has(KEY_AUDIOMONITOR_MINTHR)) {
-        UIAudioMonitorLevels.minThresholdP.setValue(obj.get(KEY_AUDIOMONITOR_MINTHR).getAsDouble());
-      }
-      if (obj.has(KEY_AUDIOMONITOR_GAININC)) {
-        UIAudioMonitorLevels.gainIncP.setValue(obj.get(KEY_AUDIOMONITOR_GAININC).getAsDouble());
-      }
-      if (obj.has(KEY_AUDIOMONITOR_RTHRSH)) {
-        UIAudioMonitorLevels.reduceThrshP.setValue(obj.get(KEY_AUDIOMONITOR_RTHRSH).getAsDouble());
-      }
-      if (obj.has(KEY_AUDIOMONITOR_GTHRSH)) {
-        UIAudioMonitorLevels.gainThrshP.setValue(obj.get(KEY_AUDIOMONITOR_GTHRSH).getAsDouble());
-      }
       if (obj.has(KEY_STDMODE_TIME)) {
         UIModeSelector.timePerChannelP.setValue(obj.get(KEY_STDMODE_TIME).getAsDouble());
       }
       if (obj.has(KEY_STDMODE_FADETIME)) {
         UIModeSelector.fadeTimeP.setValue(obj.get(KEY_STDMODE_FADETIME).getAsDouble());
       }
-      if (obj.has(KEY_GAMMA_RED)) {
-        UIGammaSelector.redGamma.setValue(obj.get(KEY_GAMMA_RED).getAsDouble());
-      }
-      if (obj.has(KEY_GAMMA_GREEN)) {
-        UIGammaSelector.greenGamma.setValue(obj.get(KEY_GAMMA_GREEN).getAsDouble());
-      }
-      if (obj.has(KEY_GAMMA_BLUE)) {
-        UIGammaSelector.blueGamma.setValue(obj.get(KEY_GAMMA_BLUE).getAsDouble());
-      }
-      if (obj.has(KEY_PIXLITE1_IP)) {
-        UIPixliteConfig.pixlite1IpP.setValue(obj.get(KEY_PIXLITE1_IP).getAsString());
-      }
-      if (obj.has(KEY_PIXLITE1_PORT)) {
-        UIPixliteConfig.pixlite1PortP.setValue(obj.get(KEY_PIXLITE1_PORT).getAsString());
-      }
-      if (obj.has(KEY_PIXLITE2_IP)) {
-        UIPixliteConfig.pixlite2IpP.setValue(obj.get(KEY_PIXLITE2_IP).getAsString());
-      }
-      if (obj.has(KEY_PIXLITE2_PORT)) {
-        UIPixliteConfig.pixlite2PortP.setValue(obj.get(KEY_PIXLITE2_PORT).getAsString());
-      }
-      if (obj.has(KEY_MIDICTRL_MIDICH))
-        UIMidiControl.midiChP.setValue(obj.get(KEY_MIDICTRL_MIDICH).getAsInt());
-      if (obj.has(KEY_MIDICTRL_NXTGAME))
-        UIMidiControl.nextGameP.setValue(obj.get(KEY_MIDICTRL_NXTGAME).getAsInt());
-      if (obj.has(KEY_MIDICTRL_PRVGAME))
-        UIMidiControl.prevGameP.setValue(obj.get(KEY_MIDICTRL_PRVGAME).getAsInt());
-      if (obj.has(KEY_MIDICTRL_AUDIOM))
-        UIMidiControl.audioModeP.setValue(obj.get(KEY_MIDICTRL_AUDIOM).getAsInt());
-      if (obj.has(KEY_MIDICTRL_STDM))
-        UIMidiControl.standardModeP.setValue(obj.get(KEY_MIDICTRL_STDM).getAsInt());
-      if (obj.has(KEY_MIDICTRL_INSTRM))
-        UIMidiControl.instrumentModeP.setValue(obj.get(KEY_MIDICTRL_INSTRM).getAsInt());
-      if (obj.has(KEY_MIDICTRL_INTERM))
-        UIMidiControl.interactiveModeP.setValue(obj.get(KEY_MIDICTRL_INTERM).getAsInt());
-      if (obj.has(KEY_MIDICTRL_AUTOAU))
-        UIMidiControl.autoAudioP.setValue(obj.get(KEY_MIDICTRL_AUTOAU).getAsInt());
     }
   }
 

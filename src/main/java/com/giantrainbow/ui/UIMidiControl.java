@@ -5,158 +5,86 @@ import heronarts.lx.LX;
 import heronarts.lx.LXChannel;
 import heronarts.lx.LXChannelBus;
 import heronarts.lx.midi.*;
-import heronarts.lx.parameter.DiscreteParameter;
-import heronarts.lx.parameter.StringParameter;
 import heronarts.lx.studio.LXStudio;
-import heronarts.p3lx.ui.UI2dContainer;
-import heronarts.p3lx.ui.component.UICollapsibleSection;
-import heronarts.p3lx.ui.component.UIKnob;
 
 import java.util.logging.Logger;
 
-public class UIMidiControl extends UICollapsibleSection implements LXMidiListener  {
+public class UIMidiControl extends UIConfig implements LXMidiListener  {
   private static final Logger logger = Logger.getLogger(UIMidiControl.class.getName());
 
-  LXMidiOutput midiThroughOutput;
+  public static String MIDI_CH = "MidiCh";
+  public static String NEXT_GAME = "NxtGm";
+  public static String PREV_GAME = "PrvGm";
+  public static String AUDIO_MODE = "AudioM";
+  public static String STANDARD_MODE = "StdM";
+  public static String INSTRUMENT_MODE = "InstrM";
+  public static String INTERACTIVE_MODE = "InterM";
+  public static String AUTO_AUDIO = "AutoAu";
 
-  public static StringParameter midiControl = new StringParameter("MIDI Control", "NONE");
-  public static DiscreteParameter midiChoice = new DiscreteParameter("midictrl", 0, 10);
-
-  public static DiscreteParameter midiChP = new DiscreteParameter("MidiCh", 0, 0, 32 );
-  public static DiscreteParameter nextGameP = new DiscreteParameter("NxtGm", 0, 0, 127);
-  public static DiscreteParameter prevGameP = new DiscreteParameter("PrvGm",2, 0, 127);
-  public static DiscreteParameter audioModeP = new DiscreteParameter("AudioM", 3, 0, 127);
-  public static DiscreteParameter standardModeP = new DiscreteParameter("StdM", 4, 0, 127);
-  public static DiscreteParameter instrumentModeP = new DiscreteParameter("InstrM", 6, 0, 127);
-  public static DiscreteParameter interactiveModeP = new DiscreteParameter("InterM", 8, 0, 127);
-  public static DiscreteParameter autoAudioP = new DiscreteParameter("AutoAu", 9, 0, 127);
-
+  // Pads produce this cc messages on Rainbow Bridge keyboard controller
   // cc 0, 2, 3, 4, 6, 8, 9, 11, 65
-
-  public static UIKnob midiCh;
-  public static UIKnob nextGame;
-  public static UIKnob prevGame;
-  public static UIKnob audioMode;
-  public static UIKnob standardMode;
-  public static UIKnob instrumentMode;
-  public static UIKnob interactiveMode;
-  public static UIKnob autoAudio;
 
   protected static LX lx;
   protected static UIModeSelector modeSelector;
+  public static String title = "MIDI CTRL";
+  public static String filename = "midictrl.json";
 
   public UIMidiControl(final LXStudio.UI ui, LX lx, UIModeSelector modeSelector) {
-    super(ui, 0, 0, ui.leftPane.global.getContentWidth(), 200);
-    setTitle("MIDI CTRL");
-    setLayout(UI2dContainer.Layout.VERTICAL);
-    setChildMargin(2);
-    UIMidiControl.lx = lx;
-    UIMidiControl.modeSelector = modeSelector;
-    UI2dContainer knobsContainer = new UI2dContainer(0, 30, getContentWidth(), 45);
-    knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
-    knobsContainer.setPadding(0, 0, 0, 0);
-    midiCh = addKnob(midiChP, knobsContainer);
-    nextGame = addKnob(nextGameP, knobsContainer);
-    prevGame = addKnob(prevGameP, knobsContainer);
-    audioMode = addKnob(audioModeP, knobsContainer);
-    knobsContainer.addToContainer(this);
-    knobsContainer = new UI2dContainer(0, 30, getContentWidth(), 45);
-    knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
-    knobsContainer.setPadding(0, 0, 0, 0);
-    standardMode = addKnob(standardModeP, knobsContainer);
-    instrumentMode = addKnob(instrumentModeP, knobsContainer);
-    interactiveMode = addKnob(interactiveModeP, knobsContainer);
-    autoAudio = addKnob(autoAudioP, knobsContainer);
-    knobsContainer.addToContainer(this);
+    super(ui, title, filename);
+    this.lx = lx;
+    this.modeSelector = modeSelector;
+
+    registerDiscreteParameter(MIDI_CH, 0, 0, 32);
+    registerDiscreteParameter(NEXT_GAME, 0, 0, 127);
+    registerDiscreteParameter(PREV_GAME, 2, 0, 127);
+    registerDiscreteParameter(AUDIO_MODE, 3, 0, 127);
+    registerDiscreteParameter(STANDARD_MODE, 4, 0, 127);
+    registerDiscreteParameter(INSTRUMENT_MODE, 6, 0, 127);
+    registerDiscreteParameter(INTERACTIVE_MODE, 8, 0, 127);
+    registerDiscreteParameter(AUTO_AUDIO, 9, 0, 127);
+
+    save();
+    buildUI(ui);
+
   }
 
-  protected UIKnob addKnob(DiscreteParameter p, UI2dContainer container) {
-    UIKnob uiKnob = new UIKnob(p);
-    uiKnob.addToContainer(container);
-    return uiKnob;
-  }
-
-  public void aftertouchReceived(MidiAftertouch aftertouch) {
-    logger.info("aftertouch");
-  }
   public void controlChangeReceived(MidiControlChange cc) {
     logger.info("cc: " + cc.getCC() + "  value:" + cc.getValue() + " ch: " + cc.getChannel());
-    if (cc.getChannel() == midiChP.getValuei()) {
-      if (cc.getCC() == prevGameP.getValuei()) {
+    if (cc.getChannel() == getDiscreteParameter(MIDI_CH).getValuei()) {
+      if (cc.getCC() == getDiscreteParameter(PREV_GAME).getValuei()) {
         LXChannelBus interactive = UtilsForLX.getChannelByLabel(lx, "INTERACTIVE");
         if (interactive != null) {
           ((LXChannel) interactive).goPrev();
         }
       }
-      if (cc.getCC() == nextGameP.getValuei()) {
+      if (cc.getCC() == getDiscreteParameter(NEXT_GAME).getValuei()) {
         LXChannelBus interactive = UtilsForLX.getChannelByLabel(lx, "INTERACTIVE");
         if (interactive != null) {
           ((LXChannel) interactive).goNext();
         }
       }
-      if (cc.getCC() == audioModeP.getValuei()) {
+      if (cc.getCC() == getDiscreteParameter(AUDIO_MODE).getValuei()) {
         modeSelector.audioModeP.setValue(true);
       }
-      if (cc.getCC() == standardModeP.getValuei()) {
+      if (cc.getCC() == getDiscreteParameter(STANDARD_MODE).getValuei()) {
         modeSelector.standardModeP.setValue(true);
       }
-      if (cc.getCC() == instrumentModeP.getValuei()) {
+      if (cc.getCC() == getDiscreteParameter(INSTRUMENT_MODE).getValuei()) {
         modeSelector.instrumentModeP.setValue(true);
       }
-      if (cc.getCC() == interactiveModeP.getValuei()) {
+      if (cc.getCC() == getDiscreteParameter(INTERACTIVE_MODE).getValuei()) {
         modeSelector.interactiveModeP.setValue(true);
       }
-      if (cc.getCC() == autoAudioP.getValuei()) {
+      if (cc.getCC() == getDiscreteParameter(AUTO_AUDIO).getValuei()) {
         logger.info("Setting autoAudioModeP");
         modeSelector.autoAudioModeP.toggle();
       }
     }
   }
 
-  public void noteOffReceived(MidiNote note) {
-    logger.info("noteOffReceived");
-  }
-  public void noteOnReceived(MidiNoteOn note) {
-    logger.info("noteOnReceived: " + note.getPitch() + " ch: " + note.getChannel());
-    return; // Disable note based mode selection
-    /*
-    if (note.getChannel() == midiChP.getValuei()) {
-      if (note.getPitch() == prevGameP.getValuei()) {
-        LXChannelBus interactive = UtilsForLX.getChannelByLabel(lx, "INTERACTIVE");
-        if (interactive != null) {
-          ((LXChannel) interactive).goPrev();
-        }
-      }
-      if (note.getPitch() == nextGameP.getValuei()) {
-        LXChannelBus interactive = UtilsForLX.getChannelByLabel(lx, "INTERACTIVE");
-        if (interactive != null) {
-          ((LXChannel) interactive).goNext();
-        }
-      }
-      if (note.getPitch() == audioModeP.getValuei()) {
-        modeSelector.audioModeP.setValue(true);
-      }
-      if (note.getPitch() == standardModeP.getValuei()) {
-        modeSelector.standardModeP.setValue(true);
-      }
-      if (note.getPitch() == instrumentModeP.getValuei()) {
-        modeSelector.instrumentModeP.setValue(true);
-      }
-      if (note.getPitch() == interactiveModeP.getValuei()) {
-        modeSelector.interactiveModeP.setValue(true);
-      }
-      if (note.getPitch() == autoAudioP.getValuei()) {
-        logger.info("Setting autoAudioModeP");
-        modeSelector.autoAudioModeP.toggle();
-      }
-    }
-    */
-  }
-
-  public void pitchBendReceived(MidiPitchBend pitchBend) {
-    logger.info("pitchBend");
-  }
-  public void programChangeReceived(MidiProgramChange pc) {
-    logger.info("programChange");
-  }
+  public void aftertouchReceived(MidiAftertouch aftertouch) {}
+  public void noteOffReceived(MidiNote note) {}
+  public void noteOnReceived(MidiNoteOn note) {}
+  public void pitchBendReceived(MidiPitchBend pitchBend) {}
+  public void programChangeReceived(MidiProgramChange pc) {}
 }
