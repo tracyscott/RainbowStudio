@@ -59,6 +59,8 @@ import processing.core.PApplet;
 import processing.event.KeyEvent;
 
 public class RainbowStudio extends PApplet {
+
+  public static boolean INTERACTIVE_SIDE = true;
   static {
     System.setProperty(
         "java.util.logging.SimpleFormatter.format",
@@ -115,7 +117,7 @@ public class RainbowStudio extends PApplet {
 
   public static final boolean disableOutputOnStart = false;
   public static final int GLOBAL_FRAME_RATE = 60;
-  public static final boolean enableArtNet = false;
+  public static final boolean enableArtNet = true;
   public static final int ARTNET_PORT = 6454;
   public static final String LED_CONTROLLER_IP = "192.168.2.134";
 
@@ -251,7 +253,7 @@ public class RainbowStudio extends PApplet {
     if (enableArtNet) {
       switch (MODEL_TYPE) {
         case FULL_RAINBOW:
-          SimplePanel.configureOutputMultiPanel(lx);
+          Output.configureOutputMultiPanel(lx, true, true);
           break;
         case SRIKANTH_PANEL:
           SimplePanel.configureOutputSrikanthPanel(lx);
@@ -283,9 +285,11 @@ public class RainbowStudio extends PApplet {
       if (in != null) {
         logger.info("\"PLAYASIDE\" exists.");
         modeSelector.autoAudioModeP.setValue(true);
+        INTERACTIVE_SIDE = false;
       } else {
         logger.info("\"PLAYASIDE\" does not exist.");
         modeSelector.autoAudioModeP.setValue(false);
+        INTERACTIVE_SIDE = true;
       }
     } catch (IOException ex) {
       // Do nothing; it's the result of auto-closing the InputStream
