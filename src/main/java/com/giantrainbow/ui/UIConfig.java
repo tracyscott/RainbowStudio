@@ -2,6 +2,11 @@ package com.giantrainbow.ui;
 
 import com.giantrainbow.ParameterFile;
 import com.giantrainbow.PropertyFile;
+import com.giantrainbow.RainbowStudio;
+import heronarts.lx.osc.OscFloat;
+import heronarts.lx.osc.OscInt;
+import heronarts.lx.osc.OscMessage;
+import heronarts.lx.osc.OscString;
 import heronarts.lx.parameter.*;
 import heronarts.lx.studio.LXStudio;
 import heronarts.p3lx.ui.UI2dContainer;
@@ -84,7 +89,21 @@ public class UIConfig extends UICollapsibleSection implements LXParameterListene
   }
 
   public void onParameterChanged(LXParameter p) {
+    OscMessage oscMessage = new OscMessage("");
+    String address = "/rainbow/" + title + "/" + p.getLabel();
+    oscMessage.setAddressPattern(address);
+    if (p instanceof DiscreteParameter) {
+      OscInt oscInt = new OscInt(((DiscreteParameter) p).getValuei());
+      oscMessage.add(oscInt);
+    } else if (p instanceof StringParameter) {
+      OscString oscString = new OscString(((StringParameter)p).getString());
+      oscMessage.add(oscString);
+    } else if (p instanceof CompoundParameter) {
+      OscFloat oscFloat = new OscFloat(((CompoundParameter)p).getValuef());
+      oscMessage.add(oscFloat);
+    }
 
+    RainbowStudio.rainbowOSC.sendOscMessage(oscMessage);
   }
 
   public void buildUI(LXStudio.UI ui) {

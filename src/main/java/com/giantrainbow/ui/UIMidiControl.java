@@ -50,6 +50,7 @@ public class UIMidiControl extends UIConfig implements LXMidiListener  {
 
   public void controlChangeReceived(MidiControlChange cc) {
     logger.info("cc: " + cc.getCC() + "  value:" + cc.getValue() + " ch: " + cc.getChannel());
+
     if (cc.getChannel() == getDiscreteParameter(MIDI_CH).getValuei()) {
       if (cc.getCC() == getDiscreteParameter(PREV_GAME).getValuei()) {
         LXChannelBus interactive = UtilsForLX.getChannelByLabel(lx, "INTERACTIVE");

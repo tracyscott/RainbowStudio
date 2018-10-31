@@ -2,6 +2,8 @@ package com.giantrainbow.ui;
 
 import com.giantrainbow.UtilsForLX;
 import com.giantrainbow.patterns.AnimatedTextPP;
+import com.giantrainbow.patterns.Cylon;
+import com.giantrainbow.patterns.NyanCat;
 import heronarts.lx.*;
 import heronarts.lx.parameter.BooleanParameter;
 import heronarts.lx.parameter.BoundedParameter;
@@ -31,8 +33,12 @@ public class UIModeSelector extends UICollapsibleSection {
   public BooleanParameter instrumentModeP = new BooleanParameter("instrument", false);
 
   static public BoundedParameter timePerChannelP = new BoundedParameter("TPerCh", 60000.0, 2000.0, 360000.0);
+  static public BoundedParameter timePerChannelP2 = new BoundedParameter("TPerCh2", 60000.0, 2000.0, 360000.0);
+  static public BoundedParameter timePerChannelP3 = new BoundedParameter("TPerCh3", 60000.0, 2000.0, 360000.0);
   static public BoundedParameter fadeTimeP = new BoundedParameter("FadeT", 1000.0, 0.000, 10000.0);
   public final UIKnob timePerChannel;
+  public final UIKnob timePerChannel2;
+  public final UIKnob timePerChannel3;
   public final UIKnob fadeTime;
 
   public String[] standardModeChannelNames = { "MULTI", "GIF", "SPECIAL"};
@@ -106,6 +112,10 @@ public class UIModeSelector extends UICollapsibleSection {
     knobsContainer.setPadding(0, 0, 0, 0);
     timePerChannel = new UIKnob(timePerChannelP);
     timePerChannel.addToContainer(knobsContainer);
+    timePerChannel2 = new UIKnob(timePerChannelP2);
+    timePerChannel2.addToContainer(knobsContainer);
+    timePerChannel3 = new UIKnob(timePerChannelP3);
+    timePerChannel3.addToContainer(knobsContainer);
     fadeTime = new UIKnob(fadeTimeP);
     fadeTime.addToContainer(knobsContainer);
     knobsContainer.addToContainer(this);
@@ -197,7 +207,7 @@ public class UIModeSelector extends UICollapsibleSection {
     public double currentChannelPlayTime = 0.0;
     public double timePerChannel = 5000.0;  // Make this settable in the UI.
     public double fadeTime = 1000.0;  // Make this settable in the UI.
-    public double prevChannelDisableThreshold = 0.05;  // Settable in UI? How low slider goes before full disable.
+    public double prevChannelDisableThreshold = 0.1;  // Settable in UI? How low slider goes before full disable.
     public double channelFadeFullThreshold = 0.1; // At this value just set it to 1.  Deals with chunkiness around time.
     public double fadeTimeRemaining = 0.0;
 
@@ -225,7 +235,7 @@ public class UIModeSelector extends UICollapsibleSection {
         LXChannel c = (LXChannel) channelBus;
         if (c.patterns.size() > 0) {
           LXPattern p = c.getActivePattern();
-          if (p instanceof AnimatedTextPP) {
+          if (p instanceof AnimatedTextPP || p instanceof Cylon || p instanceof NyanCat) {
             currentChannelPlayTime = 0.0;
           }
         }
@@ -235,7 +245,7 @@ public class UIModeSelector extends UICollapsibleSection {
           for (LXChannel c : g.channels) {
             if (c.patterns.size() > 0) {
               LXPattern p = c.getActivePattern();
-              if (p instanceof AnimatedTextPP) {
+              if (p instanceof AnimatedTextPP || p instanceof Cylon || p instanceof NyanCat) {
                 currentChannelPlayTime = 0.0;
               }
             }
@@ -244,7 +254,16 @@ public class UIModeSelector extends UICollapsibleSection {
       }
 
       fadeTime = UIModeSelector.fadeTimeP.getValue();
+      // TODO(tracy): This should be settable by Channel so that we can adjust
+      // it for more fair scheduling.
       timePerChannel = UIModeSelector.timePerChannelP.getValue();
+      if (currentPlayingChannel == 0) {
+        timePerChannel = UIModeSelector.timePerChannelP.getValue();
+      } else if (currentPlayingChannel == 1) {
+        timePerChannel = UIModeSelector.timePerChannelP2.getValue();
+      } else if (currentPlayingChannel == 2) {
+        timePerChannel = UIModeSelector.timePerChannelP3.getValue();
+      }
 
       // If our current configuration doesn't have multiple standard channel names, just no-op.
       if (standardModeChannels.size() < 2) {

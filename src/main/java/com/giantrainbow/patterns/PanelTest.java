@@ -1,5 +1,6 @@
 package com.giantrainbow.patterns;
 
+import com.giantrainbow.model.RainbowBaseModel;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import java.util.logging.Logger;
@@ -28,8 +29,8 @@ public class PanelTest extends PGPixelPerfect {
   public void draw(double deltaDrawMs) {
     pg.noSmooth();
     pg.background(255);
-    int numPanels = 28;
     int panelWidth = 15;
+    int numPanels = ((RainbowBaseModel)lx.model).pointsWide / panelWidth;
     int panelHeight = 30;
 
     int curFillPanel = (int)currentFrame / 80 % 28;

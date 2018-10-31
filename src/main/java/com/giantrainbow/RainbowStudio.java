@@ -26,11 +26,7 @@ package com.giantrainbow;
 import com.giantrainbow.model.RainbowBaseModel;
 import com.giantrainbow.model.RainbowModel3D;
 import com.giantrainbow.model.SimplePanel;
-import com.giantrainbow.ui.UIAudioMonitorLevels;
-import com.giantrainbow.ui.UIGammaSelector;
-import com.giantrainbow.ui.UIMidiControl;
-import com.giantrainbow.ui.UIModeSelector;
-import com.giantrainbow.ui.UIPixliteConfig;
+import com.giantrainbow.ui.*;
 import com.google.common.reflect.ClassPath;
 import com.google.gson.JsonObject;
 import heronarts.lx.LX;
@@ -40,6 +36,7 @@ import heronarts.lx.LXPattern;
 import heronarts.lx.midi.LXMidiEngine;
 import heronarts.lx.midi.LXMidiOutput;
 import heronarts.lx.model.LXModel;
+import heronarts.lx.osc.LXOscEngine;
 import heronarts.lx.studio.LXStudio;
 import heronarts.p3lx.ui.UI3dContext;
 import heronarts.p3lx.ui.UIEventHandler;
@@ -47,6 +44,9 @@ import heronarts.p3lx.ui.component.UIGLPointCloud;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Modifier;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -113,7 +113,7 @@ public class RainbowStudio extends PApplet {
 
   public static PApplet pApplet;
 
-  public static final boolean disableOutputOnStart = true;
+  public static final boolean disableOutputOnStart = false;
   public static final int GLOBAL_FRAME_RATE = 60;
   public static final boolean enableArtNet = false;
   public static final int ARTNET_PORT = 6454;
@@ -134,16 +134,17 @@ public class RainbowStudio extends PApplet {
   public Registry registry;
 
   public static boolean fullscreenMode = false;
-  private static UI3dContext fullscreenContext;
-  private static UIGammaSelector gammaControls;
-  private static UIModeSelector modeSelector;
-  private static UIAudioMonitorLevels audioMonitorLevels;
-  private static UIPixliteConfig pixliteConfig;
+  public static UI3dContext fullscreenContext;
+  public static UIGammaSelector gammaControls;
+  public static UIModeSelector modeSelector;
+  public static UIAudioMonitorLevels audioMonitorLevels;
+  public static UIPixliteConfig pixliteConfig;
   public static UIMidiControl uiMidiControl;
+  public static RainbowOSC rainbowOSC;
 
   @Override
   public void settings() {
-    size(800, 720, P3D);
+    size(1024, 600, P3D);
   }
 
   /**
@@ -153,7 +154,6 @@ public class RainbowStudio extends PApplet {
    * @param lx the LX environment
    */
   private void registerAll(LXStudio lx) {
-    //lx.registerPattern(com.giantrainbow.patterns.ShaderToy.class);
     List<Class<? extends LXPattern>> patterns = lx.getRegisteredPatterns();
     List<Class<? extends LXEffect>> effects = lx.getRegisteredEffects();
     final String parentPackage = getClass().getPackage().getName();
@@ -191,7 +191,6 @@ public class RainbowStudio extends PApplet {
   @Override
   public void setup() {
     // Processing setup, constructs the window and the LX instance
-    frameRate(GLOBAL_FRAME_RATE);
     pApplet = this;
 
     try {
@@ -208,16 +207,13 @@ public class RainbowStudio extends PApplet {
     logger.info("Multithreaded actually: " + (MULTITHREADED && !getGraphics().isGL()));
     lx = new LXStudio(this, model, MULTITHREADED && !getGraphics().isGL());
 
-    // Common components stored (dumbly) as static variables
-    registry = new Registry(this, lx);
-
     lx.ui.setResizable(RESIZABLE);
 
     audioMonitorLevels = (UIAudioMonitorLevels) new UIAudioMonitorLevels(lx.ui).setExpanded(false).addToContainer(lx.ui.leftPane.global);
     gammaControls = (UIGammaSelector) new UIGammaSelector(lx.ui).setExpanded(false).addToContainer(lx.ui.leftPane.global);
     uiMidiControl = (UIMidiControl) new UIMidiControl(lx.ui, lx, modeSelector).setExpanded(false).addToContainer(lx.ui.leftPane.global);
     modeSelector = (UIModeSelector) new UIModeSelector(lx.ui, lx, audioMonitorLevels).setExpanded(true).addToContainer(lx.ui.leftPane.global);
-    pixliteConfig = (UIPixliteConfig) new UIPixliteConfig(lx.ui).setExpanded(false).addToContainer(lx.ui.leftPane.global);
+    pixliteConfig = (UIPixliteConfig) new UIPixliteConfig(lx.ui, lx).setExpanded(false).addToContainer(lx.ui.leftPane.global);
 
     lx.engine.midi.addListener(uiMidiControl);
 
@@ -301,11 +297,15 @@ public class RainbowStudio extends PApplet {
       logger.info(output.getName() + ": " + output.getDescription());
     }
 
+    // TODO(tracy): Does this need to be added as a component?
+    rainbowOSC = new RainbowOSC(lx);
+
     // Support Fullscreen Mode.  We create a second UIGLPointCloud and
     // add it to a LXStudio.UI layer.  When entering fullscreen mode,
     // toggleFullscreen() will set the
     // standard UI components visibility to false and the larger
     // fullscreenContext visibility to true.
+    /*
     UIGLPointCloud fullScreenPointCloud = new UIGLPointCloud(lx);
     fullscreenContext = new UI3dContext(lx.ui);
     fullscreenContext.addComponent(fullScreenPointCloud);
@@ -313,6 +313,8 @@ public class RainbowStudio extends PApplet {
     fullscreenContext.setVisible(false);
 
     lx.ui.setTopLevelKeyEventHandler(new TopLevelKeyEventHandler());
+    */
+    frameRate(GLOBAL_FRAME_RATE);
   }
 
   public class TopLevelKeyEventHandler extends UIEventHandler {
@@ -363,11 +365,16 @@ public class RainbowStudio extends PApplet {
     }
 
     private static final String KEY_STDMODE_TIME = "stdModeTime";
+    private static final String KEY_STDMODE_TIME2 = "stdModeTime2";
+    private static final String KEY_STDMODE_TIME3 = "stdModeTime3";
+
     private static final String KEY_STDMODE_FADETIME = "stdModeFadeTime";
 
     @Override
     public void save(LX lx, JsonObject obj) {
       obj.addProperty(KEY_STDMODE_TIME, UIModeSelector.timePerChannelP.getValue());
+      obj.addProperty(KEY_STDMODE_TIME2, UIModeSelector.timePerChannelP2.getValue());
+      obj.addProperty(KEY_STDMODE_TIME3, UIModeSelector.timePerChannelP3.getValue());
       obj.addProperty(KEY_STDMODE_FADETIME, UIModeSelector.fadeTimeP.getValue());
     }
 
@@ -376,6 +383,12 @@ public class RainbowStudio extends PApplet {
       logger.info("Loading settings....");
       if (obj.has(KEY_STDMODE_TIME)) {
         UIModeSelector.timePerChannelP.setValue(obj.get(KEY_STDMODE_TIME).getAsDouble());
+      }
+      if (obj.has(KEY_STDMODE_TIME2)) {
+        UIModeSelector.timePerChannelP2.setValue(obj.get(KEY_STDMODE_TIME2).getAsDouble());
+      }
+      if (obj.has(KEY_STDMODE_TIME3)) {
+        UIModeSelector.timePerChannelP3.setValue(obj.get(KEY_STDMODE_TIME3).getAsDouble());
       }
       if (obj.has(KEY_STDMODE_FADETIME)) {
         UIModeSelector.fadeTimeP.setValue(obj.get(KEY_STDMODE_FADETIME).getAsDouble());
@@ -387,6 +400,9 @@ public class RainbowStudio extends PApplet {
     // Add custom components or output drivers here
     // Register settings
     lx.engine.registerComponent("rainbowSettings", new Settings(lx, ui));
+
+    // Common components
+    registry = new Registry(this, lx);
 
     // Register any patterns and effects LX doesn't recognize
     registerAll(lx);

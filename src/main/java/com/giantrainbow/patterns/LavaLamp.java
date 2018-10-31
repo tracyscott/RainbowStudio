@@ -56,8 +56,6 @@ public class LavaLamp extends P3PixelPerfectBase {
 
   @Override
   public void setup() {
-    fpsKnob.setValue(DEFAULT_FPS);
-
     // Parameters
     radius = SEGMENT_W / 4;//(int) (pg.width / 10 * 1.2);
     speedScale = 3.0f / DEFAULT_FPS;
@@ -91,7 +89,7 @@ public class LavaLamp extends P3PixelPerfectBase {
     pg.colorMode(RGB, 255);
     int bgColor = monochromeToggle.isOn()
         ? BLACK
-        : rainbow.get(pg, fpsKnob.getValuef());
+        : rainbow.get(pg, frameRate);
     int ballColor = complementColor(bgColor);
 
     moveBalls();

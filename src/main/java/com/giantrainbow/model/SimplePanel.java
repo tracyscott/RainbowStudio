@@ -7,6 +7,7 @@ import static processing.core.PApplet.ceil;
 
 import com.giantrainbow.ArtSyncDatagram;
 import com.giantrainbow.RainbowDatagram;
+import com.giantrainbow.RainbowStudio;
 import com.giantrainbow.ui.UIPixliteConfig;
 import heronarts.lx.LX;
 import heronarts.lx.model.LXAbstractFixture;
@@ -82,6 +83,13 @@ public class SimplePanel extends RainbowBaseModel {
   public static void configureOutputMultiPanel(LX lx) {
     // Config for panel size, number of panels, number of universes per panel, number of led controllers
     // and number of panels per controller.
+    String pixlite1Ip = RainbowStudio.pixliteConfig.getStringParameter(UIPixliteConfig.PIXLITE_1_IP).getString();
+    int pixlite1Port = Integer.parseInt(RainbowStudio.pixliteConfig.getStringParameter(UIPixliteConfig.PIXLITE_1_PORT).getString());
+    int pixlite1Panels = Integer.parseInt(RainbowStudio.pixliteConfig.getStringParameter(UIPixliteConfig.PIXLITE_1_PANELS).getString());
+    String pixlite2Ip = RainbowStudio.pixliteConfig.getStringParameter(UIPixliteConfig.PIXLITE_2_IP).getString();
+    int pixlite2Port = Integer.parseInt(RainbowStudio.pixliteConfig.getStringParameter(UIPixliteConfig.PIXLITE_2_PORT).getString());
+    int pixlite2Panels = Integer.parseInt(RainbowStudio.pixliteConfig.getStringParameter(UIPixliteConfig.PIXLITE_2_PANELS).getString());
+
     int pointsWidePerPanel = 15;
     int pointsHighPerPanel = 30;
     int pointsPerPanel = pointsWidePerPanel * pointsHighPerPanel;
@@ -188,12 +196,12 @@ public class SimplePanel extends RainbowBaseModel {
           // Leave ARTNET port hardcoded.
           if (currentLogicalPanel < panelsPerLedController1) {
             // logger.info("Creating datagram for panel: " + currentLogicalPanel);
-            ledControllerIp = UIPixliteConfig.pixlite1IpP.getString();
-            ledControllerPort = Integer.parseInt(UIPixliteConfig.pixlite1PortP.getString());
+            ledControllerIp = pixlite1Ip;
+            ledControllerPort = pixlite1Port;
             whichLedControllerDatagrams = ledControllersDatagrams.get(0);
           } else {
-            ledControllerIp = UIPixliteConfig.pixlite2IpP.getString();
-            ledControllerPort = Integer.parseInt(UIPixliteConfig.pixlite2PortP.getString());
+            ledControllerIp = pixlite2Ip;
+            ledControllerPort = pixlite2Port;
             whichLedControllerDatagrams = ledControllersDatagrams.get(1);
           }
           datagram.setAddress(ledControllerIp).setPort(ledControllerPort);
@@ -221,8 +229,8 @@ public class SimplePanel extends RainbowBaseModel {
         }
       }
       try {
-        datagramOutput.addDatagram(new ArtSyncDatagram(Integer.parseInt(UIPixliteConfig.pixlite1PortP.getString())).setAddress(UIPixliteConfig.pixlite1IpP.getString()));
-        datagramOutput.addDatagram(new ArtSyncDatagram(Integer.parseInt(UIPixliteConfig.pixlite2PortP.getString())).setAddress(UIPixliteConfig.pixlite2IpP.getString()));
+        datagramOutput.addDatagram(new ArtSyncDatagram(pixlite1Port).setAddress(pixlite1Ip));
+        datagramOutput.addDatagram(new ArtSyncDatagram(pixlite2Port).setAddress(pixlite2Ip));
       } catch (UnknownHostException uhex) {
         logger.log(Level.SEVERE, "ArtNet Sync", uhex);
       }

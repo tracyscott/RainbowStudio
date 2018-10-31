@@ -1,6 +1,6 @@
 {
   "version": "0.1",
-  "timestamp": 1534670651979,
+  "timestamp": 1535051925601,
   "engine": {
     "id": 1,
     "class": "heronarts.lx.LXEngine",
@@ -15,7 +15,7 @@
       "crossfader": 0.4655172396451235,
       "crossfaderBlendMode": 0,
       "speed": 1.0,
-      "focusedChannel": 4,
+      "focusedChannel": 5,
       "cueA": false,
       "cueB": false,
       "multithreaded": false,
@@ -46,9 +46,9 @@
           "label": "MULTI",
           "arm": false,
           "selected": false,
-          "enabled": true,
+          "enabled": false,
           "cue": false,
-          "fader": 1.0,
+          "fader": 0.014,
           "crossfadeGroup": 0,
           "blendMode": 0
         },
@@ -70,16 +70,16 @@
           "blendMode": 0,
           "midiMonitor": false,
           "midiChannel": 16,
-          "autoCycleEnabled": true,
+          "autoCycleEnabled": false,
           "autoCycleMode": 0,
-          "autoCycleTimeSecs": 36.0,
-          "transitionEnabled": true,
+          "autoCycleTimeSecs": 9.0,
+          "transitionEnabled": false,
           "transitionTimeSecs": 1.1,
           "transitionBlendMode": 0
         },
         "effects": [],
         "clips": [],
-        "patternIndex": 2,
+        "patternIndex": 1,
         "patterns": [
           {
             "id": 706,
@@ -106,7 +106,7 @@
             "parameters": {
               "label": "LavaLamp",
               "Speed": 0.5,
-              "Monochrome": false
+              "Monochrome": true
             },
             "modulation": {
               "modulators": [],
@@ -152,7 +152,7 @@
                     "phase": 0.0,
                     "exp": 0.0
                   },
-                  "basis": 0.38260777508912946
+                  "basis": 0.19707456354896802
                 }
               ],
               "modulations": [
@@ -234,7 +234,7 @@
                     "phase": 0.0,
                     "exp": 0.0
                   },
-                  "basis": 0.6789817125774248
+                  "basis": 0.6579040956699695
                 }
               ],
               "modulations": [
@@ -257,6 +257,125 @@
                   }
                 }
               ],
+              "triggers": []
+            },
+            "autoCycleEnabled": true
+          },
+          {
+            "id": 925,
+            "class": "com.giantrainbow.patterns.RainbowGIF",
+            "modulationColor": -43008,
+            "parameters": {
+              "label": "RainbowGIF",
+              "Fps": 10.0,
+              "antialias": true,
+              "gif": "hexeosis_bw04"
+            },
+            "modulation": {
+              "modulators": [],
+              "modulations": [],
+              "triggers": []
+            },
+            "autoCycleEnabled": true
+          },
+          {
+            "id": 927,
+            "class": "com.giantrainbow.patterns.RainbowGIF",
+            "modulationColor": -16711801,
+            "parameters": {
+              "label": "RainbowGIF",
+              "Fps": 10.0,
+              "antialias": true,
+              "gif": "hexeosis_bw02"
+            },
+            "modulation": {
+              "modulators": [],
+              "modulations": [],
+              "triggers": []
+            },
+            "autoCycleEnabled": true
+          },
+          {
+            "id": 929,
+            "class": "com.giantrainbow.patterns.RainbowGIF",
+            "modulationColor": -65313,
+            "parameters": {
+              "label": "RainbowGIF",
+              "Fps": 10.0,
+              "antialias": true,
+              "gif": "hexeosis_bw03"
+            },
+            "modulation": {
+              "modulators": [],
+              "modulations": [],
+              "triggers": []
+            },
+            "autoCycleEnabled": true
+          },
+          {
+            "id": 931,
+            "class": "com.giantrainbow.patterns.RainbowGIF",
+            "modulationColor": -13565697,
+            "parameters": {
+              "label": "RainbowGIF",
+              "Fps": 10.0,
+              "antialias": true,
+              "gif": "hexeosis_bw04"
+            },
+            "modulation": {
+              "modulators": [],
+              "modulations": [],
+              "triggers": []
+            },
+            "autoCycleEnabled": true
+          },
+          {
+            "id": 933,
+            "class": "com.giantrainbow.patterns.RainbowGIF",
+            "modulationColor": -65484,
+            "parameters": {
+              "label": "RainbowGIF",
+              "Fps": 10.0,
+              "antialias": true,
+              "gif": "hexeosis_bw05"
+            },
+            "modulation": {
+              "modulators": [],
+              "modulations": [],
+              "triggers": []
+            },
+            "autoCycleEnabled": true
+          },
+          {
+            "id": 935,
+            "class": "com.giantrainbow.patterns.RainbowGIF",
+            "modulationColor": -5832449,
+            "parameters": {
+              "label": "RainbowGIF",
+              "Fps": 10.0,
+              "antialias": true,
+              "gif": "hx_1046-4"
+            },
+            "modulation": {
+              "modulators": [],
+              "modulations": [],
+              "triggers": []
+            },
+            "autoCycleEnabled": true
+          },
+          {
+            "id": 937,
+            "class": "com.giantrainbow.patterns.RainbowGIF",
+            "modulationColor": -7405313,
+            "parameters": {
+              "label": "RainbowGIF",
+              "Fps": 10.0,
+              "antialias": true,
+              "gif": "hx_603-0"
+            },
+            "modulation": {
+              "modulators": [],
+              "modulations": [],
               "triggers": []
             },
             "autoCycleEnabled": true
@@ -288,7 +407,7 @@
         },
         "effects": [],
         "clips": [],
-        "patternIndex": 1,
+        "patternIndex": 0,
         "patterns": [
           {
             "id": 296,
@@ -347,21 +466,21 @@
           "selected": false,
           "enabled": false,
           "cue": false,
-          "fader": 0.005,
+          "fader": 0.016,
           "crossfadeGroup": 0,
           "blendMode": 0,
           "midiMonitor": false,
           "midiChannel": 16,
-          "autoCycleEnabled": false,
+          "autoCycleEnabled": true,
           "autoCycleMode": 0,
-          "autoCycleTimeSecs": 60.0,
-          "transitionEnabled": false,
-          "transitionTimeSecs": 5.0,
+          "autoCycleTimeSecs": 10.0,
+          "transitionEnabled": true,
+          "transitionTimeSecs": 1.0,
           "transitionBlendMode": 0
         },
         "effects": [],
         "clips": [],
-        "patternIndex": 0,
+        "patternIndex": 3,
         "patterns": [
           {
             "id": 362,
@@ -379,6 +498,193 @@
               "triggers": []
             },
             "autoCycleEnabled": true
+          },
+          {
+            "id": 907,
+            "class": "com.giantrainbow.patterns.RainbowGIF",
+            "modulationColor": -16711903,
+            "parameters": {
+              "label": "RainbowGIF",
+              "Fps": 10.0,
+              "antialias": true,
+              "gif": "hexeosis_clr02"
+            },
+            "modulation": {
+              "modulators": [],
+              "modulations": [],
+              "triggers": []
+            },
+            "autoCycleEnabled": true
+          },
+          {
+            "id": 909,
+            "class": "com.giantrainbow.patterns.RainbowGIF",
+            "modulationColor": -9699073,
+            "parameters": {
+              "label": "RainbowGIF",
+              "Fps": 10.0,
+              "antialias": true,
+              "gif": "hexeosis_clr04"
+            },
+            "modulation": {
+              "modulators": [],
+              "modulations": [],
+              "triggers": []
+            },
+            "autoCycleEnabled": true
+          },
+          {
+            "id": 911,
+            "class": "com.giantrainbow.patterns.RainbowGIF",
+            "modulationColor": -16711734,
+            "parameters": {
+              "label": "RainbowGIF",
+              "Fps": 10.0,
+              "antialias": true,
+              "gif": "hexeosis_clr05"
+            },
+            "modulation": {
+              "modulators": [],
+              "modulations": [],
+              "triggers": []
+            },
+            "autoCycleEnabled": true
+          },
+          {
+            "id": 913,
+            "class": "com.giantrainbow.patterns.RainbowGIF",
+            "modulationColor": -11730689,
+            "parameters": {
+              "label": "RainbowGIF",
+              "Fps": 10.0,
+              "antialias": true,
+              "gif": "hx_1040-1"
+            },
+            "modulation": {
+              "modulators": [],
+              "modulations": [],
+              "triggers": []
+            },
+            "autoCycleEnabled": true
+          },
+          {
+            "id": 915,
+            "class": "com.giantrainbow.patterns.RainbowGIF",
+            "modulationColor": -65438,
+            "parameters": {
+              "label": "RainbowGIF",
+              "Fps": 10.0,
+              "antialias": true,
+              "gif": "hx_1058-5"
+            },
+            "modulation": {
+              "modulators": [],
+              "modulations": [],
+              "triggers": []
+            },
+            "autoCycleEnabled": true
+          },
+          {
+            "id": 917,
+            "class": "com.giantrainbow.patterns.RainbowGIF",
+            "modulationColor": -8323328,
+            "parameters": {
+              "label": "RainbowGIF",
+              "Fps": 10.0,
+              "antialias": true,
+              "gif": "hx_5635-3"
+            },
+            "modulation": {
+              "modulators": [],
+              "modulations": [],
+              "triggers": []
+            },
+            "autoCycleEnabled": true
+          },
+          {
+            "id": 919,
+            "class": "com.giantrainbow.patterns.RainbowGIF",
+            "modulationColor": -59648,
+            "parameters": {
+              "label": "RainbowGIF",
+              "Fps": 10.0,
+              "antialias": true,
+              "gif": "hx_670-1"
+            },
+            "modulation": {
+              "modulators": [],
+              "modulations": [],
+              "triggers": []
+            },
+            "autoCycleEnabled": true
+          },
+          {
+            "id": 921,
+            "class": "com.giantrainbow.patterns.RainbowGIF",
+            "modulationColor": -16711792,
+            "parameters": {
+              "label": "RainbowGIF",
+              "Fps": 10.0,
+              "antialias": true,
+              "gif": "hx_clr_001"
+            },
+            "modulation": {
+              "modulators": [],
+              "modulations": [],
+              "triggers": []
+            },
+            "autoCycleEnabled": true
+          },
+          {
+            "id": 923,
+            "class": "com.giantrainbow.patterns.RainbowGIF",
+            "modulationColor": -65462,
+            "parameters": {
+              "label": "RainbowGIF",
+              "Fps": 17.199999839067456,
+              "antialias": true,
+              "gif": "hx_clr_002"
+            },
+            "modulation": {
+              "modulators": [],
+              "modulations": [],
+              "triggers": []
+            },
+            "autoCycleEnabled": true
+          },
+          {
+            "id": 1156,
+            "class": "com.giantrainbow.patterns.RainbowGIF",
+            "modulationColor": -16711929,
+            "parameters": {
+              "label": "RainbowGIF",
+              "Fps": 10.0,
+              "antialias": true,
+              "gif": "hx_clr_003"
+            },
+            "modulation": {
+              "modulators": [],
+              "modulations": [],
+              "triggers": []
+            },
+            "autoCycleEnabled": true
+          },
+          {
+            "id": 1158,
+            "class": "com.giantrainbow.patterns.RainbowGIF",
+            "modulationColor": -12517121,
+            "parameters": {
+              "label": "RainbowGIF",
+              "Fps": 10.0,
+              "antialias": true,
+              "gif": "hx_clr_004"
+            },
+            "modulation": {
+              "modulators": [],
+              "modulations": [],
+              "triggers": []
+            },
+            "autoCycleEnabled": true
           }
         ]
       },
@@ -389,24 +695,24 @@
         "parameters": {
           "label": "SPECIAL",
           "arm": false,
-          "selected": true,
-          "enabled": false,
+          "selected": false,
+          "enabled": true,
           "cue": false,
-          "fader": 0.005,
+          "fader": 1.0,
           "crossfadeGroup": 0,
           "blendMode": 0,
           "midiMonitor": false,
           "midiChannel": 16,
           "autoCycleEnabled": true,
           "autoCycleMode": 0,
-          "autoCycleTimeSecs": 300.0,
+          "autoCycleTimeSecs": 30.0,
           "transitionEnabled": true,
-          "transitionTimeSecs": 2.0,
+          "transitionTimeSecs": 0.5,
           "transitionBlendMode": 0
         },
         "effects": [],
         "clips": [],
-        "patternIndex": 7,
+        "patternIndex": 4,
         "patterns": [
           {
             "id": 364,
@@ -456,7 +762,7 @@
                     "phase": 0.0,
                     "exp": 0.29999999329447746
                   },
-                  "basis": 0.3965565033692415
+                  "basis": 0.938050054420958
                 }
               ],
               "modulations": [
@@ -554,7 +860,8 @@
             "modulationColor": -16726017,
             "parameters": {
               "label": "Cylon",
-              "Speed": 0.5
+              "Speed": 0.5,
+              "Max Run Time": 0.5
             },
             "modulation": {
               "modulators": [],
@@ -569,8 +876,9 @@
             "modulationColor": -16711851,
             "parameters": {
               "label": "CubeLineup",
-              "Speed": 20000.0,
-              "Count": 200.0
+              "Speed": 100.0,
+              "Count": 200.0,
+              "Roll": -0.15
             },
             "modulation": {
               "modulators": [],
@@ -618,6 +926,7 @@
               "label": "GameOfLife",
               "Speed": 0.5,
               "Reset": false,
+              "Wrap": true,
               "Ring Mode": true,
               "Circle Size": 0.5,
               "Monochrome": false
@@ -636,9 +945,9 @@
             "parameters": {
               "label": "ShaneBow",
               "xRate": 2.0,
-              "xStart": 259.0,
+              "xStart": 171.0,
               "clockwise": false,
-              "blockWidth": 233.29263305664062,
+              "blockWidth": 33.30006408691406,
               "blockExp": true
             },
             "modulation": {
@@ -737,7 +1046,7 @@
         "parameters": {
           "label": "AUDIO",
           "arm": false,
-          "selected": false,
+          "selected": true,
           "enabled": false,
           "cue": false,
           "fader": 1.0,
@@ -840,7 +1149,7 @@
             "modulationColor": -16711915,
             "parameters": {
               "label": "LineDance",
-              "Fps": 60.0,
+              "Speed": 0.5,
               "Blur": 0.75
             },
             "modulation": {
@@ -1026,19 +1335,19 @@
           "attack": 9.999999776482582,
           "release": 18.5580048226244,
           "slope": -0.45000005699694157,
-          "Band-1": 0.18215106424510885,
-          "Band-2": 0.1941155479782921,
-          "Band-3": 0.3475152435667933,
-          "Band-4": 0.42202200118036115,
-          "Band-5": 0.36659364846164455,
-          "Band-6": 0.24377897736110388,
-          "Band-7": 0.6307650644501817,
-          "Band-8": 0.5503923067703008,
-          "Band-9": 0.40798516215351566,
-          "Band-10": 0.2272357034683421,
-          "Band-11": 0.15226959539502483,
+          "Band-1": 0.46250577006774496,
+          "Band-2": 0.5179498572275649,
+          "Band-3": 0.4865581946444987,
+          "Band-4": 0.4500110808326,
+          "Band-5": 0.4200421797536017,
+          "Band-6": 0.35519997802407655,
+          "Band-7": 0.34584776546265505,
+          "Band-8": 0.2698683466859586,
+          "Band-9": 0.1387812519807149,
+          "Band-10": 0.08874683887651813,
+          "Band-11": 8.848331083158856E-4,
           "Band-12": 0.0,
-          "Band-13": 0.05985293517988588,
+          "Band-13": 0.0,
           "Band-14": 0.0,
           "Band-15": 0.0,
           "Band-16": 0.0
@@ -1086,7 +1395,9 @@
         "gainInc": 1.0,
         "reduceThrsh": 45.0,
         "gainThrsh": 20.0,
-        "stdModeTime": 9159.999839961529,
+        "stdModeTime": 2000.0,
+        "stdModeTime2": 2000.0,
+        "stdModeTime3": 2000.0,
         "stdModeFadeTime": 1000.0,
         "gammaRed": 3.0,
         "gammaGreen": 3.0,
@@ -1184,9 +1495,9 @@
         "centerPoint": false,
         "camera": {
           "active": false,
-          "radius": 45.24865368906957,
-          "theta": 0.02400000000000176,
-          "phi": 0.08400000000000082,
+          "radius": 59.849001935081894,
+          "theta": -0.1139999999999971,
+          "phi": 0.28500000000000103,
           "x": -0.9988076686859131,
           "y": 21.425418853759766,
           "z": 0.05698511749505997
@@ -1194,9 +1505,9 @@
         "cue": [
           {
             "active": false,
-            "radius": 45.24865368906957,
-            "theta": 0.02400000000000176,
-            "phi": 0.08400000000000082,
+            "radius": 59.849001935081894,
+            "theta": -0.1139999999999971,
+            "phi": 0.28500000000000103,
             "x": -0.9988076686859131,
             "y": 21.425418853759766,
             "z": 0.05698511749505997
