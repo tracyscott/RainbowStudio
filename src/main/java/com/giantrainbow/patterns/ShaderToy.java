@@ -13,19 +13,14 @@ import com.thomasdiewald.pixelflow.java.imageprocessing.DwShadertoy;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.audio.GraphicMeter;
-import heronarts.lx.parameter.BooleanParameter;
-import heronarts.lx.parameter.CompoundParameter;
-import heronarts.lx.parameter.StringParameter;
+import heronarts.lx.color.LXColor;
+import heronarts.lx.parameter.*;
 import heronarts.p3lx.ui.CustomDeviceUI;
 import heronarts.p3lx.ui.UI;
 import heronarts.p3lx.ui.UI2dContainer;
-import heronarts.p3lx.ui.component.UIButton;
-import heronarts.p3lx.ui.component.UIItemList;
-import heronarts.p3lx.ui.component.UIKnob;
-import heronarts.p3lx.ui.component.UITextBox;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import heronarts.p3lx.ui.component.*;
+
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -35,6 +30,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import processing.core.PConstants;
 import processing.core.PGraphics;
+import processing.core.PImage;
 
 /**
  * This copies shaders from the data/ area into a local shaders/ directory if they don't
@@ -45,6 +41,10 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
   private static final Logger logger = Logger.getLogger(ShaderToy.class.getName());
 
   public final StringParameter shaderFileKnob = new StringParameter("frag", "sparkles");
+  // textureNameKnob is loaded/saved. textureKnob is just an intermediate knob used for the
+  // drop down texture selector.
+  public final StringParameter textureNameKnob = new StringParameter("tex", "tunneltex.png");
+  public DiscreteParameter textureKnob;
   public final BooleanParameter audioKnob = new BooleanParameter("Audio", true);
   public final CompoundParameter knob1 =
       new CompoundParameter("K1", 0, 1)
@@ -63,10 +63,15 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
   UIItemList.ScrollList fileItemList;
   List<String> shaderFiles;
 
+  List<String> textureFiles;
+
   DwPixelFlow context;
   DwShadertoy toy;
   DwGLTexture texNoise = new DwGLTexture();
+  DwGLTexture texImage = null;
   PGraphics toyGraphics;
+  PImage textureImage;
+
   private static final int CONTROLS_MIN_WIDTH = 200;
 
   private static final String SHADER_DATA_DIR = "";
@@ -81,6 +86,8 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
     addParameter(knob3);
     addParameter(knob4);
     addParameter(shaderFileKnob);
+    addParameter(textureNameKnob);
+
     toyGraphics = RainbowStudio.pApplet.createGraphics(pg.width, pg.height, P2D);
     loadShader(shaderFileKnob.getString());
     // context initialized in loadShader, print the GL hardware once when loading
@@ -140,12 +147,12 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
       fileItems.add(new FileItem(filename));
     }
 
-    // TODO(tracy):  This is Voronoi-specific data.  ShaderToy shaders
-    // that rely on inputs might need custom implemented patterns.
-    // Some inputs are standard like Audio data
-    // so that can be enabled with a toggle.  Actually, each Channel0..3
-    // should have a dropdown to select the input as on shadertoy.com.
+    textureFiles = PathUtils.findDataFiles(SHADER_DATA_DIR + "/textures", ".png");
+    textureFiles.add(0, "NO TEXTURE");
+    textureKnob = new DiscreteParameter("Texture", 0, 0, textureFiles.size());
+    initTextureDropdown();
 
+    // Create a random noise channel for ShaderToy shaders.
     // create noise texture.
     int wh = 256;
     byte[] bdata = new byte[wh * wh * 4];
@@ -158,12 +165,67 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
     }
     // Noise data texture passsed as a texture.
     texNoise.resize(context, GL2.GL_RGBA8, wh, wh, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 4, 1, bbuffer);
+
+    logger.info("loading texture");
+    loadTextureChannel();
+  }
+
+  /**
+   * Recompute the selected drop down texture item.  We need to do this any time we
+   * change the textureNameKnob value programmatically (such as when a project file is
+   * loaded).
+   */
+  public void initTextureDropdown() {
+    int textureKnobValue = 0;
+    int k = 0;
+    for (String textureName : textureFiles) {
+      k++;
+      if (textureName.equals("textures/" + textureNameKnob.getString())) {
+        textureKnobValue = k;
+      }
+    }
+    if (textureKnobValue > 0) {
+      textureKnob.setValue(textureKnobValue);
+    }
+  }
+
+  /**
+   * Reloads the texture specified by textureNameKnob.  Textures are stored in data/textures/*.png
+   */
+  public void loadTextureChannel() {
+    synchronized (toy) {
+      if (texImage != null) texImage.release();
+      texImage = new DwGLTexture();
+      // Textures are resized to 256x256 for GL hardware.
+      int wh = 256;
+      textureImage = RainbowStudio.pApplet.loadImage("textures/" + textureNameKnob.getString());
+      textureImage.resize(wh, wh);
+      logger.info("ShaderToy image texture " + textureNameKnob.getString() + " size=" + textureImage.width + "x" + textureImage.height);
+      textureImage.loadPixels();
+      byte[] pixdata = new byte[wh * wh * 4];
+      ByteBuffer pixBuffer = ByteBuffer.wrap(pixdata);
+      for (int y = 0; y < wh; y++) {
+        for (int x = 0; x < wh; x++) {
+          int loc = x + y * wh;
+          int bufferLoc = loc * 4;
+          // The functions red(), green(), and blue() pull out the 3 color components from a pixel.
+          pixdata[bufferLoc++] = LXColor.red(textureImage.pixels[loc]);
+          pixdata[bufferLoc++] = LXColor.green(textureImage.pixels[loc]);
+          pixdata[bufferLoc++] = LXColor.blue(textureImage.pixels[loc]);
+          pixdata[bufferLoc++] = LXColor.alpha(textureImage.pixels[loc]);
+        }
+      }
+      logger.info("Creating texture for ShaderToy.");
+      texImage.resize(context, GL2.GL_RGBA8, wh, wh, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 4, 1, pixBuffer);
+    }
   }
 
   @Override
   public void load(LX lx, JsonObject obj) {
     super.load(lx, obj);
     loadShader(shaderFileKnob.getString());
+    initTextureDropdown();
+    loadTextureChannel();
   }
 
   protected void loadShader(String shaderFile) {
@@ -201,8 +263,12 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
     DwGLTexture texAudio = new DwGLTexture();
     texAudio.resize(context, GL2.GL_R8, 512, 2, GL2.GL_RED, GL2.GL_UNSIGNED_BYTE,
         GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 1, 1, audioTexBuf);
-    toy.set_iChannel(0, texAudio);
-    toy.set_iChannel(1, texNoise);
+    // Allow for dynamic texture reloading via the UI.
+    synchronized (toy) {
+      toy.set_iChannel(0, texAudio);
+      toy.set_iChannel(2, texNoise);
+      toy.set_iChannel(1, texImage);
+    }
     pg.background(0);
     if (toy == null) {
       return;
@@ -238,6 +304,17 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
     new UIKnob(knob4).addToContainer(knobsContainer);
     knobsContainer.addToContainer(device);
 
+    new UIDropMenu(0f, 0f, device.getWidth() - 30f, 20f, textureKnob) {
+      public void onParameterChanged(LXParameter p) {
+        DiscreteParameter dp = (DiscreteParameter)p;
+        String textureFilename = textureFiles.get(dp.getValuei());
+        File f = new File(textureFilename);
+        logger.info("Selected texture: " + textureFilename);
+        textureNameKnob.setValue(f.getName());
+        loadTextureChannel();
+      }
+    }.setOptions(textureFiles.toArray(new String[textureFiles.size()])).setDirection(UIDropMenu.Direction.UP).addToContainer(device);
+
     UI2dContainer filenameEntry = new UI2dContainer(0, 0, device.getWidth(), 30);
     filenameEntry.setLayout(UI2dContainer.Layout.HORIZONTAL);
 
@@ -246,7 +323,6 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
       .setParameter(shaderFileKnob)
       .setTextAlignment(PConstants.LEFT)
       .addToContainer(filenameEntry);
-
 
     // Button for reloading shader.
     new UIButton(device.getContentWidth() - 20, 0, 20, 20) {
@@ -259,6 +335,7 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
     }
     .setLabel("\u21BA").setMomentary(true).addToContainer(filenameEntry);
     filenameEntry.addToContainer(device);
+
 
     // Button for editing a file.
     new UIButton(0, 24, device.getContentWidth(), 16) {
@@ -279,7 +356,7 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
     }
     .setLabel("Edit").setMomentary(true).addToContainer(device);
 
-    fileItemList =  new UIItemList.ScrollList(ui, 0, 5, CONTROLS_MIN_WIDTH, 80);
+    fileItemList =  new UIItemList.ScrollList(ui, 0, 5, CONTROLS_MIN_WIDTH, 50);
     fileItemList.setShowCheckboxes(false);
     fileItemList.setItems(fileItems);
     fileItemList.addToContainer(device);
