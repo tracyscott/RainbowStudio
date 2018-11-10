@@ -18,10 +18,15 @@ import heronarts.p3lx.ui.component.UITextBox;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
+
 import processing.core.PConstants;
+import processing.core.PGraphics;
 import processing.core.PImage;
 
 abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
+  private static final Logger logger = Logger.getLogger(RainbowImageBase.class.getName());
+
   public final CompoundParameter fpsKnob =
       new CompoundParameter("Fps", 1.0, 10.0)
           .setDescription("Controls the frames per second.");
@@ -30,6 +35,7 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
   public final StringParameter imgKnob =
       new StringParameter("img", "")
           .setDescription("Texture image for rainbow.");
+  public final BooleanParameter tileKnob = new BooleanParameter("tile", false);
 
   protected List<FileItem> fileItems = new ArrayList<FileItem>();
   protected UIItemList.ScrollList fileItemList;
@@ -39,10 +45,14 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
   private static final List<String> IMG_EXTS = Arrays.asList(".gif", ".png", ".jpg");
 
   protected PImage image;
+  protected PImage tileImage;
   protected int imageWidth = 0;
   protected int imageHeight = 0;
   protected String filesDir;  // Must end in a '/'
   protected boolean includeAntialias;
+  protected int paddingX;
+  protected int numTiles;
+  protected PGraphics pg;
 
   public RainbowImageBase(LX lx, int imageWidth, int imageHeight,
                           String filesDir, String defaultFile,
@@ -56,6 +66,7 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
     this.filesDir = filesDir;
     this.includeAntialias = includeAntialias;
     reloadFileList();
+    pg = RainbowStudio.pApplet.createGraphics(imageWidth, imageHeight);
 
     addParameter(fpsKnob);
     if (includeAntialias) {
@@ -64,11 +75,41 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
     addParameter(imgKnob);
     imgKnob.setValue(defaultFile);
     loadImg(imgKnob.getString());
+
+    addParameter(tileKnob);
+
   }
 
   private void loadImg(String imgname) {
-    image = RainbowStudio.pApplet.loadImage(filesDir + imgname);
-    image.resize(imageWidth, imageHeight);
+    logger.info("Loading image: " + imgname);
+    tileImage = RainbowStudio.pApplet.loadImage(filesDir + imgname);
+    if (!tileKnob.getValueb()) {
+      tileImage.resize(imageWidth, imageHeight);
+      image = tileImage;
+    } else {
+      // Tile the image to fill the space horizontally.  Scale the image vertically
+      // to fit.
+      float yScale = imageHeight / tileImage.height;
+      tileImage.resize((int)(tileImage.width * yScale), imageHeight);
+      tileImage.loadPixels();
+      logger.info("tileImage.width=" + tileImage.width + " tileImage.height=" + tileImage.height);
+      numTiles = imageWidth  / tileImage.width;
+      int remainderPixelsX = imageWidth - (numTiles * tileImage.width);
+      // No vertical padding right now int paddingY = imageHeight - image.height;
+      paddingX = remainderPixelsX / (numTiles+1);
+      logger.info("Tiling image: " + imgname + " numTiles=" + numTiles + " paddingX=" + paddingX);
+      pg.beginDraw();
+      pg.background(0);
+
+      for (int i = 0; i < numTiles; i++) {
+        pg.image(tileImage, i * tileImage.width + (i +1) * paddingX, 0);
+      }
+
+      pg.endDraw();
+      pg.updatePixels();
+      pg.loadPixels();
+      image = pg;
+    }
   }
 
   public void run(double deltaMs) {
@@ -113,7 +154,7 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
     device.setLayout(UI2dContainer.Layout.VERTICAL);
     device.setPadding(3, 3, 3, 3);
 
-    UI2dContainer knobsContainer = new UI2dContainer(0, 30, device.getWidth(), 45);
+    UI2dContainer knobsContainer = new UI2dContainer(0, 0, device.getWidth(), 45);
     knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
     knobsContainer.setPadding(3, 3, 3, 3);
     new UIKnob(fpsKnob).addToContainer(knobsContainer);
@@ -123,7 +164,20 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
       antialiasButton.setMomentary(false);
       antialiasButton.addToContainer(knobsContainer);
     }
-    new UIButton(CONTROLS_MIN_WIDTH, 10, 60, 20) {
+
+    // We need to reload the image if the tile button is selected.  For tiled images, we build
+    // an intermediate PGraphics object and tile the selected image into that and then use it
+    // as our base PImage 'image'.
+    new UIButton() {
+        @Override
+      public void onToggle(boolean on) {
+          // Need to reload the image
+          loadImg(imgKnob.getString());
+        }
+    }.setParameter(tileKnob).setLabel("tile").setTextOffset(0, 20)
+        .setWidth(28).setHeight(25).addToContainer(knobsContainer);
+
+    new UIButton() {
       @Override
       public void onToggle(boolean on) {
         if (on) {
@@ -132,6 +186,8 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
       }
     }.setLabel("rescan dir")
         .setMomentary(true)
+        .setWidth(60)
+        .setHeight(25)
         .addToContainer(knobsContainer);
 
     knobsContainer.addToContainer(device);
@@ -146,7 +202,7 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
         .addToContainer(filenameEntry);
 
 
-    // Button for reloading shader.
+    // Button for reloading image file list.
     new UIButton(device.getContentWidth() - 20, 0, 20, 20) {
       @Override
       public void onToggle(boolean on) {
