@@ -46,10 +46,10 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   int lastPos = 0;
   boolean autoCycleWasEnabled = false;
 
-  // TODO: Change the defaultTexts to Larry Harvey quotes.
+ // TODO: Change the defaultTexts to Larry Harvey quotes.
   String[] defaultTexts = {
     //"City of orgies, walks and joys,      City whom that I have lived and sung in your midst will one day make      Not the pageants of you, not your shifting tableaus, your spectacles, repay me,      Not the interminable rows of your houses, nor the ships at the wharves,      Nor the processions in the streets, nor the bright windows with goods in them,      Nor to converse with learn'd persons, or bear my share in the soiree or feast;      Not those, but as I pass O Manhattan, your frequent and swift flash of eyes offering me love,      Offering response to my own—these repay me,      Lovers, continual lovers, only repay me.",
-    "It avoids a self-conscious relationship to the act. We live in the most self-conscious society in the history of mankind. There are good things in that, but there are also terrible things. The worst of it is, that we find it hard to give ourselves to the cultural process.",
+      "It avoids a self-conscious relationship to the act. We live in the most self-conscious society in the history of mankind. There are good things in that, but there are also terrible things. The worst of it is, that we find it hard to give ourselves to the cultural process.",
       "If all of your self worth and esteem is invested in how much you consume, how many likes you get, or other quantifiable measures, the desire to simply possess things trumps our ability or capability to make moral connections with people around us.",
       "I've learned never to expect people to be better than they are, but to always have faith that they can be more.",
       "Black Rock gives us all a chance to heal, to become ourselves.",
@@ -103,6 +103,12 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
       logger.fine("Font: " + fontName);
     }
     font = RainbowStudio.pApplet.createFont("04b", fontSize, true);
+    //font = RainbowStudio.pApplet.createFont("PressStart2P", 24, false);
+    /* Emoji smiley, left for reference.  Need to revert to java.awt.Font and Java2D
+       to render emoji's. Processing PFont does not support surrogate pairs.
+    char[] ch = Character.toChars(0x1F601);
+    */
+
     for (int i = 0; i < defaultTexts.length; i++) {
       textItems.add(new TextItem(defaultTexts[i]));
     }
