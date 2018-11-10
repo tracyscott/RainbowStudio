@@ -41,6 +41,21 @@ public class Flags extends LXPattern {
     lgbtFlag[3] = LXColor.rgb(255, 237, 0);
     lgbtFlag[4] = LXColor.rgb(255, 140, 0);
     lgbtFlag[5] = LXColor.rgb(228, 3, 3);
+    /*
+    Uncomment this to get Flag RGB color values in 0.0 - 1.0 range.  Useful for shaders.
+    System.out.println("0: " + LXColor.red(lgbtFlag[0]) / 255.0 + "-" + LXColor.green(lgbtFlag[0])/255.0 + "-" +
+        (LXColor.blue(lgbtFlag[0])&0xff)/255.0);
+    System.out.println("1: " + LXColor.red(lgbtFlag[1]) / 255.0 + "-" + LXColor.green(lgbtFlag[1])/255.0 + "-" +
+        (LXColor.blue(lgbtFlag[1])&0xff)/255.0);
+    System.out.println("2: " + LXColor.red(lgbtFlag[2]) / 255.0 + "-" + (LXColor.green(lgbtFlag[2])&0xff)/255.0 + "-" +
+        LXColor.blue(lgbtFlag[2])/255.0);
+    System.out.println("3: " + (LXColor.red(lgbtFlag[3])&0xff) / 255.0 + "-" + (LXColor.green(lgbtFlag[3])&0xff)/255.0 + "-" +
+        LXColor.blue(lgbtFlag[3])/255.0);
+    System.out.println("4: " + (LXColor.red(lgbtFlag[4])&0xff) / 255.0 + "-" + (LXColor.green(lgbtFlag[4])&0xff)/255.0 + "-" +
+        LXColor.blue(lgbtFlag[4])/255.0);
+    System.out.println("5: " + (LXColor.red(lgbtFlag[5])&0xff) / 255.0 + "-" + LXColor.green(lgbtFlag[5])/255.0 + "-" +
+        LXColor.blue(lgbtFlag[5])/255.0);
+        */
     flags[0] = lgbtFlag;
     transFlag = new int[5];
     transFlag[0] = LXColor.rgb(91, 206, 250);
