@@ -540,29 +540,6 @@ public class Output {
 
     // First, just build the map in a straightforward way without remapping.
     int universesPerInput = 2;
-    for (int i = 0; i < numPanels; i++) {
-      // Universes start at 1
-      for (int panelInputNum = 0; panelInputNum < 2; panelInputNum++) {
-        // We add universeNum and universeNum+1 so we should + panelInputNum*2 here.
-        int universeNum = i * universesPerPanel + panelInputNum*2;
-        List<Integer> universesThisPanelInput = new ArrayList<Integer>();
-        // Reset universe numbers for second pixlite
-        if (i >= panelsPerLedController1) {
-          universeNum = (i - panelsPerLedController1) * universesPerPanel + panelInputNum*universesPerInput;
-        }
-        // Map 2 universes to a given Panel.PanelInput key.
-        universesThisPanelInput.add(universeNum);
-        universesThisPanelInput.add(universeNum+1);
-        String mapAddress = "" + i + "." + panelInputNum;
-        logger.info("initializing panel.panelInput=" + mapAddress + " startUniverse:" + universeNum);
-        panelInputsMap.put(mapAddress, universesThisPanelInput);
-      }
-    }
-
-    // Modify the mapping here
-    // panelInputsMap.put("0.0", (15, 16, 17));
-    // panelInputsMap.put("5.1", (0, 1, 2));
-
 
     // This iterates through all our points.  We also need to track our current logical
     // panel (which should just be globalLedPos / pointsPerPanel;
@@ -592,7 +569,9 @@ public class Output {
         pointsPerThisPanel = 300 + 50 + 34;
       */
 
+      int skippedLeds = 0;
       for (int wireLedPos = 0; wireLedPos < pointsPerThisPanel; wireLedPos++) {
+        boolean skippedThisLed = false;
         int colNumFromLeft = -1;
         int colNumFromRight = -1;
         int rowNumFromBottom = -1;
@@ -602,6 +581,16 @@ public class Output {
         // below are very similar but mirrored about X.
         // Handle start panel, panel variant E special case.
         if (startPanel && currentLogicalPanel == 0) {
+          // NOTE(tracy): On playa change.  4 leds are removed from each end panel.  Removal of an LED shifts
+          // the universe position.  A pixel that exists in code does not have a dmx universe address.  For a
+          // removed pixel, we should not increment the universe number.  We also shouldn't attempt to map the
+          // pixel to an LXDatagram.
+          if (wireLedPos == 1 || wireLedPos == 2 || wireLedPos == 12 || wireLedPos == 13
+              || wireLedPos == 46 || wireLedPos == 47 || wireLedPos == 57 || wireLedPos == 58) {
+            skippedLeds++;
+            skippedThisLed = true;
+            logger.info("Skipped led: " + wireLedPos);
+          }
           // First 300 leds (6 strands are wired normal but mirrored in X dimension, start at bottom right on front
           if (wireLedPos < 300) {
             colNumFromRight = wireLedPos / pointsHighPerPanel;
@@ -657,7 +646,7 @@ public class Output {
             }
           }
           //logger.info("colFromLeft: " + colNumFromLeft + " colFromRight:" + colNumFromRight);
-        } else if (endPanel && currentLogicalPanel <= numPanels - 1) {
+        } else if (endPanel && currentLogicalPanel == numPanels - 1) {
           // Handle end panel, panel variant H special case.
           // The first 300 leds are the typical wiring.
           if (wireLedPos < 300) {
@@ -665,7 +654,7 @@ public class Output {
                 || wireLedPos == 46 || wireLedPos == 47 || wireLedPos == 57 || wireLedPos == 58) {
               skippedLeds++;
               skippedThisLed = true;
-              System.out.println("Skipped led: " + wireLedPos);
+              // System.out.println("Skipped led: " + wireLedPos);
             }
 
             colNumFromLeft = wireLedPos / pointsHighPerPanel;
