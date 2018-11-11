@@ -1,10 +1,12 @@
 package com.giantrainbow;
 
 import com.giantrainbow.model.RainbowBaseModel;
+import com.giantrainbow.ui.UIPanelConfig;
 import com.giantrainbow.ui.UIPixliteConfig;
 import heronarts.lx.LX;
 import heronarts.lx.output.ArtNetDatagram;
 import heronarts.lx.output.LXDatagramOutput;
+import sun.util.logging.resources.logging;
 
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -480,7 +482,8 @@ public class Output {
    * @param startPanel Include special output configuration for a panel type Variant E.
    * @param endPanel Include special output configuration for a panel type Variant H.
    */
-  public static void configureOutputMultiPanelExpanded(LX lx, boolean startPanel, boolean endPanel) {
+  public static void configureOutputMultiPanelExpanded(LX lx, boolean startPanel, boolean endPanel, UIPanelConfig panel16Config,
+                                                       UIPanelConfig panel12Config) {
     // Config for panel size, number of panels, number of universes per panel, number of led controllers
     // and number of panels per controller.
     int pointsWidePerPanel = 15;
@@ -506,10 +509,27 @@ public class Output {
     // and only a single controller.
     int panelsPerLedController1 = pixlite1Panels;  // Production values
     int panelsPerLedController2 = pixlite2Panels;
-    int universesPerPanel = ceil((float)pointsPerPanel/(float)pointsPerUniverse);
+
+    /* UIPanelConfig's specify panel#.input# to universe mappings.  The mappings can be overridden in the UI.
+     * Currently, the front/back of the rainbow consists of 2 Pixlites.  One pixlite controls 16 panels, the
+     * other pixlite controls 12 panels.  NOTE: Due to the physical wiring topology, on one side the first
+     * pixlite manages 16 panels and the second pixlite manages 12 panels while on the opposite side the first
+     * pixlite manages 12 panels and the second pixlite manages 16 panels.  Here we check the number of panels
+     * specified in the UI for pixlite1 and then assign the appropriate UIPanelConfigs to their respective
+     * pixlite1 or pixlite2.
+     */
+    UIPanelConfig pixlite1PanelConfig;
+    UIPanelConfig pixlite2PanelConfig;
+    if (pixlite1Panels == 16) {
+      pixlite1PanelConfig = panel16Config;
+      pixlite2PanelConfig = panel12Config;
+    } else {
+      pixlite1PanelConfig = panel12Config;
+      pixlite2PanelConfig = panel16Config;
+    }
 
     // A panel now has 2 inputs.  The first input maps 250 leds and the second input maps 200 leds.
-    universesPerPanel = 4;
+    int universesPerPanel = 4;
 
     int maxColNumPerPanel = pointsWidePerPanel - 1;
     int currentLogicalPanel;
@@ -522,18 +542,20 @@ public class Output {
     int universesPerInput = 2;
     for (int i = 0; i < numPanels; i++) {
       // Universes start at 1
-      for (int j = 0; j < universesPerPanel/universesPerInput; j++) {
-        int universeNum = i * universesPerPanel + j;
+      for (int panelInputNum = 0; panelInputNum < 2; panelInputNum++) {
+        // We add universeNum and universeNum+1 so we should + panelInputNum*2 here.
+        int universeNum = i * universesPerPanel + panelInputNum*2;
+        List<Integer> universesThisPanelInput = new ArrayList<Integer>();
         // Reset universe numbers for second pixlite
-        for (int panelInputNum = 0; panelInputNum < 2; panelInputNum++) {
-          List<Integer> universesThisPanelInput = new ArrayList<Integer>();
-          if (i >= panelsPerLedController1) {
-            universeNum = (i - panelsPerLedController1) * universesPerPanel + j*universesPerInput + panelInputNum;
-          }
-          // Map 2 universes to a given Panel.PanelInput key.
-          universesThisPanelInput.add(universeNum);
-          panelInputsMap.put(""+ i + "" + panelInputNum, universesThisPanelInput);
+        if (i >= panelsPerLedController1) {
+          universeNum = (i - panelsPerLedController1) * universesPerPanel + panelInputNum*universesPerInput;
         }
+        // Map 2 universes to a given Panel.PanelInput key.
+        universesThisPanelInput.add(universeNum);
+        universesThisPanelInput.add(universeNum+1);
+        String mapAddress = "" + i + "." + panelInputNum;
+        logger.info("initializing panel.panelInput=" + mapAddress + " startUniverse:" + universeNum);
+        panelInputsMap.put(mapAddress, universesThisPanelInput);
       }
     }
 
@@ -704,31 +726,59 @@ public class Output {
             rowNumFromBottom = pointsHighPerPanel - wireLedPos % pointsHighPerPanel - 1;
         }
 
-        // TODO(tracy): Modify this for expanded mode.  Rather than looking up the start universe
+        // Universe remapping for expanded mode.  Rather than looking up the start universe
         // based on the panel number, we need to look it up based on panel_num.panel_part.
-        // i.e. lookup 21.0, 21.1, 22.0, 22.1, etc...
+        // i.e. lookup 11.0, 11.1, 12.0, 12.1, etc...
+        // A UIPanelConfig object has either 16 or 12 panels.  The panel values either
+        // range from 0-15 or 0-11.  'pixliteLocalPanelNum' is relative to the UIPanelConfig, it
+        // is not the global currentLogicalPanel (which can be 25 for example).  Since sometimes
+        // the 16 panel UIPanelConfig will be the first pixlite or sometimes it will be the second
+        // pixlite (depending on the wiring on that side of the bridge) everything just uses
+        // pixlite-local panel numbering and we swap configs below based on a comparison of the global
+        // currentLogicalPanel number and the number of panels managed by the first pixlite.
         int currentPanelInput = wireLedPos / 250;
-        List<Integer> panelInputUniverses = panelInputsMap.get("" + currentLogicalPanel + "." + currentPanelInput);
+        int pixliteLocalPanelNum;
+        if (currentLogicalPanel < pixlite1Panels)
+          pixliteLocalPanelNum = currentLogicalPanel;
+        else
+          pixliteLocalPanelNum = currentLogicalPanel - pixlite1Panels;
+        String mapAddress = "" + pixliteLocalPanelNum + "." + currentPanelInput;
         // Which Panel-local universe are we in? 0,1,2?  Depends on our wireLedPos.  Then we also need to
         // check the Panel-Universe map in case something was wired up incorrectly and we need to
         // account for it in software.
-        // TODO(tracy): Modify this for expanded mode.  If wireLedPos >= 250, then
-        // universeOffset = (wireLedPos - 250) / pointsPerUniverse
-        int universeOffset;
-        if (wireLedPos < pointsPerInput)
-          universeOffset = wireLedPos / pointsPerUniverse;
+        int inputUniverseOffset;
+
+        // NOTE(Tracy): Can't really compute universeOffset anymore, we just need to handle
+        // every case.  The panel input map only has 2 universes per entry.  Each entry is
+        // a panel_num.input_num pair.  So 0.0=>0,1 ; 0.1 => 2,3 ; 1.0 => 4,5 ; 1.1 => 6,7
+        if (wireLedPos < 170) {
+          inputUniverseOffset = 0;
+        } else if (wireLedPos < 250) {
+          inputUniverseOffset = 1;
+        } else if (wireLedPos < 420) {
+          inputUniverseOffset = 0;
+        } else {
+          inputUniverseOffset = 1;
+        }
+        Map<String, List<Integer>> panelInputToUniverseMap;
+        if (currentLogicalPanel < pixlite1Panels)
+          panelInputToUniverseMap = pixlite1PanelConfig.getPanelInputsMap();
         else
-          universeOffset = (wireLedPos - pointsPerInput) / pointsPerUniverse;
+          panelInputToUniverseMap = pixlite2PanelConfig.getPanelInputsMap();
 
-        int currentPanelInputUniverse = panelInputUniverses.get(universeOffset);
+        int currentPanelInputUniverse = panelInputToUniverseMap.get(mapAddress).get(inputUniverseOffset);
 
-        // Chunk by 170 for each universe.
-        // TODO(tracy): For expanded mode this becomes much more complicated.
+        // Chunk by 170 for each universe and also account for 250/200 pixel outputs.
         int universeLedPos;
-        if (wireLedPos < pointsPerInput)
-          universeLedPos = wireLedPos % pointsPerUniverse;
-        else
-          universeLedPos = (wireLedPos - pointsPerInput) % pointsPerUniverse;
+        if (wireLedPos < 170) {
+          universeLedPos = wireLedPos;
+        } else if (wireLedPos < 250) {
+          universeLedPos = wireLedPos - 170;
+        } else if (wireLedPos < 420) {
+          universeLedPos = wireLedPos - 250;
+        } else {
+          universeLedPos = wireLedPos - 420;
+        }
 
         // Convert from Panel-local wire position coordinates to global point coordinates.
         // Point 1,2 in Panel 2 is 420 * 2 + 1 + 2*30 = 901
@@ -744,13 +794,14 @@ public class Output {
           globalPointIndex = -1;
         // logger.info(wireLedPos + " colNum:" +colNumFromLeft + " rowNum:" + rowNumFromBottom + " pointIndex: " + globalPointIndex);
         dmxChannelsForUniverse[universeLedPos] = globalPointIndex;
-        // Either we are on DMX channel 170, or we are at the end of the panel.
-        // TODO(tracy): Currently, if we are at 170 leds, or we are at 450 leds, it is time to configure an ArtNet
+        // When it is time for a new universe it is time to configure an ArtNet
         // datagram packet and increment the universe number.  For expanded mode, we also need to increment the universe
-        // number at 250 leds.  There are some additional complexities relating to wireLedPos and universes.  Since
-        // technically, there are now two wiredLedPos=0 values per panel.  It might be better to just continue with
-        // the 450 assumption and then accounting for that when computing the appropriate universe number.
-        if (universeLedPos == pointsPerUniverse - 1 || wireLedPos == pointsWidePerPanel * pointsHighPerPanel - 1) {
+        // number at 250 leds.
+        // Either we 1. Hit our points per universe limit (170), or 2. The wireLedPos is at the last LED on the wire for
+        // the entire panel, or 3. The wireLedPos is at the 250 pixel limit per expanded mode output (universeLedPos at
+        // this point will be 79, i.e. 249 - 170)
+        if (universeLedPos == pointsPerUniverse - 1 || wireLedPos == pointsWidePerPanel * pointsHighPerPanel - 1
+            || wireLedPos == pointsPerInput-1) {
           // Construct with our custom datagram class that has lookup table Gamma correction and
           // rainbow background color correction.  Also, the last chunk of LEDs on a panel do not fill up an entire universe,
           // so set the datagram size based on the last universeLedPos.
@@ -758,14 +809,16 @@ public class Output {
           //if (universeLedPos != pointsPerUniverse -1) {
           // NOTE(tracy): Leaving this comment in here even though this if condition does nothing.  It would need to
           // be addressed if RainbowDatagram was not being used (i.e. some other non-artnet output).
-          // We came up short, we need to resize our dmxChannelsForUniverse array because RainbowDatagram and LXDatagram in general
+          // If we came up short of 170 leds, we need to resize our dmxChannelsForUniverse array because RainbowDatagram and LXDatagram in general
           // just iterate through the length of the passed in dmxChannelsForUniverse, regardless of the dataLength we have constructed
           // it with.  This causes IndexOutOfBounds exceptions because the data buffer size is determined by dataLength, but the
-          // buffer filling loop is determined by dmxChannelsForUniverse.length
+          // buffer filling loop is determined by the array length dmxChannelsForUniverse.length
           // NOTE: I added a safety check to RainbowDatagram to stop at the buffer length so we can pass in a larger int[] than
           // our corresponding dataLength without blowing up.  Otherwise we need to compute the size of dmxChannelsForUniverse
-          // appropriately for which chunk we are working on AND whether or not it is a start/end panel.
+          // appropriately for which chunk we are about to start working on AND whether or not it is a start/end panel.
           //}
+          System.out.println("Building datagram: universeLedPos=" + universeLedPos + " currentPanelInputUniverse=" +
+              currentPanelInputUniverse);
           ArtNetDatagram datagram = new RainbowDatagram(lx, dmxChannelsForUniverse, (universeLedPos+1)*3,
               currentPanelInputUniverse);
           String ledControllerIp = "";
@@ -816,7 +869,7 @@ public class Output {
       lx.engine.output.addChild(datagramOutput);
       // NOTE(tracy): This is for testing sending packets at a different frame rate than the UI.  Not advisable,
       // but useful for RainbowReceiver to verify correct ArtNet packet sending and sync'ing.
-      //lx.engine.output.framesPerSecond.setValue(GLOBAL_FRAME_RATE + 20);
+      // lx.engine.output.framesPerSecond.setValue(1);
     } catch (SocketException sex) {
       // This can happen for example if we run out of file handles because some code is opening
       // files without closing them.

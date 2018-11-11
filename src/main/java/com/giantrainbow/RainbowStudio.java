@@ -143,6 +143,10 @@ public class RainbowStudio extends PApplet {
   public static UIPixliteConfig pixliteConfig;
   public static UIMidiControl uiMidiControl;
   public static RainbowOSC rainbowOSC;
+  public static UIPanelConfig panel16Config;
+  public static UIPanelConfig panel12Config;
+  public static OSCSensor oscSensor;
+  public static OSCSensorUI oscSensorUI;
 
   @Override
   public void settings() {
@@ -211,11 +215,18 @@ public class RainbowStudio extends PApplet {
 
     lx.ui.setResizable(RESIZABLE);
 
+    oscSensor = new OSCSensor(lx);
+    lx.engine.registerComponent("oscsensor", oscSensor);
+
+    oscSensorUI = (OSCSensorUI) new OSCSensorUI(lx.ui, lx, oscSensor).setExpanded(false).addToContainer(lx.ui.leftPane.global);
+
     audioMonitorLevels = (UIAudioMonitorLevels) new UIAudioMonitorLevels(lx.ui).setExpanded(false).addToContainer(lx.ui.leftPane.global);
     gammaControls = (UIGammaSelector) new UIGammaSelector(lx.ui).setExpanded(false).addToContainer(lx.ui.leftPane.global);
     uiMidiControl = (UIMidiControl) new UIMidiControl(lx.ui, lx, modeSelector).setExpanded(false).addToContainer(lx.ui.leftPane.global);
     modeSelector = (UIModeSelector) new UIModeSelector(lx.ui, lx, audioMonitorLevels).setExpanded(true).addToContainer(lx.ui.leftPane.global);
     pixliteConfig = (UIPixliteConfig) new UIPixliteConfig(lx.ui, lx).setExpanded(false).addToContainer(lx.ui.leftPane.global);
+    panel16Config = (UIPanelConfig) UIPanelConfig.newPanelConfig16(lx.ui, lx).setExpanded(false).addToContainer(lx.ui.leftPane.global);
+    panel12Config = (UIPanelConfig) UIPanelConfig.newPanelConfig12(lx.ui, lx).setExpanded(false).addToContainer(lx.ui.leftPane.global);
 
     lx.engine.midi.addListener(uiMidiControl);
 
@@ -253,7 +264,8 @@ public class RainbowStudio extends PApplet {
     if (enableArtNet) {
       switch (MODEL_TYPE) {
         case FULL_RAINBOW:
-          Output.configureOutputMultiPanel(lx, true, true);
+          //Output.configureOutputMultiPanel(lx, true, true);
+          Output.configureOutputMultiPanelExpanded(lx, false, false, panel16Config, panel12Config);
           break;
         case SRIKANTH_PANEL:
           SimplePanel.configureOutputSrikanthPanel(lx);

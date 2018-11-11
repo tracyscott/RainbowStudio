@@ -1,27 +1,20 @@
 package com.giantrainbow.ui;
 
 import com.giantrainbow.Output;
-import com.giantrainbow.ParameterFile;
-import com.giantrainbow.PropertyFile;
+import com.giantrainbow.RainbowStudio;
 import heronarts.lx.LX;
 import heronarts.lx.parameter.LXParameter;
-import heronarts.lx.parameter.StringParameter;
 import heronarts.lx.studio.LXStudio;
-import heronarts.p3lx.ui.UI2dContainer;
-import heronarts.p3lx.ui.component.UICollapsibleSection;
-import heronarts.p3lx.ui.component.UITextBox;
-
-import java.io.IOException;
 
 public class UIPixliteConfig extends UIConfig {
-  public static final String PIXLITE_1_IP = "Pixlite 1 IP";
-  public static final String PIXLITE_1_PORT = "Pixlite 1 Port";
-  public static final String PIXLITE_1_PANELS = "Pixlite 1 Panels";
-  public static final String PIXLITE_2_IP = "Pixlite 2 IP";
-  public static final String PIXLITE_2_PORT = "Pixlite 2 Port";
-  public static final String PIXLITE_2_PANELS = "Pixlite 2 Panels";
+  public static final String PIXLITE_1_IP = "ip1";
+  public static final String PIXLITE_1_PORT = "port1";
+  public static final String PIXLITE_1_PANELS = "panels1";
+  public static final String PIXLITE_2_IP = "ip2";
+  public static final String PIXLITE_2_PORT = "port2";
+  public static final String PIXLITE_2_PANELS = "panels2";
 
-  public static final String title = "PIXLITE";
+  public static final String title = "pixlite";
   public static final String filename = "pixliteconfig.json";
   public LX lx;
   private boolean parameterChanged = false;
@@ -55,7 +48,8 @@ public class UIPixliteConfig extends UIConfig {
       boolean originalEnabled = lx.engine.output.enabled.getValueb();
       lx.engine.output.enabled.setValue(false);
       lx.engine.output.removeChild(Output.datagramOutput);
-      Output.configureOutputMultiPanel(lx, true, true);
+      Output.configureOutputMultiPanelExpanded(lx, true, true, RainbowStudio.panel16Config,
+          RainbowStudio.panel12Config);
       parameterChanged = false;
       lx.engine.output.enabled.setValue(originalEnabled);
     }

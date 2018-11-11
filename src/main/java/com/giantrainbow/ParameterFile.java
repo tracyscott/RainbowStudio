@@ -9,6 +9,7 @@ import heronarts.lx.parameter.StringParameter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Utility class to encapsulate a set of LXParameter objects that can have
@@ -17,6 +18,8 @@ import java.util.Map;
  * PixLite configuration.
  */
 public class ParameterFile {
+  private static final Logger logger = Logger.getLogger(ParameterFile.class.getName());
+
   PropertyFile props;
   Map<String, LXParameter> params = new HashMap<String, LXParameter>();
 
@@ -46,10 +49,11 @@ public class ParameterFile {
         StringParameter p = new StringParameter(key, param.get("v").getAsString());
         params.put(key, p);
       } else if (type == PropertyFile.TYPE_INT) {
+        logger.info("reading DiscreteParameter " + key + ": " + param.toString());
         int min = param.get("min").getAsInt();
         int max = param.get("max").getAsInt();
         int v = param.get("v").getAsInt();
-        DiscreteParameter p = new DiscreteParameter(key, v, min, max);
+        DiscreteParameter p = new DiscreteParameter(key, v, min, max+1);
         params.put(key, p);
       } else if (type == PropertyFile.TYPE_FLOAT) {
         float min = param.get("min").getAsFloat();

@@ -34,14 +34,14 @@ public class UIMidiControl extends UIConfig implements LXMidiListener  {
     this.lx = lx;
     this.modeSelector = modeSelector;
 
-    registerDiscreteParameter(MIDI_CH, 0, 0, 32);
-    registerDiscreteParameter(NEXT_GAME, 0, 0, 127);
-    registerDiscreteParameter(PREV_GAME, 2, 0, 127);
-    registerDiscreteParameter(AUDIO_MODE, 3, 0, 127);
-    registerDiscreteParameter(STANDARD_MODE, 4, 0, 127);
-    registerDiscreteParameter(INSTRUMENT_MODE, 6, 0, 127);
-    registerDiscreteParameter(INTERACTIVE_MODE, 8, 0, 127);
-    registerDiscreteParameter(AUTO_AUDIO, 9, 0, 127);
+    registerDiscreteParameter(MIDI_CH, 0, 0, 33);
+    registerDiscreteParameter(NEXT_GAME, 0, 0, 128);
+    registerDiscreteParameter(PREV_GAME, 2, 0, 128);
+    registerDiscreteParameter(AUDIO_MODE, 3, 0, 128);
+    registerDiscreteParameter(STANDARD_MODE, 4, 0, 128);
+    registerDiscreteParameter(INSTRUMENT_MODE, 6, 0, 128);
+    registerDiscreteParameter(INTERACTIVE_MODE, 8, 0, 128);
+    registerDiscreteParameter(AUTO_AUDIO, 9, 0, 128);
 
     save();
     buildUI(ui);
