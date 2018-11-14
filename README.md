@@ -34,6 +34,15 @@ To set up RainbowStudio, perform the following steps:
    2. RainbowStudio may show a blank screen. If it does, close it and reopen it.
    3. RainbowStudio should now show the desired pattern.
 
+Helpful links for Linux environments:
+
+1. JDK 8: https://www.javahelps.com/2015/03/install-oracle-jdk-in-ubuntu.html
+2. Maven: https://www.javahelps.com/2017/10/install-apache-maven-on-linux.html
+3. Clone this [project](https://github.com/tracyscott/RainbowStudio.git).
+4. IntelliJ: https://www.jetbrains.com/idea/download/#section=linux
+5. Using IntelliJ import Maven project from the cloned directory
+6. Add a run configuration using a Maven template and enter 'compile exec:java' in command line
+
 ## Documentation
 
 [LX Studio User Guide](https://github.com/tracyscott/RainbowStudio/blob/master/LXStudioUserGuide.md)
