@@ -661,6 +661,13 @@ public class Output {
           // Handle end panel, panel variant H special case.
           // The first 300 leds are the typical wiring.
           if (wireLedPos < 300) {
+            if (wireLedPos == 1 || wireLedPos == 2 || wireLedPos == 12 || wireLedPos == 13
+                || wireLedPos == 46 || wireLedPos == 47 || wireLedPos == 57 || wireLedPos == 58) {
+              skippedLeds++;
+              skippedThisLed = true;
+              System.out.println("Skipped led: " + wireLedPos);
+            }
+
             colNumFromLeft = wireLedPos / pointsHighPerPanel;
             colNumFromRight = maxColNumPerPanel - colNumFromLeft;
             if (colNumFromLeft % 2 == 0)
@@ -751,9 +758,9 @@ public class Output {
         // NOTE(Tracy): Can't really compute universeOffset anymore, we just need to handle
         // every case.  The panel input map only has 2 universes per entry.  Each entry is
         // a panel_num.input_num pair.  So 0.0=>0,1 ; 0.1 => 2,3 ; 1.0 => 4,5 ; 1.1 => 6,7
-        if (wireLedPos < 170) {
+        if (wireLedPos - skippedLeds < 170) {
           inputUniverseOffset = 0;
-        } else if (wireLedPos < 250) {
+        } else if (wireLedPos - skippedLeds < 250) {
           inputUniverseOffset = 1;
         } else if (wireLedPos < 420) {
           inputUniverseOffset = 0;
@@ -770,16 +777,22 @@ public class Output {
 
         // Chunk by 170 for each universe and also account for 250/200 pixel outputs.
         int universeLedPos;
-        if (wireLedPos < 170) {
+        // The second input is never affected by skippedLeds so reset the counter
+        if (wireLedPos == 250) {
+          skippedLeds = 0;
+        }
+        if (wireLedPos - skippedLeds < 170) {
           universeLedPos = wireLedPos;
-        } else if (wireLedPos < 250) {
-          universeLedPos = wireLedPos - 170;
+          universeLedPos -= skippedLeds;
+        } else if (wireLedPos - skippedLeds < 250) {
+          universeLedPos = wireLedPos - 170 - skippedLeds;
         } else if (wireLedPos < 420) {
           universeLedPos = wireLedPos - 250;
         } else {
           universeLedPos = wireLedPos - 420;
         }
 
+        // int universeOffset = (wireLedPos - skippedLeds) / pointsPerUniverse;
         // Convert from Panel-local wire position coordinates to global point coordinates.
         // Point 1,2 in Panel 2 is 420 * 2 + 1 + 2*30 = 901
         int globalPointIndex = 0;
@@ -792,8 +805,9 @@ public class Output {
           globalPointIndex = rowNumFromBottom * pointsWide + colNumFromLeft + currentLogicalPanel * pointsWidePerPanel;
         else
           globalPointIndex = -1;
-        // logger.info(wireLedPos + " colNum:" +colNumFromLeft + " rowNum:" + rowNumFromBottom + " pointIndex: " + globalPointIndex);
-        dmxChannelsForUniverse[universeLedPos] = globalPointIndex;
+        // if (universeLedPos < 8) logger.info("panel: " + mapAddress + " univOffset: " + inputUniverseOffset + " univLedPos: " + universeLedPos + " wireLedPos:" + wireLedPos + " colNum:" +colNumFromLeft + " rowNum:" + rowNumFromBottom + " pointIndex: " + globalPointIndex);
+        if (!skippedThisLed) dmxChannelsForUniverse[universeLedPos] = globalPointIndex;
+        //dmxChannelsForUniverse[universeLedPos] = globalPointIndex;
         // When it is time for a new universe it is time to configure an ArtNet
         // datagram packet and increment the universe number.  For expanded mode, we also need to increment the universe
         // number at 250 leds.
