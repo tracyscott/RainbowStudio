@@ -8,7 +8,7 @@ Loop
 	Sleep 30000
 	Process, Exist, FL64.exe
     if not Errorlevel {
-        Run, C:\Program Files (x86)\Image-Line\FL Studio 20\FL64.exe "C:\Users\tracy\Documents\Image-Line\FL Studio\Projects\midimapped.flp", C:\Program Files (x86)\Image-Line\FL Studio 20
+        Run, C:\Program Files (x86)\Image-Line\FL Studio 20\FL64.exe "C:\Users\Rainbow\Documents\Image-Line\FL Studio\Projects\midimapped.flp", C:\Program Files (x86)\Image-Line\FL Studio 20
 		Sleep 30000
 	}
 }

@@ -265,7 +265,7 @@ public class RainbowStudio extends PApplet {
       switch (MODEL_TYPE) {
         case FULL_RAINBOW:
           //Output.configureOutputMultiPanel(lx, true, true);
-          Output.configureOutputMultiPanelExpanded(lx, false, false, panel16Config, panel12Config);
+          Output.configureOutputMultiPanelExpanded(lx, true, true, panel16Config, panel12Config);
           break;
         case SRIKANTH_PANEL:
           SimplePanel.configureOutputSrikanthPanel(lx);
