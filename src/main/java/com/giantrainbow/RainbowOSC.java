@@ -109,7 +109,7 @@ public class RainbowOSC implements LXOscListener {
 
   public void sendOscMessage(OscMessage message) {
     try {
-      rainbowOscTransmitter.send(message);
+      if (rainbowOscTransmitter != null) rainbowOscTransmitter.send(message);
     } catch (IOException ioex) {
       System.err.println("Error sending OSC message: " + ioex.getMessage());
     }
