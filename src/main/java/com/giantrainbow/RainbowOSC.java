@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -21,6 +23,8 @@ public class RainbowOSC implements LXOscListener {
   private static final int OSC_PORT = 7979;
   public LX lx;
   public LXOscEngine.Transmitter rainbowOscTransmitter;
+
+  static public List<String> pendingMessages = new ArrayList<String>();
 
   public RainbowOSC(LX lx) {
     this.lx = lx;
@@ -60,6 +64,20 @@ public class RainbowOSC implements LXOscListener {
   }
 
   /**
+   * Pulls a pending textupdate message out of the list.
+   */
+  static public String getTextUpdateMessage() {
+    synchronized (pendingMessages) {
+      if (pendingMessages.size() == 0) {
+        return null;
+      } else {
+        String msg = pendingMessages.remove(0);
+        return msg;
+      }
+    }
+  }
+
+  /**
    * Handle an OSC message from a client.  Root path of address space is /rainbow.
    *
    * registerclient: String argument of form host:port.  RainbowStudio will start sending control
@@ -87,6 +105,12 @@ public class RainbowOSC implements LXOscListener {
           // This would typically happen on startup.
           if ("reloadall".equals(path[2])) {
 
+          }
+          if ("textupdate".equals(path[2])) {
+            logger.info("textupdate=" + message.getString(0));
+            synchronized (pendingMessages) {
+              pendingMessages.add(message.getString(0));
+            }
           }
           // TODO(tracy): Maybe change this to mobilesensor or something?
           if ("mobile".equals(path[2])) {

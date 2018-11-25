@@ -3,6 +3,7 @@ package com.giantrainbow.patterns;
 import static processing.core.PApplet.ceil;
 import static processing.core.PApplet.round;
 
+import com.giantrainbow.RainbowOSC;
 import com.giantrainbow.RainbowStudio;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
@@ -45,6 +46,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   float currentPos = 0.0f;
   int lastPos = 0;
   boolean autoCycleWasEnabled = false;
+  boolean noTextUpdateAvailable = true;
 
  // TODO: Change the defaultTexts to Larry Harvey quotes.
   String[] defaultTexts = {
@@ -162,7 +164,14 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     if (item == null) {
       return;
     }
-    String label = item.getLabel();
+    String label = RainbowOSC.getTextUpdateMessage(); // item.getLabel();
+    if (label == null) {
+      noTextUpdateAvailable = true;
+      return;
+    } else {
+      noTextUpdateAvailable = false;
+    }
+    logger.info("received text update=" + label);
 
     if (textImage != null) {
       textImage.dispose();
@@ -170,7 +179,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     textImage = RainbowStudio.pApplet.createGraphics(ceil(pg.textWidth(label)), pg.height);
     textImage.noSmooth();
     textImage.beginDraw();
-    textImage.background(0);
+    textImage.background(0, 0);
     textImage.stroke(255);
     if (font != null) {
       textImage.textFont(font);
@@ -190,6 +199,12 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   }
 
   public void draw(double deltaDrawMs) {
+    // If no new textupdate is available via OSC input, just return (stay empty).
+    if (noTextUpdateAvailable) {
+      redrawTextBuffer(); // Check for an update.
+      return;
+    }
+
     // Once we have finished with one text item, keep that final blank buffer rendering to the
     // screen until the next time our pattern is activated.  This prevents the next text item
     // from bleeding into the visuals while we are fade transitioning to the next pattern.
@@ -241,7 +256,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
 
     // Optimization to not re-render if we haven't moved far enough since last frame.
     if (textImage != null && round(currentPos) != lastPos) {
-      pg.background(0);
+      pg.background(0, 0);
       pg.image(textImage, round(currentPos), 0);
       lastPos = round(currentPos);
     }
