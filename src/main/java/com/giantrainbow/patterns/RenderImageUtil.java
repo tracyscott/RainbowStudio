@@ -29,13 +29,20 @@ class RenderImageUtil {
     int red = (clr >> 16) & 0xff;
     int green = (clr >> 8) & 0xff;
     int blue = clr & 0xff;
+    int alpha = (clr >> 24) & 0xff;
+
 
     // Weight all the components
     red = (int) ((float) red * weight);
     green = (int) ((float) green * weight);
     blue = (int) ((float) blue * weight);
+    alpha = (int) ((float) alpha * weight);
 
-    return  0xff000000 | (red << 16) | (green << 8) | blue;
+    // NOTE(tracy): Hack to test alpha compositing for Normal mode channel mixing.  Doesn't work
+    // as expected.
+    // alpha = 0;
+
+    return  (alpha << 24) | (red << 16) | (green << 8) | blue;
   }
 
   /**

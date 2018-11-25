@@ -70,7 +70,7 @@ public class AnimatedSprite extends PGTexture {
     // top-left coordinate space.
     float yImagePos = outerRadiusInWorldPixels - tunedRadiusInWorldPixels*sin(angle) - spriteWidth/2.0f;
 
-    pg.background(0);
+    pg.background(0, 0);
     pg.image(images[(int)currentFrame], xImagePos, yImagePos);
   }
 }
