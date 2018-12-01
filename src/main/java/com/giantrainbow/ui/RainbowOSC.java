@@ -26,6 +26,7 @@ public class RainbowOSC implements LXOscListener {
       // Register for custom OSC messages on a dedicated port
       LXOscEngine.Receiver r = lx.engine.osc.receiver(OSC_PORT).addListener(this);
       System.out.println("OSC Receiver enabled.");
+      /*
       try {
         rainbowOscTransmitter = lx.engine.osc.transmitter(InetAddress.getByName("192.168.2.136"), 7980, 1024);
         System.out.println("OSC Sender enabled.");
@@ -34,6 +35,7 @@ public class RainbowOSC implements LXOscListener {
       } catch (SocketException sex) {
         System.err.println("SocketException creating OSC Transmitter: " + sex.getMessage());
       }
+      */
 
     } catch (java.net.SocketException sx) {
       throw new RuntimeException(sx);

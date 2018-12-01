@@ -11,10 +11,9 @@ import heronarts.lx.parameter.*;
 import heronarts.p3lx.ui.CustomDeviceUI;
 import heronarts.p3lx.ui.UI;
 import heronarts.p3lx.ui.UI2dContainer;
-import heronarts.p3lx.ui.component.UIButton;
-import heronarts.p3lx.ui.component.UIItemList;
-import heronarts.p3lx.ui.component.UIKnob;
-import heronarts.p3lx.ui.component.UITextBox;
+import heronarts.p3lx.ui.component.*;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -38,9 +37,17 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   public final BooleanParameter oneShot = new BooleanParameter("oneShot", false);
   public final BooleanParameter reset = new BooleanParameter("reset", false);
   public final BooleanParameter advancePattern = new BooleanParameter("advP", true);
+  public final BooleanParameter multiply = new BooleanParameter("mult", true);
+  public final BooleanParameter osc = new BooleanParameter("osc", false);
+
+  public final DiscreteParameter fontKnob = new DiscreteParameter("font", 0, 2);
+  public final String[] fontNames = {"04b", "PressStart2P"};
+  public final DiscreteParameter fontSizeKnob = new DiscreteParameter("fontsize", 24, 10, 32);
 
 
   PGraphics textImage;
+  PGraphics multiplyImage;
+
   volatile boolean doRedraw;
   boolean blankUntilReactivated = false;
   float currentPos = 0.0f;
@@ -100,12 +107,18 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     addParameter(oneShot);
     addParameter(reset);
     addParameter(advancePattern);
+    addParameter(fontKnob);
+    addParameter(multiply);
+    addParameter(osc);
+    addParameter(fontSizeKnob);
+
+
     String[] fontNames = PFont.list();
     for (String fontName : fontNames) {
       logger.fine("Font: " + fontName);
     }
-    font = RainbowStudio.pApplet.createFont("04b", fontSize, true);
-    //font = RainbowStudio.pApplet.createFont("PressStart2P", 24, false);
+    //font = RainbowStudio.pApplet.createFont("04b", fontSize, true);
+    font = RainbowStudio.pApplet.createFont("PressStart2P", 24, false);
     /* Emoji smiley, left for reference.  Need to revert to java.awt.Font and Java2D
        to render emoji's. Processing PFont does not support surrogate pairs.
     char[] ch = Character.toChars(0x1F601);
@@ -160,18 +173,27 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   }
 
   public void redrawTextBuffer() {
-    UIItemList.Item item = textItemList.getFocusedItem();
-    if (item == null) {
-      return;
-    }
-    String label = RainbowOSC.getTextUpdateMessage(); // item.getLabel();
-    if (label == null) {
-      noTextUpdateAvailable = true;
-      return;
+
+    String label;
+
+    if (osc.getValueb()) {
+      label = RainbowOSC.getTextUpdateMessage();
+      // item.getLabel();
+      if (label == null) {
+        // If there is still no text update available via OSC, just return from this method.
+        noTextUpdateAvailable = true;
+        return;
+      } else {
+        noTextUpdateAvailable = false;
+      }
+      logger.info("received text update=" + label);
     } else {
-      noTextUpdateAvailable = false;
+      UIItemList.Item item = textItemList.getFocusedItem();
+      if (item == null) {
+        return;
+      }
+      label = item.getLabel();
     }
-    logger.info("received text update=" + label);
 
     if (textImage != null) {
       textImage.dispose();
@@ -181,6 +203,8 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     textImage.beginDraw();
     textImage.background(0, 0);
     textImage.stroke(255);
+    // Reset the font based on the font dropdown.
+    font = RainbowStudio.pApplet.createFont(fontNames[fontKnob.getValuei()], fontSizeKnob.getValuei(), false);
     if (font != null) {
       textImage.textFont(font);
     } else {
@@ -189,7 +213,18 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
 
     textImage.text(label, 0, textImage.height - textImage.textDescent());
     textImage.endDraw();
+    multiplyImage = RenderImageUtil.rainbowFlagAsPGraphics(textImage.width, textImage.height);
 
+    if (multiply.getValueb()) {
+      textImage.blend(multiplyImage, 0, 0, textImage.width, textImage.height, 0, 0,
+          textImage.width, textImage.height, RainbowStudio.pApplet.MULTIPLY);
+    }
+    textImage.loadPixels();
+    for (int i = 0; i < textImage.width * textImage.height; i++) {
+      if (textImage.pixels[i] == 0xFF000000)
+        textImage.pixels[i] = 0x00000000;
+    }
+    textImage.updatePixels();
     currentPos = clockwise.getValueb()
         ? -textImage.width + textGapPixels
         : pg.width + 1;
@@ -200,7 +235,10 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
 
   public void draw(double deltaDrawMs) {
     // If no new textupdate is available via OSC input, just return (stay empty).
-    if (noTextUpdateAvailable) {
+
+    if (noTextUpdateAvailable && osc.getValueb()) {
+      // redrawTextBuffer() might do nothing in OSC input mode.  If there is no text available,
+      // it will just return.  Effectively waiting until the next frame to check for an update.
       redrawTextBuffer(); // Check for an update.
       return;
     }
@@ -271,11 +309,11 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   public void buildDeviceUI(UI ui, final UI2dContainer device) {
     device.setContentWidth(CONTROLS_MIN_WIDTH);
     device.setLayout(UI2dContainer.Layout.VERTICAL);
-    device.setPadding(3, 3, 3, 3);
+    device.setPadding(0, 0, 0, 0);
 
     UI2dContainer knobsContainer = new UI2dContainer(0, 30, device.getWidth(), 45);
     knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
-    knobsContainer.setPadding(3, 3, 3, 3);
+    knobsContainer.setPadding(0, 0, 0, 0);
     new UIKnob(xSpeed).addToContainer(knobsContainer);
     new UIKnob(fpsKnob).addToContainer(knobsContainer);
     new UIButton()
@@ -285,11 +323,11 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
         .setWidth(24)
         .setHeight(16)
         .addToContainer(knobsContainer);
-
+    new UIKnob(fontSizeKnob).addToContainer(knobsContainer);
     knobsContainer.addToContainer(device);
     knobsContainer = new UI2dContainer(0, 30, device.getWidth(), 35);
     knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
-    knobsContainer.setPadding(3, 3, 3, 3);
+    knobsContainer.setPadding(0, 0, 0, 0);
     new UIButton()
             .setParameter(oneShot)
             .setLabel("oneShot")
@@ -311,7 +349,30 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
             .setWidth(24)
             .setHeight(16)
             .addToContainer(knobsContainer);
+    new UIButton()
+        .setParameter(multiply)
+        .setLabel("mult")
+        .setTextOffset(0, 12)
+        .setWidth(24)
+        .setHeight(16)
+        .addToContainer(knobsContainer);
+    new UIButton()
+        .setParameter(osc)
+        .setLabel("osc")
+        .setTextOffset(0, 12)
+        .setWidth(24)
+        .setHeight(16)
+        .addToContainer(knobsContainer);
+
     knobsContainer.addToContainer(device);
+    new UIDropMenu(0f, 0f, device.getWidth() - 30f, 20f, fontKnob) {
+      public void onParameterChanged(LXParameter p) {
+        DiscreteParameter dp = (DiscreteParameter)p;
+        String fontName = fontNames[dp.getValuei()];
+
+      }
+    }.setOptions(fontNames).setDirection(UIDropMenu.Direction.UP).addToContainer(device);
+
     UI2dContainer textEntryLine = new UI2dContainer(0, 0, device.getWidth(), 25);
     textEntryLine.setLayout(UI2dContainer.Layout.HORIZONTAL);
 

@@ -36,38 +36,39 @@ public class FluidPP extends PGPixelPerfect {
       float animator = abs(sin(fluid.simulation_step*0.01f));
       temperature = animator * 10f;
 
+      // Rainbow Colors
       // add impulse: density + temperature
       px = 5;
-      r = 228.0f/255.0f;
-      g = 3.0f/255.0f;
-      b = 3.0f/255.0f;
+      r = 228.0f / 255.0f;
+      g = 3.0f / 255.0f;
+      b = 3.0f / 255.0f;
       fluid.addDensity(px, py, radius, r, g, b, intensity);
       fluid.addTemperature(px, py, radius, temperature);
 
-      px = 1.0f * pg.width/5.0f;
-      r = 255.0f/255.0f;
-      g = 140.0f/255.0f;
+      px = 1.0f * pg.width / 5.0f;
+      r = 255.0f / 255.0f;
+      g = 140.0f / 255.0f;
       b = 0.0f;
       fluid.addDensity(px, py, radius, r, g, b, intensity);
       fluid.addTemperature(px, py, radius, temperature);
 
-      px = 2.0f * pg.width/5.0f;
-      r = 255.0f/255.0f;
-      g = 237.0f/255.0f;
+      px = 2.0f * pg.width / 5.0f;
+      r = 255.0f / 255.0f;
+      g = 237.0f / 255.0f;
       b = 0.0f;
       fluid.addDensity(px, py, radius, r, g, b, intensity);
       fluid.addTemperature(px, py, radius, temperature);
 
-      px = 3.0f * pg.width/5.0f;
+      px = 3.0f * pg.width / 5.0f;
       r = 0.0f;
-      g = 128.0f/255.0f;
-      b = 38.0f/255.0f;
+      g = 128.0f / 255.0f;
+      b = 38.0f / 255.0f;
       fluid.addDensity(px, py, radius, r, g, b, intensity);
       fluid.addTemperature(px, py, radius, temperature);
 
-      px = 4*pg.width/5.0f;
+      px = 4 * pg.width / 5.0f;
       r = 0.0f;
-      g = 77.0f/255.0f;
+      g = 77.0f / 255.0f;
       b = 1.0f;
       fluid.addDensity(px, py, radius, r, g, b, intensity);
       fluid.addTemperature(px, py, radius, temperature);

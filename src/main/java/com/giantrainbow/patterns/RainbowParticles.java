@@ -284,7 +284,7 @@ public class RainbowParticles extends PGPixelPerfect {
   }
 
 
-  float[][] pallette = {
+  float[][] pallette2 = {
       { 32,  32, 32},
       {196,  96,  0},
       {128, 128,  0},
@@ -292,9 +292,17 @@ public class RainbowParticles extends PGPixelPerfect {
       { 96,  96, 96},
   };
 
+  //RedBull (15,0,105) (192,192,192) (255,204,0) (210,0,60) (192,192,192) (15,0,105)
+  float[][] pallette = {
+      {15, 0, 105},
+      {192, 192, 192},
+      {210, 0, 60},
+      {255, 204, 0},
+  };
+
   public void updateColor(){
     if (((int)currentFrame)%5 == 0) {
-//    float mix = sin(frameCount*0.001f) * 0.5f + 0.5f;
+      //float mix = (float)Math.sin((float)(currentFrame*0.001)) * 0.5f + 0.5f;
       //float mix = RainbowStudio.pApplet.map(mouseX, 0, width, 0, 1);
       float mix = 0.5f;
       float[] rgb1 = DwUtils.getColor(pallette, mix, null);
@@ -304,10 +312,10 @@ public class RainbowParticles extends PGPixelPerfect {
       float green = (float) Math.random();
       float blue = (float) Math.random();
 
-      //particles.param.col_A = new float[]{rgb1[0] * s1, rgb1[1] * s1, rgb1[2] * s1, 1.0f};
-      //particles.param.col_B = new float[]{rgb1[0] * s2, rgb1[1] * s2, rgb1[2] * s2, 0.0f};
-      particles.param.col_A = new float[]{red, green, blue, 1.0f};
-      particles.param.col_B = new float[]{red * 0.25f, green * 0.25f, blue * 0.25f, 0.0f};
+      particles.param.col_A = new float[]{rgb1[0] * s1, rgb1[1] * s1, rgb1[2] * s1, 1.0f};
+      particles.param.col_B = new float[]{rgb1[0] * s2, rgb1[1] * s2, rgb1[2] * s2, 0.0f};
+      //particles.param.col_A = new float[]{red, green, blue, 1.0f};
+      //particles.param.col_B = new float[]{red * 0.25f, green * 0.25f, blue * 0.25f, 0.0f};
     }
   }
 

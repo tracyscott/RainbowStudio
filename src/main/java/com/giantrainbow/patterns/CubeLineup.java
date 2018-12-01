@@ -33,8 +33,11 @@ public class CubeLineup extends CanvasPattern3D {
   public final CompoundParameter countKnob =
       new CompoundParameter("Count", 25, 10, MAX_CUBES).setDescription("Count");
 
+  public int[] palette;
+
   public CubeLineup(LX lx) {
     super(lx);
+    palette = Colors.RAINBOW_PALETTE;
     addParameter(speedKnob);
     addParameter(countKnob);
     addParameter(rollKnob);
@@ -80,7 +83,7 @@ public class CubeLineup extends CanvasPattern3D {
     }
 
     float partW() {
-      return W / (float) Colors.RAINBOW_PALETTE.length;
+      return W / (float) palette.length;
     }
 
     Box(Random rnd) {
@@ -104,8 +107,8 @@ public class CubeLineup extends CanvasPattern3D {
     }
 
     void drawRect(float zoff) {
-      for (int i = 0; i < Colors.RAINBOW_PALETTE.length; i++) {
-        drawPart(zoff, Colors.RAINBOW_PALETTE[i], i);
+      for (int i = 0; i < palette.length; i++) {
+        drawPart(zoff, palette[i], i);
       }
     }
 
