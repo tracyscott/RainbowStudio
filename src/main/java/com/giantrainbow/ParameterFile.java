@@ -49,7 +49,7 @@ public class ParameterFile {
         StringParameter p = new StringParameter(key, param.get("v").getAsString());
         params.put(key, p);
       } else if (type == PropertyFile.TYPE_INT) {
-        logger.info("reading DiscreteParameter " + key + ": " + param.toString());
+        // logger.info("reading DiscreteParameter " + key + ": " + param.toString());
         int min = param.get("min").getAsInt();
         int max = param.get("max").getAsInt();
         int v = param.get("v").getAsInt();
@@ -65,7 +65,7 @@ public class ParameterFile {
         double base = param.get("base").getAsDouble();
         double range = param.get("range").getAsDouble();
         double v = param.get("v").getAsDouble();
-        System.out.println("Loading " + key + " double: " + v + " base: " + base + " range:" + range);
+        // System.out.println("Loading " + key + " double: " + v + " base: " + base + " range:" + range);
         CompoundParameter p = new CompoundParameter(key, v, base, range);
         params.put(key, p);
       }
@@ -125,10 +125,10 @@ public class ParameterFile {
   public StringParameter getStringParameter(String name, String value) {
     StringParameter sp = (StringParameter)params.get(name);
     if (sp == null) {
-      System.out.println("Did not find existing, creating new.");
+      // System.out.println("Did not find existing, creating new.");
       sp = newStringParameter(name, value);
     } else {
-      System.out.println("Found existing StringParameter.");
+      // System.out.println("Found existing StringParameter.");
     }
     return sp;
   }
@@ -193,10 +193,10 @@ public class ParameterFile {
   public CompoundParameter getCompoundParameter(String name, double value, double base, double range) {
     CompoundParameter cp = (CompoundParameter) params.get(name);
     if (cp == null) {
-      System.out.println("Didn't find existing compound parameter");
+      //System.out.println("Didn't find existing compound parameter");
       cp = newCompoundParameter(name, value, base, range);
     } else {
-      System.out.println("Founding existing compound parameter");
+      //System.out.println("Founding existing compound parameter");
     }
     return cp;
   }

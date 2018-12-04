@@ -75,13 +75,14 @@ public class UIPanelConfig extends UIConfig {
       // Universes start at 1
       for (int panelInputNum = 0; panelInputNum < 2; panelInputNum++) {
         // We add universeNum and universeNum+1 so we should + panelInputNum*2 here.
-        int universeNum = i * universesPerPanel + panelInputNum*2;
+        String mapAddress = i + "." + panelInputNum;
+        System.out.println("mapAddr: " + mapAddress + " = " + getStringParameter(mapAddress).getString());
+        int universeNum = Integer.parseInt(getStringParameter(mapAddress).getString()); // * universesPerPanel + panelInputNum*2;
         List<Integer> universesThisPanelInput = new ArrayList<Integer>();
         // Reset universe numbers for second pixlite
         // Map 2 universes to a given Panel.PanelInput key.
         universesThisPanelInput.add(universeNum);
         universesThisPanelInput.add(universeNum+1);
-        String mapAddress = "" + i + "." + panelInputNum;
         logger.info("Expanded panel.panelInput=" + mapAddress + " startUniverse:" + universeNum);
         panelInputsMap.put(mapAddress, universesThisPanelInput);
       }
@@ -94,7 +95,7 @@ public class UIPanelConfig extends UIConfig {
   public Map<String, List<Integer>> getPanelInputsMap() {
     if (panelInputsMap == null)
       rebuildPanelInputMap();
-    return panelInputsMap;
+   return panelInputsMap;
   }
 
   @Override
