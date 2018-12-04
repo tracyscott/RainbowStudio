@@ -45,7 +45,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   public final BooleanParameter centered = new BooleanParameter("centr", false);
 
   public final DiscreteParameter fontKnob = new DiscreteParameter("font", 0, 2);
-  public final String[] fontNames = {"04b", "PressStart2P"};
+  public final String[] fontNames = {"04b 30", "Press Start Regular"};
   public final DiscreteParameter fontSizeKnob = new DiscreteParameter("fontsize", 24, 10, 32);
 
 
@@ -204,10 +204,12 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     textImage.stroke(255);
     // Reset the font based on the font dropdown.
     String fontName = getPlatformIndependentFontName(fontNames[fontKnob.getValuei()]);
+    logger.info("Using font = " + fontName);
     font = RainbowStudio.pApplet.createFont(fontName, fontSizeKnob.getValuei(), false);
     if (font != null) {
       textImage.textFont(font);
     } else {
+      logger.info("Didn't find font: " + fontName);
       textImage.textSize(fontSize);
     }
 
