@@ -107,9 +107,10 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     addParameter(fadeTime);
 
 
+    logger.info("listing fonts");
     String[] fontNames = PFont.list();
     for (String fontName : fontNames) {
-      logger.fine("Font: " + fontName);
+      logger.info("Font: " + fontName);
     }
     //font = RainbowStudio.pApplet.createFont("04b", fontSize, true);
     font = RainbowStudio.pApplet.createFont("PressStart2P", 24, false);
@@ -166,12 +167,8 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     getChannel().autoCycleEnabled.setValue(false);
   }
 
-  /**
-   * Call this to advance to the next text item, whether that is from the list or via
-   * OSC.
-   */
-  public void loadNextTextItem() {
-
+  public String getPlatformIndependentFontName(String fname) {
+    return fname;
   }
 
   public void redrawTextBuffer(double deltaDrawMs) {
@@ -206,7 +203,8 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     textImage.background(0, 0);
     textImage.stroke(255);
     // Reset the font based on the font dropdown.
-    font = RainbowStudio.pApplet.createFont(fontNames[fontKnob.getValuei()], fontSizeKnob.getValuei(), false);
+    String fontName = getPlatformIndependentFontName(fontNames[fontKnob.getValuei()]);
+    font = RainbowStudio.pApplet.createFont(fontName, fontSizeKnob.getValuei(), false);
     if (font != null) {
       textImage.textFont(font);
     } else {
