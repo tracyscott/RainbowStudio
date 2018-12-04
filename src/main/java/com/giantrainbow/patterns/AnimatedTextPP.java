@@ -83,6 +83,8 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
       @Override
       public void onParameterChanged(LXParameter p) {
         blankUntilReactivated = false;
+        // TODO(tracy): Change this to loadNewTextItem() to properly
+        // account for OSC updates.
         currItem = textItemList.getFocusedItem();
         redrawTextBuffer(deltaDrawMs);
         BooleanParameter b = (BooleanParameter)p;
@@ -164,6 +166,14 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     getChannel().autoCycleEnabled.setValue(false);
   }
 
+  /**
+   * Call this to advance to the next text item, whether that is from the list or via
+   * OSC.
+   */
+  public void loadNextTextItem() {
+
+  }
+
   public void redrawTextBuffer(double deltaDrawMs) {
 
     String label;
@@ -212,6 +222,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
           textImage.width, textImage.height, RainbowStudio.pApplet.MULTIPLY);
     }
     textImage.loadPixels();
+    /*
     if (fadeIn)
       sinceFadeStartMs += deltaDrawMs;
     else if (fadeOut)
@@ -227,15 +238,18 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
       fadeOut = true;
       sinceFadeStartMs = fadeTime.getValue();
     }
+    */
     for (int i = 0; i < textImage.width * textImage.height; i++) {
       if (textImage.pixels[i] == 0xFF000000)
         textImage.pixels[i] = 0x00000000;
       else {
+        /*
         // apply alpha fade.
         LXColor.rgba(LXColor.red(textImage.pixels[i]),
             LXColor.green(textImage.pixels[i]),
                 LXColor.blue(textImage.pixels[i]),
             (int)(alpha * 255f));
+            */
       }
     }
     textImage.updatePixels();
@@ -307,7 +321,8 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
         }
       }
     } else {
-      redrawTextBuffer(deltaDrawMs);
+      // TODO(tracy): This is for fade-in, disabled for now
+      // redrawTextBuffer(deltaDrawMs);
     }
 
     // Optimization to not re-render if we haven't moved far enough since last frame.
