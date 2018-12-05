@@ -170,6 +170,11 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   }
 
   public String getPlatformIndependentFontName(String fname) {
+    if (RainbowStudio.pApplet.platform == PConstants.MACOSX) {
+      //04b 30", "Press Start Regular"
+      if (fname.equals("04b 30")) return "04b";
+      if (fname.equals("Press Start Regular")) return "PressStart2P";
+    }
     return fname;
   }
 
