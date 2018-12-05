@@ -71,7 +71,7 @@ public class Tracers extends PGPixelPerfect {
    */
   public void draw(double drawDeltaMs) {
     pg.colorMode(HSB, 1.0f);
-    pg.background(0.0f, 0.0f, 0.0f, 0.5f);
+    pg.background(0.0f, 0.0f, 0.0f, 0.0f);
 
     updateTracers();
     processTracers();
@@ -129,7 +129,7 @@ public class Tracers extends PGPixelPerfect {
       tracer.pos.x += tracer.velocityX;
       tracer.pos.y += tracer.velocityY;
       if (tracerNeedsReset(tracer)) {
-        logger.info("resetting tracer");
+        //logger.info("resetting tracer");
         resetTracer(tracer);
       }
     }
