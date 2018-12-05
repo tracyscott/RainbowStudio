@@ -167,6 +167,11 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     blankUntilReactivated = false;
     autoCycleWasEnabled = getChannel().autoCycleEnabled.getValueb();
     getChannel().autoCycleEnabled.setValue(false);
+    String fontName = getPlatformIndependentFontName(fontNames[fontKnob.getValuei()]);
+    logger.info("Using font = " + fontName);
+    font = RainbowStudio.pApplet.createFont(fontName, fontSizeKnob.getValuei(), false);
+    // Reset the font based on the font dropdown.
+
   }
 
   public String getPlatformIndependentFontName(String fname) {
@@ -209,19 +214,23 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     if (textImage != null) {
       textImage.dispose();
     }
+
+    if (pg != null) {
+      if (font != null) {
+        pg.textFont(font);
+      } else {
+        pg.textSize(fontSize);
+      }
+    }
     textImage = RainbowStudio.pApplet.createGraphics(ceil(pg.textWidth(label)), pg.height);
     textImage.noSmooth();
     textImage.beginDraw();
     textImage.background(0, 0);
     textImage.stroke(255);
     // Reset the font based on the font dropdown.
-    String fontName = getPlatformIndependentFontName(fontNames[fontKnob.getValuei()]);
-    logger.info("Using font = " + fontName);
-    font = RainbowStudio.pApplet.createFont(fontName, fontSizeKnob.getValuei(), false);
     if (font != null) {
       textImage.textFont(font);
     } else {
-      logger.info("Didn't find font: " + fontName);
       textImage.textSize(fontSize);
     }
 
