@@ -49,6 +49,12 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   public final DiscreteParameter fontSizeKnob = new DiscreteParameter("fontsize", 24, 10, 32);
 
 
+  String[] defaultTexts = {
+      "RAINBOW BRIDGE"
+  };
+  public final DiscreteParameter  whichText = new DiscreteParameter("which", -1, 0, defaultTexts.length);
+
+
   PGraphics textImage;
   PGraphics multiplyImage;
 
@@ -64,11 +70,6 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   private double fullAlphaMs = 5000.0;
   private boolean fadeIn = true;
   private boolean fadeOut = false;
-
- // TODO: Change the defaultTexts to Larry Harvey quotes.
-  String[] defaultTexts = {
-      "Belief is thought at rest.",
-  };
 
   int currIndex;
   UIItemList.Item currItem;
@@ -105,6 +106,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     addParameter(fontSizeKnob);
     addParameter(centered);
     addParameter(fadeTime);
+    addParameter(whichText);
 
 
     logger.info("listing fonts");
@@ -192,6 +194,11 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
         return;
       }
       label = item.getLabel();
+      // Allow for whichText to override auto-iteration over the list of texts.  Each text item
+      // will be displayed by independent patterns in the channel.
+      if (whichText.getValuei() != -1) {
+        label = defaultTexts[whichText.getValuei()];
+      }
     }
 
     if (textImage != null) {
@@ -297,6 +304,12 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
             if (!textItems.isEmpty()) {
               // Increment only if we're not starting fresh
               currIndex = (currIndex + 1) % textItems.size();
+              
+              // Prevent next text item from starting while we are in a next-pattern fade
+              // transition.  Otherwise, we have to disable transitions for all patterns in
+              // the channel containing this AnimatedTextPP.
+              if (advancePattern.isOn() || oneShot.isOn()) blankUntilReactivated = true;
+              getChannel().autoCycleEnabled.setValue(autoCycleWasEnabled);
               // In order to not randomly fade out text in the middle of playing, the channel
               // scheduling code in UIModeSelector will disable fading between standard-mode
               // channels while text is playing.  In order for that to not wreak havoc, this
@@ -305,11 +318,6 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
               // consist of only AnimatedTextPP patterns otherwise channel switching will stall.
               if (!oneShot.isOn() && advancePattern.isOn())
                 getChannel().goNext();
-              // Prevent next text item from starting while we are in a next-pattern fade
-              // transition.  Otherwise, we have to disable transitions for all patterns in
-              // the channel containing this AnimatedTextPP.
-              if (advancePattern.isOn() || oneShot.isOn()) blankUntilReactivated = true;
-              getChannel().autoCycleEnabled.setValue(autoCycleWasEnabled);
             }
           }
           textItemList.setFocusIndex(currIndex);
@@ -357,6 +365,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
         .setHeight(16)
         .addToContainer(knobsContainer);
     new UIKnob(fontSizeKnob).addToContainer(knobsContainer);
+    new UIKnob(whichText).addToContainer(knobsContainer);
     knobsContainer.addToContainer(device);
     knobsContainer = new UI2dContainer(0, 30, device.getWidth(), 35);
     knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
