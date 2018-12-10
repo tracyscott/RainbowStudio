@@ -77,6 +77,8 @@ public class RainbowOSC implements LXOscListener {
     }
   }
 
+  public static String lastString = null;
+
   /**
    * Handle an OSC message from a client.  Root path of address space is /rainbow.
    *
@@ -86,6 +88,7 @@ public class RainbowOSC implements LXOscListener {
    * @param message OscMessage from a client.
    */
   public void oscMessage(OscMessage message) {
+
     try {
       String addressPattern = message.getAddressPattern().getValue();
       String[] path = addressPattern.split("/");
@@ -108,6 +111,12 @@ public class RainbowOSC implements LXOscListener {
           }
           if ("textupdate".equals(path[2])) {
             logger.info("textupdate=" + message.getString(0));
+            if (message.getString(0) != null && message.getString(0).trim().equals(""))
+              return;
+            // Handle some duplicate sending issue.
+            if (message.equals(lastString))
+              return;
+            lastString = message.getString(0);
             synchronized (pendingMessages) {
               pendingMessages.add(message.getString(0));
             }
