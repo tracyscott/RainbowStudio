@@ -153,7 +153,6 @@ public final class Colors {
 
   public static final int[][] ALL_PALETTES = {
       RAINBOW_PALETTE,
-      REDBULL_PALETTE,
       PALETTE_DALI_MEMORY,
       PALETTE_KANAGA_WAVE,
       PALETTE_KLIMT_KISS,
