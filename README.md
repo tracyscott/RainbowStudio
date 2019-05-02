@@ -34,14 +34,22 @@ To set up RainbowStudio, perform the following steps:
    2. RainbowStudio may show a blank screen. If it does, close it and reopen it.
    3. RainbowStudio should now show the desired pattern.
 
+To Run RainbowStudio from IntelliJ:
+
+1. Using IntelliJ, import Maven project from the cloned RainbowStudio directory
+2. In the IntelliJ project, add run configuration using Maven template and enter 'compile exec:java' in command line field
+
 Helpful links for Linux environments:
 
 1. JDK 8: https://www.javahelps.com/2015/03/install-oracle-jdk-in-ubuntu.html
 2. Maven: https://www.javahelps.com/2017/10/install-apache-maven-on-linux.html
 3. Clone this [project](https://github.com/tracyscott/RainbowStudio.git).
 4. IntelliJ: https://www.jetbrains.com/idea/download/#section=linux
-5. Using IntelliJ import Maven project from the cloned directory
+5. Using IntelliJ, import Maven project from the cloned directory
 6. Add a run configuration using a Maven template and enter 'compile exec:java' in command line
+
+Common issues:
+1. Window size error: set "lx.ui.setResizable(RESIZABLE);" to false
 
 ## Documentation
 
