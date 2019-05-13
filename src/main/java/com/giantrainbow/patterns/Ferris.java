@@ -5,6 +5,8 @@ import static processing.core.PConstants.CLOSE;
 import static processing.core.PConstants.LINES;
 import static processing.core.PConstants.PI;
 
+import static com.giantrainbow.patterns.ferris.Amusement.CAR_COUNT;
+
 import com.giantrainbow.colors.Colors;
 import com.giantrainbow.model.space.Space3D;
 import heronarts.lx.LX;
@@ -14,6 +16,8 @@ import java.util.Random;
 import org.joml.Vector3f;
 import processing.core.PImage;
 import processing.core.PVector;
+
+import org.dyn4j.dynamics.World;
 
 @LXCategory(LXCategory.FORM)
 public class Ferris extends CanvasPattern2D {
@@ -40,8 +44,6 @@ public class Ferris extends CanvasPattern2D {
   public final static float WIDTH_RATIO = 0.95f;
   public final static float HEIGHT_RATIO = 0.98f;
 
-  public final static int CAR_COUNT = 10;
-
   final float ELLIPSE_A = (canvas.width() * WIDTH_RATIO) / 2f;
   final float ELLIPSE_B = (canvas.width() * HEIGHT_RATIO) / 2f;
 
@@ -51,11 +53,15 @@ public class Ferris extends CanvasPattern2D {
   final float CAR_CLOSE = PI * 15 / 8;
   final float CAR_OFFSET = -CAR_RADIUS * 0.9f;
 
+  final World world;
+
   double telapsed;
   double relapsed;
 
   public Ferris(LX lx) {
     super(lx);
+
+    this.world = new World();
 
     addParameter(speedKnob);
     addParameter(rotateKnob);
@@ -64,6 +70,7 @@ public class Ferris extends CanvasPattern2D {
 
   public void draw(double deltaMs) {
     pg.background(0);
+    world.update(deltaMs/1000);
 
     double speed = speedKnob.getValue();
     telapsed += (float) (deltaMs * speed);
@@ -76,8 +83,7 @@ public class Ferris extends CanvasPattern2D {
     pg.translate(WHEEL_CENTER_X, WHEEL_CENTER_Y);
 
     // Reference line for the wheel:
-    // 
-    // drawEllipse(2 * ELLIPSE_A, 2 * ELLIPSE_B);
+    drawEllipse(2 * ELLIPSE_A, 2 * ELLIPSE_B);
 
     drawStructure();
   }
