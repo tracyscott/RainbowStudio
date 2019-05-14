@@ -26,7 +26,7 @@ public class Amusement {
     public Body []carriages;
     public RevoluteJoint []carriageAxles;
 
-    public Amusement(World world, double wheelRadius, double carRadius, double carOffset) {
+    public Amusement(World world, double wheelRadius, double carRadius) {
 	this.mount = new Body();
 	this.wheel = new Body();
 	this.carriages = new Body[CAR_COUNT];
@@ -57,8 +57,8 @@ public class Amusement {
 
 	for (int i = 0; i < CAR_COUNT; i++) {
 	    double theta = START_ROTATION + i * CAR_STEP;
-	    double x = (wheelRadius + carOffset) * Math.cos(theta);
-	    double y = (wheelRadius + carOffset) * Math.sin(theta);
+	    double x = (wheelRadius) * Math.cos(theta);
+	    double y = (wheelRadius) * Math.sin(theta);
 
 	    Body car = new Body();
 	    RevoluteJoint carAxle = new RevoluteJoint(wheel, car, new Vector2(x, y));

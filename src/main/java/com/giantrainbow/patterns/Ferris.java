@@ -61,7 +61,7 @@ public class Ferris extends CanvasPattern2D {
     super(lx);
 
     this.world = new World();
-    this.ferris = new Amusement(world, Math.max(ELLIPSE_A, ELLIPSE_B), CAR_RADIUS, CAR_OFFSET);
+    this.ferris = new Amusement(world, Math.max(ELLIPSE_A, ELLIPSE_B), CAR_RADIUS);
 
     addParameter(speedKnob);
     addParameter(torqueKnob);
@@ -87,7 +87,7 @@ public class Ferris extends CanvasPattern2D {
     drawStructure();
 
     // Reference line for the wheel.
-    drawEllipse(2 * ELLIPSE_A, 2 * ELLIPSE_B);
+    // drawEllipse(2 * ELLIPSE_A, 2 * ELLIPSE_B);
   }
 
   public void drawEllipse(float width, float height) {
@@ -128,8 +128,6 @@ public class Ferris extends CanvasPattern2D {
 	pg.strokeWeight(5);
 
 	for (int i = 0; i < Amusement.CAR_COUNT; i++) {
-	    // double carRotation = ferris.carriages[i].getTransform().getRotation();
-
 	    float theta1 = (float)(wheelRotation + i * Amusement.CAR_STEP);
 	    float theta2 = (float)(wheelRotation + (i+1) * Amusement.CAR_STEP);
 	    float x1 = ELLIPSE_A * (float)Math.cos(theta1);
