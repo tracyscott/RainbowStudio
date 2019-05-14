@@ -173,6 +173,19 @@ public class UIModeSelector extends UICollapsibleSection {
     lx.engine.addLoopTask(new StandardModeCycle());
   }
 
+  public void switchToMode(String mode) {
+    if ("Audio".equalsIgnoreCase(mode)){
+    } else if ("Standard".equalsIgnoreCase(mode)) {
+
+    } else if ("Interactive".equalsIgnoreCase(mode)) {
+
+    } else if ("Instrument".equalsIgnoreCase(mode)) {
+
+    } else if ("Text".equalsIgnoreCase(mode)) {
+
+    }
+  }
+
   public void setAudioChannelEnabled(boolean on) {
     LXChannelBus audioChannel = UtilsForLX.getChannelByLabel(lx, "AUDIO");
     if (audioChannel != null) audioChannel.enabled.setValue(on);

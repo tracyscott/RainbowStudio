@@ -1,5 +1,6 @@
 package com.giantrainbow.patterns;
 
+
 import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
 import static processing.core.PApplet.abs;
 import static processing.core.PApplet.sin;
@@ -17,20 +18,20 @@ import processing.opengl.PGraphics2D;
  * Utility class for Fluid Simulation.
  */
 @LXCategory(LXCategory.FORM)
-public class FluidPP extends PGPixelPerfect {
+public class CrazyFluid extends PGPixelPerfect {
   private static final Logger logger = Logger.getLogger(FluidPP.class.getName());
 
   private class MyFluidData implements DwFluid2D.FluidData {
 
     // update() is called during the fluid-simulation update step.
     @Override
-      public void update(DwFluid2D fluid) {
+    public void update(DwFluid2D fluid) {
 
       float px, py, radius, r, g, b, intensity, temperature;
 
       // LGBT 6 Bands  (228,3,3) (255,140,0) (255,237,0) (0,128,38) (0,77,255) (117,7,135)
       py = 5;
-      radius = 5;
+      radius = 15;
       intensity = 1.0f;
       // add impulse: density + temperature
       float animator = abs(sin(fluid.simulation_step*0.01f));
@@ -40,17 +41,19 @@ public class FluidPP extends PGPixelPerfect {
       float animatorB = abs(sin(fluid.simulation_step*0.04f));
       // Rainbow Colors
       // add impulse: density + temperature
-      px = 5;
+      px = 5.0f;
+      px = 420f * abs(sin(fluid.simulation_step*0.01f));
       r = 228.0f / 255.0f;
       g = 3.0f / 255.0f;
       b = 3.0f / 255.0f;
-      r = animator/2f;
-      g = animatorG/2f;
-      b = animatorB/2f;
+      //r = animator/2f;
+      //g = animatorG/2f;
+      //b = animatorB/2f;
       fluid.addDensity(px, py, radius, r, g, b, intensity);
       fluid.addTemperature(px, py, radius, temperature);
 
       px = 1.0f * pg.width / 5.0f;
+      px = 420f * abs(sin(fluid.simulation_step*0.008f));
       r = 255.0f / 255.0f;
       g = 140.0f / 255.0f;
       b = 0.0f;
@@ -58,6 +61,7 @@ public class FluidPP extends PGPixelPerfect {
       fluid.addTemperature(px, py, radius, temperature);
 
       px = 2.0f * pg.width / 5.0f;
+      px = 420f * abs(sin(fluid.simulation_step*0.007f));
       r = 255.0f / 255.0f;
       g = 237.0f / 255.0f;
       b = 0.0f;
@@ -65,6 +69,7 @@ public class FluidPP extends PGPixelPerfect {
       fluid.addTemperature(px, py, radius, temperature);
 
       px = 3.0f * pg.width / 5.0f;
+      px = 420f * abs(sin(fluid.simulation_step*0.006f));
       r = 0.0f;
       g = 128.0f / 255.0f;
       b = 38.0f / 255.0f;
@@ -72,6 +77,7 @@ public class FluidPP extends PGPixelPerfect {
       fluid.addTemperature(px, py, radius, temperature);
 
       px = 4 * pg.width / 5.0f;
+      px = 420f * abs(sin(fluid.simulation_step*0.005f));
       r = 0.0f;
       g = 77.0f / 255.0f;
       b = 1.0f;
@@ -79,6 +85,7 @@ public class FluidPP extends PGPixelPerfect {
       fluid.addTemperature(px, py, radius, temperature);
 
       px = pg.width - 5;
+      px = 420f * abs(sin(fluid.simulation_step*0.004f));
       r = 117.0f / 255.0f;
       g = 7.0f / 255.0f;
       b = 135.0f / 255.0f;
@@ -97,7 +104,7 @@ public class FluidPP extends PGPixelPerfect {
   private boolean DISPLAY_FLUID_VECTORS      = false;
   private int     DISPLAY_fluid_texture_mode = 0;
 
-  public FluidPP(LX lx) {
+  public CrazyFluid(LX lx) {
     super(lx, "");
     fpsKnob.setValue(GLOBAL_FRAME_RATE);
     DwPixelFlow context = new DwPixelFlow(RainbowStudio.pApplet);

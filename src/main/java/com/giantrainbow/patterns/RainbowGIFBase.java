@@ -94,6 +94,8 @@ abstract class RainbowGIFBase extends LXPattern implements CustomDeviceUI {
   public void run(double deltaMs) {
     double fps = fpsKnob.getValue();
     currentFrame += (deltaMs/1000.0) * fps;
+    if (images == null) return;
+    if (images.length == 0) return;
     if (currentFrame >= images.length) {
       currentFrame -= images.length;
     }
