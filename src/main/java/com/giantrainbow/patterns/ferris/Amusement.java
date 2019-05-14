@@ -66,14 +66,22 @@ public class Amusement {
 	    this.carriages[i] = car;
 	    this.carriageAxles[i] = carAxle;
 
-	    // Mount the carriage.
+	    // The carriage is a real-sized disk.
 	    BodyFixture carFixture = new BodyFixture(Geometry.createCircle(carRadius));
 	    carFixture.setDensity(CAR_DENSITY);
 	    car.addFixture(carFixture);
 	    car.setMass(MassType.NORMAL);
 	    world.addBody(car);
 
-
+	    // Mount the carriage.
+	    carAxle.setLimitEnabled(false);
+	    carAxle.setLimits(Math.toRadians(0.0), Math.toRadians(0.0));
+	    carAxle.setReferenceAngle(Math.toRadians(0.0));
+	    carAxle.setMotorEnabled(false);
+	    carAxle.setMotorSpeed(Math.toRadians(0.0));
+	    carAxle.setMaximumMotorTorque(0);
+	    carAxle.setCollisionAllowed(false);
+	    world.addJoint(carAxle);
 	}
     }
 };
