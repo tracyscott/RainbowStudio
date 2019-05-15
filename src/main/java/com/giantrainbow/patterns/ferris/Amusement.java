@@ -11,13 +11,11 @@ import org.dyn4j.geometry.Vector2;
 
 public class Amusement {
 
-    public final static int CAR_COUNT = 13;
+    public final static int CAR_COUNT = 12;
     public final static double CAR_STEP = 2 * Math.PI / CAR_COUNT;
 
     public final static double WHEEL_DENSITY = .1;
     public final static double CAR_DENSITY = 1;
-
-    public final static double START_ROTATION = 0.7 * Math.PI;
 
     public Body mount;
     public Body wheel;
@@ -40,6 +38,7 @@ public class Amusement {
 	// The wheel is a real-sized disk.
 	wheelFixture = new BodyFixture(Geometry.createCircle(wheelRadius));
 	wheelFixture.setDensity(WHEEL_DENSITY);
+	wheelFixture.setFriction(0);
 	wheel.addFixture(wheelFixture);
 	wheel.setMass(MassType.NORMAL);
 	world.addBody(wheel);
@@ -55,19 +54,31 @@ public class Amusement {
 	axle.setCollisionAllowed(false);
 	world.addJoint(axle);
 
+	// System.err.println("Wheel anchors: " + axle.getAnchor1() + " " + axle.getAnchor2());
+	
 	for (int i = 0; i < CAR_COUNT; i++) {
-	    double theta = START_ROTATION + i * CAR_STEP;
+	    double theta = i * CAR_STEP;
 	    double x = (wheelRadius) * Math.cos(theta);
 	    double y = (wheelRadius) * Math.sin(theta);
 
 	    Body car = new Body();
+	    car.translate(x, y);
+	    car.translate(-carRadius, 0); // @@@
 	    RevoluteJoint carAxle = new RevoluteJoint(wheel, car, new Vector2(x, y));
+
+	    // System.err.println("Axle anchors: " + carAxle.getAnchor1() + " " + carAxle.getAnchor2());
+	    // if (i == 0) {
+	    // 	System.err.println("Car axle anchors: " + carAxle.getAnchor1() + " " + carAxle.getAnchor2());
+	    // 	System.err.println("Car position: " + car.getTransform().getTranslation());
+	    // 	System.err.println("Car rotation: " + car.getTransform().getRotation());
+	    // }
 
 	    this.carriages[i] = car;
 	    this.carriageAxles[i] = carAxle;
 
 	    // The carriage is a real-sized disk.
 	    BodyFixture carFixture = new BodyFixture(Geometry.createCircle(carRadius));
+	    // carFixture.setFriction(0);
 	    carFixture.setDensity(CAR_DENSITY);
 	    car.addFixture(carFixture);
 	    car.setMass(MassType.NORMAL);
@@ -76,7 +87,7 @@ public class Amusement {
 	    // Mount the carriage.
 	    carAxle.setLimitEnabled(false);
 	    carAxle.setLimits(Math.toRadians(0.0), Math.toRadians(0.0));
-	    carAxle.setReferenceAngle(Math.toRadians(0.0));
+	    carAxle.setReferenceAngle(0);
 	    carAxle.setMotorEnabled(false);
 	    carAxle.setMotorSpeed(Math.toRadians(0.0));
 	    carAxle.setMaximumMotorTorque(0);
