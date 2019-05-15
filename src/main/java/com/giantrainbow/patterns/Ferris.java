@@ -5,6 +5,7 @@ import static processing.core.PConstants.CLOSE;
 import static processing.core.PConstants.LINES;
 import static processing.core.PConstants.PI;
 
+
 import com.giantrainbow.colors.Colors;
 import com.giantrainbow.model.space.Space3D;
 import heronarts.lx.LX;
@@ -14,20 +15,29 @@ import java.util.Random;
 import org.joml.Vector3f;
 import processing.core.PImage;
 import processing.core.PVector;
+import com.giantrainbow.patterns.ferris.Amusement;
+
+import org.dyn4j.dynamics.World;
+import org.dyn4j.geometry.Vector2;
 
 @LXCategory(LXCategory.FORM)
 public class Ferris extends CanvasPattern2D {
 
-  // Radians per millisecond
-  public final float SPIN_RATE = 1.f / 1000.f;
+  static final double RATE = 10000;
 
-  // Speed determines the overall speed of the entire pattern.
+  // Speed determines the desired speed of the wheel.
   public final CompoundParameter speedKnob =
-      new CompoundParameter("Speed", 2.5, 0, 10).setDescription("Speed");
+      new CompoundParameter("Speed", 0 * RATE, -10 * RATE, 10 * RATE).setDescription("Speed");
 
-  // The "rotate" paramter determines how fast the whole thing spins.
-  public final CompoundParameter rotateKnob =
-      new CompoundParameter("Rotate", .25, -1, 1).setDescription("Rotate");
+  // Torque determines the motor's output.
+  public final CompoundParameter torqueKnob =
+      new CompoundParameter("Torque", 1e11, 0, 5e11).setDescription("Torque");
+
+  public final CompoundParameter gravityKnob =
+      new CompoundParameter("Gravity", 100, 0, 10000).setDescription("Gravity");
+
+  public final CompoundParameter brakeKnob =
+      new CompoundParameter("Brake", 0, 0, 10000).setDescription("Brake");
 
   float WHEEL_CENTER_X = (float) canvas.width() / 2f;
 
@@ -40,8 +50,6 @@ public class Ferris extends CanvasPattern2D {
   public final static float WIDTH_RATIO = 0.95f;
   public final static float HEIGHT_RATIO = 0.98f;
 
-  public final static int CAR_COUNT = 10;
-
   final float ELLIPSE_A = (canvas.width() * WIDTH_RATIO) / 2f;
   final float ELLIPSE_B = (canvas.width() * HEIGHT_RATIO) / 2f;
 
@@ -51,35 +59,44 @@ public class Ferris extends CanvasPattern2D {
   final float CAR_CLOSE = PI * 15 / 8;
   final float CAR_OFFSET = -CAR_RADIUS * 0.9f;
 
-  double telapsed;
-  double relapsed;
+  final Amusement ferris;
+  final World world;
+
+  double wheelRotation;
 
   public Ferris(LX lx) {
     super(lx);
 
+    this.world = new World();
+    this.ferris = new Amusement(world, Math.max(ELLIPSE_A, ELLIPSE_B), CAR_RADIUS);
+    
     addParameter(speedKnob);
-    addParameter(rotateKnob);
+    addParameter(torqueKnob);
+    addParameter(gravityKnob);
+    addParameter(brakeKnob);
     removeParameter(fpsKnob);
   }
 
   public void draw(double deltaMs) {
     pg.background(0);
 
-    double speed = speedKnob.getValue();
-    telapsed += (float) (deltaMs * speed);
-    double rotate = rotateKnob.getValue();
-    relapsed += (float) (deltaMs * rotate);
+    ferris.wheel.setAngularDamping(brakeKnob.getValue());
+    world.setGravity(new Vector2(0, -gravityKnob.getValue()));
+    world.update(deltaMs);
+
+    ferris.axle.setMotorSpeed(speedKnob.getValue() / RATE);
+    ferris.axle.setMaximumMotorTorque(torqueKnob.getValue());
 
     pg.ellipseMode(CENTER);
 
     // Center the coordinate system
     pg.translate(WHEEL_CENTER_X, WHEEL_CENTER_Y);
 
-    // Reference line for the wheel:
-    // 
-    // drawEllipse(2 * ELLIPSE_A, 2 * ELLIPSE_B);
-
+    // Spokes, etc.
     drawStructure();
+
+    // Reference line for the wheel.
+    // drawEllipse(2 * ELLIPSE_A, 2 * ELLIPSE_B);
   }
 
   public void drawEllipse(float width, float height) {
@@ -97,32 +114,36 @@ public class Ferris extends CanvasPattern2D {
     public void drawStructure() {
 	pg.pushMatrix();
 
-	float step = 2 * PI / CAR_COUNT;
-	float rotate = (float)(relapsed * SPIN_RATE);
-
 	pg.fill(0, 255, 0);
 	pg.noStroke();
 
-	for (int i = 0; i < CAR_COUNT; i++) {
-	    float theta1 = rotate + i * step;
+	double wheelRotation = ferris.wheel.getTransform().getRotation();
+
+	for (int i = 0; i < Amusement.CAR_COUNT; i++) {
+	    float theta1 = (float)(wheelRotation + i * Amusement.CAR_STEP);
 	    float x1 = ELLIPSE_A * (float)Math.cos(theta1);
 	    float y1 = ELLIPSE_B * (float)Math.sin(theta1);
 
+	    Vector2 bary = ferris.carriages[i].getTransform().getTranslation();
+	    Vector2 rota = new Vector2(x1, y1).subtract(bary);
+
 	    pg.pushMatrix();
 	    pg.translate(x1, y1);
+	    pg.rotate((float)(rota.getDirection() - Math.PI / 2));
 	    pg.translate(0, CAR_OFFSET);
 	    pg.scale(-1, 1);
 	    pg.arc(0, 0, 2 * CAR_RADIUS, 2 * CAR_RADIUS, CAR_OPEN, CAR_CLOSE);
-	    pg.popMatrix();	
+	    // pg.ellipse(0, 0, 2 * CAR_RADIUS, 2 * CAR_RADIUS);
+	    pg.popMatrix();
 	}
 
 	pg.noFill();
 	pg.stroke(0, 0, 255);
 	pg.strokeWeight(5);
 
-	for (int i = 0; i < CAR_COUNT; i++) {
-	    float theta1 = rotate + i * step;
-	    float theta2 = rotate + (i+1) * step;
+	for (int i = 0; i < Amusement.CAR_COUNT; i++) {
+	    float theta1 = (float)(wheelRotation + i * Amusement.CAR_STEP);
+	    float theta2 = (float)(wheelRotation + (i+1) * Amusement.CAR_STEP);
 	    float x1 = ELLIPSE_A * (float)Math.cos(theta1);
 	    float y1 = ELLIPSE_B * (float)Math.sin(theta1);
 	    float x2 = ELLIPSE_A * (float)Math.cos(theta2);
@@ -132,6 +153,6 @@ public class Ferris extends CanvasPattern2D {
 	    pg.line(x1, y1, x2, y2);
 	}
 
-	pg.popMatrix();	
+	pg.popMatrix();
     }
 }
