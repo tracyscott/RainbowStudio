@@ -127,19 +127,13 @@ public class Ferris extends CanvasPattern2D {
 	    Vector2 bary = ferris.carriages[i].getTransform().getTranslation();
 	    Vector2 rota = new Vector2(x1, y1).subtract(bary);
 
-	    // 	System.err.println("Wheel rotation: " + wheelRotation);
-		
-	    // 	System.err.println("Car rotation: " + axle + " " + bary + " " + rota + " " + rota.getDirection());
-
-	    // 	System.err.println("Car axle anchors: " + ferris.carriageAxles[i].getAnchor1() + " " + ferris.carriageAxles[i].getAnchor2());
-
 	    pg.pushMatrix();
 	    pg.translate(x1, y1);
 	    pg.rotate((float)(rota.getDirection() - Math.PI / 2));
 	    pg.translate(0, CAR_OFFSET);
-	    // pg.scale(-1, 1);
-	    // pg.arc(0, 0, 2 * CAR_RADIUS, 2 * CAR_RADIUS, CAR_OPEN, CAR_CLOSE);
-	    pg.ellipse(0, 0, 2 * CAR_RADIUS, 2 * CAR_RADIUS);
+	    pg.scale(-1, 1);
+	    pg.arc(0, 0, 2 * CAR_RADIUS, 2 * CAR_RADIUS, CAR_OPEN, CAR_CLOSE);
+	    // pg.ellipse(0, 0, 2 * CAR_RADIUS, 2 * CAR_RADIUS);
 	    pg.popMatrix();
 	}
 

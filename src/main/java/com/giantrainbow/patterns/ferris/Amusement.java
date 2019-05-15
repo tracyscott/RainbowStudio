@@ -54,8 +54,6 @@ public class Amusement {
 	axle.setCollisionAllowed(false);
 	world.addJoint(axle);
 
-	// System.err.println("Wheel anchors: " + axle.getAnchor1() + " " + axle.getAnchor2());
-	
 	for (int i = 0; i < CAR_COUNT; i++) {
 	    double theta = i * CAR_STEP;
 	    double x = (wheelRadius) * Math.cos(theta);
@@ -65,13 +63,6 @@ public class Amusement {
 	    car.translate(x, y);
 	    car.translate(-carRadius, 0); // @@@
 	    RevoluteJoint carAxle = new RevoluteJoint(wheel, car, new Vector2(x, y));
-
-	    // System.err.println("Axle anchors: " + carAxle.getAnchor1() + " " + carAxle.getAnchor2());
-	    // if (i == 0) {
-	    // 	System.err.println("Car axle anchors: " + carAxle.getAnchor1() + " " + carAxle.getAnchor2());
-	    // 	System.err.println("Car position: " + car.getTransform().getTranslation());
-	    // 	System.err.println("Car rotation: " + car.getTransform().getRotation());
-	    // }
 
 	    this.carriages[i] = car;
 	    this.carriageAxles[i] = carAxle;
