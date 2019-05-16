@@ -38,7 +38,6 @@ public class Amusement {
 	// The wheel is a real-sized disk.
 	wheelFixture = new BodyFixture(Geometry.createCircle(wheelRadius));
 	wheelFixture.setDensity(WHEEL_DENSITY);
-	wheelFixture.setFriction(0);
 	wheel.addFixture(wheelFixture);
 	wheel.setMass(MassType.NORMAL);
 	world.addBody(wheel);
@@ -61,7 +60,7 @@ public class Amusement {
 
 	    Body car = new Body();
 	    car.translate(x, y);
-	    car.translate(-carRadius, 0); // @@@
+	    car.translate(0, -carRadius);
 	    RevoluteJoint carAxle = new RevoluteJoint(wheel, car, new Vector2(x, y));
 
 	    this.carriages[i] = car;
@@ -69,7 +68,6 @@ public class Amusement {
 
 	    // The carriage is a real-sized disk.
 	    BodyFixture carFixture = new BodyFixture(Geometry.createCircle(carRadius));
-	    // carFixture.setFriction(0);
 	    carFixture.setDensity(CAR_DENSITY);
 	    car.addFixture(carFixture);
 	    car.setMass(MassType.NORMAL);

@@ -4,6 +4,7 @@ import static processing.core.PConstants.CENTER;
 import static processing.core.PConstants.CLOSE;
 import static processing.core.PConstants.LINES;
 import static processing.core.PConstants.PI;
+import static processing.core.PConstants.RADIUS;
 
 
 import com.giantrainbow.colors.Colors;
@@ -17,6 +18,7 @@ import processing.core.PImage;
 import processing.core.PVector;
 import com.giantrainbow.patterns.ferris.Amusement;
 
+import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.World;
 import org.dyn4j.geometry.Vector2;
 
@@ -27,17 +29,23 @@ public class Ferris extends CanvasPattern2D {
 
   // Speed determines the desired speed of the wheel.
   public final CompoundParameter speedKnob =
-      new CompoundParameter("Speed", 0 * RATE, -10 * RATE, 10 * RATE).setDescription("Speed");
+      new CompoundParameter("Speed", 0 * RATE, -100 * RATE, 100 * RATE).setDescription("Speed");
 
   // Torque determines the motor's output.
   public final CompoundParameter torqueKnob =
-      new CompoundParameter("Torque", 1e11, 0, 5e11).setDescription("Torque");
+      new CompoundParameter("Torque", 1e12, 0, 1e13).setDescription("Torque");
 
   public final CompoundParameter gravityKnob =
-      new CompoundParameter("Gravity", 100, 0, 10000).setDescription("Gravity");
+      new CompoundParameter("Gravity", 1e4, 0, 1e5).setDescription("Gravity");
 
+  public final CompoundParameter rotateGravityKnob =
+      new CompoundParameter("RotateGravity", 0, 0, Math.PI * 2).setDescription("Rotate Gravity");
+    
   public final CompoundParameter brakeKnob =
-      new CompoundParameter("Brake", 0, 0, 10000).setDescription("Brake");
+      new CompoundParameter("Brake", 100, 0, 10000).setDescription("Brake");
+
+  public final CompoundParameter carBrakeKnob =
+      new CompoundParameter("CarBrake", 10, 0, 1000).setDescription("Car Brake");
 
   float WHEEL_CENTER_X = (float) canvas.width() / 2f;
 
@@ -59,6 +67,11 @@ public class Ferris extends CanvasPattern2D {
   final float CAR_CLOSE = PI * 15 / 8;
   final float CAR_OFFSET = -CAR_RADIUS * 0.9f;
 
+  final float BAR_WIDTH = 0.1f;
+  final float SEAT_OFFSET = 0.75f;
+  final float SEAT_WIDTH = 1.5f;
+  final float CAR_HT = 1.7f;
+
   final Amusement ferris;
   final World world;
 
@@ -72,8 +85,10 @@ public class Ferris extends CanvasPattern2D {
     
     addParameter(speedKnob);
     addParameter(torqueKnob);
+    addParameter(rotateGravityKnob);
     addParameter(gravityKnob);
     addParameter(brakeKnob);
+    addParameter(carBrakeKnob);
     removeParameter(fpsKnob);
   }
 
@@ -81,7 +96,11 @@ public class Ferris extends CanvasPattern2D {
     pg.background(0);
 
     ferris.wheel.setAngularDamping(brakeKnob.getValue());
-    world.setGravity(new Vector2(0, -gravityKnob.getValue()));
+    for (Body car : ferris.carriages) {
+	car.setAngularDamping(carBrakeKnob.getValue());
+    }
+
+    world.setGravity(new Vector2(0, -gravityKnob.getValue()).rotate(rotateGravityKnob.getValue()));
     world.update(deltaMs);
 
     ferris.axle.setMotorSpeed(speedKnob.getValue() / RATE);
@@ -114,9 +133,6 @@ public class Ferris extends CanvasPattern2D {
     public void drawStructure() {
 	pg.pushMatrix();
 
-	pg.fill(0, 255, 0);
-	pg.noStroke();
-
 	double wheelRotation = ferris.wheel.getTransform().getRotation();
 
 	for (int i = 0; i < Amusement.CAR_COUNT; i++) {
@@ -131,9 +147,7 @@ public class Ferris extends CanvasPattern2D {
 	    pg.translate(x1, y1);
 	    pg.rotate((float)(rota.getDirection() - Math.PI / 2));
 	    pg.translate(0, CAR_OFFSET);
-	    pg.scale(-1, 1);
-	    pg.arc(0, 0, 2 * CAR_RADIUS, 2 * CAR_RADIUS, CAR_OPEN, CAR_CLOSE);
-	    // pg.ellipse(0, 0, 2 * CAR_RADIUS, 2 * CAR_RADIUS);
+	    drawCar();
 	    pg.popMatrix();
 	}
 
@@ -154,5 +168,30 @@ public class Ferris extends CanvasPattern2D {
 	}
 
 	pg.popMatrix();
+    }
+
+    void drawCar() {
+	pg.noStroke();
+	pg.rectMode(RADIUS);
+
+	float seatY = -CAR_RADIUS * SEAT_OFFSET;
+	float seatLX = -SEAT_WIDTH * CAR_RADIUS / 2;
+	float seatRX = -seatLX;
+
+	pg.fill(0, 255, 255);
+
+	pg.beginShape();
+	pg.curveVertex(seatLX + 10,  seatY - CAR_HT * CAR_RADIUS);
+	pg.curveVertex(seatLX,  seatY);
+	pg.curveVertex(seatLX,  seatY + CAR_HT * CAR_RADIUS);
+	pg.curveVertex(seatRX,  seatY + CAR_HT * CAR_RADIUS);
+	pg.curveVertex(seatRX,  seatY);
+	pg.curveVertex(seatRX - 10,  seatY - CAR_HT * CAR_RADIUS);
+	pg.endShape();
+
+	pg.fill(70, 25, 0);
+
+	pg.rect(0, 0, BAR_WIDTH * CAR_RADIUS, CAR_RADIUS);
+	pg.rect(0, -CAR_RADIUS * SEAT_OFFSET, SEAT_WIDTH * CAR_RADIUS / 2, BAR_WIDTH * CAR_RADIUS);
     }
 }
