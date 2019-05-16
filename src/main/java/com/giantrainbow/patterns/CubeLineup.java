@@ -6,8 +6,12 @@ import com.giantrainbow.colors.Colors;
 import com.giantrainbow.model.space.Space3D;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
+import heronarts.lx.parameter.BooleanParameter;
 import heronarts.lx.parameter.CompoundParameter;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+
+import heronarts.lx.parameter.DiscreteParameter;
 import org.joml.Vector3f;
 import processing.core.PImage;
 import processing.core.PVector;
@@ -32,6 +36,10 @@ public class CubeLineup extends CanvasPattern3D {
       new CompoundParameter("Roll", -0.15, -1, 1).setDescription("Roll");
   public final CompoundParameter countKnob =
       new CompoundParameter("Count", 25, 10, MAX_CUBES).setDescription("Count");
+  public final DiscreteParameter paletteKnob =
+      new DiscreteParameter("Palette", 0, 0, Colors.ALL_PALETTES.length).setDescription("Palette");
+  public final BooleanParameter randomPaletteKnob =
+      new BooleanParameter("RandomPlt", true);
 
   public int[] palette;
 
@@ -41,6 +49,8 @@ public class CubeLineup extends CanvasPattern3D {
     addParameter(speedKnob);
     addParameter(countKnob);
     addParameter(rollKnob);
+    addParameter(paletteKnob);
+    addParameter(randomPaletteKnob);
     removeParameter(fpsKnob);
 
     space = new Space3D(DEFAULT_EYE);
@@ -145,6 +155,16 @@ public class CubeLineup extends CanvasPattern3D {
       pg.popMatrix();
     }
   };
+
+  public void onActive() {
+    super.onActive();
+    if (randomPaletteKnob.getValueb()) {
+      int paletteNumber = ThreadLocalRandom.current().nextInt(0, Colors.ALL_PALETTES.length);
+      palette = Colors.ALL_PALETTES[paletteNumber];
+    } else {
+      palette = Colors.ALL_PALETTES[paletteKnob.getValuei()];
+    }
+  }
 
   public void draw(double deltaMs) {
     double speed = 0;
