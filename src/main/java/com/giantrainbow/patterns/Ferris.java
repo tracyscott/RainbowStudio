@@ -58,8 +58,10 @@ public class Ferris extends CanvasPattern2D {
   public final static float WIDTH_RATIO = 0.95f;
   public final static float HEIGHT_RATIO = 0.98f;
 
-  final float ELLIPSE_A = (canvas.width() * WIDTH_RATIO) / 2f;
-  final float ELLIPSE_B = (canvas.width() * HEIGHT_RATIO) / 2f;
+  final float WHEEL_R = canvas.width() / 2f;
+
+  final float ELLIPSE_A = WHEEL_R * WIDTH_RATIO;
+  final float ELLIPSE_B = WHEEL_R * HEIGHT_RATIO;
 
   final float CAR_RADIUS = canvas.width() * 0.04f;
 
@@ -81,7 +83,7 @@ public class Ferris extends CanvasPattern2D {
     super(lx);
 
     this.world = new World();
-    this.ferris = new Amusement(world, Math.max(ELLIPSE_A, ELLIPSE_B), CAR_RADIUS);
+    this.ferris = new Amusement(world, WHEEL_R, CAR_RADIUS);
     
     addParameter(speedKnob);
     addParameter(torqueKnob);
@@ -137,14 +139,14 @@ public class Ferris extends CanvasPattern2D {
 
 	for (int i = 0; i < Amusement.CAR_COUNT; i++) {
 	    float theta1 = (float)(wheelRotation + i * Amusement.CAR_STEP);
-	    float x1 = ELLIPSE_A * (float)Math.cos(theta1);
-	    float y1 = ELLIPSE_B * (float)Math.sin(theta1);
+	    float x1 = (float)(WHEEL_R * Math.cos(theta1));
+	    float y1 = (float)(WHEEL_R * Math.sin(theta1));
 
 	    Vector2 bary = ferris.carriages[i].getTransform().getTranslation();
 	    Vector2 rota = new Vector2(x1, y1).subtract(bary);
 
 	    pg.pushMatrix();
-	    pg.translate(x1, y1);
+	    pg.translate(WIDTH_RATIO * x1, HEIGHT_RATIO * y1);
 	    pg.rotate((float)(rota.getDirection() - Math.PI / 2));
 	    pg.translate(0, CAR_OFFSET);
 	    drawCar();
