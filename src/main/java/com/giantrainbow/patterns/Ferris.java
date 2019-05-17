@@ -6,11 +6,11 @@ import static processing.core.PConstants.LINES;
 import static processing.core.PConstants.PI;
 import static processing.core.PConstants.RADIUS;
 
-
 import com.giantrainbow.colors.Colors;
 import com.giantrainbow.model.space.Space3D;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
+import heronarts.lx.parameter.BooleanParameter;
 import heronarts.lx.parameter.CompoundParameter;
 import java.util.Random;
 import org.joml.Vector3f;
@@ -21,6 +21,7 @@ import com.giantrainbow.patterns.ferris.Amusement;
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.World;
 import org.dyn4j.geometry.Vector2;
+import org.dyn4j.dynamics.joint.RevoluteJoint;
 
 @LXCategory(LXCategory.FORM)
 public class Ferris extends CanvasPattern2D {
@@ -47,21 +48,26 @@ public class Ferris extends CanvasPattern2D {
   public final CompoundParameter carBrakeKnob =
       new CompoundParameter("CarBrake", 10, 0, 1000).setDescription("Car Brake");
 
-  float WHEEL_CENTER_X = (float) canvas.width() / 2f;
+  public final CompoundParameter boosterKnob =
+      new CompoundParameter("Booster", 0, 0, 1e9).setDescription("Booster");
+
+  public final BooleanParameter variableEllipseKnob =
+      new BooleanParameter("VarEllipse", true);
+    
+  final float WHEEL_CENTER_X = (float) canvas.width() / 2f;
 
   // Note: the exact center could be computed via geometry from the
   // model, but this is subjective.  The Y-center is off-screen below
   // the rainbow, thus has Y coordinate < 0.
-  float WHEEL_CENTER_Y = (float) canvas.height() * -0.13f;
+  final float WHEEL_CENTER_Y = (float) canvas.height() * -0.13f;
+
+  final Vector2 CENTER_PT = new Vector2(WHEEL_CENTER_X, WHEEL_CENTER_Y);
 
   // Determines how elliptical the curve is.
   public final static float WIDTH_RATIO = 0.95f;
   public final static float HEIGHT_RATIO = 0.98f;
 
   final float WHEEL_R = canvas.width() / 2f;
-
-  final float ELLIPSE_A = WHEEL_R * WIDTH_RATIO;
-  final float ELLIPSE_B = WHEEL_R * HEIGHT_RATIO;
 
   final float CAR_RADIUS = canvas.width() * 0.04f;
 
@@ -91,6 +97,8 @@ public class Ferris extends CanvasPattern2D {
     addParameter(gravityKnob);
     addParameter(brakeKnob);
     addParameter(carBrakeKnob);
+    addParameter(boosterKnob);
+    addParameter(variableEllipseKnob);
     removeParameter(fpsKnob);
   }
 
@@ -100,6 +108,7 @@ public class Ferris extends CanvasPattern2D {
     ferris.wheel.setAngularDamping(brakeKnob.getValue());
     for (Body car : ferris.carriages) {
 	car.setAngularDamping(carBrakeKnob.getValue());
+	car.applyImpulse(boosterKnob.getValue());
     }
 
     world.setGravity(new Vector2(0, -gravityKnob.getValue()).rotate(rotateGravityKnob.getValue()));
@@ -115,38 +124,59 @@ public class Ferris extends CanvasPattern2D {
 
     // Spokes, etc.
     drawStructure();
-
-    // Reference line for the wheel.
-    // drawEllipse(2 * ELLIPSE_A, 2 * ELLIPSE_B);
   }
-
-  public void drawEllipse(float width, float height) {
-	pg.noFill();
-	pg.stroke(255, 255, 255);
-	pg.strokeWeight(2);
-
-	pg.pushMatrix();
-
-	pg.ellipse(0, 0, width, height);
-
-	pg.popMatrix();
-    }
 
     public void drawStructure() {
 	pg.pushMatrix();
 
 	double wheelRotation = ferris.wheel.getTransform().getRotation();
 
+	float ellipseA = WHEEL_R * WIDTH_RATIO;
+	float ellipseB = WHEEL_R * HEIGHT_RATIO;
+
+	if (variableEllipseKnob.getValueb()) {
+	    double radSum = 0;
+	    double radCnt = 0;
+
+	    // Compute the average radius
+	    for (int i = 0; i < Amusement.CAR_COUNT; i++) {
+		float theta1 = (float)(wheelRotation + i * Amusement.CAR_STEP);
+		float cosTheta = (float) Math.cos(theta1);
+		float sinTheta = (float) Math.sin(theta1);
+		float x1 = (float)(WHEEL_R * cosTheta);
+		float y1 = (float)(WHEEL_R * sinTheta);
+
+		Vector2 bary = ferris.carriages[i].getTransform().getTranslation();
+
+		if (y1 > 0) {
+		    // Average of visible radii.
+		    radSum += sinTheta * bary.subtract(CENTER_PT).getMagnitude();
+		    radCnt += sinTheta;
+		}
+	    }
+
+	    // Adjust the center-line
+	    double avgRad = radSum / radCnt;
+	    double shiftBy = avgRad - 730;
+
+	    if (shiftBy > 0) {
+		ellipseB *= (1 - shiftBy / 500);
+	    }
+	}
+
+	// Draw the cars
 	for (int i = 0; i < Amusement.CAR_COUNT; i++) {
 	    float theta1 = (float)(wheelRotation + i * Amusement.CAR_STEP);
-	    float x1 = (float)(WHEEL_R * Math.cos(theta1));
-	    float y1 = (float)(WHEEL_R * Math.sin(theta1));
+	    float cosTheta = (float) Math.cos(theta1);
+	    float sinTheta = (float) Math.sin(theta1);
+	    float x1 = (float)(WHEEL_R * cosTheta);
+	    float y1 = (float)(WHEEL_R * sinTheta);
 
 	    Vector2 bary = ferris.carriages[i].getTransform().getTranslation();
 	    Vector2 rota = new Vector2(x1, y1).subtract(bary);
 
 	    pg.pushMatrix();
-	    pg.translate(WIDTH_RATIO * x1, HEIGHT_RATIO * y1);
+	    pg.translate(ellipseA * cosTheta, ellipseB * sinTheta);
 	    pg.rotate((float)(rota.getDirection() - Math.PI / 2));
 	    pg.translate(0, CAR_OFFSET);
 	    drawCar();
@@ -160,10 +190,10 @@ public class Ferris extends CanvasPattern2D {
 	for (int i = 0; i < Amusement.CAR_COUNT; i++) {
 	    float theta1 = (float)(wheelRotation + i * Amusement.CAR_STEP);
 	    float theta2 = (float)(wheelRotation + (i+1) * Amusement.CAR_STEP);
-	    float x1 = ELLIPSE_A * (float)Math.cos(theta1);
-	    float y1 = ELLIPSE_B * (float)Math.sin(theta1);
-	    float x2 = ELLIPSE_A * (float)Math.cos(theta2);
-	    float y2 = ELLIPSE_B * (float)Math.sin(theta2);
+	    float x1 = ellipseA * (float)Math.cos(theta1);
+	    float y1 = ellipseB * (float)Math.sin(theta1);
+	    float x2 = ellipseA * (float)Math.cos(theta2);
+	    float y2 = ellipseB * (float)Math.sin(theta2);
 
 	    pg.line(0, 0, x1, y1);
 	    pg.line(x1, y1, x2, y2);
