@@ -9,16 +9,16 @@ import processing.core.PImage;
 public class BackgroundPulse {
 
   public final float MSHZ = 1 / 10000f;
-
-  public final CompoundParameter rateKnob =
-      new CompoundParameter("BG rate", 2000, 0, 10000).setDescription("BG rate");
-  public final CompoundParameter levelKnob =
-      new CompoundParameter("BG level", 0.15, 0, 1).setDescription("BG level");
+  public final CompoundParameter rateKnob;
+  public final CompoundParameter levelKnob;
 
   double elapsed;
   int colors[];
 
-  public BackgroundPulse(LXPattern pattern) {
+  public BackgroundPulse(LXPattern pattern, String name) {
+    rateKnob = new CompoundParameter(name + "Rate", .5, .01, 20).setDescription(name + " rate");
+    levelKnob = new CompoundParameter(name + "Level", 0.15, .05, 1).setDescription(name + " level");
+
     pattern.addParameter(levelKnob);
     pattern.addParameter(rateKnob);
 

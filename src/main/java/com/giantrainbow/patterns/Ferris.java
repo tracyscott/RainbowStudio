@@ -18,6 +18,8 @@ import processing.core.PImage;
 import processing.core.PVector;
 import com.giantrainbow.patterns.ferris.Amusement;
 import com.giantrainbow.textures.Flowers;
+import com.giantrainbow.textures.Positioner;
+import com.giantrainbow.textures.Strange;
 
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.World;
@@ -26,41 +28,44 @@ import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
 
 @LXCategory(LXCategory.FORM)
-public class Ferris extends CanvasPattern2D {
+public class Ferris extends CanvasPattern2D implements Positioner {
 
   static final double RATE = 10000;
 
   // Speed determines the desired speed of the wheel.
   public final CompoundParameter speedKnob =
-      new CompoundParameter("Speed", 0 * RATE, -100 * RATE, 100 * RATE).setDescription("Speed");
+      new CompoundParameter("Speed", .5 * RATE, -100 * RATE, 100 * RATE).setDescription("Speed");
 
   // Torque determines the motor's output.
   public final CompoundParameter torqueKnob =
       new CompoundParameter("Torque", 1e12, 0, 1e13).setDescription("Torque");
 
   public final CompoundParameter gravityKnob =
-      new CompoundParameter("Gravity", 1e4, 0, 1e5).setDescription("Gravity");
+      new CompoundParameter("Gravity", 4e4, 0, 1e5).setDescription("Gravity");
 
   public final CompoundParameter rotateGravityKnob =
-      new CompoundParameter("RotateGravity", 0, 0, Math.PI * 2).setDescription("Rotate Gravity");
+      new CompoundParameter("RotateGravity", Math.PI, 0, Math.PI * 2).setDescription("Rotate Gravity");
     
   public final CompoundParameter brakeKnob =
-      new CompoundParameter("Brake", 100, 0, 10000).setDescription("Brake");
+      new CompoundParameter("Brake", 10, 0, 10000).setDescription("Brake");
 
   public final CompoundParameter carBrakeKnob =
-      new CompoundParameter("CarBrake", 10, 0, 1000).setDescription("Car Brake");
+      new CompoundParameter("CarBrake", 1, 0, 1000).setDescription("Car Brake");
 
   public final CompoundParameter boosterKnob =
       new CompoundParameter("Booster", 0, -1e9, 1e9).setDescription("Booster");
 
   public final CompoundParameter wheelDensityKnob =
       new CompoundParameter("WheelDensity", 100, 10, 1000).setDescription("Wheel Density");
-    
+
   public final BooleanParameter variableEllipseKnob =
       new BooleanParameter("VarEllipse", true);
 
   public final BooleanParameter partyModeKnob =
       new BooleanParameter("PartyMode", false);
+    
+  public final CompoundParameter partyStrobeKnob =
+      new CompoundParameter("PartyStrobe", 200, 1, 1000).setDescription("Party strobe");
     
   final float WHEEL_CENTER_X = (float) canvas.width() / 2f;
 
@@ -94,14 +99,12 @@ public class Ferris extends CanvasPattern2D {
 
   Flowers flowers;
   double relapsed;
+  Strange pulse;
+  PImage party;
     
   public Ferris(LX lx) {
     super(lx);
 
-    this.world = new World();
-    this.ferris = new Amusement(world, WHEEL_R, CAR_RADIUS);
-    this.flowers = new Flowers(Amusement.CAR_COUNT);
-    
     addParameter(speedKnob);
     addParameter(torqueKnob);
     addParameter(rotateGravityKnob);
@@ -112,11 +115,25 @@ public class Ferris extends CanvasPattern2D {
     addParameter(wheelDensityKnob);
     addParameter(variableEllipseKnob);
     addParameter(partyModeKnob);
+    addParameter(partyStrobeKnob);
+
     removeParameter(fpsKnob);
+
+    this.world = new World();
+    this.ferris = new Amusement(world, WHEEL_R, CAR_RADIUS);
+    this.flowers = new Flowers(Amusement.CAR_COUNT);
+    this.pulse = new Strange(this, this, "Party");
+
+    this.pulse.rateKnob.setValue(2);
+    this.pulse.periodKnob.setValue(10);
   }
 
   public void draw(double deltaMs) {
     relapsed += deltaMs;
+
+    if (partyModeKnob.getValueb()) {
+	party = pulse.update(deltaMs);
+    }
 
     pg.background(0);
 
@@ -168,17 +185,19 @@ public class Ferris extends CanvasPattern2D {
 
 		if (y1 > 0) {
 		    // Average of visible radii.
-		    radSum += sinTheta * bary.subtract(CENTER_PT).getMagnitude();
+		    double centMag = bary.getMagnitude();
+
+		    radSum += sinTheta * centMag;
 		    radCnt += sinTheta;
 		}
 	    }
 
 	    // Adjust the center-line
 	    double avgRad = radSum / radCnt;
-	    double shiftBy = avgRad - 730;
+	    double shiftBy = avgRad - WHEEL_R;
 
 	    if (shiftBy > 0) {
-		ellipseB *= (1 - shiftBy / 500);
+		ellipseB *= (1 - shiftBy / 300);
 	    }
 	}
 
@@ -255,7 +274,13 @@ public class Ferris extends CanvasPattern2D {
 	float seatLX = -SEAT_WIDTH * CAR_RADIUS / 2;
 	float seatRX = -seatLX;
 
-	pg.fill(105, 183, 206);
+	if (partyModeKnob.getValueb()) {
+	    int idx = (int)(relapsed / partyStrobeKnob.getValue()) % 420;
+	    int color = party.pixels[idx];
+	    pg.fill(color);
+	} else {
+	    pg.fill(105, 183, 206);
+	}
 
 	pg.beginShape();
 	pg.curveVertex(seatLX + 10,  seatY - CAR_HT * CAR_RADIUS);
@@ -271,4 +296,15 @@ public class Ferris extends CanvasPattern2D {
 	pg.rect(0, 0, BAR_WIDTH * CAR_RADIUS, CAR_RADIUS);
 	pg.rect(0, -CAR_RADIUS * SEAT_OFFSET, SEAT_WIDTH * CAR_RADIUS / 2, BAR_WIDTH * CAR_RADIUS);
     }
+
+  int patterns[][] = {
+    {0, 1, 2, 3},
+    {4, 5, 6, 7},
+    {8, 1, 9, 6, 8, 6, 9, 1},
+  };
+
+  public int[] getPositions(int period) {
+    int idx = period % patterns.length;
+    return patterns[idx];
+  }
 }
