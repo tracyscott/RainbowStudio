@@ -38,6 +38,7 @@ public class Amusement {
 	// The wheel is a real-sized disk.
 	wheelFixture = new BodyFixture(Geometry.createCircle(wheelRadius));
 	wheelFixture.setDensity(WHEEL_DENSITY);
+	wheelFixture.setFriction(0);
 	wheel.addFixture(wheelFixture);
 	wheel.setMass(MassType.NORMAL);
 	world.addBody(wheel);
@@ -69,6 +70,7 @@ public class Amusement {
 	    // The carriage is a real-sized disk.
 	    BodyFixture carFixture = new BodyFixture(Geometry.createCircle(carRadius));
 	    carFixture.setDensity(CAR_DENSITY);
+	    carFixture.setFriction(0);
 	    car.addFixture(carFixture);
 	    car.setMass(MassType.NORMAL);
 	    world.addBody(car);
