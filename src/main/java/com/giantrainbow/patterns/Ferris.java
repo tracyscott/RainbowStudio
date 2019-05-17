@@ -214,8 +214,8 @@ public class Ferris extends CanvasPattern2D {
 	    float x2 = ellipseA * (float)Math.cos(theta2);
 	    float y2 = ellipseB * (float)Math.sin(theta2);
 
-	    pg.stroke(0, 0, 255);
-	    pg.strokeWeight(5);
+	    pg.stroke(138, 173, 5);
+	    pg.strokeWeight(6);
 
 	    pg.line(0, 0, x1, y1);
 	    pg.line(x1, y1, x2, y2);
@@ -255,7 +255,7 @@ public class Ferris extends CanvasPattern2D {
 	float seatLX = -SEAT_WIDTH * CAR_RADIUS / 2;
 	float seatRX = -seatLX;
 
-	pg.fill(0, 255, 255);
+	pg.fill(105, 183, 206);
 
 	pg.beginShape();
 	pg.curveVertex(seatLX + 10,  seatY - CAR_HT * CAR_RADIUS);
@@ -266,7 +266,7 @@ public class Ferris extends CanvasPattern2D {
 	pg.curveVertex(seatRX - 10,  seatY - CAR_HT * CAR_RADIUS);
 	pg.endShape();
 
-	pg.fill(70, 25, 0);
+	pg.fill(223, 93, 34);
 
 	pg.rect(0, 0, BAR_WIDTH * CAR_RADIUS, CAR_RADIUS);
 	pg.rect(0, -CAR_RADIUS * SEAT_OFFSET, SEAT_WIDTH * CAR_RADIUS / 2, BAR_WIDTH * CAR_RADIUS);
