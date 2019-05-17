@@ -20,8 +20,9 @@ import com.giantrainbow.patterns.ferris.Amusement;
 
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.World;
-import org.dyn4j.geometry.Vector2;
 import org.dyn4j.dynamics.joint.RevoluteJoint;
+import org.dyn4j.geometry.MassType;
+import org.dyn4j.geometry.Vector2;
 
 @LXCategory(LXCategory.FORM)
 public class Ferris extends CanvasPattern2D {
@@ -49,8 +50,11 @@ public class Ferris extends CanvasPattern2D {
       new CompoundParameter("CarBrake", 10, 0, 1000).setDescription("Car Brake");
 
   public final CompoundParameter boosterKnob =
-      new CompoundParameter("Booster", 0, 0, 1e9).setDescription("Booster");
+      new CompoundParameter("Booster", 0, -1e9, 1e9).setDescription("Booster");
 
+  public final CompoundParameter wheelDensityKnob =
+      new CompoundParameter("WheelDensity", 100, 10, 1000).setDescription("Wheel Density");
+    
   public final BooleanParameter variableEllipseKnob =
       new BooleanParameter("VarEllipse", true);
     
@@ -98,6 +102,7 @@ public class Ferris extends CanvasPattern2D {
     addParameter(brakeKnob);
     addParameter(carBrakeKnob);
     addParameter(boosterKnob);
+    addParameter(wheelDensityKnob);
     addParameter(variableEllipseKnob);
     removeParameter(fpsKnob);
   }
@@ -106,6 +111,9 @@ public class Ferris extends CanvasPattern2D {
     pg.background(0);
 
     ferris.wheel.setAngularDamping(brakeKnob.getValue());
+    ferris.wheelFixture.setDensity(wheelDensityKnob.getValue() / 1000);
+    ferris.wheel.setMass(MassType.NORMAL);
+
     for (Body car : ferris.carriages) {
 	car.setAngularDamping(carBrakeKnob.getValue());
 	car.applyImpulse(boosterKnob.getValue());
