@@ -6,3 +6,6 @@
 target/
 *.lck
 *.tmp
+shaders/
+*.log.*
+

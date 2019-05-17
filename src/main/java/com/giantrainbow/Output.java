@@ -6,6 +6,7 @@ import com.giantrainbow.ui.UIPixliteConfig;
 import heronarts.lx.LX;
 import heronarts.lx.output.ArtNetDatagram;
 import heronarts.lx.output.LXDatagramOutput;
+import sun.util.logging.resources.logging;
 
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -762,7 +763,7 @@ public class Output {
                 || wireLedPos == 46 || wireLedPos == 47 || wireLedPos == 57 || wireLedPos == 58) {
               skippedLeds++;
               skippedThisLed = true;
-              // System.out.println("Skipped led: " + wireLedPos);
+              System.out.println("Skipped led: " + wireLedPos);
             }
 
             colNumFromLeft = wireLedPos / pointsHighPerPanel;
