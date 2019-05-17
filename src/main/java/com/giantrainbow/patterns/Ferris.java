@@ -94,6 +94,7 @@ public class Ferris extends CanvasPattern2D {
 
   Flowers flowers;
   double relapsed;
+  BackgroundPulse pulse;
     
   public Ferris(LX lx) {
     super(lx);
@@ -101,6 +102,7 @@ public class Ferris extends CanvasPattern2D {
     this.world = new World();
     this.ferris = new Amusement(world, WHEEL_R, CAR_RADIUS);
     this.flowers = new Flowers(Amusement.CAR_COUNT);
+    this.pulse = new BackgroundPulse(this, "Color");
     
     addParameter(speedKnob);
     addParameter(torqueKnob);
@@ -112,6 +114,9 @@ public class Ferris extends CanvasPattern2D {
     addParameter(wheelDensityKnob);
     addParameter(variableEllipseKnob);
     addParameter(partyModeKnob);
+
+    pulse.levelKnob.setValue(1);
+
     removeParameter(fpsKnob);
   }
 
@@ -168,17 +173,19 @@ public class Ferris extends CanvasPattern2D {
 
 		if (y1 > 0) {
 		    // Average of visible radii.
-		    radSum += sinTheta * bary.subtract(CENTER_PT).getMagnitude();
+		    double centMag = bary.getMagnitude();
+
+		    radSum += sinTheta * centMag;
 		    radCnt += sinTheta;
 		}
 	    }
 
 	    // Adjust the center-line
 	    double avgRad = radSum / radCnt;
-	    double shiftBy = avgRad - 730;
+	    double shiftBy = avgRad - WHEEL_R;
 
 	    if (shiftBy > 0) {
-		ellipseB *= (1 - shiftBy / 500);
+		ellipseB *= (1 - shiftBy / 300);
 	    }
 	}
 

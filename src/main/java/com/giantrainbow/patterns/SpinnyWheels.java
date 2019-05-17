@@ -10,7 +10,7 @@ public class SpinnyWheels extends AbstractSpinnyWheels {
 
   public SpinnyWheels(LX lx) {
     super(lx);
-    pulse = new BackgroundPulse(this);
+    pulse = new BackgroundPulse(this, "BG");
 
     countKnob.setValue(500);
   }

@@ -43,7 +43,7 @@ public class SpinnyUnreal extends AbstractSpinnyDiscs {
   public SpinnyUnreal(LX lx) {
     super(lx);
 
-    pulse = new BackgroundPulse(this);
+    pulse = new BackgroundPulse(this, "BG");
 
     textures = new PImage[inputs.length];
 

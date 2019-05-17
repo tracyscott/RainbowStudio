@@ -10,7 +10,7 @@ public class SpinnyFlowers extends AbstractSpinnyFlowers {
 
   public SpinnyFlowers(LX lx) {
     super(lx);
-    this.pulse = new BackgroundPulse(this);
+    this.pulse = new BackgroundPulse(this, "BG");
 
     countKnob.setValue(750);
   }
