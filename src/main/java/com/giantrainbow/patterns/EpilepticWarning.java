@@ -16,7 +16,7 @@ public class EpilepticWarning extends AbstractEpileptic {
     {8, 1, 9, 6, 8, 6, 9, 1},
   };
 
-  int[] getPositions(int period) {
+  public int[] getPositions(int period) {
     int idx = period % patterns.length;
     return patterns[idx];
   }

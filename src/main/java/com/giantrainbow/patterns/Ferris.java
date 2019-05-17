@@ -18,6 +18,8 @@ import processing.core.PImage;
 import processing.core.PVector;
 import com.giantrainbow.patterns.ferris.Amusement;
 import com.giantrainbow.textures.Flowers;
+import com.giantrainbow.textures.Positioner;
+import com.giantrainbow.textures.Strange;
 
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.World;
@@ -26,7 +28,7 @@ import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
 
 @LXCategory(LXCategory.FORM)
-public class Ferris extends CanvasPattern2D {
+public class Ferris extends CanvasPattern2D implements Positioner {
 
   static final double RATE = 10000;
 
@@ -94,16 +96,11 @@ public class Ferris extends CanvasPattern2D {
 
   Flowers flowers;
   double relapsed;
-  BackgroundPulse pulse;
+  Strange pulse;
     
   public Ferris(LX lx) {
     super(lx);
 
-    this.world = new World();
-    this.ferris = new Amusement(world, WHEEL_R, CAR_RADIUS);
-    this.flowers = new Flowers(Amusement.CAR_COUNT);
-    this.pulse = new BackgroundPulse(this, "Color");
-    
     addParameter(speedKnob);
     addParameter(torqueKnob);
     addParameter(rotateGravityKnob);
@@ -115,9 +112,12 @@ public class Ferris extends CanvasPattern2D {
     addParameter(variableEllipseKnob);
     addParameter(partyModeKnob);
 
-    pulse.levelKnob.setValue(.8);
-
     removeParameter(fpsKnob);
+
+    this.world = new World();
+    this.ferris = new Amusement(world, WHEEL_R, CAR_RADIUS);
+    this.flowers = new Flowers(Amusement.CAR_COUNT);
+    this.pulse = new Strange(this, this, "Party");
   }
 
   public void draw(double deltaMs) {
@@ -263,7 +263,8 @@ public class Ferris extends CanvasPattern2D {
 	float seatRX = -seatLX;
 
 	if (partyModeKnob.getValueb()) {
-	    pg.fill(pulse.get(relapsed));
+	    // pg.fill(pulse.get(relapsed));
+	    // @@@
 	} else {
 	    pg.fill(105, 183, 206);
 	}
@@ -282,4 +283,15 @@ public class Ferris extends CanvasPattern2D {
 	pg.rect(0, 0, BAR_WIDTH * CAR_RADIUS, CAR_RADIUS);
 	pg.rect(0, -CAR_RADIUS * SEAT_OFFSET, SEAT_WIDTH * CAR_RADIUS / 2, BAR_WIDTH * CAR_RADIUS);
     }
+
+  int patterns[][] = {
+    {0, 1, 2, 3},
+    {4, 5, 6, 7},
+    {8, 1, 9, 6, 8, 6, 9, 1},
+  };
+
+  public int[] getPositions(int period) {
+    int idx = period % patterns.length;
+    return patterns[idx];
+  }
 }
