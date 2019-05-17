@@ -41,28 +41,31 @@ public class Ferris extends CanvasPattern2D implements Positioner {
       new CompoundParameter("Torque", 1e12, 0, 1e13).setDescription("Torque");
 
   public final CompoundParameter gravityKnob =
-      new CompoundParameter("Gravity", 1e4, 0, 1e5).setDescription("Gravity");
+      new CompoundParameter("Gravity", 4e4, 0, 1e5).setDescription("Gravity");
 
   public final CompoundParameter rotateGravityKnob =
       new CompoundParameter("RotateGravity", Math.PI, 0, Math.PI * 2).setDescription("Rotate Gravity");
     
   public final CompoundParameter brakeKnob =
-      new CompoundParameter("Brake", 100, 0, 10000).setDescription("Brake");
+      new CompoundParameter("Brake", 10, 0, 10000).setDescription("Brake");
 
   public final CompoundParameter carBrakeKnob =
-      new CompoundParameter("CarBrake", 10, 0, 1000).setDescription("Car Brake");
+      new CompoundParameter("CarBrake", 1, 0, 1000).setDescription("Car Brake");
 
   public final CompoundParameter boosterKnob =
       new CompoundParameter("Booster", 0, -1e9, 1e9).setDescription("Booster");
 
   public final CompoundParameter wheelDensityKnob =
       new CompoundParameter("WheelDensity", 100, 10, 1000).setDescription("Wheel Density");
-    
+
   public final BooleanParameter variableEllipseKnob =
       new BooleanParameter("VarEllipse", true);
 
   public final BooleanParameter partyModeKnob =
       new BooleanParameter("PartyMode", false);
+    
+  public final CompoundParameter partyStrobeKnob =
+      new CompoundParameter("PartyStrobe", 200, 1, 1000).setDescription("Party strobe");
     
   final float WHEEL_CENTER_X = (float) canvas.width() / 2f;
 
@@ -97,6 +100,7 @@ public class Ferris extends CanvasPattern2D implements Positioner {
   Flowers flowers;
   double relapsed;
   Strange pulse;
+  PImage party;
     
   public Ferris(LX lx) {
     super(lx);
@@ -111,6 +115,7 @@ public class Ferris extends CanvasPattern2D implements Positioner {
     addParameter(wheelDensityKnob);
     addParameter(variableEllipseKnob);
     addParameter(partyModeKnob);
+    addParameter(partyStrobeKnob);
 
     removeParameter(fpsKnob);
 
@@ -118,10 +123,17 @@ public class Ferris extends CanvasPattern2D implements Positioner {
     this.ferris = new Amusement(world, WHEEL_R, CAR_RADIUS);
     this.flowers = new Flowers(Amusement.CAR_COUNT);
     this.pulse = new Strange(this, this, "Party");
+
+    this.pulse.rateKnob.setValue(2);
+    this.pulse.periodKnob.setValue(10);
   }
 
   public void draw(double deltaMs) {
     relapsed += deltaMs;
+
+    if (partyModeKnob.getValueb()) {
+	party = pulse.update(deltaMs);
+    }
 
     pg.background(0);
 
@@ -263,8 +275,9 @@ public class Ferris extends CanvasPattern2D implements Positioner {
 	float seatRX = -seatLX;
 
 	if (partyModeKnob.getValueb()) {
-	    // pg.fill(pulse.get(relapsed));
-	    // @@@
+	    int idx = (int)(relapsed / partyStrobeKnob.getValue()) % 420;
+	    int color = party.pixels[idx];
+	    pg.fill(color);
 	} else {
 	    pg.fill(105, 183, 206);
 	}
