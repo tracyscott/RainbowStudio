@@ -42,7 +42,7 @@ public class Ferris extends CanvasPattern2D {
       new CompoundParameter("Gravity", 1e4, 0, 1e5).setDescription("Gravity");
 
   public final CompoundParameter rotateGravityKnob =
-      new CompoundParameter("RotateGravity", 0, 0, Math.PI * 2).setDescription("Rotate Gravity");
+      new CompoundParameter("RotateGravity", Math.PI, 0, Math.PI * 2).setDescription("Rotate Gravity");
     
   public final CompoundParameter brakeKnob =
       new CompoundParameter("Brake", 100, 0, 10000).setDescription("Brake");
