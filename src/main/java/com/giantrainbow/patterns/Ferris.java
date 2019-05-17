@@ -17,6 +17,7 @@ import org.joml.Vector3f;
 import processing.core.PImage;
 import processing.core.PVector;
 import com.giantrainbow.patterns.ferris.Amusement;
+import com.giantrainbow.textures.Flowers;
 
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.World;
@@ -57,6 +58,9 @@ public class Ferris extends CanvasPattern2D {
     
   public final BooleanParameter variableEllipseKnob =
       new BooleanParameter("VarEllipse", true);
+
+  public final BooleanParameter partyModeKnob =
+      new BooleanParameter("PartyMode", false);
     
   final float WHEEL_CENTER_X = (float) canvas.width() / 2f;
 
@@ -74,6 +78,7 @@ public class Ferris extends CanvasPattern2D {
   final float WHEEL_R = canvas.width() / 2f;
 
   final float CAR_RADIUS = canvas.width() * 0.04f;
+  final float SPINNY_RADIUS = canvas.width() * 0.02f;
 
   final float CAR_OPEN = PI * 3 / 8;
   final float CAR_CLOSE = PI * 15 / 8;
@@ -87,13 +92,15 @@ public class Ferris extends CanvasPattern2D {
   final Amusement ferris;
   final World world;
 
-  double wheelRotation;
-
+  Flowers flowers;
+  double relapsed;
+    
   public Ferris(LX lx) {
     super(lx);
 
     this.world = new World();
     this.ferris = new Amusement(world, WHEEL_R, CAR_RADIUS);
+    this.flowers = new Flowers(Amusement.CAR_COUNT);
     
     addParameter(speedKnob);
     addParameter(torqueKnob);
@@ -104,10 +111,13 @@ public class Ferris extends CanvasPattern2D {
     addParameter(boosterKnob);
     addParameter(wheelDensityKnob);
     addParameter(variableEllipseKnob);
+    addParameter(partyModeKnob);
     removeParameter(fpsKnob);
   }
 
   public void draw(double deltaMs) {
+    relapsed += deltaMs;
+
     pg.background(0);
 
     ferris.wheel.setAngularDamping(brakeKnob.getValue());
@@ -191,9 +201,10 @@ public class Ferris extends CanvasPattern2D {
 	    pg.popMatrix();
 	}
 
+	// Draw the wheel
 	pg.noFill();
-	pg.stroke(0, 0, 255);
-	pg.strokeWeight(5);
+
+	float troll = (float)(relapsed / 1000);
 
 	for (int i = 0; i < Amusement.CAR_COUNT; i++) {
 	    float theta1 = (float)(wheelRotation + i * Amusement.CAR_STEP);
@@ -203,8 +214,34 @@ public class Ferris extends CanvasPattern2D {
 	    float x2 = ellipseA * (float)Math.cos(theta2);
 	    float y2 = ellipseB * (float)Math.sin(theta2);
 
+	    pg.stroke(0, 0, 255);
+	    pg.strokeWeight(5);
+
 	    pg.line(0, 0, x1, y1);
 	    pg.line(x1, y1, x2, y2);
+
+	    PImage texture = flowers.getTexture(6 + (i % 2));
+	    if (texture != null) {
+		pg.pushMatrix();
+		pg.translate((x1+x2)/2, (y1+y2)/2);
+		pg.rotate((theta1 + theta2) / 2);
+		pg.rotate(troll);
+
+		pg.beginShape();
+
+		pg.noStroke();
+		pg.texture(texture);
+
+		float r = SPINNY_RADIUS;
+		float w = texture.width;
+		pg.vertex(-r, -r, 0, 0);
+		pg.vertex(r, -r, w, 0);
+		pg.vertex(r, r, w, w);
+		pg.vertex(-r, r, 0, w);
+		pg.endShape();
+	
+		pg.popMatrix();
+	    }
 	}
 
 	pg.popMatrix();
