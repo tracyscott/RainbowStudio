@@ -16,8 +16,8 @@ public class BackgroundPulse {
   int colors[];
 
   public BackgroundPulse(LXPattern pattern, String name) {
-    rateKnob = new CompoundParameter(name + "Rate", 2000, 0, 10000).setDescription(name + " rate");
-    levelKnob = new CompoundParameter(name + "Level", 0.15, 0, 1).setDescription(name + " level");
+    rateKnob = new CompoundParameter(name + "Rate", .5, .01, 20).setDescription(name + " rate");
+    levelKnob = new CompoundParameter(name + "Level", 0.15, .05, 1).setDescription(name + " level");
 
     pattern.addParameter(levelKnob);
     pattern.addParameter(rateKnob);

@@ -32,7 +32,7 @@ public class Ferris extends CanvasPattern2D {
 
   // Speed determines the desired speed of the wheel.
   public final CompoundParameter speedKnob =
-      new CompoundParameter("Speed", 0 * RATE, -100 * RATE, 100 * RATE).setDescription("Speed");
+      new CompoundParameter("Speed", .5 * RATE, -100 * RATE, 100 * RATE).setDescription("Speed");
 
   // Torque determines the motor's output.
   public final CompoundParameter torqueKnob =
@@ -115,7 +115,7 @@ public class Ferris extends CanvasPattern2D {
     addParameter(variableEllipseKnob);
     addParameter(partyModeKnob);
 
-    pulse.levelKnob.setValue(1);
+    pulse.levelKnob.setValue(.8);
 
     removeParameter(fpsKnob);
   }
@@ -262,7 +262,11 @@ public class Ferris extends CanvasPattern2D {
 	float seatLX = -SEAT_WIDTH * CAR_RADIUS / 2;
 	float seatRX = -seatLX;
 
-	pg.fill(105, 183, 206);
+	if (partyModeKnob.getValueb()) {
+	    pg.fill(pulse.get(relapsed));
+	} else {
+	    pg.fill(105, 183, 206);
+	}
 
 	pg.beginShape();
 	pg.curveVertex(seatLX + 10,  seatY - CAR_HT * CAR_RADIUS);
