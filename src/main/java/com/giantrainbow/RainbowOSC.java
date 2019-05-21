@@ -124,7 +124,7 @@ public class RainbowOSC implements LXOscListener {
           if ("mode".equals(path[2])) {
             logger.info("changing mode to " + message.getString(0));
 
-
+            RainbowStudio.modeSelector.switchToMode(message.getString(0));
           }
           // TODO(tracy): Maybe change this to mobilesensor or something?
           if ("mobile".equals(path[2])) {

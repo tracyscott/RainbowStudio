@@ -32,16 +32,20 @@ public class UIModeSelector extends UICollapsibleSection {
   public BooleanParameter interactiveModeP = new BooleanParameter("interactive", false);
   public BooleanParameter instrumentModeP = new BooleanParameter("instrument", false);
 
-  static public BoundedParameter timePerChannelP = new BoundedParameter("TPerCh", 60000.0, 2000.0, 360000.0);
-  static public BoundedParameter timePerChannelP2 = new BoundedParameter("TPerCh2", 60000.0, 2000.0, 360000.0);
-  static public BoundedParameter timePerChannelP3 = new BoundedParameter("TPerCh3", 60000.0, 2000.0, 360000.0);
+  static public BoundedParameter timePerChannelP = new BoundedParameter("MultiT", 60000.0, 2000.0, 360000.0);
+  static public BoundedParameter timePerChannelP2 = new BoundedParameter("GifT", 60000.0, 2000.0, 360000.0);
+  static public BoundedParameter timePerChannelP3 = new BoundedParameter("SpecialT", 60000.0, 2000.0, 360000.0);
+  static public BoundedParameter timePerChannelP4 = new BoundedParameter("RbwT", 60000.0, 2000.0, 360000.0);
+  static public BoundedParameter timePerChannelP5 = new BoundedParameter("TPerCh5", 60000.0, 2000.0, 360000.0);
+
   static public BoundedParameter fadeTimeP = new BoundedParameter("FadeT", 1000.0, 0.000, 10000.0);
   public final UIKnob timePerChannel;
   public final UIKnob timePerChannel2;
   public final UIKnob timePerChannel3;
+  public final UIKnob timePerChannel4;
   public final UIKnob fadeTime;
 
-  public String[] standardModeChannelNames = { "MULTI", "GIF", "SPECIAL"};
+  public String[] standardModeChannelNames = { "MULTI", "GIF", "SPECIAL", "RBW"};
   public List<LXChannelBus> standardModeChannels = new ArrayList<LXChannelBus>(standardModeChannelNames.length);
   public int currentPlayingChannel = 0;
   public int previousPlayingChannel = 0;
@@ -116,9 +120,16 @@ public class UIModeSelector extends UICollapsibleSection {
     timePerChannel2.addToContainer(knobsContainer);
     timePerChannel3 = new UIKnob(timePerChannelP3);
     timePerChannel3.addToContainer(knobsContainer);
+    knobsContainer.addToContainer(this);
+    knobsContainer = new UI2dContainer(0, 30, getContentWidth(), 45);
+    knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
+    knobsContainer.setPadding(0, 0, 0, 0);
+    timePerChannel4 = new UIKnob(timePerChannelP4);
+    timePerChannel4.addToContainer(knobsContainer);
     fadeTime = new UIKnob(fadeTimeP);
     fadeTime.addToContainer(knobsContainer);
     knobsContainer.addToContainer(this);
+
 
     interactiveMode = (UIButton) new UIButton(0, 0, getContentWidth(), 18) {
       public void onToggle(boolean on) {
@@ -175,13 +186,74 @@ public class UIModeSelector extends UICollapsibleSection {
 
   public void switchToMode(String mode) {
     if ("Audio".equalsIgnoreCase(mode)){
+      // TODO
+      audioMode.setActive(true);
+      interactiveMode.setActive(false);
+      instrumentMode.setActive(false);
+      setStandardChannelsEnabled(false);
+      LXChannelBus channel = UtilsForLX.getChannelByLabel(lx, "TEXT");
+      if (channel != null)
+        channel.enabled.setValue(false);
+      channel = UtilsForLX.getChannelByLabel(lx, "RBW");
+      if (channel != null)
+        channel.enabled.setValue(false);
+
     } else if ("Standard".equalsIgnoreCase(mode)) {
+      audioMode.setActive(false);
+      interactiveMode.setActive(false);
+      instrumentMode.setActive(false);
+      setStandardChannelsEnabled(true);
+      LXChannelBus channel = UtilsForLX.getChannelByLabel(lx, "TEXT");
+      if (channel != null)
+        channel.enabled.setValue(false);
+      channel = UtilsForLX.getChannelByLabel(lx, "RBW");
+      if (channel != null)
+        channel.enabled.setValue(false);
 
     } else if ("Interactive".equalsIgnoreCase(mode)) {
-
+      // TODO
     } else if ("Instrument".equalsIgnoreCase(mode)) {
-
+      // TODO
     } else if ("Text".equalsIgnoreCase(mode)) {
+      audioMode.setActive(false);
+      interactiveMode.setActive(false);
+      instrumentMode.setActive(false);
+      setStandardChannelsEnabled(false);
+      LXChannelBus channel = UtilsForLX.getChannelByLabel(lx, "TEXT");
+      if (channel != null)
+        channel.enabled.setValue(true);
+      channel = UtilsForLX.getChannelByLabel(lx, "RBW");
+      if (channel != null)
+        channel.enabled.setValue(false);
+
+      // Need to find TEXT channel and enable it.
+    } else if ("Rainbow".equalsIgnoreCase(mode)) {
+      // Disable standard mode and set RBW channel active.  First, no fade
+      audioMode.setActive(false);
+      interactiveMode.setActive(false);
+      instrumentMode.setActive(false);
+      setStandardChannelsEnabled(false);
+      LXChannelBus channel = UtilsForLX.getChannelByLabel(lx, "RBW");
+      if (channel != null)
+        channel.enabled.setValue(true);
+      channel = UtilsForLX.getChannelByLabel(lx, "TEXT");
+      if (channel != null)
+        channel.enabled.setValue(false);
+
+    } else if ("None".equalsIgnoreCase(mode)) {
+      // Disable all modes, will stay on currently selected channel.
+      audioMode.setActive(false);
+      interactiveMode.setActive(false);
+      instrumentMode.setActive(false);
+      // We don't want to inactivate current channel, we just want to
+      // inactivate the auto-scheduling.
+      standardMode.setActive(false);
+      LXChannelBus channel = UtilsForLX.getChannelByLabel(lx, "RBW");
+      if (channel != null)
+        channel.enabled.setValue(false);
+      channel = UtilsForLX.getChannelByLabel(lx, "TEXT");
+      if (channel != null)
+        channel.enabled.setValue(false);
 
     }
   }
@@ -276,6 +348,8 @@ public class UIModeSelector extends UICollapsibleSection {
         timePerChannel = UIModeSelector.timePerChannelP2.getValue();
       } else if (currentPlayingChannel == 2) {
         timePerChannel = UIModeSelector.timePerChannelP3.getValue();
+      } else if (currentPlayingChannel == 3) {
+        timePerChannel = UIModeSelector.timePerChannelP4.getValue();
       }
 
       // If our current configuration doesn't have multiple standard channel names, just no-op.
