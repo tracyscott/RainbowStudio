@@ -1,6 +1,6 @@
 {
   "version": "0.1",
-  "timestamp": 1569621941986,
+  "timestamp": 1569705220277,
   "engine": {
     "id": 1,
     "class": "heronarts.lx.LXEngine",
@@ -53,7 +53,7 @@
           "blendMode": 0,
           "midiMonitor": false,
           "midiChannel": 16,
-          "autoCycleEnabled": true,
+          "autoCycleEnabled": false,
           "autoCycleMode": 0,
           "autoCycleTimeSecs": 900.0,
           "transitionEnabled": false,
@@ -62,7 +62,7 @@
         },
         "effects": [],
         "clips": [],
-        "patternIndex": 1,
+        "patternIndex": 2,
         "patterns": [
           {
             "id": 760,
@@ -77,7 +77,7 @@
               "modulations": [],
               "triggers": []
             },
-            "autoCycleEnabled": true
+            "autoCycleEnabled": false
           },
           {
             "id": 780,
@@ -85,7 +85,40 @@
             "modulationColor": -12058369,
             "parameters": {
               "label": "ExBridgeTest",
-              "Fps": 40.0
+              "Fps": 40.0,
+              "cycle": true,
+              "cyclePanel": -1,
+              "borders": true,
+              "ids": true,
+              "idType": 0
+            },
+            "modulation": {
+              "modulators": [],
+              "modulations": [],
+              "triggers": []
+            },
+            "autoCycleEnabled": false
+          },
+          {
+            "id": 822,
+            "class": "com.giantrainbow.patterns.AnimatedTextPP",
+            "modulationColor": -5570305,
+            "parameters": {
+              "label": "AnimatedTextPP",
+              "Fps": 40.0,
+              "str": "",
+              "XSpd": 3.400000035762787,
+              "clockwise": false,
+              "oneShot": false,
+              "reset": false,
+              "advP": false,
+              "font": 1,
+              "mult": true,
+              "osc": true,
+              "fontsize": 24,
+              "centr": false,
+              "fade": 1.0,
+              "which": 0
             },
             "modulation": {
               "modulators": [],
@@ -148,22 +181,22 @@
           "attack": 25.999999642372128,
           "release": 4.3861177317340285,
           "slope": 0.9000000804662704,
-          "Band-1": 0.0333625751941552,
-          "Band-2": 0.102865151225632,
-          "Band-3": 0.2254748907580849,
-          "Band-4": 0.30467587024077547,
-          "Band-5": 0.3543337815828822,
-          "Band-6": 0.4054267937301026,
-          "Band-7": 0.5436155751927338,
-          "Band-8": 0.7011072350625571,
-          "Band-9": 0.6342896888246139,
-          "Band-10": 0.7051088400076058,
-          "Band-11": 0.6331755883174488,
-          "Band-12": 0.8528438827337975,
-          "Band-13": 0.9300110545398202,
-          "Band-14": 0.8139389997401715,
-          "Band-15": 0.8531555303553462,
-          "Band-16": 0.3066650727339476
+          "Band-1": 0.7907967207274806,
+          "Band-2": 0.8024148954657117,
+          "Band-3": 0.782066081900985,
+          "Band-4": 0.7553567877674789,
+          "Band-5": 0.6746398000958393,
+          "Band-6": 0.5256386313137009,
+          "Band-7": 0.6482408594007647,
+          "Band-8": 0.7263888529940432,
+          "Band-9": 0.77948310892066,
+          "Band-10": 0.8228961096194255,
+          "Band-11": 0.7197722814848165,
+          "Band-12": 0.6783785169656598,
+          "Band-13": 0.5542289204635935,
+          "Band-14": 0.4175425778158297,
+          "Band-15": 0.21988709479403623,
+          "Band-16": 0.0
         }
       },
       "input": {
@@ -203,9 +236,9 @@
     },
     "components": {
       "oscsensor": {
-        "id": 778,
+        "id": 844,
         "class": "com.giantrainbow.OSCSensor",
-        "modulationColor": -16711711,
+        "modulationColor": -31232,
         "parameters": {
           "label": "oscsensor",
           "accelx": 0.0,
