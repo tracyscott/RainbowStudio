@@ -4,6 +4,7 @@ import com.giantrainbow.model.RainbowBaseModel;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.parameter.BooleanParameter;
+import heronarts.lx.parameter.DiscreteParameter;
 import heronarts.lx.parameter.EnumParameter;
 
 import java.util.logging.Logger;
@@ -17,6 +18,7 @@ public class ExBridgeTest extends PGPixelPerfect {
   };
 
   private final BooleanParameter cycle = new BooleanParameter("cycle", true).setDescription("Toggle color test cycle");
+  private final DiscreteParameter cyclePanel;
   private final BooleanParameter panelBorders = new BooleanParameter("borders", true)
       .setDescription("Toggle panel borders");
   private final BooleanParameter panelIds = new BooleanParameter("ids", false)
@@ -33,7 +35,10 @@ public class ExBridgeTest extends PGPixelPerfect {
 
     numPanels = ((RainbowBaseModel) lx.model).pointsWide / panelWidth;
 
+    cyclePanel = new DiscreteParameter("cyclePanel", -1, numPanels).setDescription("Specific panel to cycle (-1 = all panels)");
+
     addParameter(cycle);
+    addParameter(cyclePanel);
     addParameter(panelBorders);
     addParameter(panelIds);
     addParameter(panelIdType);
@@ -44,7 +49,12 @@ public class ExBridgeTest extends PGPixelPerfect {
     pg.background(0);
 
     if (cycle.getValueb()) {
-      drawColorCycle();
+      int panel = cyclePanel.getValuei();
+      if (panel < 0) {
+        drawColorCycle();
+      } else {
+        drawColorCycleForPanel(panel);
+      }
     }
 
     if (panelBorders.getValueb()) {
@@ -78,6 +88,24 @@ public class ExBridgeTest extends PGPixelPerfect {
     }
 
     pg.rect(0, 0, pg.width - 1, pg.height - 1);
+    pg.popStyle();
+  }
+
+  private void drawColorCycleForPanel(int panel) {
+    pg.pushStyle();
+    pg.noStroke();
+
+    if ((int) currentFrame / 20 % 4 == 0) {
+      pg.fill(255, 0, 0);
+    } else if ((int) currentFrame / 20 % 4 == 1) {
+      pg.fill(0, 255, 0);
+    } else if ((int) currentFrame / 20 % 4 == 2) {
+      pg.fill(0, 0, 255);
+    } else if ((int) currentFrame / 20 % 4 == 3) {
+      pg.fill(255);
+    }
+
+    pg.rect(panel * panelWidth, 0, panelWidth - 1, panelHeight - 1);
     pg.popStyle();
   }
 
