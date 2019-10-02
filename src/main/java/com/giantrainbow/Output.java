@@ -763,7 +763,7 @@ public class Output {
                 || wireLedPos == 46 || wireLedPos == 47 || wireLedPos == 57 || wireLedPos == 58) {
               skippedLeds++;
               skippedThisLed = true;
-              System.out.println("Skipped led: " + wireLedPos);
+              logger.info("Skipped led: " + wireLedPos);
             }
 
             colNumFromLeft = wireLedPos / pointsHighPerPanel;
@@ -929,7 +929,7 @@ public class Output {
           // our corresponding dataLength without blowing up.  Otherwise we need to compute the size of dmxChannelsForUniverse
           // appropriately for which chunk we are about to start working on AND whether or not it is a start/end panel.
           //}
-          System.out.println("Building datagram: universeLedPos=" + universeLedPos + " currentPanelInputUniverse=" +
+          logger.info("Building datagram: universeLedPos=" + universeLedPos + " currentPanelInputUniverse=" +
               currentPanelInputUniverse);
           ArtNetDatagram datagram = new RainbowDatagram(lx, dmxChannelsForUniverse, (universeLedPos+1)*3,
               currentPanelInputUniverse);
