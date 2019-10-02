@@ -39,6 +39,8 @@ public class ExPanelTest extends PGPixelPerfect {
         else if ((int)currentFrame/20 % 3 == 2)
           pg.stroke(0, 0, 255);
         //pg.stroke(255,0, 0);
+        if (curPanel == 27)
+          pg.stroke(255, 0, 255);
         pg.fill(30);
       } else {
         if ((int)currentFrame/20 % 3 == 0)
@@ -47,6 +49,9 @@ public class ExPanelTest extends PGPixelPerfect {
           pg.stroke(0,0,255);
         else if ((int)currentFrame/20 % 3 == 2)
           pg.stroke(255, 0, 0);
+
+        if (curPanel == 0)
+          pg.stroke(255, 255, 0);
         //pg.stroke(0,255,0);
         pg.fill(60);
       }

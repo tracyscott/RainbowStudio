@@ -46,7 +46,9 @@ public class PanelTest extends PGPixelPerfect {
         else if ((int)currentFrame/20 % 3 == 2)
           pg.stroke(0, 0, 255);
         //pg.stroke(255,0, 0);
-        pg.fill(70);
+        if (curPanel == 27)
+          pg.stroke(255, 0, 255);
+        pg.fill(0);
       } else {
         if ((int)currentFrame/20 % 3 == 0)
           pg.stroke(0,255,0);
@@ -55,7 +57,9 @@ public class PanelTest extends PGPixelPerfect {
         else if ((int)currentFrame/20 % 3 == 2)
           pg.stroke(255, 0, 0);
         //pg.stroke(0,255,0);
-        pg.fill(120);
+        if (curPanel == 0)
+          pg.stroke(255, 255, 0);
+        pg.fill(140);
       }
       if (curPanel == curFillPanel) {
         if ((int)currentFrame/20 % 4 == 0) {
