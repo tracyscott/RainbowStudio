@@ -138,6 +138,49 @@ public final class Colors {
       0xfff2dc6d,
   };
 
+  //
+  // Blink Festival color palette.
+  //    The first two palettes are for LOGO treatments.
+  //    The secondary palette supports gradients.  The
+  //    gradient should always be from one color to the
+  //    next color, not to the previous color, nor between
+  //    two distant colors.
+  //
+
+  // The magenta for this treatment should come from PALETTE_BLINK_LOGO_2_COLOR[1]
+  // The yellow for the Iris should come from PALETTE_BLINK_SECONDARY[4]
+  public static final int[] PALETTE_BLINK_LOGO_FULL = {
+      0xffee3524,  // red arts wave logo
+      0xff512873,  // purple for magenta to purple eye horizontal gradient
+      0xffa1a1a6,  // cool gray 8 for Illuminated by?
+      0xffbec0c2,  // cool gray 3
+  };
+
+  public static final int[] PALETTE_BLINK_LOGO_2_COLOR = {
+      0xff0f0708,  // black text white background or black background with white text
+      0xffd20f8c,  // magenta eye with black or white iris
+  };
+
+  public static final int[] PALETTE_BLINK_PRIMARY = {
+      0xffffffff,  // white
+      0xff0f0708,  // rich black
+  };
+
+  public static final int[] PALETTE_BLINK_SECONDARY = {
+      0xffd20f8c,  // magenta
+      0xff5a3795,  // purple
+      0xff00b4eb,  // blue
+      0xff80c342,  // green
+      0xffeee809,  // yellow
+      0xffee3124,  // red
+  };
+
+  public static final int[] PALETTE_BLINK_TERTIARY = {
+      0xffdcddde,   // grey
+  };
+
+
+
   public static final int[][] ART_PALETTES ={
       PALETTE_DALI_MEMORY,
       PALETTE_KANAGA_WAVE,
@@ -163,6 +206,8 @@ public final class Colors {
       PALETTE_SCREAM,
       PALETTE_SEURAT_SUNDAY_AFTERNOON,
       PALETTE_STARRY_NIGHT,
+      PALETTE_BLINK_LOGO_FULL,
+      PALETTE_BLINK_LOGO_2_COLOR,
   };
 
   private Colors() {
