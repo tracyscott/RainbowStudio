@@ -4,8 +4,10 @@ import com.giantrainbow.colors.Colors;
 import heronarts.lx.LX;
 import heronarts.lx.color.LXColor;
 import heronarts.lx.model.LXPoint;
+import heronarts.lx.parameter.BooleanParameter;
 import heronarts.lx.parameter.CompoundParameter;
 import heronarts.lx.parameter.DiscreteParameter;
+import processing.core.PConstants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,12 +19,7 @@ import static processing.core.PConstants.HSB;
 public class Tracers extends PGPixelPerfect {
   private static final Logger logger = Logger.getLogger(Tracers.class.getName());
 
-  public DiscreteParameter paletteKnob = new DiscreteParameter("palette", 0, 0, Colors.ALL_PALETTES.length + 1);
-  public CompoundParameter bgAlpha = new CompoundParameter("bgalpha", 0.25, 0.0, 1.0);
-  // Probability of a new triangle show up each frame.  Should we allow multiple triangles per frame?  nah,
-  // probably not.
   public CompoundParameter numTracers = new CompoundParameter("num", 60.0, 0.0, 200.0);
-  // Max triangle size.  Allow only small triangles for example.
   public CompoundParameter maxSize = new CompoundParameter("max", 15.0, 3.0, 45.0);
   public CompoundParameter minSize = new CompoundParameter("min", 3.0, 1.0, 30.0);
   public CompoundParameter minVelocity = new CompoundParameter("minv", 1.0, 0.0, 30.0);
@@ -30,8 +27,11 @@ public class Tracers extends PGPixelPerfect {
   public CompoundParameter maxOffScreen = new CompoundParameter("off", 0.0, 0.0, 30.0);
 
   public CompoundParameter fillAlpha = new CompoundParameter("falpha", 0.75, 0.0, 1.0);
-  public CompoundParameter saturation = new CompoundParameter("sat", 0.5, 0.0, 1.0);
-  public CompoundParameter bright = new CompoundParameter("bright", 1.0, 0.0, 1.0);
+  public CompoundParameter blurKnob = new CompoundParameter("blur", 0.0, 0.0, 1f);
+  public BooleanParameter outlinedKnob = new BooleanParameter("outline", true)
+      .setDescription("Include black outlines");
+  public CompoundParameter randomVKnob = new CompoundParameter("randV", 0.0, 0.0, 20.0)
+      .setDescription("Maximum random velocity to add.");
 
   public static class Tracer {
     public LXPoint pos;
@@ -48,7 +48,6 @@ public class Tracers extends PGPixelPerfect {
   public Tracers(LX lx) {
     super(lx, "");
     addParameter(paletteKnob);
-    addParameter(bgAlpha);
     addParameter(numTracers);
     addParameter(maxSize);
     addParameter(minSize);
@@ -56,22 +55,24 @@ public class Tracers extends PGPixelPerfect {
     addParameter(maxVelocity);
     addParameter(maxOffScreen);
     addParameter(fillAlpha);
+    addParameter(hue);
     addParameter(saturation);
+    addParameter(bright);
+    addParameter(blurKnob);
+    addParameter(outlinedKnob);
+    addParameter(randomPaletteKnob);
+    addParameter(randomVKnob);
   }
 
-  /*
-  A new random polygon with background fades.  Random 3 or 4 points?  Maybe just 3 points
-  * since that will always easily render regardless of the point ordering.  Polygon should
-  * be rendered with transparency on a 25% (configurable) transparent background for fading away.
-  * What to do for coloring?  Be able to specify saturation while randomizing hue.  Or possibly
-  * selecting a random number from 0 to sizeof(palette) and then use that color if palette box is
-  * checked?  Or if palette dropdown has a selected palette so can be both rainbow and redbull.
-
-
-   */
-  public void draw(double drawDeltaMs) {
-    pg.colorMode(HSB, 1.0f);
-    pg.background(0.0f, 0.0f, 0.0f, 0.0f);
+   public void draw(double drawDeltaMs) {
+    //pg.colorMode(HSB, 1.0f);
+    pg.colorMode(PConstants.HSB, 1.0f, 1.0f, 1.0f, 1.0f);
+    pg.fill(0, 1f - blurKnob.getValuef());
+    pg.noStroke();
+    pg.rect(0, 0, pg.width+1, pg.height+1);
+    pg.fill(255);
+    pg.smooth();
+    //pg.background(0.0f, 0.0f, 0.0f, 0.0f);
 
     updateTracers();
     processTracers();
@@ -126,6 +127,11 @@ public class Tracers extends PGPixelPerfect {
         tracer.hasBeenShown = true;
       else
         tracer.notShownCounter++;
+      float randVRange = randomVKnob.getValuef();
+      if (randVRange > 0.001f) {
+        tracer.velocityX += Math.random() * 2f * randVRange - randVRange;
+        tracer.velocityY += Math.random() * 2f * randVRange - randVRange;
+      }
       tracer.pos.x += tracer.velocityX;
       tracer.pos.y += tracer.velocityY;
       if (tracerNeedsReset(tracer)) {
@@ -135,6 +141,7 @@ public class Tracers extends PGPixelPerfect {
     }
   }
 
+  /*
   public void getNewHSB(float[] hsb) {
     int whichPalette = paletteKnob.getValuei();
 
@@ -150,6 +157,7 @@ public class Tracers extends PGPixelPerfect {
       LXColor.RGBtoHSB(color, hsb);
     }
   }
+  */
 
   /**
    * Update tracer positions.
@@ -194,6 +202,13 @@ public class Tracers extends PGPixelPerfect {
     */
 
 
+    if (outlinedKnob.getValueb()) {
+      pg.stroke(0);
+      pg.strokeWeight(1f);
+    } else {
+      pg.strokeWeight(0f);
+      pg.noStroke();
+    }
 
     pg.fill(tracer.hsb[0], tracer.hsb[1], tracer.hsb[2], fillAlpha.getValuef());
     //pg.triangle(pt1X, pt1Y, pt2X, pt2Y, pt3X, pt3Y);

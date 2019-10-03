@@ -8,4 +8,10 @@ target/
 *.tmp
 shaders/
 *.log.*
+audiomonitor.json
+gamma.json
+midictrl.json
+panelconfig12.json
+panelconfig16.json
+pixliteconfig.json
 
