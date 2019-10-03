@@ -47,7 +47,7 @@ public class UIModeSelector extends UICollapsibleSection {
 
   public String[] standardModeChannelNames = { "MULTI", "GIF", "SPECIAL", "RBW"};
   public List<LXChannelBus> standardModeChannels = new ArrayList<LXChannelBus>(standardModeChannelNames.length);
-  public int currentPlayingChannel = 0;
+  public int currentPlayingChannel = 0;  // Defaults to multi
   public int previousPlayingChannel = 0;
   public UIAudioMonitorLevels audioMonitorLevels;
 
@@ -265,9 +265,19 @@ public class UIModeSelector extends UICollapsibleSection {
 
   public void setStandardChannelsEnabled(boolean on) {
     if (on) {
-      LXChannelBus channel = standardModeChannels.get(currentPlayingChannel);
-      if (channel != null)
-        channel.enabled.setValue(true);
+      // Disable all channels
+      for (LXChannelBus channel : standardModeChannels) {
+        if (channel != null) {
+          channel.fader.setValue(0);
+          channel.enabled.setValue(false);
+        }
+      }
+      // Enable the currentPlayingChannel
+      LXChannelBus currentChannel = standardModeChannels.get(currentPlayingChannel);
+      if (currentChannel != null) {
+        currentChannel.enabled.setValue(true);
+        currentChannel.fader.setValue(100);
+      }
     } else {
       for (LXChannelBus channel : standardModeChannels) {
         if (channel != null)

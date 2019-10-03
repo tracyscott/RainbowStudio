@@ -116,7 +116,7 @@ public class RainbowStudio extends PApplet {
   public static PApplet pApplet;
 
   public static final boolean disableOutputOnStart = false;
-  public static final int GLOBAL_FRAME_RATE = 40;
+  public static final int GLOBAL_FRAME_RATE = 43;
   public static final boolean enableArtNet = true;
   public static final int ARTNET_PORT = 6454;
   public static final String LED_CONTROLLER_IP = "192.168.2.134";
@@ -150,7 +150,7 @@ public class RainbowStudio extends PApplet {
 
   @Override
   public void settings() {
-    size(1024, 600, P3D);
+    size(1200, 600, P3D);
   }
 
   /**
@@ -383,6 +383,7 @@ public class RainbowStudio extends PApplet {
     private static final String KEY_STDMODE_TIME = "stdModeTime";
     private static final String KEY_STDMODE_TIME2 = "stdModeTime2";
     private static final String KEY_STDMODE_TIME3 = "stdModeTime3";
+    private static final String KEY_STDMODE_TIME4 = "stdModeTime4";
 
     private static final String KEY_STDMODE_FADETIME = "stdModeFadeTime";
 
@@ -391,6 +392,7 @@ public class RainbowStudio extends PApplet {
       obj.addProperty(KEY_STDMODE_TIME, UIModeSelector.timePerChannelP.getValue());
       obj.addProperty(KEY_STDMODE_TIME2, UIModeSelector.timePerChannelP2.getValue());
       obj.addProperty(KEY_STDMODE_TIME3, UIModeSelector.timePerChannelP3.getValue());
+      obj.addProperty(KEY_STDMODE_TIME4, UIModeSelector.timePerChannelP4.getValue());
       obj.addProperty(KEY_STDMODE_FADETIME, UIModeSelector.fadeTimeP.getValue());
     }
 
@@ -405,6 +407,9 @@ public class RainbowStudio extends PApplet {
       }
       if (obj.has(KEY_STDMODE_TIME3)) {
         UIModeSelector.timePerChannelP3.setValue(obj.get(KEY_STDMODE_TIME3).getAsDouble());
+      }
+      if (obj.has(KEY_STDMODE_TIME4)) {
+        UIModeSelector.timePerChannelP4.setValue(obj.get(KEY_STDMODE_TIME4).getAsDouble());
       }
       if (obj.has(KEY_STDMODE_FADETIME)) {
         UIModeSelector.fadeTimeP.setValue(obj.get(KEY_STDMODE_FADETIME).getAsDouble());
