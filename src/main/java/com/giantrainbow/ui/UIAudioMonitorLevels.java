@@ -23,7 +23,7 @@ public class UIAudioMonitorLevels extends UIConfig {
   public static final String REDUCE_THRESHOLD = "RThrsh";
   public static final String GAIN_THRESHOLD = "GThrsh";
 
-  public static final String title = "AUDIO MONITOR";
+  public static final String title = "AUTO AUDIO MONITOR";
   public static final String filename = "audiomonitor.json";
   public UIAudioMonitorLevels(final LXStudio.UI ui) {
     super(ui, title, filename);

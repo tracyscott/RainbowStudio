@@ -37,12 +37,12 @@ public class UIPanelConfig extends UIConfig {
   public static UIPanelConfig panel12Config;
 
   static public UIPanelConfig newPanelConfig16(LXStudio.UI ui, LX lx) {
-    panel16Config = new UIPanelConfig(ui, lx, titleBase + 16, 16, filenameBase + 16 + ".json");
+    panel16Config = new UIPanelConfig(ui, lx, titleBase + 16 + " universe mappings", 16, filenameBase + 16 + ".json");
     return panel16Config;
   }
 
   static public UIPanelConfig newPanelConfig12(LXStudio.UI ui, LX lx) {
-    panel12Config = new UIPanelConfig(ui, lx, titleBase + 12, 12, filenameBase + 12 + ".json");
+    panel12Config = new UIPanelConfig(ui, lx, titleBase + 12 + " universe mappings", 12, filenameBase + 12 + ".json");
     return panel12Config;
   }
 

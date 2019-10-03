@@ -14,7 +14,7 @@ public class UIPixliteConfig extends UIConfig {
   public static final String PIXLITE_2_PORT = "port2";
   public static final String PIXLITE_2_PANELS = "panels2";
 
-  public static final String title = "pixlite";
+  public static final String title = "pixlite addresses";
   public static final String filename = "pixliteconfig.json";
   public LX lx;
   private boolean parameterChanged = false;

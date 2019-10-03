@@ -25,12 +25,15 @@ public class UIModeSelector extends UICollapsibleSection {
   public final UIButton standardMode;
   public final UIButton interactiveMode;
   public final UIButton instrumentMode;
+  public final UIButton textMode;
+
   protected LX lx;
   public BooleanParameter autoAudioModeP = new BooleanParameter("autoaudio", false);
   public BooleanParameter audioModeP = new BooleanParameter("audio", false);
   public BooleanParameter standardModeP = new BooleanParameter("standard", false);
   public BooleanParameter interactiveModeP = new BooleanParameter("interactive", false);
   public BooleanParameter instrumentModeP = new BooleanParameter("instrument", false);
+  public BooleanParameter textModeP = new BooleanParameter("text", false);
 
   static public BoundedParameter timePerChannelP = new BoundedParameter("MultiT", 60000.0, 2000.0, 360000.0);
   static public BoundedParameter timePerChannelP2 = new BoundedParameter("GifT", 60000.0, 2000.0, 360000.0);
@@ -72,6 +75,7 @@ public class UIModeSelector extends UICollapsibleSection {
           standardMode.setActive(false);
           interactiveMode.setActive(false);
           instrumentMode.setActive(false);
+          textMode.setActive(false);
           // Enable AUDIO channel
           setAudioChannelEnabled(true);
         } else {
@@ -92,8 +96,10 @@ public class UIModeSelector extends UICollapsibleSection {
           audioMode.setActive(false);
           interactiveMode.setActive(false);
           instrumentMode.setActive(false);
+          textMode.setActive(false);
           // Build our list of Standard Channels based on our names.  Putting it here allows it to
           // work after loading a new file (versus startup initialization).
+          standardModeChannels.clear();
           for (String channelName: standardModeChannelNames) {
             LXChannelBus ch = UtilsForLX.getChannelByLabel(lx, channelName);
             standardModeChannels.add(ch);
@@ -110,6 +116,64 @@ public class UIModeSelector extends UICollapsibleSection {
     .setLabel("Standard")
     .setActive(false)
     .addToContainer(this);
+
+    interactiveMode = (UIButton) new UIButton(0, 0, getContentWidth(), 18) {
+      public void onToggle(boolean on) {
+        if (on) {
+          audioMode.setActive(false);
+          standardMode.setActive(false);
+          instrumentMode.setActive(false);
+          textMode.setActive(false);
+          // Enable Interactive channel
+          setInteractiveChannelEnabled(true);
+        } else {
+          // Disable Interactive channel
+          setInteractiveChannelEnabled(false);
+        }
+      }
+    }
+    .setParameter(interactiveModeP)
+    .setLabel("Interactive")
+    .setActive(false)
+    .addToContainer(this);
+
+    instrumentMode = (UIButton) new UIButton(0, 0, getContentWidth(), 18) {
+      public void onToggle(boolean on) {
+        if (on) {
+          audioMode.setActive(false);
+          standardMode.setActive(false);
+          interactiveMode.setActive(false);
+          textMode.setActive(false);
+          // Enable Instrument/AUDIO channels
+          setInstrumentChannelsEnabled(true);
+        } else {
+          // Disable Instrument/AUDIO channels
+          setInstrumentChannelsEnabled(false);
+        }
+      }
+    }
+    .setParameter(instrumentModeP)
+    .setLabel("Instrument")
+    .setActive(false)
+    .addToContainer(this);
+
+    textMode = (UIButton) new UIButton(0, 0, getContentWidth(), 18) {
+      public void onToggle(boolean on) {
+        if (on) {
+          audioMode.setActive(false);
+          standardMode.setActive(false);
+          interactiveMode.setActive(false);
+          instrumentMode.setActive(false);
+          setTextChannelEnabled(true);
+        } else {
+          setTextChannelEnabled(false);
+        }
+      }
+    }
+    .setParameter(textModeP)
+        .setLabel("Text")
+        .setActive(false)
+        .addToContainer(this);
 
     UI2dContainer knobsContainer = new UI2dContainer(0, 30, getContentWidth(), 45);
     knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
@@ -130,45 +194,6 @@ public class UIModeSelector extends UICollapsibleSection {
     fadeTime.addToContainer(knobsContainer);
     knobsContainer.addToContainer(this);
 
-
-    interactiveMode = (UIButton) new UIButton(0, 0, getContentWidth(), 18) {
-      public void onToggle(boolean on) {
-        if (on) {
-          audioMode.setActive(false);
-          standardMode.setActive(false);
-          instrumentMode.setActive(false);
-          // Enable Interactive channel
-          setInteractiveChannelEnabled(true);
-        } else {
-          // Disable Interactive channel
-          setInteractiveChannelEnabled(false);
-        }
-      }
-    }
-    .setParameter(interactiveModeP)
-    .setLabel("Interactive")
-    .setActive(false)
-    .addToContainer(this);
-
-    instrumentMode = (UIButton) new UIButton(0, 0, getContentWidth(), 18) {
-      public void onToggle(boolean on) {
-        if (on) {
-          audioMode.setActive(false);
-          standardMode.setActive(false);
-          interactiveMode.setActive(false);
-          // Enable Instrument/AUDIO channels
-          setInstrumentChannelsEnabled(true);
-        } else {
-          // Disable Instrument/AUDIO channels
-          setInstrumentChannelsEnabled(false);
-        }
-      }
-    }
-    .setParameter(instrumentModeP)
-    .setLabel("Instrument")
-    .setActive(false)
-    .addToContainer(this);
-
     if (lx.engine.audio.input != null) {
       if (lx.engine.audio.input.device.getObject().isAvailable()) {
         this.standardMode.setActive(true);
@@ -188,6 +213,7 @@ public class UIModeSelector extends UICollapsibleSection {
     if ("Audio".equalsIgnoreCase(mode)){
       // TODO
       audioMode.setActive(true);
+      /*
       interactiveMode.setActive(false);
       instrumentMode.setActive(false);
       setStandardChannelsEnabled(false);
@@ -197,24 +223,25 @@ public class UIModeSelector extends UICollapsibleSection {
       channel = UtilsForLX.getChannelByLabel(lx, "RBW");
       if (channel != null)
         channel.enabled.setValue(false);
-
+      */
     } else if ("Standard".equalsIgnoreCase(mode)) {
+      /*
       audioMode.setActive(false);
       interactiveMode.setActive(false);
       instrumentMode.setActive(false);
+      textMode.setActive(false);
       setStandardChannelsEnabled(true);
-      LXChannelBus channel = UtilsForLX.getChannelByLabel(lx, "TEXT");
-      if (channel != null)
-        channel.enabled.setValue(false);
-      channel = UtilsForLX.getChannelByLabel(lx, "RBW");
-      if (channel != null)
-        channel.enabled.setValue(false);
-
+      */
+      standardMode.setActive(true);
     } else if ("Interactive".equalsIgnoreCase(mode)) {
       // TODO
+      interactiveMode.setActive(true);
     } else if ("Instrument".equalsIgnoreCase(mode)) {
       // TODO
+      instrumentMode.setActive(true);
     } else if ("Text".equalsIgnoreCase(mode)) {
+      textMode.setActive(true);
+      /*
       audioMode.setActive(false);
       interactiveMode.setActive(false);
       instrumentMode.setActive(false);
@@ -225,23 +252,25 @@ public class UIModeSelector extends UICollapsibleSection {
       channel = UtilsForLX.getChannelByLabel(lx, "RBW");
       if (channel != null)
         channel.enabled.setValue(false);
-
-      // Need to find TEXT channel and enable it.
+      */
     } else if ("Rainbow".equalsIgnoreCase(mode)) {
-      // Disable standard mode and set RBW channel active.  First, no fade
+      // NOTE(tracy): There currently isn't a Rainbow mode button, so we
+      // can't just enable it to disable everything else.  Should probably
+      // just add a Rainbow mode.
       audioMode.setActive(false);
       interactiveMode.setActive(false);
       instrumentMode.setActive(false);
-      setStandardChannelsEnabled(false);
+      standardMode.setActive(false);
+      textMode.setActive(false);
       LXChannelBus channel = UtilsForLX.getChannelByLabel(lx, "RBW");
       if (channel != null)
         channel.enabled.setValue(true);
-      channel = UtilsForLX.getChannelByLabel(lx, "TEXT");
-      if (channel != null)
-        channel.enabled.setValue(false);
-
     } else if ("None".equalsIgnoreCase(mode)) {
       // Disable all modes, will stay on currently selected channel.
+      // TODO(tracy): Fix this since disabling Standard Mode will turn off
+      // all standard mode channels which is probably not what we want.
+      // This is currently meant to work with custom channels that won't be
+      // touched by the other stuff.
       audioMode.setActive(false);
       interactiveMode.setActive(false);
       instrumentMode.setActive(false);
@@ -254,7 +283,6 @@ public class UIModeSelector extends UICollapsibleSection {
       channel = UtilsForLX.getChannelByLabel(lx, "TEXT");
       if (channel != null)
         channel.enabled.setValue(false);
-
     }
   }
 
@@ -297,6 +325,13 @@ public class UIModeSelector extends UICollapsibleSection {
     channel = UtilsForLX.getChannelByLabel(lx, "MIDI");
     if (channel != null) channel.enabled.setValue(on);
   }
+
+  public void setTextChannelEnabled(boolean on) {
+    LXChannelBus textChannel = UtilsForLX.getChannelByLabel(lx, "TEXT");
+    if (textChannel != null) textChannel.enabled.setValue(on);
+  }
+
+
 
   public class StandardModeCycle implements LXLoopTask {
     public double currentChannelPlayTime = 0.0;
