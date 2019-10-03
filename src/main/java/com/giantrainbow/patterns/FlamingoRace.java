@@ -7,6 +7,7 @@ import com.giantrainbow.RainbowStudio;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.midi.MidiNoteOn;
+import heronarts.lx.parameter.BooleanParameter;
 import heronarts.lx.parameter.CompoundParameter;
 import heronarts.lx.parameter.DiscreteParameter;
 import java.util.logging.Logger;
@@ -24,6 +25,7 @@ public class FlamingoRace extends PGPixelPerfect {
 
   public final DiscreteParameter jumpWait = new DiscreteParameter("JumpW", 10, 100);
   public final DiscreteParameter fireWidth = new DiscreteParameter("FireW", 2, 14);
+  public final BooleanParameter daytimeKnob = new BooleanParameter("Daytime", false);
 
   private PImage[] flamingoWalk;
   private PImage[] flamingoJump;
@@ -94,6 +96,7 @@ public class FlamingoRace extends PGPixelPerfect {
     fireWidth.setValue(8);
     addParameter(jumpWait);
     jumpWait.setValue(20);
+    addParameter(daytimeKnob);
   }
 
   private void resetFlamingos() {
@@ -112,7 +115,7 @@ public class FlamingoRace extends PGPixelPerfect {
 
       // tile the background
       PImage background;
-      if (!daytime) {
+      if (!daytimeKnob.getValueb()) {
         background = desertNight[0];
       } else {
         background = desertSky[0];
