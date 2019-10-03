@@ -1,6 +1,6 @@
 {
   "version": "0.1",
-  "timestamp": 1570139963820,
+  "timestamp": 1570142792283,
   "engine": {
     "id": 1,
     "class": "heronarts.lx.LXEngine",
@@ -15,7 +15,7 @@
       "crossfader": 0.4655172396451235,
       "crossfaderBlendMode": 0,
       "speed": 1.0,
-      "focusedChannel": 9,
+      "focusedChannel": 7,
       "cueA": false,
       "cueB": false,
       "multithreaded": false,
@@ -1198,7 +1198,7 @@
         "parameters": {
           "label": "AUDIO",
           "arm": false,
-          "selected": false,
+          "selected": true,
           "enabled": false,
           "cue": false,
           "fader": 1.0,
@@ -1218,19 +1218,26 @@
         "patternIndex": 0,
         "patterns": [
           {
-            "id": 5916,
-            "class": "heronarts.lx.pattern.IteratorPattern",
-            "modulationColor": -46336,
+            "id": 6703,
+            "class": "com.giantrainbow.patterns.ShaderToy",
+            "modulationColor": -16774913,
             "parameters": {
-              "label": "Iterator",
-              "speed": 10.0
+              "label": "ShaderToy",
+              "Fps": 43.0,
+              "Audio": true,
+              "K1": 0.5599999874830246,
+              "K2": 0.5200000107288361,
+              "K3": 1.0,
+              "K4": 0.9600000008940697,
+              "frag": "audio2",
+              "tex": "tunneltex.png"
             },
             "modulation": {
               "modulators": [],
               "modulations": [],
               "triggers": []
             },
-            "autoCycleEnabled": false
+            "autoCycleEnabled": true
           }
         ]
       },
@@ -1247,7 +1254,7 @@
           "fader": 1.0,
           "crossfadeGroup": 0,
           "blendMode": 0,
-          "midiMonitor": false,
+          "midiMonitor": true,
           "midiChannel": 16,
           "autoCycleEnabled": false,
           "autoCycleMode": 0,
@@ -1261,19 +1268,21 @@
         "patternIndex": 0,
         "patterns": [
           {
-            "id": 5931,
-            "class": "heronarts.lx.pattern.IteratorPattern",
-            "modulationColor": -9830145,
+            "id": 6701,
+            "class": "com.giantrainbow.patterns.KeyboardMidiPP",
+            "modulationColor": -12779776,
             "parameters": {
-              "label": "Iterator",
-              "speed": 10.0
+              "label": "KeyboardMidiPP",
+              "midiCh": 0,
+              "bright": 30.0,
+              "bars": 49.0
             },
             "modulation": {
               "modulators": [],
               "modulations": [],
               "triggers": []
             },
-            "autoCycleEnabled": false
+            "autoCycleEnabled": true
           }
         ]
       },
@@ -1284,7 +1293,7 @@
         "parameters": {
           "label": "INTERACTIVE",
           "arm": false,
-          "selected": true,
+          "selected": false,
           "enabled": false,
           "cue": false,
           "fader": 1.0,
@@ -1391,23 +1400,23 @@
           "range": 52.800000965595245,
           "attack": 9.999999776482582,
           "release": 18.5580048226244,
-          "slope": -0.45000005699694157,
-          "Band-1": 0.4803606045361484,
-          "Band-2": 0.5511398067089892,
-          "Band-3": 0.5608824476414808,
-          "Band-4": 0.5694478498723854,
-          "Band-5": 0.5033779215795954,
-          "Band-6": 0.4777168375487979,
-          "Band-7": 0.4650273194114981,
-          "Band-8": 0.37514454925063423,
-          "Band-9": 0.3984939582970817,
-          "Band-10": 0.3255633109924603,
-          "Band-11": 0.260260107080989,
-          "Band-12": 0.24133679141030207,
-          "Band-13": 0.2767515088496423,
-          "Band-14": 0.2023798011908795,
-          "Band-15": 0.14996373854323408,
-          "Band-16": 0.11768942777662561
+          "slope": 2.2499998826533556,
+          "Band-1": 0.40076409566972027,
+          "Band-2": 0.47776647094038593,
+          "Band-3": 0.4570011291517404,
+          "Band-4": 0.419434667565199,
+          "Band-5": 0.4911941667363007,
+          "Band-6": 0.4721404621897659,
+          "Band-7": 0.6685451413977117,
+          "Band-8": 0.6910929060048652,
+          "Band-9": 0.5870128409213249,
+          "Band-10": 0.5936632983735326,
+          "Band-11": 0.5883727736845021,
+          "Band-12": 0.5854470724591287,
+          "Band-13": 0.6021075010291925,
+          "Band-14": 0.5318484241232545,
+          "Band-15": 0.5005939959571588,
+          "Band-16": 0.4815828482188764
         }
       },
       "input": {
@@ -1447,9 +1456,9 @@
     },
     "components": {
       "oscsensor": {
-        "id": 6453,
+        "id": 6699,
         "class": "com.giantrainbow.OSCSensor",
-        "modulationColor": -16744705,
+        "modulationColor": -65358,
         "parameters": {
           "label": "oscsensor",
           "accelx": 0.0,
@@ -1522,7 +1531,7 @@
         "centerPoint": false,
         "camera": {
           "active": false,
-          "radius": 52.58698526195508,
+          "radius": 42.832428164520294,
           "theta": 0.012000000000003199,
           "phi": 0.06600000000000084,
           "x": -0.9988076686859131,
@@ -1532,7 +1541,7 @@
         "cue": [
           {
             "active": false,
-            "radius": 52.58698526195508,
+            "radius": 42.832428164520294,
             "theta": 0.012000000000003199,
             "phi": 0.06600000000000084,
             "x": -0.9988076686859131,
