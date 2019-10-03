@@ -4,6 +4,8 @@
  */
 package com.giantrainbow.colors;
 
+import heronarts.lx.color.LXColor;
+
 import java.awt.Color;
 import java.util.Random;
 
@@ -208,6 +210,7 @@ public final class Colors {
       PALETTE_STARRY_NIGHT,
       PALETTE_BLINK_LOGO_FULL,
       PALETTE_BLINK_LOGO_2_COLOR,
+      PALETTE_BLINK_SECONDARY,
   };
 
   private Colors() {
@@ -271,5 +274,16 @@ public final class Colors {
    */
   public static int hsb(float h, float s, float b) {
     return Color.HSBtoRGB(h, s, b);
+  }
+
+  public static float[] RGBtoHSB(int rgb, float[] hsb) {
+    int r = (rgb & LXColor.R_MASK) >> LXColor.R_SHIFT;
+    int g = (rgb & LXColor.G_MASK) >> LXColor.G_SHIFT;
+    int b = rgb & LXColor.B_MASK;
+    return Color.RGBtoHSB(r, g, b, hsb);
+  }
+
+  public static int HSBtoRGB(float[] hsb) {
+    return Color.HSBtoRGB(hsb[0], hsb[1], hsb[2]);
   }
 }
