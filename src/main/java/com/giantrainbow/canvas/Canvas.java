@@ -18,15 +18,27 @@ public class Canvas {
   /** Map contains the (static) mapping function from sub-pixel to rainbow pixel. */
   public Map map;
 
+  LXModel model;
+
   public Canvas(LXModel model, LXPoint perimeter[]) {
-    map = Map.newFromModel(model, perimeter);
-    buffer = new Buffer(map.size());
+    this.model = model;
+    this.map = Map.newFromModel(model, perimeter);
+    this.buffer = new Buffer(map.size());
   }
 
   /** render stores the current buffer into `output`. */
   public void render(int output[]) {
     for (int i = 0; i < output.length; i++) {
-      output[i] = map.computePoint(i, buffer);
+
+      // Note: something's wrong here, fixing it w/o really
+      // understanding where the trouble lies.  We're mirroring in the
+      // X dimension, things were flipped.  This probably relates to
+      // the ever-complicating inversion of Y-coordinates.
+      LXPoint p = model.points[i];
+
+      int mirrorI = p.y * model.width + (model.width - 1 - p.x);
+
+      output[i] = map.computePoint(mirrorI, buffer);
     }
   }
 
