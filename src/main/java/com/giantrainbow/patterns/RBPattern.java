@@ -3,9 +3,7 @@ package com.giantrainbow.patterns;
 import heronarts.lx.LX;
 import heronarts.lx.LXPattern;
 import heronarts.lx.color.LXColor;
-import heronarts.lx.parameter.BooleanParameter;
-import heronarts.lx.parameter.CompoundParameter;
-import heronarts.lx.parameter.DiscreteParameter;
+import heronarts.lx.parameter.*;
 import com.giantrainbow.colors.Colors;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -15,7 +13,14 @@ abstract public class RBPattern extends LXPattern {
   private static final Logger logger = Logger.getLogger(RBPattern.class.getName());
 
   public RBPattern(LX lx) {
+
     super(lx);
+    randomPaletteKnob.addListener(new LXParameterListener() {
+      @Override
+      public void onParameterChanged(LXParameter parameter) {
+        bindRandomPalette();
+      }
+    });
   }
 
   public DiscreteParameter paletteKnob = new DiscreteParameter("palette", 0, 0, Colors.ALL_PALETTES.length + 2);
@@ -67,7 +72,7 @@ abstract public class RBPattern extends LXPattern {
     }
   }
 
-  public void onActive()
+  protected void bindRandomPalette()
   {
     if (randomPaletteKnob.getValueb()) {
       int paletteNumber = ThreadLocalRandom.current().nextInt(0, Colors.ALL_PALETTES.length);
@@ -82,5 +87,9 @@ abstract public class RBPattern extends LXPattern {
         palette = Colors.ALL_PALETTES[0];
       }
     }
+  }
+
+  public void onActive() {
+    bindRandomPalette();
   }
 }
