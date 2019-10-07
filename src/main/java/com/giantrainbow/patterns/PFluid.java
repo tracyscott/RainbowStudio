@@ -156,11 +156,10 @@ public class PFluid extends PGPixelPerfect {
       emitter.temperature = tempKnob.getValuef();
       emitter.intensity = intensityKnob.getValuef();
       emitter.radius = radiusKnob.getValuef();
-      emitter.px = i * pg.width / (numEmitters.getValuef() - 1f);
+      emitter.px = i * pg.width / (numEmitters.getValuef() - 2f);
       emitter.py = yPosKnob.getValuef();
-      emitter.px += xPosOffsetKnob.getValuef();
       if (i == 0) emitter.px = 5;
-      //if (i == emitters.size()-1) emitter.px -= 5;
+      emitter.px += xPosOffsetKnob.getValuef();
     }
 
     fluid.addObstacles(pg_obstacles);
