@@ -61,7 +61,7 @@ abstract public class RBPattern extends LXPattern {
       if (index == -1)
         index = ThreadLocalRandom.current().nextInt(0, palette.length);
       else if (index >= palette.length)
-        index -= palette.length;
+        index = index % palette.length;
       int color = palette[index];
       Colors.RGBtoHSB(color, hsb);
     }
