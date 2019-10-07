@@ -1,6 +1,7 @@
 package com.giantrainbow.patterns;
 
 import com.giantrainbow.RainbowStudio;
+import com.giantrainbow.colors.Colors;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.flowfieldparticles.DwFlowFieldParticles;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwFlowField;
@@ -9,11 +10,14 @@ import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge;
 import com.thomasdiewald.pixelflow.java.utils.DwUtils;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
+import heronarts.lx.parameter.BooleanParameter;
+import heronarts.lx.parameter.CompoundParameter;
+import heronarts.lx.parameter.LXParameter;
+import heronarts.lx.parameter.LXParameterListener;
 import processing.core.PApplet;
 import processing.opengl.PGraphics2D;
 
 import static com.giantrainbow.RainbowStudio.GLOBAL_FRAME_RATE;
-import static java.lang.Math.random;
 import static processing.core.PConstants.*;
 
 /**
@@ -21,8 +25,36 @@ import static processing.core.PConstants.*;
  */
 @LXCategory(LXCategory.FORM)
 public class RainbowParticles extends PGPixelPerfect {
+  CompoundParameter spawnFreq = new CompoundParameter("spawnfreq", 240, 15, 480);
+  CompoundParameter spawnCount = new CompoundParameter("count", 1000, 1, 5000);
+  CompoundParameter particleSize = new CompoundParameter("size", 3, 1, 10);
+  BooleanParameter updateColorKnob = new BooleanParameter("updateClr", false);
+  CompoundParameter updateColorFreq = new CompoundParameter("updateClrFq", 5, 1, 200);
+
+  protected boolean reinitParticles = false;
+  protected float[] currentHsb = { 1f, 1f, 1f};
+
   public RainbowParticles(LX lx) {
     super(lx, "");
+
+    addParameter(paletteKnob);
+    addParameter(randomPaletteKnob);
+    addParameter(hue);
+    addParameter(saturation);
+    addParameter(bright);
+    addParameter(spawnFreq);
+    addParameter(spawnCount);
+    LXParameterListener reinit = new LXParameterListener() {
+      public void onParameterChanged(LXParameter p) {
+        //initParticles();
+        reinitParticles = true;
+      }
+    };
+    spawnCount.addListener(reinit);
+    addParameter(particleSize);
+    particleSize.addListener(reinit);
+    addParameter(updateColorKnob);
+    addParameter(updateColorFreq);
 
     fpsKnob.setValue(GLOBAL_FRAME_RATE);
 
@@ -50,12 +82,16 @@ public class RainbowParticles extends PGPixelPerfect {
     pg_obstacles.fill(0, 255);
     pg_obstacles.rect(0, 0, pg.width, pg.height);
     pg_obstacles.fill(0, 0);
-    pg_obstacles.rect(2, 2, pg.width-4, pg.height-4);
+    pg_obstacles.rect(1, 1, pg.width-1, pg.height-1);
     pg_obstacles.endDraw();
 
     boolean[] RESIZED = { false };
     pg_luminance  = DwUtils.changeTextureSize(RainbowStudio.pApplet, pg_luminance , pg.width, pg.height, 0, RESIZED);
 
+    initParticles();
+  }
+
+  public void initParticles() {
 
     context = new DwPixelFlow(RainbowStudio.pApplet);
     context.print();
@@ -69,16 +105,16 @@ public class RainbowParticles extends PGPixelPerfect {
     ff_impulse.param.blur_iterations = 1;
     ff_impulse.param.blur_radius     = 1;
 
-    particles = new DwFlowFieldParticles(context, 100);
+    particles = new DwFlowFieldParticles(context, (int)spawnCount.getValuef());
     particles.param.col_A = new float[]{0.80f, 0.10f, 0.20f, 5};
     particles.param.col_B = new float[]{0.20f, 0.05f, 0.10f, 0};
     particles.param.shader_type = 1;
     particles.param.shader_collision_mult = 0.30f;
     particles.param.steps = 1;
     particles.param.velocity_damping  = 1;
-    particles.param.size_display   = 3;
-    particles.param.size_collision = 3;
-    particles.param.size_cohesion  = 2;
+    particles.param.size_display   = (int)particleSize.getValuef();
+    particles.param.size_collision = (int)particleSize.getValuef();
+    particles.param.size_cohesion  = particles.param.size_collision - 1;
     particles.param.mul_coh = 1.00f;
     particles.param.mul_col = 2.00f;
     particles.param.mul_obs = 3.00f;
@@ -102,8 +138,13 @@ public class RainbowParticles extends PGPixelPerfect {
   DwFlowField ff_impulse;
 
   public void draw(double deltaDrawMs) {
+    if (reinitParticles) {
+      initParticles();
+      reinitParticles = false;
+    }
     pg.background(0);
-    updateColor();
+    if (updateColorKnob.getValueb())
+      updateColor();
 
     setTimestep();
     spawnParticles();
@@ -169,10 +210,9 @@ public class RainbowParticles extends PGPixelPerfect {
 //    sr.vel(vx, vy);
 //    particles.spawn(vw, vh, sr);
 
-    if (((int)currentFrame) % 240 == 0) {
-      System.out.println("Spawning particles");
+    if (((int)currentFrame) % ((int)spawnFreq.getValuef()) == 0) {
       count = RainbowStudio.pApplet.ceil(particles.getCount() * 0.0025f);
-      count = 1000; //RainbowStudio.pApplet.min(RainbowStudio.pApplet.max(count, 1), 5000);
+      count = (int)spawnCount.getValuef(); //RainbowStudio.pApplet.min(RainbowStudio.pApplet.max(count, 1), 5000);
 
       float pr = particles.getCollisionSize() * 0.25f;
       radius = RainbowStudio.pApplet.ceil(RainbowStudio.pApplet.sqrt(count * pr * pr));
@@ -185,33 +225,15 @@ public class RainbowParticles extends PGPixelPerfect {
       sr.dim(radius, radius);
       sr.pos(px, vh-1-py);
       sr.vel(vx, vy);
-      System.out.println("px: " + px + " py:" + py + " vx:" + vx + " vy:" + vy + " vw: " + vw + " vh:" + vh);
+      //System.out.println("px: " + px + " py:" + py + " vx:" + vx + " vy:" + vy + " vw: " + vw + " vh:" + vh);
       particles.spawn(vw, vh, sr);
     }
   }
 
   public void reset() {
-    System.out.println("Resetting particles!");
     particles.reset();
     particles.resizeWorld(pg.width, pg.height);
     particles.createObstacleFlowField(pg_obstacles, new int[]{0,0,0,255}, false);
-    float border = 4;
-    float dimx = pg.width  - border;
-    float dimy = pg.height - border;
-    float particle_size = particles.param.size_collision;
-    int numx = (int) (dimx / (particle_size+0.1f));
-    int numy = (int) (dimy / (particle_size+0.1f));
-
-
-    DwFlowFieldParticles.SpawnRect spawn = new DwFlowFieldParticles.SpawnRect();
-    spawn.dim(dimx, dimy);
-    spawn.pos(pg.width/2-dimx/2, pg.height/2-dimy/2);
-    spawn.vel(0, 0);
-
-    System.out.println("Initial spawn numx=" + numx + " numy=" + numy);
-    spawn.num(numx, numy);
-
-    particles.spawn(pg.width, pg.height, spawn);
   }
 
 
@@ -283,41 +305,23 @@ public class RainbowParticles extends PGPixelPerfect {
     }
   }
 
-
-  float[][] pallette2 = {
-      { 32,  32, 32},
-      {196,  96,  0},
-      {128, 128,  0},
-      {  0,  96,196},
-      { 96,  96, 96},
-  };
-
-  //RedBull (15,0,105) (192,192,192) (255,204,0) (210,0,60) (192,192,192) (15,0,105)
-  float[][] pallette = {
-      {15, 0, 105},
-      {192, 192, 192},
-      {210, 0, 60},
-      {255, 204, 0},
-  };
-
-  public void updateColor(){
-    if (((int)currentFrame)%5 == 0) {
-      //float mix = (float)Math.sin((float)(currentFrame*0.001)) * 0.5f + 0.5f;
-      //float mix = RainbowStudio.pApplet.map(mouseX, 0, width, 0, 1);
-      float mix = 0.5f;
-      float[] rgb1 = DwUtils.getColor(pallette, mix, null);
-      float s1 = 1f / 255f;
-      float s2 = s1 * 0.25f;
-      float red = (float) Math.random();
-      float green = (float) Math.random();
-      float blue = (float) Math.random();
-
-      particles.param.col_A = new float[]{rgb1[0] * s1, rgb1[1] * s1, rgb1[2] * s1, 1.0f};
-      particles.param.col_B = new float[]{rgb1[0] * s2, rgb1[1] * s2, rgb1[2] * s2, 0.0f};
-      //particles.param.col_A = new float[]{red, green, blue, 1.0f};
-      //particles.param.col_B = new float[]{red * 0.25f, green * 0.25f, blue * 0.25f, 0.0f};
+  // This is for dynamically updating the color
+  public void updateColor() {
+    if (((int)currentFrame)%((int)updateColorFreq.getValuef()) == 0) {
+      getNewHSB(currentHsb);
+      int color = Colors.HSBtoRGB(currentHsb);
+      float red = (float)Colors.red(color)/255f;
+      float green = (float)Colors.green(color)/255f;
+      float blue = (float)Colors.blue(color)/255f;
+      particles.param.col_A = new float[]{red, green, blue, 1.0f};
+      particles.param.col_B = new float[]{red * 0.25f, green * 0.25f, blue * 0.25f, 0.0f};
     }
   }
 
+  @Override
+  public void onActive() {
+    super.onActive();
+    getNewHSB(currentHsb);
+  }
 
 }
