@@ -24,7 +24,7 @@ import processing.core.PVector;
 import processing.core.PFont;
 
 @LXCategory(LXCategory.FORM)
-public class Propertexty extends CanvasPattern2D {
+public class Typing extends CanvasPattern2D {
 
   public static final int MAX_FONT_SIZE = 120;
 
@@ -33,7 +33,7 @@ public class Propertexty extends CanvasPattern2D {
   public final CompoundParameter sizeKnob =
       new CompoundParameter("FontSize", 68.20, 10, MAX_FONT_SIZE).setDescription("FontSize");
 
-  public Propertexty(LX lx) {
+  public Typing(LX lx) {
     super(lx);
     addParameter(sizeKnob);
     removeParameter(fpsKnob);
