@@ -41,6 +41,8 @@ import heronarts.lx.studio.LXStudio;
 import heronarts.p3lx.ui.UI3dContext;
 import heronarts.p3lx.ui.UIEventHandler;
 import heronarts.p3lx.ui.component.UIGLPointCloud;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Modifier;
@@ -150,7 +152,7 @@ public class RainbowStudio extends PApplet {
 
   @Override
   public void settings() {
-    size(1200, 600, P3D);
+    size(1800, 600, P3D);
   }
 
   /**
@@ -211,7 +213,16 @@ public class RainbowStudio extends PApplet {
     logger.info("Current graphics is GL:" + getGraphics().isGL());
     logger.info("Multithreaded hint: " + MULTITHREADED);
     logger.info("Multithreaded actually: " + (MULTITHREADED && !getGraphics().isGL()));
+
     lx = new LXStudio(this, model, MULTITHREADED && !getGraphics().isGL());
+    lx.addProjectListener(new LX.ProjectListener() {
+      public void projectChanged(File f, LX.ProjectListener.Change change) {
+        // Force Standard mode after opening a file.
+        if (change == LX.ProjectListener.Change.OPEN) {
+          modeSelector.initMode();
+        }
+      }
+    });
 
     lx.ui.setResizable(RESIZABLE);
 
@@ -227,6 +238,9 @@ public class RainbowStudio extends PApplet {
     pixliteConfig = (UIPixliteConfig) new UIPixliteConfig(lx.ui, lx).setExpanded(false).addToContainer(lx.ui.leftPane.global);
     panel16Config = (UIPanelConfig) UIPanelConfig.newPanelConfig16(lx.ui, lx).setExpanded(false).addToContainer(lx.ui.leftPane.global);
     panel12Config = (UIPanelConfig) UIPanelConfig.newPanelConfig12(lx.ui, lx).setExpanded(false).addToContainer(lx.ui.leftPane.global);
+
+    // Force standard mode.
+    modeSelector.initMode();
 
     lx.engine.midi.addListener(uiMidiControl);
 
