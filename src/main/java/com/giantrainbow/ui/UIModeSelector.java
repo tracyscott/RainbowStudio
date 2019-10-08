@@ -50,7 +50,7 @@ public class UIModeSelector extends UICollapsibleSection {
 
   public String[] standardModeChannelNames = { "MULTI", "GIF", "SPECIAL", "RBW"};
   public List<LXChannelBus> standardModeChannels = new ArrayList<LXChannelBus>(standardModeChannelNames.length);
-  public int currentPlayingChannel = 0;  // Defaults to multi
+  public int currentPlayingChannel = 3;  // Defaults to multi
   public int previousPlayingChannel = 0;
   public UIAudioMonitorLevels audioMonitorLevels;
 
