@@ -69,7 +69,7 @@ public class RainbowModel3D extends RainbowBaseModel {
 
     LXPoint plist[] = new LXPoint[perimeter.size()];
     perimeter.toArray(plist);
-    this.canvas = new Canvas(this, plist);
+    this.canvas = new Canvas(this, plist, numPanels * 15);
   }
 
   public static class Fixture extends LXAbstractFixture {

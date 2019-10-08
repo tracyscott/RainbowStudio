@@ -86,8 +86,9 @@ public class Map {
    * perimeter or outside: `positions`, `subpixels`, and `isnear` are computed.
    */
   void buildFromModel(LXModel model, LXPoint perimeterList[]) {
-    // TODO: Add a model-perimeter interface to support testing w/ other
-    // panel configurations.
+    // The perimeter list surrounds the rainbow by an imaginary
+    // row/column of pixels.  This ensures that border pixels receive
+    // the same weight as interior pixels.
     for (LXPoint pt : perimeterList) {
       pxMin = Math.min(pxMin, pt.x);
       pyMin = Math.min(pyMin, pt.y);
@@ -244,19 +245,25 @@ public class Map {
     }
   }
 
+  // From a subsampled pixel index, determine the X position.
   int subXpos(int subidx) {
     return subidx % width;
   }
 
+  // From a subsampled pixel index, determine the Y position.
   int subYpos(int subidx) {
     return subidx / width;
   }
 
-  int subXi(float val) {
+  // From a rainbow coordinate (in feet) to the sub-sampled X
+  // position (e.g., for translate()).
+  public int subXi(float val) {
     return (int) ((val - pxMin) / resolution);
   }
 
-  int subYi(float val) {
+  // From a rainbow coordinate (in feet) to the sub-sampled Y
+  // position (e.g., for translate()).
+  public int subYi(float val) {
     return (int) ((val - pyMin) / resolution);
   }
 

@@ -18,15 +18,34 @@ public class Canvas {
   /** Map contains the (static) mapping function from sub-pixel to rainbow pixel. */
   public Map map;
 
-  public Canvas(LXModel model, LXPoint perimeter[]) {
-    map = Map.newFromModel(model, perimeter);
-    buffer = new Buffer(map.size());
+  // Let's just keep this a variable in case.
+  public static final boolean MIRROR = true;
+
+  LXModel model;
+  int imageWidth;
+
+  // Canvas does not depend on the output image "width" per se, except
+  // that to implement mirroring in this code we do.
+  public Canvas(LXModel model, LXPoint perimeter[], int imageWidth) {
+    this.model = model;
+    this.map = Map.newFromModel(model, perimeter);
+    this.buffer = new Buffer(map.size());
+    this.imageWidth = imageWidth;
   }
 
   /** render stores the current buffer into `output`. */
   public void render(int output[]) {
     for (int i = 0; i < output.length; i++) {
-      output[i] = map.computePoint(i, buffer);
+      int computeI = i;
+
+      if (MIRROR) {
+	  int x = i % imageWidth;
+	  int y = i / imageWidth;
+
+	  computeI = y * imageWidth + (imageWidth - 1 - x);
+      }
+      
+      output[i] = map.computePoint(computeI, buffer);
     }
   }
 
