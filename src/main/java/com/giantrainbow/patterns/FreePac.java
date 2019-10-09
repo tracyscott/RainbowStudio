@@ -85,7 +85,7 @@ public class FreePac extends CanvasPattern2D {
 
     public static final int MAX_FONT_SIZE = 120;
 
-    public static final int NUM_LETTERS = 620;
+    public static final int NUM_LETTERS = 120;
     
     public static final float TOO_CLOSE = rangeRadius / 6;
 
