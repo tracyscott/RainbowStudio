@@ -44,9 +44,9 @@ public class FluidPP extends PGPixelPerfect {
       r = 228.0f / 255.0f;
       g = 3.0f / 255.0f;
       b = 3.0f / 255.0f;
-      r = animator/2f;
-      g = animatorG/2f;
-      b = animatorB/2f;
+      //r = animator/2f;
+      //g = animatorG/2f;
+      //b = animatorB/2f;
       fluid.addDensity(px, py, radius, r, g, b, intensity);
       fluid.addTemperature(px, py, radius, temperature);
 

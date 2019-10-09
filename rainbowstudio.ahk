@@ -10,7 +10,7 @@ Loop
 	Sleep 30000  ; Sleep first to avoid machine startup timing issues.
 	Process, Exist, java.exe
     if not Errorlevel {
-        Run, C:\Users\Rainbow\Documents\RainbowBull\rainbowstudio.bat, C:\Users\Rainbow\Documents\RainbowBull
+        Run, C:\Users\Rainbow\Documents\RainbowStudio\rainbowstudio.bat, C:\Users\Rainbow\Documents\RainbowStudio
 		Sleep 30000
 	}
 }

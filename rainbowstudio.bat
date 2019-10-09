@@ -1,2 +1,2 @@
-cd C:\Users\Rainbow\Documents\RainbowBull
+cd C:\Users\Rainbow\Documents\RainbowStudio
 "C:\Program Files\Java\jdk1.8.0_181\bin\java" -jar target/rainbowstudio-1.0.0-jar-with-dependencies.jar

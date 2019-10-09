@@ -50,7 +50,7 @@ public class UIModeSelector extends UICollapsibleSection {
 
   public String[] standardModeChannelNames = { "MULTI", "GIF", "SPECIAL", "RBW"};
   public List<LXChannelBus> standardModeChannels = new ArrayList<LXChannelBus>(standardModeChannelNames.length);
-  public int currentPlayingChannel = 0;  // Defaults to multi
+  public int currentPlayingChannel = 3;  // Defaults to multi
   public int previousPlayingChannel = 0;
   public UIAudioMonitorLevels audioMonitorLevels;
 
@@ -93,6 +93,7 @@ public class UIModeSelector extends UICollapsibleSection {
     standardMode = (UIButton) new UIButton(0, 0, getContentWidth(), 18) {
       public void onToggle(boolean on) {
         if (on) {
+          logger.info("Turning on standard mode.");
           audioMode.setActive(false);
           interactiveMode.setActive(false);
           instrumentMode.setActive(false);
@@ -208,6 +209,31 @@ public class UIModeSelector extends UICollapsibleSection {
 
     lx.engine.addLoopTask(new StandardModeCycle());
   }
+
+  /**
+   * Initialize mode to Standard Mode with the RBW channel playing.
+   * NOTE: In order to defeat the smart buttons, we need to toggle them on
+   * and then off in order to trigger their onToggle callback.  Otherwise,
+   * just calling setActive(false) does nothing because the button is already
+   * in an inactive state (the default at startup).  This
+   * is necessary in case somebody saves a show file that is not
+   * in Standard mode.  Here we are effectively forcing the show
+   * back into Standard mode.
+   */
+  public void initMode() {
+    standardMode.setActive(false);
+    interactiveMode.setActive(true);
+    interactiveMode.setActive(false);
+    audioMode.setActive(true);
+    audioMode.setActive(false);
+    instrumentMode.setActive(true);
+    instrumentMode.setActive(false);
+    textMode.setActive(true);
+    textMode.setActive(false);
+    currentPlayingChannel = 3;
+    standardMode.setActive(true);
+  }
+
 
   public void switchToMode(String mode) {
     if ("Audio".equalsIgnoreCase(mode)){
