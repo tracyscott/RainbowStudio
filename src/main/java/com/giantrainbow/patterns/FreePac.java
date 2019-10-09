@@ -8,6 +8,7 @@ import static processing.core.PConstants.CENTER;
 import com.giantrainbow.model.space.Lissajous;
 
 import com.giantrainbow.colors.Colors;
+import com.giantrainbow.colors.Gradient;
 import com.giantrainbow.model.space.Space3D;
 import com.giantrainbow.model.RainbowBaseModel;
 import com.giantrainbow.RainbowStudio;
@@ -82,28 +83,31 @@ public class FreePac extends CanvasPattern2D {
 	(float) Math.toRadians(RainbowBaseModel.rainbowThetaFinish);
     public static final float rangeAngle = rainbowAngleFinish - rainbowAngleStart;
 
-    public static final int HZ = 400;
-    
     public static final int MAX_FONT_SIZE = 120;
 
     public static final int NUM_LETTERS = 120;
     
     public static final float TOO_CLOSE = rangeRadius / 6;
 
+    public static final double HZ = 4000;
+
     // STRIDE is a full step P1..P3
-    public static final float STRIDE = rangeRadius * 1.2f;
+    public static final float STRIDE = rangeRadius * 0.9f;
 
     public final CompoundParameter sizeKnob =
 	new CompoundParameter("FontSize", 68.20, 10, MAX_FONT_SIZE).setDescription("FontSize");
 
-    public final CompoundParameter rotateKnob =
-	new CompoundParameter("Rotate", 0, 0, 2*PI).setDescription("Rotate");
+    public final CompoundParameter speedKnob =
+	new CompoundParameter("Speed", 5, 0, 10).setDescription("Speed");
     
     // Weird. Without this the image is not cenetered on the visible
     // region?  Fix it here.
     public final CompoundParameter xshiftKnob =
 	new CompoundParameter("XShift", -3.4, -10, 10).setDescription("XShift");
 
+    public final BooleanParameter brightKnob =
+	new BooleanParameter("Bright", false);
+    
     PFont font;
     PImage colorPlane;
     Letter [][]letters;
@@ -111,12 +115,15 @@ public class FreePac extends CanvasPattern2D {
     Random rnd = new Random();
     double elapsed;
     long epoch;
+    boolean init;
+    Gradient fullGradient;
     
     public FreePac(LX lx) {
 	super(lx);
 	addParameter(sizeKnob);
+	addParameter(speedKnob);
 	addParameter(xshiftKnob);
-	addParameter(rotateKnob);
+	addParameter(brightKnob);
 	removeParameter(fpsKnob);
 
 	this.font = RainbowStudio.pApplet.createFont("fonts/Roboto/Roboto-Regular.ttf",
@@ -132,7 +139,7 @@ public class FreePac extends CanvasPattern2D {
 	    letters[l] = new Letter[num];
 
 	    for (int i = 0; i < num; i++) {
-		letters[l][i] = new Letter((char)('A' + l));
+		letters[l][i] = new Letter((char)('A' + l), depth.size());
 		depth.add(letters[l][i]);
 		if (depth.size() >= NUM_LETTERS) {
 		    break out;
@@ -193,6 +200,7 @@ public class FreePac extends CanvasPattern2D {
     class Letter {
 	String ch;
 	int color;
+	int number;
 
 	// P1, P2, P3 form a line (P1-P3) and its midpoint (P2).
 	// P0 is the prior epoch's midpoint
@@ -200,13 +208,14 @@ public class FreePac extends CanvasPattern2D {
 	// P is the current position in t=(elapsed%1) from P0 to P2.
 	Point P, H, P0, P1, P2, P3;
 	
-	Letter(char ch) {
+	Letter(char ch, int number) {
 	    this.ch = String.format("%s", ch);
 	    this.P0 = randPos();
 	    this.P1 = randPosNear(this.P0, null, STRIDE/2, null);
 	    this.P2 = new Point();
 	    this.P3 = randPosNear(this.P1, P0, STRIDE, P2);
 	    this.color = randColor();
+	    this.number = number;
 	}
 
 	void update() {
@@ -232,7 +241,12 @@ public class FreePac extends CanvasPattern2D {
 	    pg.pushMatrix();
 	    pg.translate(canvas.map.subXi((float)(this.P.X)),
 			 canvas.map.subYi((float)this.P.Y));
-	    pg.fill(this.color);
+
+	    if (brightKnob.getValue() > 0) {
+		pg.fill(fullGradient.index(number));
+	    } else {
+		pg.fill(this.color);
+	    }
 
 	    pg.rotate((float)(this.H.heading() + PI/2));
 
@@ -277,6 +291,7 @@ public class FreePac extends CanvasPattern2D {
     public Point randPosNear(Point near, Point far, float dist, Point mid) {
 	double rot;
 	for (int loop = 0; ; loop++) {
+	    // System.err.println("rPN " + dist);
 	    rot = rnd.nextDouble() * 2 * Math.PI;
 
 	    double dx = dist * Math.cos(rot);
@@ -322,7 +337,12 @@ public class FreePac extends CanvasPattern2D {
     }
 
     public void draw(double deltaMs) {
-	elapsed += deltaMs / HZ;
+	elapsed += deltaMs * speedKnob.getValue() / HZ;
+
+	if (!init) {
+	    this.init = true;
+	    this.fullGradient = Gradient.compute(pg, NUM_LETTERS);
+	}
 
 	long newEpoch = (long)elapsed;
 	if (newEpoch > epoch) {
