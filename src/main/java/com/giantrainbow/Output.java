@@ -6,7 +6,6 @@ import com.giantrainbow.ui.UIPixliteConfig;
 import heronarts.lx.LX;
 import heronarts.lx.output.ArtNetDatagram;
 import heronarts.lx.output.LXDatagramOutput;
-import sun.util.logging.resources.logging;
 
 import java.net.SocketException;
 import java.net.UnknownHostException;

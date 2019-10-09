@@ -67,13 +67,31 @@ public class FreePac extends CanvasPattern2D {
 	0.0007021277763, // Z
     };
 
-    public static final int HZ = 1000;
+    public static final float lowRadius =
+	RainbowBaseModel.innerRadius - 0 * RainbowBaseModel.radiusInc;
+    public static final float highRadius =
+	RainbowBaseModel.innerRadius + 30 * RainbowBaseModel.radiusInc;
+    public static final float rangeRadius = highRadius - lowRadius;
+
+    // Note these are in degrees.
+    //   RainbowBaseModel.rainbowThetaStart;
+    //   RainbowBaseModel.rainbowThetaFinish;
+    public static final float rainbowAngleStart =
+	(float) Math.toRadians(RainbowBaseModel.rainbowThetaStart);
+    public static final float rainbowAngleFinish =
+	(float) Math.toRadians(RainbowBaseModel.rainbowThetaFinish);
+    public static final float rangeAngle = rainbowAngleFinish - rainbowAngleStart;
+
+    public static final int HZ = 400;
     
     public static final int MAX_FONT_SIZE = 120;
 
     public static final int NUM_LETTERS = 120;
     
-    public static final float THETA_RANGE = PI / 10f;  // in radians
+    public static final float TOO_CLOSE = rangeRadius / 6;
+
+    // STRIDE is a full step P1..P3
+    public static final float STRIDE = rangeRadius * 1.2f;
 
     public final CompoundParameter sizeKnob =
 	new CompoundParameter("FontSize", 68.20, 10, MAX_FONT_SIZE).setDescription("FontSize");
@@ -86,28 +104,13 @@ public class FreePac extends CanvasPattern2D {
     public final CompoundParameter xshiftKnob =
 	new CompoundParameter("XShift", -3.4, -10, 10).setDescription("XShift");
 
-    public static final float lowRadius =
-	RainbowBaseModel.innerRadius - 0 * RainbowBaseModel.radiusInc;
-    public static final float highRadius =
-	RainbowBaseModel.innerRadius + 30 * RainbowBaseModel.radiusInc;
-    public static final float rangeRadius = highRadius - lowRadius;
-
-    
-    // Note these are in degrees.
-    //   RainbowBaseModel.rainbowThetaStart;
-    //   RainbowBaseModel.rainbowThetaFinish;
-    public static final float rainbowAngleStart =
-	(float) Math.toRadians(RainbowBaseModel.rainbowThetaStart);
-    public static final float rainbowAngleFinish =
-	(float) Math.toRadians(RainbowBaseModel.rainbowThetaFinish);
-    public static final float rangeAngle = rainbowAngleFinish - rainbowAngleStart;
-
     PFont font;
     PImage colorPlane;
     Letter [][]letters;
     ArrayList<Letter> depth;
     Random rnd = new Random();
     double elapsed;
+    long epoch;
     
     public FreePac(LX lx) {
 	super(lx);
@@ -142,16 +145,14 @@ public class FreePac extends CanvasPattern2D {
     class Point {
 	// World-space coords
 
-	double theta;
-	double radius;
+	// double theta;
+	// double radius;
 	double X;
 	double Y;
 
 	private Point() {}
 	
-	Point(double theta, double radius) {
-	    this.theta = theta;
-	    this.radius = radius;
+	void setAngular(double theta, double radius) {
 	    this.X = Math.cos(theta) * radius;
 	    this.Y = Math.sin(theta) * radius;
 	}
@@ -160,13 +161,6 @@ public class FreePac extends CanvasPattern2D {
 	    return Math.atan2(Y, X);
 	}
 
-	// double heading(Point to) {
-	//     double vx = to.X - X;
-	//     double vy = to.Y - Y;
-	//     // TODO
-	//     return Math.atan(vy / vx);
-	// }
-	
 	Point sub(Point a) {
 	    Point r = new Point();
 	    r.X = X - a.X;
@@ -190,31 +184,46 @@ public class FreePac extends CanvasPattern2D {
 	    return this;
 	}
 
-	// void setThetaRadius() {
-	//     theta = Math.atan(Y / X);
-	//     radius = Math.sqrt(X * X + Y * Y);
-	// }
+	void set(Point a) {
+	    this.X = a.X;
+	    this.Y = a.Y;
+	}
     }
 
     class Letter {
 	String ch;
 	int color;
-	Point P, H, P0, P1, P2;
 
+	// P1, P2, P3 form a line (P1-P3) and its midpoint (P2).
+	// P0 is the prior epoch's midpoint
+	// H is the derivative (heading)
+	// P is the current position in t=(elapsed%1) from P0 to P2.
+	Point P, H, P0, P1, P2, P3;
+	
 	Letter(char ch) {
 	    this.ch = String.format("%s", ch);
 	    this.P0 = randPos();
-	    this.P1 = randPosNear(this.P0);
-	    this.P2 = randPosNear(this.P1);
+	    this.P1 = randPosNear(this.P0, null, STRIDE/2, null);
+	    this.P2 = new Point();
+	    this.P3 = randPosNear(this.P1, P0, STRIDE, P2);
 	    this.color = randColor();
+	}
+
+	void update() {
+	    P0.set(P2);
+	    P1.set(P3);
+	    P3 = randPosNear(this.P1, this.P0, STRIDE, P2);
 	}
 
 	void advance() {
 	    double t = elapsed % 1.;
+	    
 	    // System.err.println("ADVANCE " + String.format("%.10f", t));
 	    double tt1 = (1 - t)*(1 - t);
 	    double tt0 = t*t;
 
+	    // https://en.wikipedia.org/wiki/B%C3%A9zier_curve#Quadratic_B%C3%A9zier_curves
+	    // See B(T) and B'(T).
 	    this.P = P1.add(P0.sub(P1).scale(tt1)).add(P2.sub(P1).scale(tt0));
 	    this.H = P1.sub(P0).scale(2*(1-t)).add(P2.sub(P1).scale(2*t));
 	}
@@ -260,22 +269,70 @@ public class FreePac extends CanvasPattern2D {
     public Point randPos() {
 	double theta = rainbowAngleStart + rnd.nextDouble() * rangeAngle;
 	double radius = lowRadius + rnd.nextDouble() * rangeRadius;
-	return new Point(theta, radius);
+	Point p = new Point();
+	p.setAngular(theta, radius);
+	return p;
     }
 
-    public Point randPosNear(Point near) {
-	double lowT = Math.max(rainbowAngleStart, near.theta - THETA_RANGE/2);
-	double highT = Math.min(rainbowAngleFinish, near.theta + THETA_RANGE/2);
-	double newTheta = lowT + (highT - lowT) * rnd.nextDouble();
+    public Point randPosNear(Point near, Point far, float dist, Point mid) {
+	double rot;
+	for (int loop = 0; ; loop++) {
+	    rot = rnd.nextDouble() * 2 * Math.PI;
 
-	// System.err.println("Near theta " + String.format("%.10f", near.theta) +
-	// 		   "New  theta " + String.format("%.10f", newTheta));
+	    double dx = dist * Math.cos(rot);
+	    double dy = dist * Math.sin(rot);
 
-	return new Point(newTheta, lowRadius + rnd.nextDouble() * rangeRadius);
+	    double midx = near.X + dx/2;
+	    double midy = near.Y + dy/2;
+
+	    if (far != null && loop < 2) {
+		double sx = far.X - midx;
+		double sy = far.Y - midy;
+		double farDist = Math.sqrt(sx * sx + sy * sy);
+
+		if (farDist < TOO_CLOSE) {
+		    continue;
+		}			
+	    }
+
+	    double midTheta = Math.atan2(midy, midx);
+	    double midRadius = Math.sqrt(midx*midx+midy*midy);
+
+	    boolean inside =
+		(midTheta >= rainbowAngleStart && midTheta <= rainbowAngleFinish &&
+		 midRadius >= lowRadius && midRadius <= highRadius);
+
+	    if (!inside) {
+		continue;
+	    }
+
+	    if (mid != null) {
+		mid.X = midx;
+		mid.Y = midy;
+	    }
+	    
+	    double x = near.X + dx;
+	    double y = near.Y + dy;
+
+	    Point p = new Point();
+	    p.X = x;
+	    p.Y = y;
+	    return p;
+	}
     }
 
     public void draw(double deltaMs) {
 	elapsed += deltaMs / HZ;
+
+	long newEpoch = (long)elapsed;
+	if (newEpoch > epoch) {
+	    epoch = newEpoch;
+
+	    for (Letter l : depth) {
+		l.update();
+	    }
+	}
+
 	pg.background(0);
 	pg.translate((float)xshiftKnob.getValue(), 0);
 
