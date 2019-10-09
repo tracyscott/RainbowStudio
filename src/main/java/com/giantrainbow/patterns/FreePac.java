@@ -85,7 +85,7 @@ public class FreePac extends CanvasPattern2D {
 
     public static final int MAX_FONT_SIZE = 120;
 
-    public static final int NUM_LETTERS = 120;
+    public static final int NUM_LETTERS = 620;
     
     public static final float TOO_CLOSE = rangeRadius / 6;
 
@@ -100,11 +100,6 @@ public class FreePac extends CanvasPattern2D {
     public final CompoundParameter speedKnob =
 	new CompoundParameter("Speed", 5, 0, 10).setDescription("Speed");
     
-    // Weird. Without this the image is not cenetered on the visible
-    // region?  Fix it here.
-    public final CompoundParameter xshiftKnob =
-	new CompoundParameter("XShift", -3.4, -10, 10).setDescription("XShift");
-
     public final BooleanParameter brightKnob =
 	new BooleanParameter("Bright", false);
     
@@ -122,7 +117,6 @@ public class FreePac extends CanvasPattern2D {
 	super(lx);
 	addParameter(sizeKnob);
 	addParameter(speedKnob);
-	addParameter(xshiftKnob);
 	addParameter(brightKnob);
 	removeParameter(fpsKnob);
 
@@ -227,7 +221,6 @@ public class FreePac extends CanvasPattern2D {
 	void advance() {
 	    double t = elapsed % 1.;
 	    
-	    // System.err.println("ADVANCE " + String.format("%.10f", t));
 	    double tt1 = (1 - t)*(1 - t);
 	    double tt0 = t*t;
 
@@ -291,7 +284,6 @@ public class FreePac extends CanvasPattern2D {
     public Point randPosNear(Point near, Point far, float dist, Point mid) {
 	double rot;
 	for (int loop = 0; ; loop++) {
-	    // System.err.println("rPN " + dist);
 	    rot = rnd.nextDouble() * 2 * Math.PI;
 
 	    double dx = dist * Math.cos(rot);
@@ -354,7 +346,6 @@ public class FreePac extends CanvasPattern2D {
 	}
 
 	pg.background(0);
-	pg.translate((float)xshiftKnob.getValue(), 0);
 
 	if (font != null) {
 	    pg.textFont(font);
