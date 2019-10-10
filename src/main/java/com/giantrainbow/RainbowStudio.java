@@ -92,6 +92,7 @@ public class RainbowStudio extends PApplet {
   /**
    * Adds logging to a file. The file name will be appended with a dash, date stamp, and
    * the extension ".log".
+   * the extension ".log".
    *
    * @param prefix prefix of the log file name
    * @throws IOException if there was an error opening the file.
@@ -310,11 +311,12 @@ public class RainbowStudio extends PApplet {
     try (InputStream in = createInput("PLAYASIDE")) {
       if (in != null) {
         logger.info("\"PLAYASIDE\" exists.");
-        modeSelector.autoAudioModeP.setValue(true);
+        //modeSelector.autoAudioModeP.setValue(true);
         INTERACTIVE_SIDE = false;
+        RainbowOSC.OSC_PORT = 7980;
       } else {
         logger.info("\"PLAYASIDE\" does not exist.");
-        modeSelector.autoAudioModeP.setValue(false);
+        //modeSelector.autoAudioModeP.setValue(false);
         INTERACTIVE_SIDE = true;
       }
     } catch (IOException ex) {
