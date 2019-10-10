@@ -20,7 +20,7 @@ public class RainbowOSC implements LXOscListener {
   private static final Logger logger = Logger.getLogger(RainbowOSC.class.getName());
 
   private static final int OSC_BUFFER_SIZE = 1024;
-  private static final int OSC_PORT = 7979;
+  public static int OSC_PORT = 7979;
   public LX lx;
   public LXOscEngine.Transmitter rainbowOscTransmitter;
 
