@@ -43,18 +43,22 @@ public class FreePac extends CanvasPattern2D {
 	"Free Rohingya",
 	"Free Hong Kong",
 	"Free Uyghurs",
-	"Free Copts",
 
 	"End Racism",
 	"End Sexism",
+	"End Facism",
+	"End Trump",
 	"End Homophobia",
 
-	"Fork Trump",
-	"Smash the Patriarchy",
+	"Trans Rights",
+	"Human Rights",
+	"Native Rights",
+	"Indiginous Rights",
+
 	"Smash Capitalism",
+	"Smash the Patriarchy",
 	"Smash the System",
 	"Decriminialize",
-	"Trans Rights are Human Rights",
 	"Imagine a Better World",
     };
 
@@ -91,6 +95,7 @@ public class FreePac extends CanvasPattern2D {
 	RainbowBaseModel.innerRadius - 0 * RainbowBaseModel.radiusInc;
     public static final float highRadius =
 	RainbowBaseModel.innerRadius + 30 * RainbowBaseModel.radiusInc;
+    public static final float centerRadius = (highRadius + lowRadius) / 2;
     public static final float rangeRadius = highRadius - lowRadius;
 
     // Note these are in degrees.
@@ -136,19 +141,28 @@ public class FreePac extends CanvasPattern2D {
     double elapsed;
     long epoch;
     boolean init;
+    boolean targetting;
     Gradient fullGradient;
 
     int [][]messageCharIndex;
 
     long nextGoalEpoch;
+    long nextShowEpoch;
     int nextGoalPosition;
 
     enum GoalState {
 	UNINVOLVED,
-	FLOATING,
 	ATTRACTED,
 	LOCKEDIN,
+	SHOWING,
+	MOVINGON,
     };
+
+    static {
+	for (int i = 0; i < messages.length; i++) {
+	    messages[i] = messages[i].toUpperCase();
+	}
+    }
     
     public FreePac(LX lx) {
 	super(lx);
@@ -163,10 +177,8 @@ public class FreePac extends CanvasPattern2D {
 	this.letters = new Letter[26][];
 	this.depth = new ArrayList<Letter>();
 	this.epoch = 0;
-	this.nextGoalEpoch = 
-	    this.epoch +
-	    MIN_PERIOD +
-	    (long)(rnd.nextDouble() * (MAX_PERIOD - MIN_PERIOD));
+	this.nextShowEpoch = 0;
+	this.nextGoalEpoch = 0;
 	this.messageCharIndex = new int[messages.length][];
 
 	out:
@@ -185,7 +197,7 @@ public class FreePac extends CanvasPattern2D {
 	// Check for sufficient number of letters
 	for (int i = 0; i < messages.length; i++) {
 	    HashMap<Integer, Integer> m = new HashMap<Integer, Integer>();
-	    String msg = messages[i].toUpperCase();
+	    String msg = messages[i];
 	    int []positions = new int[msg.length()];
 
 	    for (int j = 0; j < msg.length(); j++) {
@@ -215,19 +227,42 @@ public class FreePac extends CanvasPattern2D {
     }
 
     void setGoal(int g) {
+	this.nextGoalEpoch =
+	    this.epoch +
+	    MIN_PERIOD +
+	    (long)(rnd.nextDouble() * (MAX_PERIOD - MIN_PERIOD));
+	
 	nextGoalPosition = g;
+
+	for (Letter l : depth) {
+	    l.goal = GoalState.UNINVOLVED;
+	    l.targetTheta = 0;
+	}
 
 	String msg = messages[g];
 	int len = msg.length();
-
-	double interval = (messageAngleFinish - messageAngleStart) / len;
+	double interval = (messageAngleFinish - messageAngleStart) / (len-1);
 
 	for (int p = 0; p < len; p++) {
-	    Letter l = letters[g][messageCharIndex[g][p]];
-	    l.goal = GoalState.FLOATING;
-	    l.targetTheta = messageAngleStart + (float)(p * interval);
+	    char ch = msg.charAt(p);
 
-	    System.err.println("Goal " + g + " letter " + p + " is " + l);
+	    if (ch == ' ') {
+		continue;
+	    }
+	    int idx = messageCharIndex[g][p];
+
+	    // System.err.println("CH is " + ch);
+	    // System.err.println("IDX is " + idx + ":" + letters[(int)(ch - 'A')]);
+
+	    Letter l = letters[(int)(ch - 'A')][messageCharIndex[g][p]];
+
+	    depth.remove(l);
+	    depth.add(l);
+	    
+	    l.goal = GoalState.ATTRACTED;
+	    l.targetTheta = messageAngleStart + (float)(p * interval);
+	    
+	    // System.err.println("Goal " + g + " letter " + p + " is " + l + " " + messageCharIndex[g][p] + " at " + l.targetTheta);
 	}
     }
 
@@ -277,6 +312,27 @@ public class FreePac extends CanvasPattern2D {
 	    this.X = a.X;
 	    this.Y = a.Y;
 	}
+
+	double length() {
+	    return Math.sqrt(lengthSquared());
+	}
+	double lengthSquared() {
+	    return X * X + Y * Y;
+	}
+
+	Point norm1() {
+	    Point n = new Point();
+	    n.X = -Y;
+	    n.Y = X;
+	    return n.scale(1/length());
+	}
+
+	Point norm2() {
+	    Point n = new Point();
+	    n.X = Y;
+	    n.Y = -X;
+	    return n.scale(1/length());
+	}
     }
 
     class Letter {
@@ -295,9 +351,9 @@ public class FreePac extends CanvasPattern2D {
 	Letter(char ch, int number) {
 	    this.ch = String.format("%s", ch);
 	    this.P0 = randPos();
-	    this.P1 = randPosNear(this.P0, null, STRIDE/2, null);
+	    this.P1 = randPosNear(this.P0, null, STRIDE/2, null, null);
 	    this.P2 = new Point();
-	    this.P3 = randPosNear(this.P1, P0, STRIDE, P2);
+	    this.P3 = randPosNear(this.P1, P0, STRIDE, P2, null);
 	    this.color = randColor();
 	    this.number = number;
 	    this.goal = GoalState.UNINVOLVED;
@@ -306,7 +362,46 @@ public class FreePac extends CanvasPattern2D {
 	void update() {
 	    P0.set(P2);
 	    P1.set(P3);
-	    P3 = randPosNear(this.P1, this.P0, STRIDE, P2);
+
+	    if (goal == GoalState.ATTRACTED && targetting) {
+
+		    // Set P2 and P3 intentionally: step 1.
+		    // P1 is the former P3 and we know it's < 2*STRIDE
+		    // distance to the target.
+		    Point tgt = targetPos();
+		    Point gap = P1.sub(tgt);
+		    gap.scale(0.5);
+
+		    // Gap is the mid-point
+		    double legLen = Math.sqrt(STRIDE*STRIDE - gap.lengthSquared());
+		    
+		    // Choose an arbitrary norm, TODO could choose the better one.
+		    Point norm = gap.norm1();
+		    Point leg = gap.add(norm.scale(legLen));
+		    P3.set(P1.add(leg));
+		    P2.set(P1.add(leg.scale(0.5)));
+		    this.goal = GoalState.LOCKEDIN;
+
+	    } else if (goal == GoalState.LOCKEDIN) {
+		// System.err.println("We made it???");
+		P3 = targetPos();
+		Point v = P3.sub(P1);
+		P2 = P1.add(v.scale(0.5));
+		this.goal = GoalState.SHOWING;
+	    
+	    } else if (goal == GoalState.SHOWING) {
+		// System.err.println("We made it!!!");
+		P3 = postTargetPos();
+		P2 = P1.add(P3.sub(P1).scale(0.5));
+		this.goal = GoalState.MOVINGON;
+
+	    } else if (goal == GoalState.MOVINGON) {
+		// System.err.println("Now rest...");
+
+		P3 = randPosNear(this.P1, this.P0, STRIDE, P2, this);
+	    } else {
+		P3 = randPosNear(this.P1, this.P0, STRIDE, P2, this);
+	    } 
 	}
 
 	void advance() {
@@ -321,16 +416,36 @@ public class FreePac extends CanvasPattern2D {
 	    this.H = P1.sub(P0).scale(2*(1-t)).add(P2.sub(P1).scale(2*t));
 	}
 
+	Point targetPos() {
+	    // Target position is the P1 of the last Bezier curve before
+	    // reaching the display position (which is P2).
+	    Point p = new Point();
+	    p.X = (float)Math.cos(targetTheta) * (centerRadius - STRIDE/2);
+	    p.Y = (float)Math.sin(targetTheta) * (centerRadius - STRIDE/2);
+	    return p;				 
+	}
+
+	Point postTargetPos() {
+	    Point p = new Point();
+	    p.X = (float)Math.cos(targetTheta) * (centerRadius + STRIDE/2);
+	    p.Y = (float)Math.sin(targetTheta) * (centerRadius + STRIDE/2);
+	    return p;				 
+	}
+	
 	void draw() {
 	    pg.pushMatrix();
 	    pg.translate(canvas.map.subXi((float)(this.P.X)),
 			 canvas.map.subYi((float)this.P.Y));
 
-	    if (brightKnob.getValue() > 0) {
-		pg.fill(fullGradient.index(number));
-	    } else {
-		pg.fill(this.color);
-	    }
+	    // if (goal == GoalState.UNINVOLVED) {
+		if (brightKnob.getValue() > 0) {
+		    pg.fill(fullGradient.index(number));
+		} else {
+		    pg.fill(this.color);
+		}
+	    // } else {
+	    // 	pg.fill(255);
+	    // }
 
 	    pg.rotate((float)(this.H.heading() + PI/2));
 
@@ -341,23 +456,46 @@ public class FreePac extends CanvasPattern2D {
 
 	    pg.popMatrix();
 
-	    // pg.stroke(255);
-	    // pg.strokeWeight(2);
+	    // Draw the message (test)
+	    // if (goal != GoalState.UNINVOLVED) {
+	    // 	pg.pushMatrix();
+	    // 	Point tpos = this.targetPos();
+	    // 	// System.err.println("Target at " + tpos.X + ":" + tpos.Y +
+	    // 	//     " with " + targetTheta + " and letter " + ch);
+	    // 	pg.translate(canvas.map.subXi((float)(tpos.X)),
+	    // 		     canvas.map.subYi((float)tpos.Y));
+	    // 	pg.fill(255, 0, 0);
+	    // 	pg.noStroke();
+	    // 	pg.ellipse(0, 0, 5, 5);
+	    // 	pg.popMatrix();
+	    // }
 
-	    // pg.fill(255, 0, 0);
-	    // pg.ellipse(canvas.map.subXi((float)P.X), canvas.map.subYi((float)P.Y), 5, 5);
+	    // Draw the Bezier curve
+	    // if (goal != GoalState.UNINVOLVED) {
+	    // 	pg.noStroke();
+	    // 	pg.fill(255, 0, 0);
+	    // 	pg.ellipse(canvas.map.subXi((float)P.X), canvas.map.subYi((float)P.Y), 5, 5);
 
-	    // pg.fill(255);
-	    // pg.ellipse(canvas.map.subXi((float)P0.X), canvas.map.subYi((float)P0.Y), 5, 5);
-	    // pg.ellipse(canvas.map.subXi((float)P1.X), canvas.map.subYi((float)P1.Y), 5, 5);
-	    // pg.ellipse(canvas.map.subXi((float)P2.X), canvas.map.subYi((float)P2.Y), 5, 5);
+	    // 	pg.fill(255);
+	    // 	pg.ellipse(canvas.map.subXi((float)P0.X), canvas.map.subYi((float)P0.Y), 5, 5);
+	    // 	pg.ellipse(canvas.map.subXi((float)P1.X), canvas.map.subYi((float)P1.Y), 5, 5);
+	    // 	pg.ellipse(canvas.map.subXi((float)P2.X), canvas.map.subYi((float)P2.Y), 5, 5);
 
-	    // pg.line(canvas.map.subXi((float)P0.X), canvas.map.subYi((float)P0.Y),
-	    // 	    canvas.map.subXi((float)P1.X), canvas.map.subYi((float)P1.Y));
-	    // pg.line(canvas.map.subXi((float)P1.X), canvas.map.subYi((float)P1.Y),
-	    // 	    canvas.map.subXi((float)P2.X), canvas.map.subYi((float)P2.Y));
+	    // 	pg.stroke(255);
+	    // 	pg.strokeWeight(3);
+	    // 	pg.line(canvas.map.subXi((float)P0.X), canvas.map.subYi((float)P0.Y),
+	    // 		canvas.map.subXi((float)P1.X), canvas.map.subYi((float)P1.Y));
+	    // 	pg.line(canvas.map.subXi((float)P1.X), canvas.map.subYi((float)P1.Y),
+	    // 		canvas.map.subXi((float)P2.X), canvas.map.subYi((float)P2.Y));
+	    // 	pg.line(canvas.map.subXi((float)P2.X), canvas.map.subYi((float)P2.Y),
+	    // 		canvas.map.subXi((float)P3.X), canvas.map.subYi((float)P3.Y));
+	    // }
+
+	    // Draw the message
+	    
 	}
     };
+
 
     public int randColor() {
 	return colorPlane.get(rnd.nextInt(colorPlane.width),
@@ -372,11 +510,9 @@ public class FreePac extends CanvasPattern2D {
 	return p;
     }
 
-    public Point randPosNear(Point near, Point far, float dist, Point mid) {
-	double rot;
+    public Point randPosNear(Point near, Point far, float dist, Point mid, Letter l) {
 	for (int loop = 0; ; loop++) {
-	    rot = rnd.nextDouble() * 2 * Math.PI;
-
+	    double rot = rnd.nextDouble() * 2 * Math.PI;
 	    double dx = dist * Math.cos(rot);
 	    double dy = dist * Math.sin(rot);
 
@@ -404,22 +540,56 @@ public class FreePac extends CanvasPattern2D {
 		continue;
 	    }
 
-	    long remainEpochs = nextGoalEpoch - epoch;
-	    
+	    double x = near.X + dx;
+	    double y = near.Y + dy;
+
+	    if (l != null && l.goal != GoalState.UNINVOLVED && loop < 10) {
+		long remainEpochs = nextGoalEpoch - epoch;
+
+		double theta = Math.atan2(y, x);
+
+		double dTheta = Math.abs(theta - l.targetTheta);
+
+		double curDTheta = Math.abs(Math.atan2(near.Y, near.X) - l.targetTheta);
+
+		if (dTheta > curDTheta) {
+		    continue;
+		}
+		// System.err.println("remainEpochs = " + remainEpochs);
+	    }
 
 	    if (mid != null) {
 		mid.X = midx;
 		mid.Y = midy;
 	    }
-	    
-	    double x = near.X + dx;
-	    double y = near.Y + dy;
-
 	    Point p = new Point();
 	    p.X = x;
 	    p.Y = y;
 	    return p;
 	}
+    }
+
+    boolean inRange() {
+	// Uses P3 as the position, consdering this test runs at the
+	// end of an interval before update(), so we've approached P2 and
+	// are about to change course heading toward P3.  The next stride
+	// in this case should put us in range so that the step from P3
+	// to the base control point is < 2 steps.
+	String msg = messages[nextGoalPosition];
+	float maxd = 0;
+
+	for (int p = 0; p < msg.length(); p++) {
+	    char ch = msg.charAt(p);
+	    if (ch == ' ') {
+		continue;
+	    }
+	    
+	    Letter l = letters[(int)(ch - 'A')][messageCharIndex[nextGoalPosition][p]];
+	    
+	    maxd = Math.max(maxd, (float)l.P3.sub(l.targetPos()).length());
+	}
+
+	return maxd < 2 * STRIDE;
     }
 
     public void draw(double deltaMs) {
@@ -432,10 +602,26 @@ public class FreePac extends CanvasPattern2D {
 
 	long newEpoch = (long)elapsed;
 	if (newEpoch > epoch) {
+
+	    if (inRange() && newEpoch >= nextGoalEpoch && nextShowEpoch < nextGoalEpoch) {
+		targetting = true;
+		nextShowEpoch = newEpoch + 2;
+		// System.err.println("Next show epoch " + nextShowEpoch);
+	    }
+	    
 	    epoch = newEpoch;
+	    // System.err.println("Epoch is " + epoch);
 
 	    for (Letter l : depth) {
 		l.update();
+	    }
+
+	    targetting = false;
+
+	    if (nextShowEpoch != 0 && nextShowEpoch == (epoch-1)) {
+		// System.err.println("Time to start over");
+		
+		setGoal(rnd.nextInt(messages.length));
 	    }
 	}
 
