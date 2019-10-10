@@ -22,7 +22,7 @@ import heronarts.lx.parameter.DiscreteParameter;
 public class Flags extends LXPattern {
 
   public final DiscreteParameter flagKnob =
-      new DiscreteParameter("Flag", 0, 2)
+      new DiscreteParameter("Flag", 0, 3)
           .setDescription("Which flag.");
 
   private int[] lgbtFlag;
