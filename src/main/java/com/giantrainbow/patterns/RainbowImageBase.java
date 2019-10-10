@@ -4,9 +4,7 @@ import com.giantrainbow.PathUtils;
 import com.giantrainbow.RainbowStudio;
 import heronarts.lx.LX;
 import heronarts.lx.LXPattern;
-import heronarts.lx.parameter.BooleanParameter;
-import heronarts.lx.parameter.CompoundParameter;
-import heronarts.lx.parameter.StringParameter;
+import heronarts.lx.parameter.*;
 import heronarts.p3lx.ui.CustomDeviceUI;
 import heronarts.p3lx.ui.UI;
 import heronarts.p3lx.ui.UI2dContainer;
@@ -73,6 +71,13 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
       addParameter(antialiasKnob);
     }
     addParameter(imgKnob);
+    imgKnob.addListener(new LXParameterListener() {
+      @Override
+      public void onParameterChanged(LXParameter parameter) {
+        StringParameter iKnob = (StringParameter) parameter;
+        loadImg(iKnob.getString());
+      }
+    });
     imgKnob.setValue(defaultFile);
     loadImg(imgKnob.getString());
 
