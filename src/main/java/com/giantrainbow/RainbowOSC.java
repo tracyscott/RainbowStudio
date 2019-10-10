@@ -92,7 +92,7 @@ public class RainbowOSC implements LXOscListener {
     try {
       String addressPattern = message.getAddressPattern().getValue();
       String[] path = addressPattern.split("/");
-      logger.info("Received OSC message at path: " + addressPattern + " = " + message.getString());
+      //logger.info("Received OSC message at path: " + addressPattern + " = " + message.getString());
 
       if ("rainbow".equals(path[1])) {
         if (path.length > 2) {

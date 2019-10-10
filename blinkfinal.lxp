@@ -1,6 +1,6 @@
 {
   "version": "0.1",
-  "timestamp": 1570737800397,
+  "timestamp": 1570740150436,
   "engine": {
     "id": 1,
     "class": "heronarts.lx.LXEngine",
@@ -15,7 +15,7 @@
       "crossfader": 0.4655172396451235,
       "crossfaderBlendMode": 0,
       "speed": 1.0,
-      "focusedChannel": 4,
+      "focusedChannel": 5,
       "cueA": false,
       "cueB": false,
       "multithreaded": false,
@@ -46,9 +46,9 @@
           "label": "MULTI",
           "arm": false,
           "selected": false,
-          "enabled": true,
+          "enabled": false,
           "cue": false,
-          "fader": 1.0,
+          "fader": 0.0,
           "crossfadeGroup": 0,
           "blendMode": 0
         },
@@ -631,7 +631,7 @@
         "parameters": {
           "label": "SPECIAL",
           "arm": false,
-          "selected": true,
+          "selected": false,
           "enabled": false,
           "cue": false,
           "fader": 0.0,
@@ -1383,10 +1383,10 @@
         "parameters": {
           "label": "RBW",
           "arm": false,
-          "selected": false,
-          "enabled": false,
+          "selected": true,
+          "enabled": true,
           "cue": false,
-          "fader": 0.0,
+          "fader": 1.0,
           "crossfadeGroup": 0,
           "blendMode": 0,
           "midiMonitor": false,
@@ -1400,7 +1400,7 @@
         },
         "effects": [],
         "clips": [],
-        "patternIndex": 3,
+        "patternIndex": 0,
         "patterns": [
           {
             "id": 2075,
@@ -1951,22 +1951,22 @@
           "attack": 9.999999776482582,
           "release": 18.5580048226244,
           "slope": 2.2499998826533556,
-          "Band-1": 0.5158030510203593,
-          "Band-2": 0.5385031825204217,
-          "Band-3": 0.545260232908114,
-          "Band-4": 0.550031814885861,
-          "Band-5": 0.6266675241896793,
-          "Band-6": 0.8329262538545191,
-          "Band-7": 0.8576534224338214,
-          "Band-8": 0.6715286383965713,
-          "Band-9": 0.5608181319641068,
-          "Band-10": 0.644316046086753,
-          "Band-11": 0.5772650890397364,
-          "Band-12": 0.6136740679823118,
-          "Band-13": 0.6112802235077405,
-          "Band-14": 0.5182569216746915,
-          "Band-15": 0.5013377673718509,
-          "Band-16": 0.5154206045846991
+          "Band-1": 0.5342630352893312,
+          "Band-2": 0.6596336010406152,
+          "Band-3": 0.6864134290003383,
+          "Band-4": 0.7132225060076101,
+          "Band-5": 0.7710386148371158,
+          "Band-6": 0.8476837902963879,
+          "Band-7": 0.7260509533678778,
+          "Band-8": 0.6735758223400604,
+          "Band-9": 0.7055322425720345,
+          "Band-10": 0.6449207958631402,
+          "Band-11": 0.5548284568339941,
+          "Band-12": 0.692766436828069,
+          "Band-13": 0.7183851285460879,
+          "Band-14": 0.5846558506407687,
+          "Band-15": 0.5104377888341229,
+          "Band-16": 0.5135575479463026
         }
       },
       "input": {
@@ -2006,9 +2006,9 @@
     },
     "components": {
       "oscsensor": {
-        "id": 11868,
+        "id": 12202,
         "class": "com.giantrainbow.OSCSensor",
-        "modulationColor": -65429,
+        "modulationColor": -16765441,
         "parameters": {
           "label": "oscsensor",
           "accelx": 0.0,
