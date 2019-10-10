@@ -1,0 +1,3 @@
+copy blinkpanelconfig12city.json panelconfig12.json
+copy blinkpanelconfig16city.json panelconfig16.json
+copy blinkpixliteconfigcity.json pixliteconfig.json
