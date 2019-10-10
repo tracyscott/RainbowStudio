@@ -16,3 +16,8 @@ panelconfig16.json
 pixliteconfig.json
 jmacd.lxp
 cmd
+.project
+.classpath
+.settings/
+*.class
+
