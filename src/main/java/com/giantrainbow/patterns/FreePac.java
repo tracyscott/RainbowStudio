@@ -17,6 +17,7 @@ import heronarts.lx.LXCategory;
 import heronarts.lx.parameter.BooleanParameter;
 import heronarts.lx.parameter.CompoundParameter;
 import java.util.Random;
+import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 import heronarts.lx.parameter.DiscreteParameter;
@@ -29,43 +30,61 @@ import java.util.Collections;
 
 @LXCategory(LXCategory.FORM)
 public class FreePac extends CanvasPattern2D {
-    public final static String[] topSeven = {
+    public final static String[] messages = {
+	"Free Pacman",
 	"Free Iraq",
 	"Free Kashmir",
-	"Free Pacman",
 	"Free Palestine",
 	"Free People",
 	"Free Tibet",
+	"Free Kurds",
+	"Free Taiwan",
 	"Free Ukraine",
+	"Free Rohingya",
+	"Free Hong Kong",
+	"Free Uyghurs",
+	"Free Copts",
+
+	"End Racism",
+	"End Sexism",
+	"End Homophobia",
+
+	"Fork Trump",
+	"Smash the Patriarchy",
+	"Smash Capitalism",
+	"Smash the System",
+	"Decriminialize",
+	"Trans Rights are Human Rights",
+	"Imagine a Better World",
     };
 
-    public final static double letterFreqs[] = {
-	0.1201954987,    // E
-	0.09098588613,   // T
-	0.08123837787,   // A
-	0.07681168165,   // O
-	0.07305420097,   // I
-	0.06947773761,   // N
-	0.06280752374,   // S
-	0.06021294219,   // R
-	0.05921460426,   // H
-	0.04319182899,   // D
-	0.0397854122,    // L
-	0.02877626808,   // U
-	0.02711419999,   // C
-	0.02611586205,   // M
-	0.02303856766,   // F
-	0.02113514314,   // Y
-	0.02094864045,   // W
-	0.02025748342,   // G
-	0.0181894977,    // P
-	0.01489278838,   // B
-	0.0110749686,    // V
-	0.006895114178,  // K
-	0.001727892574,  // X
-	0.001124501517,  // Q
-	0.001031250171,  // J
-	0.0007021277763, // Z
+    public final static int letterFreqs[] = {
+	9, // A
+	2, // B
+	2, // C
+	4, // D
+	12, // E
+	2, // F
+	3, // G
+	3, // H+1
+	9, // I
+	1, // J
+	1, // K
+	4, // L
+	2, // M
+	6, // N
+	8, // O
+	2, // P
+	1, // Q
+	6, // R
+	4, // S
+	6, // T
+	4, // U
+	2, // V
+	2, // W
+	1, // X
+	2, // Y
+	1 // Z
     };
 
     public static final float lowRadius =
@@ -83,13 +102,19 @@ public class FreePac extends CanvasPattern2D {
 	(float) Math.toRadians(RainbowBaseModel.rainbowThetaFinish);
     public static final float rangeAngle = rainbowAngleFinish - rainbowAngleStart;
 
+    public static final float messageAngleStart =
+	(float) Math.toRadians(30);
+    public static final float messageAngleFinish =
+	(float) Math.toRadians(150);
+
     public static final int MAX_FONT_SIZE = 120;
 
-    public static final int NUM_LETTERS = 120;
-    
     public static final float TOO_CLOSE = rangeRadius / 6;
 
     public static final double HZ = 4000;
+
+    public static final long MIN_PERIOD = 5;
+    public static final long MAX_PERIOD = 15;
 
     // STRIDE is a full step P1..P3
     public static final float STRIDE = rangeRadius * 0.9f;
@@ -112,6 +137,18 @@ public class FreePac extends CanvasPattern2D {
     long epoch;
     boolean init;
     Gradient fullGradient;
+
+    int [][]messageCharIndex;
+
+    long nextGoalEpoch;
+    int nextGoalPosition;
+
+    enum GoalState {
+	UNINVOLVED,
+	FLOATING,
+	ATTRACTED,
+	LOCKEDIN,
+    };
     
     public FreePac(LX lx) {
 	super(lx);
@@ -125,22 +162,73 @@ public class FreePac extends CanvasPattern2D {
 	this.colorPlane = RainbowStudio.pApplet.loadImage("images/lab-square-lookup.png");
 	this.letters = new Letter[26][];
 	this.depth = new ArrayList<Letter>();
+	this.epoch = 0;
+	this.nextGoalEpoch = 
+	    this.epoch +
+	    MIN_PERIOD +
+	    (long)(rnd.nextDouble() * (MAX_PERIOD - MIN_PERIOD));
+	this.messageCharIndex = new int[messages.length][];
 
 	out:
 	for (int l = 0; l < 26; l++) {
-	    int num = Math.max(1, (int)(NUM_LETTERS * letterFreqs[l]));
+	    int num = letterFreqs[l];
 
 	    letters[l] = new Letter[num];
 
 	    for (int i = 0; i < num; i++) {
 		letters[l][i] = new Letter((char)('A' + l), depth.size());
 		depth.add(letters[l][i]);
-		if (depth.size() >= NUM_LETTERS) {
-		    break out;
-		}
 	    }
 	}
 	Collections.shuffle(depth);
+
+	// Check for sufficient number of letters
+	for (int i = 0; i < messages.length; i++) {
+	    HashMap<Integer, Integer> m = new HashMap<Integer, Integer>();
+	    String msg = messages[i].toUpperCase();
+	    int []positions = new int[msg.length()];
+
+	    for (int j = 0; j < msg.length(); j++) {
+		char c = msg.charAt(j);
+		if (c == ' ') {
+		    continue;
+		}
+		int mc = (int)(c-'A');
+		int ex = m.getOrDefault(mc, 0);
+		positions[j] = ex;
+		m.put(mc, 1 + ex);
+	    }
+
+	    for (int j = 0; j < 26; j++) {
+		int avail = letterFreqs[j];
+		
+		int want = m.getOrDefault(j, 0);
+		if (want > avail) {
+		    // Just add to letterFreqs
+		    throw new RuntimeException("Too few letters, need more " + (char)('A' + j));
+		}
+	    }
+
+	    messageCharIndex[i] = positions;
+	}
+	setGoal(0);	
+    }
+
+    void setGoal(int g) {
+	nextGoalPosition = g;
+
+	String msg = messages[g];
+	int len = msg.length();
+
+	double interval = (messageAngleFinish - messageAngleStart) / len;
+
+	for (int p = 0; p < len; p++) {
+	    Letter l = letters[g][messageCharIndex[g][p]];
+	    l.goal = GoalState.FLOATING;
+	    l.targetTheta = messageAngleStart + (float)(p * interval);
+
+	    System.err.println("Goal " + g + " letter " + p + " is " + l);
+	}
     }
 
     class Point {
@@ -195,6 +283,8 @@ public class FreePac extends CanvasPattern2D {
 	String ch;
 	int color;
 	int number;
+	GoalState goal;
+	float targetTheta;
 
 	// P1, P2, P3 form a line (P1-P3) and its midpoint (P2).
 	// P0 is the prior epoch's midpoint
@@ -210,6 +300,7 @@ public class FreePac extends CanvasPattern2D {
 	    this.P3 = randPosNear(this.P1, P0, STRIDE, P2);
 	    this.color = randColor();
 	    this.number = number;
+	    this.goal = GoalState.UNINVOLVED;
 	}
 
 	void update() {
@@ -292,7 +383,7 @@ public class FreePac extends CanvasPattern2D {
 	    double midx = near.X + dx/2;
 	    double midy = near.Y + dy/2;
 
-	    if (far != null && loop < 2) {
+	    if (far != null && loop < 5) {
 		double sx = far.X - midx;
 		double sy = far.Y - midy;
 		double farDist = Math.sqrt(sx * sx + sy * sy);
@@ -312,6 +403,9 @@ public class FreePac extends CanvasPattern2D {
 	    if (!inside) {
 		continue;
 	    }
+
+	    long remainEpochs = nextGoalEpoch - epoch;
+	    
 
 	    if (mid != null) {
 		mid.X = midx;
@@ -333,7 +427,7 @@ public class FreePac extends CanvasPattern2D {
 
 	if (!init) {
 	    this.init = true;
-	    this.fullGradient = Gradient.compute(pg, NUM_LETTERS);
+	    this.fullGradient = Gradient.compute(pg, depth.size());
 	}
 
 	long newEpoch = (long)elapsed;
