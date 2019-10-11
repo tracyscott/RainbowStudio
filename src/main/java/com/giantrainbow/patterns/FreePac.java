@@ -447,11 +447,9 @@ public class FreePac extends CanvasPattern2D {
 		}
 
 		if (goal == GoalState.UNINVOLVED) {
-		    if (epoch+1 == nextShowEpoch) {
+		    if (epoch == nextShowEpoch) {
 			double t = elapsed % 1.;
-			a = (int)(255 * (1 - t));
-		    } else if (epoch == nextShowEpoch) {
-			a = 0;
+			a = (int)(255 * (1-t));
 		    } else if (epoch-1 == nextShowEpoch) {
 			double t = elapsed % 1.;
 			a = (int)(255 * t);
