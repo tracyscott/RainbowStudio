@@ -111,7 +111,7 @@ public class RainbowOSC implements LXOscListener {
           }
           if ("textupdate".equals(path[2])) {
             logger.info("textupdate=" + message.getString(0));
-            if (message.getString(0) != null && message.getString(0).trim().equals(""))
+            if (message.getString(0) != null && (message.getString(0).trim().equals("") || message.getString(0).contains("OscNil")) )
               return;
             // Handle some duplicate sending issue.
             if (message.equals(lastString))
