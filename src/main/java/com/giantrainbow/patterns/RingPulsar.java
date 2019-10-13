@@ -13,6 +13,7 @@ import static processing.core.PConstants.*;
 
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
+import heronarts.lx.parameter.CompoundParameter;
 
 @LXCategory(LXCategory.COLOR)
 public class RingPulsar extends PGPixelPerfect {
@@ -21,9 +22,22 @@ public class RingPulsar extends PGPixelPerfect {
   int RING_COUNT = 50;
   Ring[] rings;
 
+  public final CompoundParameter maxStrokeWeight = new CompoundParameter("weight", 15.0, 1.0, 30.0)
+      .setDescription("Maximum stroke weight");
+  public final CompoundParameter maxWidthOffset = new CompoundParameter("wOffset", 100.0, 0.0, 150.0)
+      .setDescription("Maximum width offset");
+  public final CompoundParameter maxHeightOffset = new CompoundParameter("hOffset", 80.0, 0.0, 150.0)
+      .setDescription("Maximum height offset");
+  public final CompoundParameter strokeAlpha = new CompoundParameter("alpha", 5.0, 0.5, 20.0)
+      .setDescription("Stroke alpha");
+
   public RingPulsar(LX lx) {
     super(lx, "");
 
+    addParameter(maxStrokeWeight);
+    addParameter(maxWidthOffset);
+    addParameter(maxHeightOffset);
+    addParameter(strokeAlpha);
   }
 
   @Override
@@ -40,7 +54,7 @@ public class RingPulsar extends PGPixelPerfect {
   }
 
   public void draw(double deltaDrawMs) {
-    if (RainbowStudio.pApplet.frameCount %2 == 0) {
+    if (RainbowStudio.pApplet.frameCount % 2 == 0) {
       pg.blendMode(BLEND);
       ProcessingUtils.fadeRect(pg, 4);
       pg.blendMode(ADD);
@@ -66,6 +80,7 @@ public class RingPulsar extends PGPixelPerfect {
     float radius;
     float hue;
     float strokeWeight;
+    float alpha;
     float seed;
 
     public Ring(float radius) {
@@ -73,10 +88,12 @@ public class RingPulsar extends PGPixelPerfect {
       this.hue = RainbowStudio.pApplet.random(this.radius * 5);
       this.seed = RainbowStudio.pApplet.random(30);
       this.strokeWeight = this.getStrokeWeight();
+      this.alpha = strokeAlpha.getValuef();
     }
 
     float getStrokeWeight() {
-      return ProcessingUtils.mapsin(this.radius + this.hue + RainbowStudio.pApplet.frameCount * 0.1f, 0.5f, 15f);
+      float maxWeight = maxStrokeWeight.getValuef();
+      return ProcessingUtils.mapsin(this.radius + this.hue + RainbowStudio.pApplet.frameCount * 0.1f, 0.5f, maxWeight);
     }
 
     void draw() {
@@ -84,9 +101,10 @@ public class RingPulsar extends PGPixelPerfect {
       pg.pushMatrix();
 
       this.strokeWeight = this.getStrokeWeight();
+      this.alpha = strokeAlpha.getValuef();
 
       pg.noFill();
-      pg.stroke(this.hue, 100, 100, 2);
+      pg.stroke(this.hue, 100, 100, this.alpha);
       pg.strokeWeight(this.strokeWeight);
 
       pg.translate(pg.width/2, pg.height/2);
@@ -101,8 +119,11 @@ public class RingPulsar extends PGPixelPerfect {
 
     void drawRing() {
       float d = this.radius * 2;
-      float w_offset = ProcessingUtils.mapsin((RainbowStudio.pApplet.frameCount + this.seed + this.hue + this.radius) * 0.009f, -d, 100f);
-      float h_offset = ProcessingUtils.mapcos((float)(this.seed * 0.73 + RainbowStudio.pApplet.frameCount * 0.01 * this.seed), -d + 30f, 80f);
+      float max_w_offset = maxWidthOffset.getValuef();
+      float max_h_offset = maxHeightOffset.getValuef();
+
+      float w_offset = ProcessingUtils.mapsin((RainbowStudio.pApplet.frameCount + this.seed + this.hue + this.radius) * 0.009f, 0, max_w_offset);
+      float h_offset = ProcessingUtils.mapcos((float)(this.seed * 0.73 + RainbowStudio.pApplet.frameCount * 0.01 * this.seed), 0, max_h_offset);
       pg.ellipse(0, 0, d + w_offset, d + h_offset);
     }
 
