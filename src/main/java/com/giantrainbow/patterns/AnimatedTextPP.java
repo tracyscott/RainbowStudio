@@ -44,8 +44,8 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   public final BooleanParameter osc = new BooleanParameter("osc", false);
   public final BooleanParameter centered = new BooleanParameter("centr", false);
 
-  public final DiscreteParameter fontKnob = new DiscreteParameter("font", 0, 2);
-  public final String[] fontNames = {"04b 30", "Press Start Regular"};
+  public final String[] fontNames = {"04b 30", "Press Start Regular", "AvantGarde-Medium", "AvantGarde-Bold"};
+  public final DiscreteParameter fontKnob = new DiscreteParameter("font", 0, fontNames.length);
   public final DiscreteParameter fontSizeKnob = new DiscreteParameter("fontsize", 24, 10, 32);
 
 
@@ -318,7 +318,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
             if (!textItems.isEmpty()) {
               // Increment only if we're not starting fresh
               currIndex = (currIndex + 1) % textItems.size();
-              
+
               // Prevent next text item from starting while we are in a next-pattern fade
               // transition.  Otherwise, we have to disable transitions for all patterns in
               // the channel containing this AnimatedTextPP.
