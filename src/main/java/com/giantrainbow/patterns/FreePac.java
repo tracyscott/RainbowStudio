@@ -437,15 +437,26 @@ public class FreePac extends CanvasPattern2D {
 	    pg.translate(canvas.map.subXi((float)(this.P.X)),
 			 canvas.map.subYi((float)this.P.Y));
 
-	    // if (goal == GoalState.UNINVOLVED) {
+	    int c;
+	    int a = 255;
+
 		if (brightKnob.getValue() > 0) {
-		    pg.fill(fullGradient.index(number));
+		    c = fullGradient.index(number);
 		} else {
-		    pg.fill(this.color);
+		    c = this.color;
 		}
-	    // } else {
-	    // 	pg.fill(255);
-	    // }
+
+		if (goal == GoalState.UNINVOLVED) {
+		    if (epoch == nextShowEpoch) {
+			double t = elapsed % 1.;
+			a = (int)(255 * (1-t));
+		    } else if (epoch-1 == nextShowEpoch) {
+			double t = elapsed % 1.;
+			a = (int)(255 * t);
+		    }
+		}
+
+		pg.fill(Colors.red(c), Colors.green(c), Colors.blue(c), a);
 
 	    pg.rotate((float)(this.H.heading() + PI/2));
 
