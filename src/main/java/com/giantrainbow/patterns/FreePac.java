@@ -31,35 +31,7 @@ import java.util.Collections;
 @LXCategory(LXCategory.FORM)
 public class FreePac extends CanvasPattern2D {
     public final static String[] messages = {
-	"Free Pacman",
-	"Free Iraq",
-	"Free Kashmir",
-	"Free Palestine",
-	"Free People",
-	"Free Tibet",
-	"Free Kurds",
-	"Free Taiwan",
-	"Free Ukraine",
-	"Free Rohingya",
-	"Free Hong Kong",
-	"Free Uyghurs",
-
-	"End Racism",
-	"End Sexism",
-	"End Facism",
 	"End Trump",
-	"End Homophobia",
-
-	"Trans Rights",
-	"Human Rights",
-	"Native Rights",
-	"Indiginous Rights",
-
-	"Smash Capitalism",
-	"Smash the Patriarchy",
-	"Smash the System",
-	"Decriminialize",
-	"Imagine a Better World",
     };
 
     public final static int letterFreqs[] = {
