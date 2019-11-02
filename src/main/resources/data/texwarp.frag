@@ -25,9 +25,9 @@ uniform vec4  iKnobs;                // More parameters from LX Studio.
 void mainImage( out vec4 fragColor, in vec2 pt )
 {
     vec2 position = pt/iResolution.xy;
-    float timeMod = iTime * 10f * iMouse.z;
+    float timeMod = iTime * 10.0 * iMouse.z;
     position.x = position.x + iMouse.x*sin(timeMod + position.x);
-    position.y = position.y + iMouse.y*sin(timeMod + position.y*2f*iMouse.w);
+    position.y = position.y + iMouse.y*sin(timeMod + position.y*2.0*iMouse.w);
     fragColor = texture(iChannel1, position);
     fragColor *= fragColor;
 }
