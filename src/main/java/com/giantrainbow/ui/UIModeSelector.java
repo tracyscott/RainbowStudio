@@ -28,6 +28,7 @@ public class UIModeSelector extends UICollapsibleSection {
   public final UIButton textMode;
 
   protected LX lx;
+  protected LXStudio.UI ui;
   public BooleanParameter autoAudioModeP = new BooleanParameter("autoaudio", false);
   public BooleanParameter audioModeP = new BooleanParameter("audio", false);
   public BooleanParameter standardModeP = new BooleanParameter("standard", false);
@@ -35,13 +36,13 @@ public class UIModeSelector extends UICollapsibleSection {
   public BooleanParameter instrumentModeP = new BooleanParameter("instrument", false);
   public BooleanParameter textModeP = new BooleanParameter("text", false);
 
-  static public BoundedParameter timePerChannelP = new BoundedParameter("MultiT", 60000.0, 2000.0, 360000.0);
-  static public BoundedParameter timePerChannelP2 = new BoundedParameter("GifT", 60000.0, 2000.0, 360000.0);
-  static public BoundedParameter timePerChannelP3 = new BoundedParameter("SpecialT", 60000.0, 2000.0, 360000.0);
-  static public BoundedParameter timePerChannelP4 = new BoundedParameter("RbwT", 60000.0, 2000.0, 360000.0);
+  static public BoundedParameter timePerChannelP = new BoundedParameter("Multi", 60000.0, 2000.0, 360000.0);
+  static public BoundedParameter timePerChannelP2 = new BoundedParameter("Gif", 60000.0, 2000.0, 360000.0);
+  static public BoundedParameter timePerChannelP3 = new BoundedParameter("Special", 60000.0, 2000.0, 360000.0);
+  static public BoundedParameter timePerChannelP4 = new BoundedParameter("Rbw", 60000.0, 2000.0, 360000.0);
 
-  static public BoundedParameter timePerAudioChannelP1 = new BoundedParameter("Aud-1T", 60000.0, 2000.0, 360000.0);
-  static public BoundedParameter timePerAudioChannelP2 = new BoundedParameter("Aud-MultiT", 60000.0, 2000.0, 360000.0);
+  static public BoundedParameter timePerAudioChannelP1 = new BoundedParameter("Aud-1", 60000.0, 2000.0, 360000.0);
+  static public BoundedParameter timePerAudioChannelP2 = new BoundedParameter("Aud-Multi", 60000.0, 2000.0, 360000.0);
 
   static public BoundedParameter fadeTimeP = new BoundedParameter("FadeT", 1000.0, 0.000, 10000.0);
   public final UIKnob timePerChannel;
@@ -70,6 +71,7 @@ public class UIModeSelector extends UICollapsibleSection {
     setLayout(UI2dContainer.Layout.VERTICAL);
     setChildMargin(2);
     this.lx = lx;
+    this.ui = ui;
 
     audioMonitorLevels = audioMonitor;
     // When enabled, audio monitoring can trigger automatic channel switching.
@@ -197,22 +199,37 @@ public class UIModeSelector extends UICollapsibleSection {
     knobsContainer = new UI2dContainer(0, 30, getContentWidth(), 45);
     knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
     knobsContainer.setPadding(0, 0, 0, 0);
+    fadeTime = new UIKnob(fadeTimeP);
+    fadeTime.addToContainer(knobsContainer);
+    knobsContainer.addToContainer(this);
+
+    UICollapsibleSection section;
+    section = new UICollapsibleSection(this.ui, 0, 0, getContentWidth(), 30);
+    section.setTitle("Standard Channel Timing");
+    section.setLayout(UI2dContainer.Layout.VERTICAL);
+    section.setChildMargin(2);
+    section.setBackgroundColor(0xFF222222);
+    section.addToContainer(this);
+
+    knobsContainer = new UI2dContainer(0, 30, getContentWidth(), 45);
+    knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
+    knobsContainer.setPadding(0, 0, 0, 0);
     timePerChannel = new UIKnob(timePerChannelP);
     timePerChannel.addToContainer(knobsContainer);
     timePerChannel2 = new UIKnob(timePerChannelP2);
     timePerChannel2.addToContainer(knobsContainer);
     timePerChannel3 = new UIKnob(timePerChannelP3);
     timePerChannel3.addToContainer(knobsContainer);
-    knobsContainer.addToContainer(this);
-
-    knobsContainer = new UI2dContainer(0, 30, getContentWidth(), 45);
-    knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
-    knobsContainer.setPadding(0, 0, 0, 0);
     timePerChannel4 = new UIKnob(timePerChannelP4);
     timePerChannel4.addToContainer(knobsContainer);
-    fadeTime = new UIKnob(fadeTimeP);
-    fadeTime.addToContainer(knobsContainer);
-    knobsContainer.addToContainer(this);
+    knobsContainer.addToContainer(section);
+
+    section = new UICollapsibleSection(this.ui, 0, 0, getContentWidth(), 30);
+    section.setTitle("Audio Channel Timing");
+    section.setLayout(UI2dContainer.Layout.VERTICAL);
+    section.setChildMargin(2);
+    section.setBackgroundColor(0xFF222222);
+    section.addToContainer(this);
 
     knobsContainer = new UI2dContainer(0, 30, getContentWidth(), 45);
     knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
@@ -221,7 +238,7 @@ public class UIModeSelector extends UICollapsibleSection {
     timePerAudioChannel1.addToContainer(knobsContainer);
     timePerAudioChannel2 = new UIKnob(timePerAudioChannelP2);
     timePerAudioChannel2.addToContainer(knobsContainer);
-    knobsContainer.addToContainer(this);
+    knobsContainer.addToContainer(section);
 
     if (lx.engine.audio.input != null) {
       if (lx.engine.audio.input.device.getObject().isAvailable()) {
