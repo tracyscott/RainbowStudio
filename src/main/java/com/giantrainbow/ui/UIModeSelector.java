@@ -39,7 +39,9 @@ public class UIModeSelector extends UICollapsibleSection {
   static public BoundedParameter timePerChannelP2 = new BoundedParameter("GifT", 60000.0, 2000.0, 360000.0);
   static public BoundedParameter timePerChannelP3 = new BoundedParameter("SpecialT", 60000.0, 2000.0, 360000.0);
   static public BoundedParameter timePerChannelP4 = new BoundedParameter("RbwT", 60000.0, 2000.0, 360000.0);
-  static public BoundedParameter timePerChannelP5 = new BoundedParameter("TPerCh5", 60000.0, 2000.0, 360000.0);
+
+  static public BoundedParameter timePerAudioChannelP1 = new BoundedParameter("Aud-1T", 60000.0, 2000.0, 360000.0);
+  static public BoundedParameter timePerAudioChannelP2 = new BoundedParameter("Aud-MultiT", 60000.0, 2000.0, 360000.0);
 
   static public BoundedParameter fadeTimeP = new BoundedParameter("FadeT", 1000.0, 0.000, 10000.0);
   public final UIKnob timePerChannel;
@@ -47,11 +49,19 @@ public class UIModeSelector extends UICollapsibleSection {
   public final UIKnob timePerChannel3;
   public final UIKnob timePerChannel4;
   public final UIKnob fadeTime;
+  public final UIKnob timePerAudioChannel1;
+  public final UIKnob timePerAudioChannel2;
 
-  public String[] standardModeChannelNames = { "MULTI", "GIF", "SPECIAL", "RBW"};
+  public String[] standardModeChannelNames = { "MULTI", "GIF", "SPECIAL", "RBW" };
   public List<LXChannelBus> standardModeChannels = new ArrayList<LXChannelBus>(standardModeChannelNames.length);
+
+  public String[] audioModeChannelNames = { "AUDIO-1", "AUDIO-MULTI" };
+  public List<LXChannelBus> audioModeChannels = new ArrayList<LXChannelBus>(audioModeChannelNames.length);
+
   public int currentPlayingChannel = 3;  // Defaults to multi
   public int previousPlayingChannel = 0;
+  public int currentPlayingAudioChannel = 1;
+  public int previousPlayingAudioChannel = 0;
   public UIAudioMonitorLevels audioMonitorLevels;
 
   public UIModeSelector(final LXStudio.UI ui, LX lx, UIAudioMonitorLevels audioMonitor) {
@@ -76,7 +86,13 @@ public class UIModeSelector extends UICollapsibleSection {
           interactiveMode.setActive(false);
           instrumentMode.setActive(false);
           textMode.setActive(false);
-          // Enable AUDIO channel
+          // Build our list of Audio Channels based on our names.  Putting it here allows it to
+          // work after loading a new file (versus startup initialization).
+          audioModeChannels.clear();
+          for (String channelName: audioModeChannelNames) {
+            LXChannelBus ch = UtilsForLX.getChannelByLabel(lx, channelName);
+            audioModeChannels.add(ch);
+          }
           setAudioChannelEnabled(true);
         } else {
           // Disable AUDIO channel
@@ -176,7 +192,9 @@ public class UIModeSelector extends UICollapsibleSection {
         .setActive(false)
         .addToContainer(this);
 
-    UI2dContainer knobsContainer = new UI2dContainer(0, 30, getContentWidth(), 45);
+    UI2dContainer knobsContainer;
+
+    knobsContainer = new UI2dContainer(0, 30, getContentWidth(), 45);
     knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
     knobsContainer.setPadding(0, 0, 0, 0);
     timePerChannel = new UIKnob(timePerChannelP);
@@ -186,6 +204,7 @@ public class UIModeSelector extends UICollapsibleSection {
     timePerChannel3 = new UIKnob(timePerChannelP3);
     timePerChannel3.addToContainer(knobsContainer);
     knobsContainer.addToContainer(this);
+
     knobsContainer = new UI2dContainer(0, 30, getContentWidth(), 45);
     knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
     knobsContainer.setPadding(0, 0, 0, 0);
@@ -193,6 +212,15 @@ public class UIModeSelector extends UICollapsibleSection {
     timePerChannel4.addToContainer(knobsContainer);
     fadeTime = new UIKnob(fadeTimeP);
     fadeTime.addToContainer(knobsContainer);
+    knobsContainer.addToContainer(this);
+
+    knobsContainer = new UI2dContainer(0, 30, getContentWidth(), 45);
+    knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
+    knobsContainer.setPadding(0, 0, 0, 0);
+    timePerAudioChannel1 = new UIKnob(timePerAudioChannelP1);
+    timePerAudioChannel1.addToContainer(knobsContainer);
+    timePerAudioChannel2 = new UIKnob(timePerAudioChannelP2);
+    timePerAudioChannel2.addToContainer(knobsContainer);
     knobsContainer.addToContainer(this);
 
     if (lx.engine.audio.input != null) {
@@ -208,6 +236,7 @@ public class UIModeSelector extends UICollapsibleSection {
     }
 
     lx.engine.addLoopTask(new StandardModeCycle());
+    lx.engine.addLoopTask(new AudioModeCycle());
   }
 
   /**
@@ -313,8 +342,26 @@ public class UIModeSelector extends UICollapsibleSection {
   }
 
   public void setAudioChannelEnabled(boolean on) {
-    LXChannelBus audioChannel = UtilsForLX.getChannelByLabel(lx, "AUDIO");
-    if (audioChannel != null) audioChannel.enabled.setValue(on);
+    if (on) {
+      // Disable all channels
+      for (LXChannelBus channel : audioModeChannels) {
+        if (channel != null) {
+          channel.fader.setValue(0);
+          channel.enabled.setValue(false);
+        }
+      }
+      // Enable the currentPlayingAudioChannel
+      LXChannelBus currentChannel = audioModeChannels.get(currentPlayingAudioChannel);
+      if (currentChannel != null) {
+        currentChannel.enabled.setValue(true);
+        currentChannel.fader.setValue(100);
+      }
+    } else {
+      for (LXChannelBus channel : audioModeChannels) {
+        if (channel != null)
+          channel.enabled.setValue(on);
+      }
+    }
   }
 
   public void setStandardChannelsEnabled(boolean on) {
@@ -361,8 +408,8 @@ public class UIModeSelector extends UICollapsibleSection {
 
   public class StandardModeCycle implements LXLoopTask {
     public double currentChannelPlayTime = 0.0;
-    public double timePerChannel = 5000.0;  // Make this settable in the UI.
-    public double fadeTime = 1000.0;  // Make this settable in the UI.
+    public double timePerChannel = 5000.0;  // This is settable in the UI.
+    public double fadeTime = 1000.0;  // This is settable in the UI.
     public double prevChannelDisableThreshold = 0.1;  // Settable in UI? How low slider goes before full disable.
     public double channelFadeFullThreshold = 0.1; // At this value just set it to 1.  Deals with chunkiness around time.
     public double fadeTimeRemaining = 0.0;
@@ -468,6 +515,69 @@ public class UIModeSelector extends UICollapsibleSection {
         }
         fadeTimeRemaining = fadeTime;
         // logger.info("Switching channels:" + currentPlayingChannel);
+      }
+    }
+  }
+
+  public class AudioModeCycle implements LXLoopTask {
+    public double currentChannelPlayTime = 0.0;
+    public double timePerChannel = 5000.0;
+    public double fadeTime = 1000.0;
+    public double prevChannelDisableThreshold = 0.1;  // Settable in UI? How low slider goes before full disable.
+    public double channelFadeFullThreshold = 0.1; // At this value just set it to 1.  Deals with chunkiness around time.
+    public double fadeTimeRemaining = 0.0;
+
+    public void loop(double deltaMs) {
+      if (!UIModeSelector.this.audioModeP.isOn())
+        return;
+
+      fadeTime = UIModeSelector.fadeTimeP.getValue();
+
+      if (currentPlayingAudioChannel == 0) {
+        timePerChannel = UIModeSelector.timePerAudioChannelP1.getValue();
+      } else if (currentPlayingChannel == 1) {
+        timePerChannel = UIModeSelector.timePerAudioChannelP2.getValue();
+      }
+
+      // If our current configuration doesn't have multiple standard channel names, just no-op.
+      if (audioModeChannels.size() < 2) {
+        logger.warning("Too few audio channels.");
+        return;
+      }
+
+      // We are still fading,
+      if (fadeTimeRemaining > 0.0) {
+        double previousChannelPercent = fadeTimeRemaining / fadeTime;
+        double percentDone = 1.0 - previousChannelPercent;
+        if (percentDone + channelFadeFullThreshold >= 1.0) {
+          percentDone = 1.0;
+        }
+        LXChannelBus previousChannel = audioModeChannels.get(previousPlayingAudioChannel);
+        LXChannelBus currentChannel = audioModeChannels.get(currentPlayingAudioChannel);
+        if (previousChannel != null) {
+          previousChannel.fader.setValue(previousChannelPercent);
+          if (previousChannelPercent < prevChannelDisableThreshold)
+            previousChannel.enabled.setValue(false);
+        }
+        if (currentChannel != null) currentChannel.fader.setValue(percentDone);
+        // When this goes below zero we are done fading until the timePerChannel time
+        // is reached and fadeTimeRemaining is reset to fadeTime.
+        fadeTimeRemaining -= deltaMs;
+      }
+
+      currentChannelPlayTime += deltaMs;
+
+      // Exceeded our per-channel time, begin to fade.
+      if (currentChannelPlayTime + deltaMs > timePerChannel) {
+        LXChannelBus currentChannel = audioModeChannels.get(currentPlayingAudioChannel);
+        previousPlayingAudioChannel = currentPlayingAudioChannel;
+        currentPlayingAudioChannel = (currentPlayingAudioChannel + 1) % audioModeChannels.size();
+        currentChannel = audioModeChannels.get(currentPlayingAudioChannel);
+        if (currentChannel != null) {
+          currentChannel.enabled.setValue(true);
+          currentChannelPlayTime = 0.0; // Reset play time counter.
+        }
+        fadeTimeRemaining = fadeTime;
       }
     }
   }
