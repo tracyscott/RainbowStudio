@@ -1,6 +1,6 @@
 {
   "version": "0.1",
-  "timestamp": 1572741171956,
+  "timestamp": 1572747102790,
   "engine": {
     "id": 1,
     "class": "heronarts.lx.LXEngine",
@@ -15,7 +15,7 @@
       "crossfader": 0.4655172396451235,
       "crossfaderBlendMode": 0,
       "speed": 1.0,
-      "focusedChannel": 9,
+      "focusedChannel": 12,
       "cueA": false,
       "cueB": false,
       "multithreaded": false,
@@ -326,9 +326,9 @@
           "midiChannel": 16,
           "autoCycleEnabled": false,
           "autoCycleMode": 0,
-          "autoCycleTimeSecs": 15.0,
+          "autoCycleTimeSecs": 30.0,
           "transitionEnabled": true,
-          "transitionTimeSecs": 3.0,
+          "transitionTimeSecs": 5.0,
           "transitionBlendMode": 0
         },
         "effects": [],
@@ -1315,7 +1315,7 @@
           "label": "RBW",
           "arm": false,
           "selected": false,
-          "enabled": false,
+          "enabled": true,
           "cue": false,
           "fader": 1.0,
           "crossfadeGroup": 0,
@@ -1331,7 +1331,7 @@
         },
         "effects": [],
         "clips": [],
-        "patternIndex": 3,
+        "patternIndex": 5,
         "patterns": [
           {
             "id": 2075,
@@ -1598,34 +1598,6 @@
               "triggers": []
             },
             "autoCycleEnabled": true
-          },
-          {
-            "id": 12808,
-            "class": "com.giantrainbow.patterns.AnimatedTextPP",
-            "modulationColor": -16718593,
-            "parameters": {
-              "label": "AnimatedTextPP",
-              "Fps": 43.0,
-              "str": "",
-              "XSpd": 1.2,
-              "clockwise": false,
-              "oneShot": false,
-              "reset": false,
-              "advP": true,
-              "font": 3,
-              "mult": true,
-              "osc": true,
-              "fontsize": 24,
-              "centr": false,
-              "fade": 1.0,
-              "which": 0
-            },
-            "modulation": {
-              "modulators": [],
-              "modulations": [],
-              "triggers": []
-            },
-            "autoCycleEnabled": true
           }
         ],
         "group": 6997
@@ -1645,10 +1617,10 @@
           "blendMode": 0,
           "midiMonitor": false,
           "midiChannel": 16,
-          "autoCycleEnabled": false,
+          "autoCycleEnabled": true,
           "autoCycleMode": 0,
           "autoCycleTimeSecs": 60.0,
-          "transitionEnabled": false,
+          "transitionEnabled": true,
           "transitionTimeSecs": 5.0,
           "transitionBlendMode": 0
         },
@@ -1734,8 +1706,8 @@
         "parameters": {
           "label": "AUDIO-1",
           "arm": false,
-          "selected": true,
-          "enabled": true,
+          "selected": false,
+          "enabled": false,
           "cue": false,
           "fader": 1.0,
           "crossfadeGroup": 0,
@@ -1751,7 +1723,7 @@
         },
         "effects": [],
         "clips": [],
-        "patternIndex": 2,
+        "patternIndex": 0,
         "patterns": [
           {
             "id": 6703,
@@ -1824,7 +1796,7 @@
           "selected": false,
           "enabled": false,
           "cue": false,
-          "fader": 0.013,
+          "fader": 0.001999992564320509,
           "crossfadeGroup": 0,
           "blendMode": 0
         },
@@ -1905,7 +1877,7 @@
         "parameters": {
           "label": "AUDIO-COLOR",
           "arm": false,
-          "selected": false,
+          "selected": true,
           "enabled": true,
           "cue": false,
           "fader": 1.0,
@@ -1922,7 +1894,7 @@
         },
         "effects": [],
         "clips": [],
-        "patternIndex": 1,
+        "patternIndex": 5,
         "patterns": [
           {
             "id": 13624,
@@ -1977,7 +1949,7 @@
                     "phase": 0.0,
                     "exp": 0.0
                   },
-                  "basis": 0.6626400647257401
+                  "basis": 0.9522199970946266
                 }
               ],
               "modulations": [
@@ -2034,6 +2006,45 @@
               "K3": 0.30999999307096004,
               "K4": 0.07999999821186066,
               "frag": "lightning3",
+              "tex": "tunneltex.png"
+            },
+            "modulation": {
+              "modulators": [],
+              "modulations": [],
+              "triggers": []
+            },
+            "autoCycleEnabled": true
+          },
+          {
+            "id": 14376,
+            "class": "com.giantrainbow.patterns.RainbowGIF",
+            "modulationColor": -6144,
+            "parameters": {
+              "label": "RainbowGIF",
+              "Fps": 10.0,
+              "antialias": true,
+              "gif": "hexeosis_clr02"
+            },
+            "modulation": {
+              "modulators": [],
+              "modulations": [],
+              "triggers": []
+            },
+            "autoCycleEnabled": true
+          },
+          {
+            "id": 14378,
+            "class": "com.giantrainbow.patterns.ShaderToy",
+            "modulationColor": -15597824,
+            "parameters": {
+              "label": "ShaderToy",
+              "Fps": 43.0,
+              "Audio": true,
+              "K1": 0.019999999552965164,
+              "K2": 0.009999999776482582,
+              "K3": 0.0,
+              "K4": 0.0,
+              "frag": "bezier",
               "tex": "tunneltex.png"
             },
             "modulation": {
@@ -2230,22 +2241,22 @@
           "attack": 9.999999776482582,
           "release": 18.5580048226244,
           "slope": 2.2499998826533556,
-          "Band-1": 0.7885208211116176,
-          "Band-2": 0.9185997889972549,
-          "Band-3": 0.9611310851827227,
-          "Band-4": 1.0,
-          "Band-5": 0.965351807327152,
-          "Band-6": 0.8079280985357875,
-          "Band-7": 0.6537864422242428,
-          "Band-8": 0.4813009312128482,
-          "Band-9": 0.6792204513635676,
-          "Band-10": 0.6373074939761906,
-          "Band-11": 0.6754323841488452,
-          "Band-12": 0.7486557466937138,
-          "Band-13": 0.6758263629428156,
-          "Band-14": 0.6106406284821895,
-          "Band-15": 0.4675014580398015,
-          "Band-16": 0.4834219025202675
+          "Band-1": 0.5061932188172968,
+          "Band-2": 0.5974140887351254,
+          "Band-3": 0.5806703517556749,
+          "Band-4": 0.5503517779440938,
+          "Band-5": 0.6409295889278648,
+          "Band-6": 0.6773398662297556,
+          "Band-7": 0.4984076834847899,
+          "Band-8": 0.4206137607309869,
+          "Band-9": 0.5423439003008438,
+          "Band-10": 0.5735083790842579,
+          "Band-11": 0.5853561200795528,
+          "Band-12": 0.6186409214031976,
+          "Band-13": 0.37049151833622573,
+          "Band-14": 0.3397920002395949,
+          "Band-15": 0.0,
+          "Band-16": 0.0
         }
       },
       "input": {
@@ -2276,7 +2287,7 @@
       "modulationColor": -65372,
       "parameters": {
         "label": "Output",
-        "enabled": false,
+        "enabled": true,
         "mode": 0,
         "fps": 0.0,
         "gamma": 0,
@@ -2285,9 +2296,9 @@
     },
     "components": {
       "oscsensor": {
-        "id": 14006,
+        "id": 14374,
         "class": "com.giantrainbow.OSCSensor",
-        "modulationColor": -51968,
+        "modulationColor": -131328,
         "parameters": {
           "label": "oscsensor",
           "accelx": 0.0,
@@ -2300,6 +2311,8 @@
         "stdModeTime2": 300000.0,
         "stdModeTime3": 300000.0,
         "stdModeTime4": 300000.0,
+        "audioModeTime": 120000.0,
+        "audioModeTime2": 120000.0,
         "stdModeFadeTime": 2999.999977648258
       }
     },
