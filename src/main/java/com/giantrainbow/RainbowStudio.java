@@ -401,6 +401,9 @@ public class RainbowStudio extends PApplet {
     private static final String KEY_STDMODE_TIME3 = "stdModeTime3";
     private static final String KEY_STDMODE_TIME4 = "stdModeTime4";
 
+    private static final String KEY_AUDIOMODE_TIME = "audioModeTime";
+    private static final String KEY_AUDIOMODE_TIME2 = "audioModeTime2";
+
     private static final String KEY_STDMODE_FADETIME = "stdModeFadeTime";
 
     @Override
@@ -409,6 +412,8 @@ public class RainbowStudio extends PApplet {
       obj.addProperty(KEY_STDMODE_TIME2, UIModeSelector.timePerChannelP2.getValue());
       obj.addProperty(KEY_STDMODE_TIME3, UIModeSelector.timePerChannelP3.getValue());
       obj.addProperty(KEY_STDMODE_TIME4, UIModeSelector.timePerChannelP4.getValue());
+      obj.addProperty(KEY_AUDIOMODE_TIME, UIModeSelector.timePerAudioChannelP1.getValue());
+      obj.addProperty(KEY_AUDIOMODE_TIME2, UIModeSelector.timePerAudioChannelP2.getValue());
       obj.addProperty(KEY_STDMODE_FADETIME, UIModeSelector.fadeTimeP.getValue());
     }
 
@@ -426,6 +431,12 @@ public class RainbowStudio extends PApplet {
       }
       if (obj.has(KEY_STDMODE_TIME4)) {
         UIModeSelector.timePerChannelP4.setValue(obj.get(KEY_STDMODE_TIME4).getAsDouble());
+      }
+      if (obj.has(KEY_AUDIOMODE_TIME)) {
+        UIModeSelector.timePerAudioChannelP1.setValue(obj.get(KEY_AUDIOMODE_TIME).getAsDouble());
+      }
+      if (obj.has(KEY_AUDIOMODE_TIME2)) {
+        UIModeSelector.timePerAudioChannelP2.setValue(obj.get(KEY_AUDIOMODE_TIME2).getAsDouble());
       }
       if (obj.has(KEY_STDMODE_FADETIME)) {
         UIModeSelector.fadeTimeP.setValue(obj.get(KEY_STDMODE_FADETIME).getAsDouble());
