@@ -2,8 +2,8 @@ package com.giantrainbow.ui;
 
 import com.giantrainbow.UtilsForLX;
 import com.giantrainbow.patterns.AnimatedTextPP;
-import com.giantrainbow.patterns.Cylon;
-import com.giantrainbow.patterns.NyanCat;
+//import com.giantrainbow.patterns.Cylon;
+//import com.giantrainbow.patterns.NyanCat;
 import heronarts.lx.*;
 import heronarts.lx.parameter.BooleanParameter;
 import heronarts.lx.parameter.BoundedParameter;
