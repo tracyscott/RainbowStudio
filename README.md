@@ -39,6 +39,10 @@ To Run RainbowStudio from IntelliJ:
 1. Using IntelliJ, import Maven project from the cloned RainbowStudio directory
 2. In the IntelliJ project, add run configuration using Maven template and enter 'compile exec:java' in command line field
 
+Changes:
+
+1. When making changes, do not forget to re-build the project either using command line or IntelliJ. 
+
 Helpful links for Linux environments:
 
 1. JDK 8: https://www.javahelps.com/2015/03/install-oracle-jdk-in-ubuntu.html
