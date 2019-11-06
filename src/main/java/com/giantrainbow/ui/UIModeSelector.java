@@ -455,7 +455,8 @@ public class UIModeSelector extends UICollapsibleSection {
         LXChannel c = (LXChannel) channelBus;
         if (c.patterns.size() > 0) {
           LXPattern p = c.getActivePattern();
-          if (p instanceof AnimatedTextPP || p instanceof Cylon || p instanceof NyanCat) {
+          if (p instanceof AnimatedTextPP //|| p instanceof Cylon || p instanceof NyanCat
+             ) {
             currentChannelPlayTime = 0.0;
           }
         }
@@ -465,7 +466,8 @@ public class UIModeSelector extends UICollapsibleSection {
           for (LXChannel c : g.channels) {
             if (c.patterns.size() > 0) {
               LXPattern p = c.getActivePattern();
-              if (p instanceof AnimatedTextPP || p instanceof Cylon || p instanceof NyanCat) {
+              if (p instanceof AnimatedTextPP //|| p instanceof Cylon || p instanceof NyanCat
+                 ) {
                 currentChannelPlayTime = 0.0;
               }
             }
