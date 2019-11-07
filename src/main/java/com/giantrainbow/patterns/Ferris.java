@@ -14,6 +14,7 @@ import heronarts.lx.parameter.BooleanParameter;
 import heronarts.lx.parameter.CompoundParameter;
 import java.util.Random;
 import org.joml.Vector3f;
+import processing.core.PConstants;
 import processing.core.PImage;
 import processing.core.PVector;
 import com.giantrainbow.patterns.ferris.Amusement;
@@ -66,6 +67,9 @@ public class Ferris extends CanvasPattern2D implements Positioner {
     
   public final CompoundParameter partyStrobeKnob =
       new CompoundParameter("PartyStrobe", 200, 1, 1000).setDescription("Party strobe");
+
+  public final CompoundParameter blurKnob =
+			new CompoundParameter("Blur", 0f, 0f, 1f).setDescription("Blur amount");
     
   final float WHEEL_CENTER_X = (float) canvas.width() / 2f;
 
@@ -116,6 +120,7 @@ public class Ferris extends CanvasPattern2D implements Positioner {
     addParameter(variableEllipseKnob);
     addParameter(partyModeKnob);
     addParameter(partyStrobeKnob);
+    addParameter(blurKnob);
 
     removeParameter(fpsKnob);
 
@@ -135,8 +140,12 @@ public class Ferris extends CanvasPattern2D implements Positioner {
 	party = pulse.update(deltaMs);
     }
 
-    pg.background(0);
-
+    //pg.background(0);
+		pg.colorMode(PConstants.RGB, 255, 255, 255, 255);
+		pg.fill(0, (int)(255f * (1f - blurKnob.getValuef())));
+		pg.noStroke();
+		pg.rect(0, 0, pg.width+1, pg.height+1);
+		
     ferris.wheel.setAngularDamping(brakeKnob.getValue());
     ferris.wheelFixture.setDensity(wheelDensityKnob.getValue() / 1000);
     ferris.wheel.setMass(MassType.NORMAL);
