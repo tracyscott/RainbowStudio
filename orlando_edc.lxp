@@ -1,6 +1,6 @@
 {
   "version": "0.1",
-  "timestamp": 1573089102846,
+  "timestamp": 1573090576981,
   "engine": {
     "id": 1,
     "class": "heronarts.lx.LXEngine",
@@ -46,9 +46,9 @@
           "label": "MULTI",
           "arm": false,
           "selected": false,
-          "enabled": false,
+          "enabled": true,
           "cue": false,
-          "fader": 0.0,
+          "fader": 1.0,
           "crossfadeGroup": 0,
           "blendMode": 0
         },
@@ -79,7 +79,7 @@
         },
         "effects": [],
         "clips": [],
-        "patternIndex": 8,
+        "patternIndex": 9,
         "patterns": [
           {
             "id": 717,
@@ -418,7 +418,7 @@
                     "phase": 0.0,
                     "exp": 0.0
                   },
-                  "basis": 0.7009410769495159
+                  "basis": 0.12196164947349805
                 }
               ],
               "modulations": [
@@ -753,9 +753,9 @@
           "label": "SPECIAL",
           "arm": false,
           "selected": true,
-          "enabled": true,
+          "enabled": false,
           "cue": false,
-          "fader": 1.0,
+          "fader": 0.0,
           "crossfadeGroup": 0,
           "blendMode": 0,
           "midiMonitor": false,
@@ -769,7 +769,7 @@
         },
         "effects": [],
         "clips": [],
-        "patternIndex": 18,
+        "patternIndex": 7,
         "patterns": [
           {
             "id": 364,
@@ -812,10 +812,10 @@
             "parameters": {
               "label": "ShaneBow",
               "xRate": 2.0,
-              "xStart": 112.0,
-              "clockwise": true,
-              "blockWidth": 34.10005187988281,
-              "blockExp": true
+              "xStart": 7.0,
+              "clockwise": false,
+              "blockWidth": 382.4952087402344,
+              "blockExp": false
             },
             "modulation": {
               "modulators": [],
@@ -899,7 +899,7 @@
                     "phase": 0.0,
                     "exp": 0.0
                   },
-                  "basis": 0.33117896722657325
+                  "basis": 0.35389190341450644
                 }
               ],
               "modulations": [
@@ -1328,77 +1328,6 @@
             "autoCycleEnabled": true
           },
           {
-            "id": 14750,
-            "class": "com.giantrainbow.patterns.Ferris",
-            "modulationColor": -7799040,
-            "parameters": {
-              "label": "Ferris",
-              "Speed": 20000.018179416656,
-              "Torque": 2.199999950826168E12,
-              "RotateGravity": 3.455751970443489,
-              "Gravity": 88999.99801069498,
-              "Brake": 0.0,
-              "CarBrake": 160.9999964237213,
-              "Booster": 0.0,
-              "WheelDensity": 376.299991812557,
-              "VarEllipse": true,
-              "PartyMode": true,
-              "PartyStrobe": 210.79001764021814,
-              "Blur": 0.880000002682209,
-              "PartyRate": 200.0,
-              "PartyPeriod": 46.76999897696078
-            },
-            "modulation": {
-              "modulators": [
-                {
-                  "id": 14752,
-                  "class": "heronarts.lx.modulator.VariableLFO",
-                  "modulationColor": -65326,
-                  "parameters": {
-                    "label": "LFO",
-                    "running": true,
-                    "trigger": false,
-                    "loop": true,
-                    "tempoSync": false,
-                    "tempoMultiplier": 5,
-                    "tempoLock": true,
-                    "clockMode": 0,
-                    "periodFast": 2147.862041704834,
-                    "periodSlow": 10000.0,
-                    "wave": 0,
-                    "skew": 0.0,
-                    "shape": 0.0,
-                    "phase": 0.0,
-                    "exp": 0.0
-                  },
-                  "basis": 0.9547039965982486
-                }
-              ],
-              "modulations": [
-                {
-                  "source": {
-                    "id": 14752
-                  },
-                  "target": {
-                    "componentId": 14750,
-                    "parameterPath": "Speed"
-                  },
-                  "id": 14753,
-                  "class": "heronarts.lx.parameter.LXCompoundModulation",
-                  "modulationColor": -65451,
-                  "parameters": {
-                    "label": "",
-                    "enabled": true,
-                    "Polarity": 1,
-                    "Range": 1.0
-                  }
-                }
-              ],
-              "triggers": []
-            },
-            "autoCycleEnabled": true
-          },
-          {
             "id": 15135,
             "class": "com.giantrainbow.patterns.SpinnyWheels",
             "modulationColor": -16765441,
@@ -1455,7 +1384,7 @@
           "selected": false,
           "enabled": false,
           "cue": false,
-          "fader": 1.0,
+          "fader": 0.00366665924340481,
           "crossfadeGroup": 0,
           "blendMode": 0,
           "midiMonitor": false,
@@ -1469,7 +1398,7 @@
         },
         "effects": [],
         "clips": [],
-        "patternIndex": 6,
+        "patternIndex": 0,
         "patterns": [
           {
             "id": 2075,
@@ -2395,22 +2324,22 @@
           "attack": 9.999999776482582,
           "release": 18.5580048226244,
           "slope": 2.2499998826533556,
-          "Band-1": 0.0,
-          "Band-2": 0.10010128990731049,
-          "Band-3": 0.21451242178505647,
-          "Band-4": 0.3015362029587444,
-          "Band-5": 0.4924387471157645,
-          "Band-6": 0.5186609197626547,
-          "Band-7": 0.5208776469968754,
-          "Band-8": 0.6055570325251032,
-          "Band-9": 0.4988256820236632,
-          "Band-10": 0.41738290306877823,
-          "Band-11": 0.238226704571184,
-          "Band-12": 0.17632288059892742,
-          "Band-13": 0.1383510659410404,
-          "Band-14": 0.07483816967024337,
-          "Band-15": 0.06940004855447346,
-          "Band-16": 0.008770084116637822
+          "Band-1": 0.03958345442533595,
+          "Band-2": 0.15777686840138927,
+          "Band-3": 0.2414493218214453,
+          "Band-4": 0.3149337323998498,
+          "Band-5": 0.3939835632764749,
+          "Band-6": 0.4014886902493243,
+          "Band-7": 0.4518362987021409,
+          "Band-8": 0.4879152982337741,
+          "Band-9": 0.5479444535916074,
+          "Band-10": 0.4605440642740284,
+          "Band-11": 0.31796905276507437,
+          "Band-12": 0.2440341097469687,
+          "Band-13": 0.2508045185017107,
+          "Band-14": 0.1242671010997477,
+          "Band-15": 0.14886150308063018,
+          "Band-16": 0.03756275069025772
         }
       },
       "input": {

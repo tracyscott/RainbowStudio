@@ -140,12 +140,15 @@ public class Ferris extends CanvasPattern2D implements Positioner {
 	party = pulse.update(deltaMs);
     }
 
-    //pg.background(0);
+    // No blur version just sets background to black
+    // pg.background(0);
+		// Blur version redraws black rectangle with some alpha transparency determined by
+		// blur knob value.
 		pg.colorMode(PConstants.RGB, 255, 255, 255, 255);
 		pg.fill(0, (int)(255f * (1f - blurKnob.getValuef())));
 		pg.noStroke();
 		pg.rect(0, 0, pg.width+1, pg.height+1);
-		
+
     ferris.wheel.setAngularDamping(brakeKnob.getValue());
     ferris.wheelFixture.setDensity(wheelDensityKnob.getValue() / 1000);
     ferris.wheel.setMass(MassType.NORMAL);
