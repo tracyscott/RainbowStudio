@@ -20,6 +20,7 @@ public class PGDraw2 extends PGTexture {
   protected void draw(double deltaDrawMs) {
     angle += 0.03;
     pg.background(0);
+    /*
     pg.strokeWeight(10.0f);
     pg.stroke(255);
     pg.translate(pg.width/2.0f, pg.height/2.0f);
@@ -27,5 +28,6 @@ public class PGDraw2 extends PGTexture {
     pg.rotate(angle);
     pg.line(-pg.width/2.0f + 10, -pg.height/2.0f + 10, pg.width/2.0f - 10, pg.height/2.0f - 10);
     pg.popMatrix();
+    */
   }
 }

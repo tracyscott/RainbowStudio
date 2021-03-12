@@ -3,16 +3,24 @@ package com.giantrainbow.patterns;
 import static processing.core.PApplet.ceil;
 import static processing.core.PApplet.floor;
 import static processing.core.PApplet.round;
+import static processing.core.PConstants.RGB;
 
 import com.giantrainbow.RainbowStudio;
 import com.giantrainbow.model.RainbowBaseModel;
 import heronarts.lx.LX;
 import heronarts.lx.color.LXColor;
 import heronarts.lx.model.LXPoint;
+
+import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
+import java.io.File;
+import java.io.IOException;
 import java.util.logging.Logger;
 
 import processing.core.PGraphics;
 import processing.core.PImage;
+
+import javax.imageio.ImageIO;
 
 /**
  * Utility class for rendering images.  Implements the mapping of
@@ -126,6 +134,16 @@ class RenderImageUtil {
     float radiusInWorldPixels = (RainbowBaseModel.outerRadius) * RainbowBaseModel.pixelsPerFoot;
     float imageOriginWorldX = -radiusInWorldPixels;
     float worldPixelsHeight = radiusInWorldPixels;
+    // Enabling this will write out an image called 'rendermask.png' in the working directory.  This is typically
+    // used with the simple PGDraw2 pattern that just paints a white image.  The output image
+    // will contain alpha transparency anywhere we have read a pixel from.  The results differ depending on
+    // whether anti-aliasing is enabled.  Note that there are some interior pixels in the render texture that
+    // won't even be accessed via anti-aliasing.  This is because our LEDs are in physical polar coordinate
+    // space and not a rectangular cartesian space.  The file will only be written if it does not exist.  To
+    // get both anti-aliased and not anti-aliased versions, change the anti-alias setting on PGDraw2 and move
+    // the existing rendermask.png and then another rendermask.png will be generated for the new anti-alias setting.
+    boolean saveTextureMask = false;
+    int renderMaskColor = 0x00000000;
 
     image.loadPixels();
 
@@ -141,8 +159,8 @@ class RenderImageUtil {
       if (pointYImagePixels < 0) {
         // This should never happen, output stats if it does.
         logger.info("p.x: " + p.x + " p.y:" + p.y + " pointYWorldPixels: " +
-        pointYWorldPixels + " poingYImagePixels: " + pointYImagePixels + " worldPixelsHeight:" +
-        worldPixelsHeight);
+            pointYWorldPixels + " poingYImagePixels: " + pointYImagePixels + " worldPixelsHeight:" +
+            worldPixelsHeight);
         logger.info("model.y.max: " + lx.model.yMax * 6.0);
       }
       // The nearest image coordinate.  Use this directly for non anti-aliased case.
@@ -163,10 +181,19 @@ class RenderImageUtil {
         xCoordImagePixels = image.width - 1;
       }
 
+      // NOTE(tracy): This is just a hack to save out the texture where referenced pixels are set to transparent so
+      // that we can get an exact Rainbow mask for the 528x264 render texture.
       if (!antialias) {
         int imgIndex = yCoordImagePixels * image.width + xCoordImagePixels;
         colors[p.index] = image.pixels[imgIndex];
+        if (saveTextureMask) {
+          image.pixels[imgIndex] = renderMaskColor;
+        }
       } else {
+        if (saveTextureMask) {
+          int imgIndex = yCoordImagePixels * image.width + xCoordImagePixels;
+          image.pixels[imgIndex] = renderMaskColor;
+        }
         // Deal with anti-aliasing.
         // ANTIALIASING
         float remainderX = pointXImagePixels - floor(pointXImagePixels);
@@ -219,6 +246,8 @@ class RenderImageUtil {
         if (imgIndexLeft != 1) {
           leftColor = image.pixels[imgIndexLeft];
           leftColor = RenderImageUtil.getWeightedColor(leftColor, leftWeight);
+          if (saveTextureMask)
+            image.pixels[imgIndexLeft] = renderMaskColor;
         } else {
           // Use only the right image pixel position since left was outside image.
           rightWeight = 1.0f;
@@ -228,6 +257,8 @@ class RenderImageUtil {
         if (imgIndexRight != image.width) {
           rightColor = image.pixels[imgIndexRight];
           rightColor = RenderImageUtil.getWeightedColor(rightColor, rightWeight);
+          if (saveTextureMask)
+            image.pixels[imgIndexRight] = renderMaskColor;
         }
 
         if (yAbove == image.height) {
@@ -236,6 +267,8 @@ class RenderImageUtil {
         if (yBelow >= 0) {
           belowColor = image.pixels[imgIndexBelow];
           belowColor = RenderImageUtil.getWeightedColor(belowColor, belowWeight);
+          if (saveTextureMask)
+            image.pixels[imgIndexBelow] = renderMaskColor;
         } else {
           aboveWeight = 1.0f;
         }
@@ -243,6 +276,8 @@ class RenderImageUtil {
         if (yAbove < image.height) {
           aboveColor = image.pixels[imgIndexAbove];
           aboveColor = RenderImageUtil.getWeightedColor(aboveColor, aboveWeight);
+          if (saveTextureMask)
+            image.pixels[imgIndexAbove] = renderMaskColor;
         }
 
         // TODO(tracy): Change this weight when combining top and bottom colors.
@@ -252,7 +287,27 @@ class RenderImageUtil {
         colors[p.index] = totalColor;
       }
     }
+    if (saveTextureMask) {
+      // Now save the texture mask if it doesn't already exist on disk.
+      File outputfile = new File("rendermask.png");
+      if (!outputfile.exists()) {
+        // This is similar to PImage.getNative() but we don't call loadPixels() as PImage.getNative() does since
+        // doing so wipes out our per-pixel mask setting writes above.  Yes, this was an annoying discovery.
+        int type = (image.format == RGB) ?
+            BufferedImage.TYPE_INT_RGB : BufferedImage.TYPE_INT_ARGB;
+        BufferedImage bImg = new BufferedImage(image.width, image.height, type);
+        WritableRaster wr = bImg.getRaster();
+        wr.setDataElements(0, 0, image.width, image.height, image.pixels);
+        try {
+          ImageIO.write(bImg, "png", outputfile);
+        } catch (IOException ioex) {
+          logger.info("Writing render texture mask, IOException: " + ioex.getMessage());
+        }
+
+      }
+    }
   }
+
 
   /*
    * Render an image on the rainbow. Includes an option for antialiasing.

@@ -24,7 +24,7 @@ abstract class PGTexture extends PGBase {
 
   public PGTexture(LX lx, String drawMode) {
     super(lx,
-        ceil(RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot * 2.0f),
+        ceil(RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot) * 2,
         ceil(RainbowBaseModel.outerRadius * RainbowBaseModel.pixelsPerFoot),
         drawMode);
     addParameter(antialiasKnob);
