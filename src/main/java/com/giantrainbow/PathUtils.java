@@ -84,6 +84,19 @@ public class PathUtils {
   }
 
   /**
+   * Finds video files
+   */
+  public static List<String> findVideoFiles(String path) {
+    List<String> matches = new ArrayList<String>();
+    File videoDir = new File(path);
+    for (final File fileEntry: videoDir.listFiles()) {
+      if (fileEntry.getName().endsWith(".mp4"))
+        matches.add(fileEntry.getName());
+    }
+    return matches;
+  }
+
+  /**
    * Calls {@link #findDataFiles(String, List)} after converting the varargs to a {@code List}.
    */
   public static List<String> findDataFiles(String path, String... exts) {
