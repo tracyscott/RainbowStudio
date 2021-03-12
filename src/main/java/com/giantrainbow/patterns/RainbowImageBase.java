@@ -104,7 +104,10 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
       paddingX = remainderPixelsX / (numTiles+1);
       logger.info("Tiling image: " + imgname + " numTiles=" + numTiles + " paddingX=" + paddingX);
       pg.beginDraw();
-      pg.background(0);
+
+      // NOTE(tracy): This is commented out so that we don't fully black out our frame, which we don't
+      // want to do if we want to layer multiple channels using partially transparent images.
+      // pg.background(0);
 
       for (int i = 0; i < numTiles; i++) {
         pg.image(tileImage, i * tileImage.width + (i +1) * paddingX, 0);
