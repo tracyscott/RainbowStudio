@@ -155,4 +155,6 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
 
   fragColor.rgb = col;
   fragColor.w = 1.;
+  if (fragColor.r < 0.1 && fragColor.g < 0.1 && fragColor.b < 1)
+    fragColor.w = 0.0;
 }

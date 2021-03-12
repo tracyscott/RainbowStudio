@@ -43,7 +43,7 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
   public final StringParameter shaderFileKnob = new StringParameter("frag", "sparkles");
   // textureNameKnob is loaded/saved. textureKnob is just an intermediate knob used for the
   // drop down texture selector.
-  public final StringParameter textureNameKnob = new StringParameter("tex", "tunneltex.png");
+  public final StringParameter textureNameKnob = new StringParameter("tex", "atext.png");
   public DiscreteParameter textureKnob;
   public final BooleanParameter audioKnob = new BooleanParameter("Audio", true);
   public final CompoundParameter knob1 =
@@ -196,27 +196,39 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
     synchronized (toy) {
       if (texImage != null) texImage.release();
       texImage = new DwGLTexture();
-      // Textures are resized to 256x256 for GL hardware.
-      int wh = 256;
+      // Textures are resized to 256x256 for GL hardware by default.
+      int twidth = 256;
+      int theight = 256;
       textureImage = RainbowStudio.pApplet.loadImage("textures/" + textureNameKnob.getString());
-      textureImage.resize(wh, wh);
+
+      // The special texture map font uses a 1024x1024 texture, so go ahead and use it.  For everything else
+      // force the image to be 256x256.
+      if ("atext.png".equals(textureNameKnob.getString())) {
+        twidth = textureImage.width;
+        theight = textureImage.height;
+      } else {
+        textureImage.resize(twidth, theight);
+      }
       logger.info("ShaderToy image texture " + textureNameKnob.getString() + " size=" + textureImage.width + "x" + textureImage.height);
       textureImage.loadPixels();
-      byte[] pixdata = new byte[wh * wh * 4];
+
+      byte[] pixdata = new byte[twidth * theight * 4];
       ByteBuffer pixBuffer = ByteBuffer.wrap(pixdata);
-      for (int y = 0; y < wh; y++) {
-        for (int x = 0; x < wh; x++) {
-          int loc = x + y * wh;
+      for (int y = 0; y < theight; y++) {
+        for (int x = 0; x < theight; x++) {
+          int loc = x + y * twidth;
           int bufferLoc = loc * 4;
+          // 0,0 is on the bottom left in texture and top left in image. swap the y coords.
+          loc = x +  twidth * ((theight - 1) - y);
           // The functions red(), green(), and blue() pull out the 3 color components from a pixel.
           pixdata[bufferLoc++] = LXColor.red(textureImage.pixels[loc]);
           pixdata[bufferLoc++] = LXColor.green(textureImage.pixels[loc]);
           pixdata[bufferLoc++] = LXColor.blue(textureImage.pixels[loc]);
-          pixdata[bufferLoc++] = LXColor.alpha(textureImage.pixels[loc]);
+          pixdata[bufferLoc] = LXColor.alpha(textureImage.pixels[loc]);
         }
       }
       logger.info("Creating texture for ShaderToy.");
-      texImage.resize(context, GL2.GL_RGBA8, wh, wh, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 4, 1, pixBuffer);
+      texImage.resize(context, GL2.GL_RGBA8, twidth, theight, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 4, 1, pixBuffer);
     }
   }
 
@@ -269,7 +281,7 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
       toy.set_iChannel(2, texNoise);
       toy.set_iChannel(1, texImage);
     }
-    pg.background(0);
+    pg.background(0, 0);
     if (toy == null) {
       return;
     }
