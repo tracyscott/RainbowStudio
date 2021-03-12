@@ -33,6 +33,12 @@ public class AnimatedSpritePP extends PGPixelPerfect implements CustomDeviceUI {
   public final CompoundParameter xSpeed =
       new CompoundParameter("XSpd", 1, 20)
           .setDescription("X speed in pixels per frame");
+  public final CompoundParameter xOff =
+      new CompoundParameter("Xoff", 0, 420)
+          .setDescription("X offset");
+  public final CompoundParameter yOff =
+      new CompoundParameter("Yoff", 0, 30)
+          .setDescription("Y offset");
   public final BooleanParameter clockwise = new BooleanParameter("clockwise", false);
 
   private List<FileItem> fileItems = new ArrayList<>();
@@ -47,6 +53,8 @@ public class AnimatedSpritePP extends PGPixelPerfect implements CustomDeviceUI {
     addParameter(xSpeed);
     addParameter(spriteFileKnob);
     addParameter(clockwise);
+    addParameter(xOff);
+    addParameter(yOff);
     spriteFiles = PathUtils.findDataFiles(SPRITE_DIR, ".gif");
     for (String filename : spriteFiles) {
       // Use a name that's suitable for the knob
@@ -75,7 +83,7 @@ public class AnimatedSpritePP extends PGPixelPerfect implements CustomDeviceUI {
             ? 0 - frameImg.width + 1
             : pg.width + frameImg.width + 1;
       }
-      pg.image(frameImg, currentPos, 0);
+      pg.image(frameImg, currentPos + (int)xOff.getValue(), (int)yOff.getValue());
       currentPos += (xSpeed.getValue() * (clockwise.getValueb() ? 1 : -1));
     }
     catch (ArrayIndexOutOfBoundsException ex) {
@@ -119,6 +127,12 @@ public class AnimatedSpritePP extends PGPixelPerfect implements CustomDeviceUI {
         .setWidth(24)
         .setHeight(16)
         .addToContainer(knobsContainer);
+    knobsContainer.addToContainer(device);
+    knobsContainer = new UI2dContainer(0, 30, device.getWidth(), 45);
+    knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
+    knobsContainer.setPadding(3, 3, 3, 3);
+    new UIKnob(xOff).addToContainer(knobsContainer);
+    new UIKnob(yOff).addToContainer(knobsContainer);
     knobsContainer.addToContainer(device);
 
     UI2dContainer filenameEntry = new UI2dContainer(0, 0, device.getWidth(), 30);
