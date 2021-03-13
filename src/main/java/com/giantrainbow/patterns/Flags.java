@@ -14,6 +14,8 @@ import heronarts.lx.LX;
 import heronarts.lx.LXPattern;
 import heronarts.lx.color.LXColor;
 import heronarts.lx.model.LXPoint;
+import heronarts.lx.parameter.BooleanParameter;
+import heronarts.lx.parameter.CompoundParameter;
 import heronarts.lx.parameter.DiscreteParameter;
 
 /**
@@ -25,6 +27,19 @@ public class Flags extends LXPattern {
   public final DiscreteParameter flagKnob =
       new DiscreteParameter("Flag", 0, 4)
           .setDescription("Which flag.");
+
+  public final CompoundParameter maxX =
+      new CompoundParameter("MaxX", 420, 0, 421)
+          .setDescription("Maxium x value to render to.");
+
+  public final BooleanParameter once =
+      new BooleanParameter("once", true)
+      .setDescription("Auto-swipe then stop");
+
+  public CompoundParameter speed =
+      new CompoundParameter("speed", 1.0, 0.0, 10.0)
+      .setDescription("Speed of swipe");
+
 
   private int[] lgbtFlag;
   private int[] biFlag;
@@ -80,7 +95,22 @@ public class Flags extends LXPattern {
     flagKnob.setValue(0);
     addParameter(flagKnob);
     flag = flags[round((float)(flagKnob.getValue()))];
+    addParameter(maxX);
+    addParameter(once);
+    addParameter(speed);
   }
+
+  /**
+   * If we have it set up for a one-time swipe, then when the pattern becomes active,
+   * reset the maxX value so that it does the sweep again.
+   */
+  @Override
+  public void onActive() {
+      if (once.getValueb()) {
+        maxX.setValue(0);
+      }
+  }
+
 
   public void run(double deltaMs) {
     int numRows = ((RainbowBaseModel)lx.model).pointsHigh;
@@ -92,19 +122,29 @@ public class Flags extends LXPattern {
     int pointNumber = 0;
     for (LXPoint p : model.points) {
       int rowNumber = pointNumber / numPixelsPerRow;
-      if (flag == lgbtFlag || flag == transFlag || flag == panFlag) {
-        colors[p.index] = flag[rowNumber / (numRows/flag.length)];
-      } else if (flag == biFlag) {
-        // 2-1-2 ratio of thickness = 5 so each unit is 6 rows 12-6-12
-        if (rowNumber > 17) {
-          colors[p.index] = biFlag[2];
-        } else if (rowNumber < 12) {
-          colors[p.index] = biFlag[1];
-        } else {
-          colors[p.index] = biFlag[0];
+      int colNumber = pointNumber % numPixelsPerRow;
+      if (colNumber < (int)maxX.getValue()) {
+        if (flag == lgbtFlag || flag == transFlag || flag == panFlag) {
+          colors[p.index] = flag[rowNumber / (numRows / flag.length)];
+        } else if (flag == biFlag) {
+          // 2-1-2 ratio of thickness = 5 so each unit is 6 rows 12-6-12
+          if (rowNumber > 17) {
+            colors[p.index] = biFlag[2];
+          } else if (rowNumber < 12) {
+            colors[p.index] = biFlag[1];
+          } else {
+            colors[p.index] = biFlag[0];
+          }
         }
+      } else {
+        colors[p.index] = 0xFF000000;
       }
       ++pointNumber;
+    }
+    // For the once-only swipe, we increase the maxX in the code and then reset maxX to zero in
+    // onActive.  This effectively causes a single swipe until the pattern gets played another time.
+    if (once.getValueb()) {
+      maxX.setValue( maxX.getValue() + speed.getValue());
     }
   }
 }
