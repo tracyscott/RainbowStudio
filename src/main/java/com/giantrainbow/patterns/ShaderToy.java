@@ -116,6 +116,10 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
     addParameter(U1y);
     addParameter(U1z);
     addParameter(U1w);
+    addParameter(U2x);
+    addParameter(U2y);
+    addParameter(U2z);
+    addParameter(U2w);
     addParameter(shaderFileKnob);
     addParameter(textureNameKnob);
 
