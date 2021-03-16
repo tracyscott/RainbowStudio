@@ -31,6 +31,7 @@ import java.util.logging.Logger;
 import processing.core.PConstants;
 import processing.core.PGraphics;
 import processing.core.PImage;
+import processing.opengl.PGraphicsOpenGL;
 
 /**
  * This copies shaders from the data/ area into a local shaders/ directory if they don't
@@ -43,7 +44,7 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
   public final StringParameter shaderFileKnob = new StringParameter("frag", "sparkles");
   // textureNameKnob is loaded/saved. textureKnob is just an intermediate knob used for the
   // drop down texture selector.
-  public final StringParameter textureNameKnob = new StringParameter("tex", "atext.png");
+  public final StringParameter textureNameKnob = new StringParameter("tex", "NO TEXTURE");
   public DiscreteParameter textureKnob;
   public final BooleanParameter audioKnob = new BooleanParameter("Audio", true);
   public final CompoundParameter knob1 =
@@ -58,6 +59,31 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
   public final CompoundParameter knob4 =
       new CompoundParameter("K4", 0, 1)
           .setDescription("Mapped to iMouse.w");
+  public final CompoundParameter U1x =
+      new CompoundParameter("U1x", 0, 1)
+          .setDescription("Mapped to U1.x");
+  public final CompoundParameter U1y =
+      new CompoundParameter("U1y", 0, 1)
+          .setDescription("Mapped to U1.y");
+  public final CompoundParameter U1z =
+      new CompoundParameter("U1z", 0, 1)
+          .setDescription("Mapped to U1.z");
+  public final CompoundParameter U1w =
+      new CompoundParameter("U1w", 0, 1)
+          .setDescription("Mapped to U1.w");
+  public final CompoundParameter U2x =
+      new CompoundParameter("U2x", 0, 1)
+          .setDescription("Mapped to U2.x");
+  public final CompoundParameter U2y =
+      new CompoundParameter("U2y", 0, 1)
+          .setDescription("Mapped to U2.y");
+  public final CompoundParameter U2z =
+      new CompoundParameter("U2z", 0, 1)
+          .setDescription("Mapped to U2.z");
+  public final CompoundParameter U2w =
+      new CompoundParameter("U2w", 0, 1)
+          .setDescription("Mapped to U2.w");
+
 
   List<FileItem> fileItems = new ArrayList<FileItem>();
   UIItemList.ScrollList fileItemList;
@@ -71,8 +97,9 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
   DwGLTexture texImage = null;
   PGraphics toyGraphics;
   PImage textureImage;
+  float[] U1, U2;
 
-  private static final int CONTROLS_MIN_WIDTH = 200;
+  private static final int CONTROLS_MIN_WIDTH = 320;
 
   private static final String SHADER_DATA_DIR = "";
   private static final String LOCAL_SHADER_DIR = "shaders/";
@@ -85,9 +112,15 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
     addParameter(knob2);
     addParameter(knob3);
     addParameter(knob4);
+    addParameter(U1x);
+    addParameter(U1y);
+    addParameter(U1z);
+    addParameter(U1w);
     addParameter(shaderFileKnob);
     addParameter(textureNameKnob);
 
+    U1 = new float[4];
+    U2 = new float[4];
     toyGraphics = RainbowStudio.pApplet.createGraphics(pg.width, pg.height, P2D);
     loadShader(shaderFileKnob.getString());
     // context initialized in loadShader, print the GL hardware once when loading
@@ -195,40 +228,46 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
   public void loadTextureChannel() {
     synchronized (toy) {
       if (texImage != null) texImage.release();
-      texImage = new DwGLTexture();
-      // Textures are resized to 256x256 for GL hardware by default.
-      int twidth = 256;
-      int theight = 256;
-      textureImage = RainbowStudio.pApplet.loadImage("textures/" + textureNameKnob.getString());
+      if (!"NO TEXTURE".equals(textureNameKnob.getString())) {
+        texImage = new DwGLTexture();
+        // Textures are resized to 256x256 for GL hardware by default.
+        int twidth = 256;
+        int theight = 256;
+        textureImage = RainbowStudio.pApplet.loadImage("textures/" + textureNameKnob.getString());
 
-      // The special texture map font uses a 1024x1024 texture, so go ahead and use it.  For everything else
-      // force the image to be 256x256.
-      if ("atext.png".equals(textureNameKnob.getString())) {
-        twidth = textureImage.width;
-        theight = textureImage.height;
-      } else {
-        textureImage.resize(twidth, theight);
-      }
-      logger.info("ShaderToy image texture " + textureNameKnob.getString() + " size=" + textureImage.width + "x" + textureImage.height);
-      textureImage.loadPixels();
-
-      byte[] pixdata = new byte[twidth * theight * 4];
-      ByteBuffer pixBuffer = ByteBuffer.wrap(pixdata);
-      for (int y = 0; y < theight; y++) {
-        for (int x = 0; x < theight; x++) {
-          int loc = x + y * twidth;
-          int bufferLoc = loc * 4;
-          // 0,0 is on the bottom left in texture and top left in image. swap the y coords.
-          loc = x +  twidth * ((theight - 1) - y);
-          // The functions red(), green(), and blue() pull out the 3 color components from a pixel.
-          pixdata[bufferLoc++] = LXColor.red(textureImage.pixels[loc]);
-          pixdata[bufferLoc++] = LXColor.green(textureImage.pixels[loc]);
-          pixdata[bufferLoc++] = LXColor.blue(textureImage.pixels[loc]);
-          pixdata[bufferLoc] = LXColor.alpha(textureImage.pixels[loc]);
+        // The special texture map font uses a 1024x1024 texture, so go ahead and use it.  For everything else
+        // force the image to be 256x256.
+        if ("atext.png".equals(textureNameKnob.getString())) {
+          logger.info("a text texture dim: " + twidth + "x" + theight);
+          twidth = textureImage.width;
+          theight = textureImage.height;
+        } else {
+          logger.info("texture dim: " + twidth + "x" + theight);
+          textureImage.resize(twidth, theight);
         }
+        logger.info("ShaderToy image texture " + textureNameKnob.getString() + " size=" + textureImage.width + "x" + textureImage.height);
+        textureImage.loadPixels();
+
+        byte[] pixdata = new byte[twidth * theight * 4];
+        ByteBuffer pixBuffer = ByteBuffer.wrap(pixdata);
+        for (int y = 0; y < theight; y++) {
+          for (int x = 0; x < theight; x++) {
+            int loc = x + y * twidth;
+            int bufferLoc = loc * 4;
+            // 0,0 is on the bottom left in texture and top left in image. swap the y coords.
+            loc = x + twidth * ((theight - 1) - y);
+            // The functions red(), green(), and blue() pull out the 3 color components from a pixel.
+            pixdata[bufferLoc++] = LXColor.red(textureImage.pixels[loc]);
+            pixdata[bufferLoc++] = LXColor.green(textureImage.pixels[loc]);
+            pixdata[bufferLoc++] = LXColor.blue(textureImage.pixels[loc]);
+            pixdata[bufferLoc] = LXColor.alpha(textureImage.pixels[loc]);
+          }
+        }
+        logger.info("Creating texture for ShaderToy.");
+        texImage.resize(context, GL2.GL_RGBA8, twidth, theight, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 4, 1, pixBuffer);
+      } else {
+        texImage = null;
       }
-      logger.info("Creating texture for ShaderToy.");
-      texImage.resize(context, GL2.GL_RGBA8, twidth, theight, GL2.GL_RGBA, GL2.GL_UNSIGNED_BYTE, GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 4, 1, pixBuffer);
     }
   }
 
@@ -279,18 +318,70 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
     synchronized (toy) {
       toy.set_iChannel(0, texAudio);
       toy.set_iChannel(2, texNoise);
-      toy.set_iChannel(1, texImage);
+      if (texImage != null)
+        toy.set_iChannel(1, texImage);
     }
     pg.background(0, 0);
     if (toy == null) {
       return;
     }
     toy.set_iMouse(knob1.getValuef(), knob2.getValuef(), knob3.getValuef(), knob4.getValuef());
-    toy.apply(toyGraphics);
+    U1[0] = U1x.getValuef();
+    U1[1] = U1y.getValuef();
+    U1[2] = U1z.getValuef();
+    U1[3] = U1w.getValuef();
+
+    U2[0] = U2x.getValuef();
+    U2[1] = U2y.getValuef();
+    U2[2] = U2z.getValuef();
+    U2[3] = U2w.getValuef();
+    //toy.apply(toyGraphics);
+    shaderApply((PGraphicsOpenGL) toyGraphics);
     toyGraphics.loadPixels();
     toyGraphics.updatePixels();
     pg.image(toyGraphics, 0, 0);
     texAudio.release();
+  }
+
+  protected void shaderApply(PGraphicsOpenGL pg_dst) {
+    toy.resize(pg_dst.width, pg_dst.height);
+    pg_dst.getTexture();
+    toy.context.begin();
+    toy.context.beginDraw(pg_dst);
+    shaderRender(pg_dst.width, pg_dst.height);
+    toy.context.endDraw();
+    toy.context.end();
+  }
+
+  protected void shaderRender(int w, int h) {
+
+    toy.set_iResolution(w, h, 1f);
+    toy.set_iFrameRate(context.papplet.frameRate);
+    toy.set_iTimeDelta(1f/context.papplet.frameRate);
+    toy.set_iTime();
+    toy.set_iDate();
+
+    toy.shader.begin();
+    toy.shader.uniform3fv    ("iResolution"       , 1, toy.iResolution       );
+    toy.shader.uniform1f     ("iTime"             , toy.iTime                );
+    toy.shader.uniform1f     ("iTimeDelta"        , toy.iTimeDelta           );
+    toy.shader.uniform1i     ("iFrame"            , toy.iFrame               );
+    toy.shader.uniform1f     ("iFrameRate"        , toy.iFrameRate           );
+    toy.shader.uniform4fv    ("iMouse"            , 1, toy.iMouse            );
+    toy.shader.uniform4fv    ("iDate"             , 1, toy.iDate             );
+    toy.shader.uniform1f     ("iSampleRate"       , toy.iSampleRate          );
+    toy.shader.uniform1fv    ("iChannelTime"      , 4, toy.iChannelTime      );
+    toy.shader.uniform3fv    ("iChannelResolution", 4, toy.iChannelResolution);
+    toy.shader.uniformTexture("iChannel0"         , toy.iChannel[0]          );
+    toy.shader.uniformTexture("iChannel1"         , toy.iChannel[1]          );
+    toy.shader.uniformTexture("iChannel2"         , toy.iChannel[2]          );
+    toy.shader.uniformTexture("iChannel3"         , toy.iChannel[3]          );
+    toy.shader.uniform4fv    ("U1", 1, U1);
+    toy.shader.uniform4fv    ("U2", 1, U2);
+    toy.shader.drawFullScreenQuad();
+    toy.shader.end();
+
+    toy.set_iFrame(toy.iFrame + 1);
   }
 
   protected InputStream getFile() {
@@ -304,19 +395,49 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
     public void buildDeviceUI(UI ui, final UI2dContainer device) {
     device.setContentWidth(CONTROLS_MIN_WIDTH);
     device.setLayout(UI2dContainer.Layout.VERTICAL);
-    device.setPadding(3, 3, 3, 3);
+    device.setPadding(0, 0, 0, 0);
 
     UI2dContainer knobsContainer = new UI2dContainer(0, 30, device.getWidth(), 45);
     knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
     knobsContainer.setPadding(0, 0, 0, 0);
-    new UIKnob(fpsKnob).addToContainer(knobsContainer);
-    new UIKnob(knob1).addToContainer(knobsContainer);
-    new UIKnob(knob2).addToContainer(knobsContainer);
-    new UIKnob(knob3).addToContainer(knobsContainer);
-    new UIKnob(knob4).addToContainer(knobsContainer);
+    int knobWidth = 35;
+    new UIKnob(fpsKnob).setWidth(knobWidth).addToContainer(knobsContainer);
+    new UIKnob(knob1).setWidth(knobWidth).addToContainer(knobsContainer);
+    new UIKnob(knob2).setWidth(knobWidth).addToContainer(knobsContainer);
+    new UIKnob(knob3).setWidth(knobWidth).addToContainer(knobsContainer);
+    new UIKnob(knob4).setWidth(knobWidth).addToContainer(knobsContainer);
+    new UIKnob(U1x).setWidth(knobWidth).addToContainer(knobsContainer);
+    new UIKnob(U1y).setWidth(knobWidth).addToContainer(knobsContainer);
+    new UIKnob(U1z).setWidth(knobWidth).addToContainer(knobsContainer);
+    new UIKnob(U1w).setWidth(knobWidth).addToContainer(knobsContainer);
     knobsContainer.addToContainer(device);
 
-    new UIDropMenu(0f, 0f, device.getWidth() - 30f, 20f, textureKnob) {
+    UI2dContainer bottomHalf = new UI2dContainer(0, 45, device.getWidth() - 30, device.getHeight() - 45);
+    bottomHalf.setLayout(UI2dContainer.Layout.HORIZONTAL);
+    bottomHalf.addToContainer(device);
+    bottomHalf.setPadding(0);
+
+    UI2dContainer leftPanel = new UI2dContainer(0, 0, device.getWidth()/2 - 15, device.getHeight() - 45);
+    leftPanel.setLayout(UI2dContainer.Layout.VERTICAL);
+    leftPanel.addToContainer(bottomHalf);
+    leftPanel.setPadding(0);
+
+    UI2dContainer rightPanel = new UI2dContainer(0, 0, device.getWidth()/2 - 15, device.getHeight() - 45);
+    rightPanel.setLayout(UI2dContainer.Layout.VERTICAL);
+    rightPanel.addToContainer(bottomHalf);
+    rightPanel.setPadding(0);
+
+    UI2dContainer u2KnobsContainer = new UI2dContainer(0, 0, rightPanel.getWidth() - 10, 45);
+    u2KnobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
+    u2KnobsContainer.addToContainer(rightPanel);
+    u2KnobsContainer.setPadding(0);
+    new UIKnob(U2x).setWidth(knobWidth).addToContainer(u2KnobsContainer);
+    new UIKnob(U2y).setWidth(knobWidth).addToContainer(u2KnobsContainer);
+    new UIKnob(U2z).setWidth(knobWidth).addToContainer(u2KnobsContainer);
+    new UIKnob(U2w).setWidth(knobWidth).addToContainer(u2KnobsContainer);
+
+
+    new UIDropMenu(0f, 0f, leftPanel.getWidth(), 20f, textureKnob) {
       public void onParameterChanged(LXParameter p) {
         DiscreteParameter dp = (DiscreteParameter)p;
         String textureFilename = textureFiles.get(dp.getValuei());
@@ -325,19 +446,19 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
         textureNameKnob.setValue(f.getName());
         loadTextureChannel();
       }
-    }.setOptions(textureFiles.toArray(new String[textureFiles.size()])).setDirection(UIDropMenu.Direction.UP).addToContainer(device);
+    }.setOptions(textureFiles.toArray(new String[textureFiles.size()])).setDirection(UIDropMenu.Direction.UP).addToContainer(leftPanel);
 
-    UI2dContainer filenameEntry = new UI2dContainer(0, 0, device.getWidth(), 30);
+    UI2dContainer filenameEntry = new UI2dContainer(0, 0, leftPanel.getWidth(), 30);
     filenameEntry.setLayout(UI2dContainer.Layout.HORIZONTAL);
 
-    fileItemList =  new UIItemList.ScrollList(ui, 0, 5, CONTROLS_MIN_WIDTH, 80);
-    new UITextBox(0, 0, device.getContentWidth() - 22, 20)
+    fileItemList =  new UIItemList.ScrollList(ui, 0, 5, leftPanel.getWidth(), 80);
+    new UITextBox(0, 0, leftPanel.getWidth() - 22, 20)
       .setParameter(shaderFileKnob)
       .setTextAlignment(PConstants.LEFT)
       .addToContainer(filenameEntry);
 
     // Button for reloading shader.
-    new UIButton(device.getContentWidth() - 20, 0, 20, 20) {
+    new UIButton(leftPanel.getWidth() - 20, 0, 22, 20) {
       @Override
         public void onToggle(boolean on) {
         if (on) {
@@ -346,11 +467,11 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
       }
     }
     .setLabel("\u21BA").setMomentary(true).addToContainer(filenameEntry);
-    filenameEntry.addToContainer(device);
+    filenameEntry.addToContainer(leftPanel);
 
 
     // Button for editing a file.
-    new UIButton(0, 24, device.getContentWidth(), 16) {
+    new UIButton(0, 24, leftPanel.getWidth(), 16) {
       @Override
       public void onToggle(boolean on) {
         if (!on) {
@@ -366,12 +487,12 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
         }
       }
     }
-    .setLabel("Edit").setMomentary(true).addToContainer(device);
+    .setLabel("Edit").setMomentary(true).addToContainer(leftPanel);
 
-    fileItemList =  new UIItemList.ScrollList(ui, 0, 5, CONTROLS_MIN_WIDTH, 50);
+    fileItemList =  new UIItemList.ScrollList(ui, 0, 5, leftPanel.getWidth(), 50);
     fileItemList.setShowCheckboxes(false);
     fileItemList.setItems(fileItems);
-    fileItemList.addToContainer(device);
+    fileItemList.addToContainer(leftPanel);
   }
 
   public class FileItem extends FileItemBase {
