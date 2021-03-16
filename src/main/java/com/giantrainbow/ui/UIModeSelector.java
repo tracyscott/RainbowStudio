@@ -2,8 +2,7 @@ package com.giantrainbow.ui;
 
 import com.giantrainbow.UtilsForLX;
 import com.giantrainbow.patterns.AnimatedTextPP;
-//import com.giantrainbow.patterns.Cylon;
-//import com.giantrainbow.patterns.NyanCat;
+import com.giantrainbow.patterns.TextFx;
 import heronarts.lx.*;
 import heronarts.lx.parameter.BooleanParameter;
 import heronarts.lx.parameter.BoundedParameter;
@@ -446,17 +445,16 @@ public class UIModeSelector extends UICollapsibleSection {
       if (!UIModeSelector.this.standardModeP.getValueb())
         return;
 
-      // Disable Standard-mode channel switching for AnimatedTextPP patterns to prevent
+      // Disable Standard-mode channel switching for AnimatedTextPP/TextFX patterns to prevent
       // fading in the middle of text.  We achieve this by effectively stalling the
       // currentChannelPlayTime until the current channel is no longer an
-      // AnimatedTextPP pattern.
+      // AnimatedTextPP/TextFX pattern.
       LXChannelBus channelBus = standardModeChannels.get(currentPlayingChannel);
       if (channelBus instanceof LXChannel) {
         LXChannel c = (LXChannel) channelBus;
         if (c.patterns.size() > 0) {
           LXPattern p = c.getActivePattern();
-          if (p instanceof AnimatedTextPP //|| p instanceof Cylon || p instanceof NyanCat
-             ) {
+          if (p instanceof AnimatedTextPP || p instanceof TextFx) {
             currentChannelPlayTime = 0.0;
           }
         }
@@ -466,8 +464,7 @@ public class UIModeSelector extends UICollapsibleSection {
           for (LXChannel c : g.channels) {
             if (c.patterns.size() > 0) {
               LXPattern p = c.getActivePattern();
-              if (p instanceof AnimatedTextPP //|| p instanceof Cylon || p instanceof NyanCat
-                 ) {
+              if (p instanceof AnimatedTextPP || p instanceof TextFx) {
                 currentChannelPlayTime = 0.0;
               }
             }
