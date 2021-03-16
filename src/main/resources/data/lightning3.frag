@@ -21,6 +21,9 @@ uniform float iSampleRate;           // image/buffer/sound    The sound sample r
 uniform float iChannelTime[4];       // image/buffer          Time for channel (if video or sound), in seconds
 uniform vec3  iChannelResolution[4]; // image/buffer/sound    Input texture resolution for each channel
 
+uniform vec4 U1;
+uniform vec4 U2;
+
 #ifdef GL_ES
 precision mediump float;
 #endif
@@ -110,8 +113,9 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
   //uv.y = uv.y * 4. - 2.;
   vec2 p = fragCoord.xy/iResolution.x;
   vec3 p3 = vec3(p, iTime*iMouse.w);
+  float fractalVar = 12.0;
 
-  float intensity = 10.0 * iMouse.y * simplex3d_fractal(vec3(p3*12.0+12.0));
+  float intensity = 10.0 * iMouse.y * simplex3d_fractal(vec3(p3*fractalVar+fractalVar));
 
   float t = clamp((uv.x * -uv.x * 0.16) + 0.15, 0., 1.);
   float y = abs(intensity * -t + uv.y);
@@ -119,7 +123,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
   float g = pow(y, 0.8 * iMouse.z);
 
   // TODO(tracy): Set this numbers based on hue passed in iMouse.x
-  vec3 col = vec3(2.70, 1.8, 1.2); 
+  vec3 col = vec3(3.*U1.x, 3.*U1.y, 3.*U1.z);
   //col = vec3(1.70, 1.48, 1.78);
   col = col * -g + col;
   col = col * col;
@@ -128,6 +132,9 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
   float thickness = 40.0 * iMouse.x;
   col *= thickness;
 
+  col *= vec3(U2.x, U2.y, U2.z);
   fragColor.rgb = col;
-  fragColor.w = 1.;
+  fragColor.w = U2.w;
+  if (col.r + col.g + col.b < 0.2)
+    fragColor.w = 0.;
 }
