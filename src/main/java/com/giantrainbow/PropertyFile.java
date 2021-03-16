@@ -68,7 +68,7 @@ public class PropertyFile {
       obj = new Gson().fromJson(fr, JsonObject.class);
       System.out.println("PropertyFile loaded successfully from " + file.toString());
     } catch (IOException iox) {
-      System.err.println("Could not load property file: " + iox.getMessage());
+      System.err.println("Could not load property file " + filename + ": " + iox.getMessage());
       throw iox;
     } finally {
       if (fr != null) {
