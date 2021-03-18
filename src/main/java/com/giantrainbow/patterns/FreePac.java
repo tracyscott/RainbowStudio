@@ -16,11 +16,11 @@ import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.parameter.BooleanParameter;
 import heronarts.lx.parameter.CompoundParameter;
+import heronarts.lx.parameter.DiscreteParameter;
 import java.util.Random;
 import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
-import heronarts.lx.parameter.DiscreteParameter;
 import org.joml.Vector3f;
 import processing.core.PImage;
 import processing.core.PVector;
@@ -31,7 +31,12 @@ import java.util.Collections;
 @LXCategory(LXCategory.FORM)
 public class FreePac extends CanvasPattern2D {
     public final static String[] messages = {
-	"End Trump",
+	"Stay Strong",
+	"Mask Up",
+	"Beat Covid",
+	"Black Lives Matters",
+	"Fight Racism",
+	"Trump Is A Loser",
     };
 
     public final static int letterFreqs[] = {
@@ -88,7 +93,7 @@ public class FreePac extends CanvasPattern2D {
 
     public static final float TOO_CLOSE = rangeRadius / 6;
 
-    public static final double HZ = 4000;
+    public static final double HZ = 7000;
 
     public static final long MIN_PERIOD = 5;
     public static final long MAX_PERIOD = 15;
@@ -97,13 +102,13 @@ public class FreePac extends CanvasPattern2D {
     public static final float STRIDE = rangeRadius * 0.9f;
 
     public final CompoundParameter sizeKnob =
-	new CompoundParameter("FontSize", 68.20, 10, MAX_FONT_SIZE).setDescription("FontSize");
+	new CompoundParameter("FontSize", 48.20, 10, MAX_FONT_SIZE).setDescription("FontSize");
 
     public final CompoundParameter speedKnob =
 	new CompoundParameter("Speed", 5, 0, 10).setDescription("Speed");
     
-    public final BooleanParameter brightKnob =
-	new BooleanParameter("Bright", false);
+    public final DiscreteParameter styleKnob =
+	new DiscreteParameter("Style", 3);
     
     PFont font;
     PImage colorPlane;
@@ -140,7 +145,7 @@ public class FreePac extends CanvasPattern2D {
 	super(lx);
 	addParameter(sizeKnob);
 	addParameter(speedKnob);
-	addParameter(brightKnob);
+	addParameter(styleKnob);
 	removeParameter(fpsKnob);
 
 	this.font = RainbowStudio.pApplet.createFont("fonts/Roboto/Roboto-Regular.ttf",
@@ -411,12 +416,15 @@ public class FreePac extends CanvasPattern2D {
 
 	    int c;
 	    int a = 255;
+	    int style = styleKnob.getValue();
 
-		if (brightKnob.getValue() > 0) {
+		if (style == 0) {
 		    c = fullGradient.index(number);
-		} else {
+		} else if style == 1 {
 		    c = this.color;
-		}
+		    } else if style == 2 {
+			// @@@
+		    }
 
 		if (goal == GoalState.UNINVOLVED) {
 		    if (epoch == nextShowEpoch) {
