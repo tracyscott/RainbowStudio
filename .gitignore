@@ -22,5 +22,7 @@ cmd
 *.class
 videos/
 videotmp.mp4
+program.json
+stdchannels.json
 
 
