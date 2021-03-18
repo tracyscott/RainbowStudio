@@ -97,7 +97,7 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
   DwGLTexture texImage = null;
   PGraphics toyGraphics;
   PImage textureImage;
-  float[] U1, U2;
+  float[] u1, u2;
 
   private static final int CONTROLS_MIN_WIDTH = 320;
 
@@ -123,8 +123,8 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
     addParameter(shaderFileKnob);
     addParameter(textureNameKnob);
 
-    U1 = new float[4];
-    U2 = new float[4];
+    u1 = new float[4];
+    u2 = new float[4];
     toyGraphics = RainbowStudio.pApplet.createGraphics(pg.width, pg.height, P2D);
     loadShader(shaderFileKnob.getString());
     // context initialized in loadShader, print the GL hardware once when loading
@@ -330,34 +330,34 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
       return;
     }
     toy.set_iMouse(knob1.getValuef(), knob2.getValuef(), knob3.getValuef(), knob4.getValuef());
-    U1[0] = U1x.getValuef();
-    U1[1] = U1y.getValuef();
-    U1[2] = U1z.getValuef();
-    U1[3] = U1w.getValuef();
+    u1[0] = U1x.getValuef();
+    u1[1] = U1y.getValuef();
+    u1[2] = U1z.getValuef();
+    u1[3] = U1w.getValuef();
 
-    U2[0] = U2x.getValuef();
-    U2[1] = U2y.getValuef();
-    U2[2] = U2z.getValuef();
-    U2[3] = U2w.getValuef();
+    u2[0] = U2x.getValuef();
+    u2[1] = U2y.getValuef();
+    u2[2] = U2z.getValuef();
+    u2[3] = U2w.getValuef();
     //toy.apply(toyGraphics);
-    shaderApply((PGraphicsOpenGL) toyGraphics);
+    shaderApply(context, toy, (PGraphicsOpenGL) toyGraphics, u1, u2);
     toyGraphics.loadPixels();
     toyGraphics.updatePixels();
     pg.image(toyGraphics, 0, 0);
     texAudio.release();
   }
 
-  protected void shaderApply(PGraphicsOpenGL pg_dst) {
+  static public void shaderApply(DwPixelFlow context, DwShadertoy toy, PGraphicsOpenGL pg_dst, float[] u1, float[] u2) {
     toy.resize(pg_dst.width, pg_dst.height);
     pg_dst.getTexture();
     toy.context.begin();
     toy.context.beginDraw(pg_dst);
-    shaderRender(pg_dst.width, pg_dst.height);
+    shaderRender(context, toy, pg_dst.width, pg_dst.height, u1, u2);
     toy.context.endDraw();
     toy.context.end();
   }
 
-  protected void shaderRender(int w, int h) {
+  static public void shaderRender(DwPixelFlow context, DwShadertoy toy, int w, int h, float[] u1, float[] u2) {
 
     toy.set_iResolution(w, h, 1f);
     toy.set_iFrameRate(context.papplet.frameRate);
@@ -380,8 +380,8 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
     toy.shader.uniformTexture("iChannel1"         , toy.iChannel[1]          );
     toy.shader.uniformTexture("iChannel2"         , toy.iChannel[2]          );
     toy.shader.uniformTexture("iChannel3"         , toy.iChannel[3]          );
-    toy.shader.uniform4fv    ("U1", 1, U1);
-    toy.shader.uniform4fv    ("U2", 1, U2);
+    toy.shader.uniform4fv    ("U1", 1, u1);
+    toy.shader.uniform4fv    ("U2", 1, u2);
     toy.shader.drawFullScreenQuad();
     toy.shader.end();
 
