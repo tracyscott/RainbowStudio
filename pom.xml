@@ -133,6 +133,13 @@
             <artifactId>jcodec-javase</artifactId>
             <version>0.2.5</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.jbox2d/jbox2d-library -->
+        <dependency>
+            <groupId>org.jbox2d</groupId>
+            <artifactId>jbox2d-library</artifactId>
+            <version>2.2.1.1</version>
+        </dependency>
+
 
         <dependency>
             <groupId>heronarts.lx</groupId>
