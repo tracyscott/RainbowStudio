@@ -20,7 +20,8 @@ uniform vec4  iDate;                 // image/buffer/sound    Year, month, day, 
 uniform float iSampleRate;           // image/buffer/sound    The sound sample rate (typically 44100)
 uniform float iChannelTime[4];       // image/buffer          Time for channel (if video or sound), in seconds
 uniform vec3  iChannelResolution[4]; // image/buffer/sound    Input texture resolution for each channel
-
+uniform vec4  U1;
+uniform vec4  U2;
 #ifdef GL_ES
 precision mediump float;
 #endif
@@ -34,7 +35,7 @@ float lTime = 0.;
 
 vec3 gradient(in float r) {	
     r = 4.0 * tanh(0.1 * r); // 0.1
-    vec3 rainbow = 0.06 - 0.5 * cos(r + vec3(1.229, 0.365, 3.707)); //vec3(4.071, -0.630, 0.356));  // 0.5
+    vec3 rainbow = 0.06 - 0.5 * cos(r + vec3(1.229*U1.x, U1.y*0.365, U1.z*3.707)); //vec3(4.071, -0.630, 0.356));  // 0.5
     return rainbow;
 }
 
