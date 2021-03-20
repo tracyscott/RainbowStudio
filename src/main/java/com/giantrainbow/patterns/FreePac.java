@@ -12,6 +12,8 @@ import com.giantrainbow.colors.Gradient;
 import com.giantrainbow.model.space.Space3D;
 import com.giantrainbow.model.RainbowBaseModel;
 import com.giantrainbow.RainbowStudio;
+import com.giantrainbow.textures.Strange;
+import com.giantrainbow.textures.Positioner;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.parameter.BooleanParameter;
@@ -29,7 +31,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 @LXCategory(LXCategory.FORM)
-public class FreePac extends CanvasPattern2D {
+public class FreePac extends CanvasPattern2D implements Positioner {
     public final static String[] messages = {
 	"Stay Strong",
 	"Mask Up",
@@ -107,9 +109,6 @@ public class FreePac extends CanvasPattern2D {
     public final CompoundParameter speedKnob =
 	new CompoundParameter("Speed", 5, 0, 10).setDescription("Speed");
     
-    public final DiscreteParameter styleKnob =
-	new DiscreteParameter("Style", 3);
-    
     PFont font;
     PImage colorPlane;
     Letter [][]letters;
@@ -120,6 +119,8 @@ public class FreePac extends CanvasPattern2D {
     boolean init;
     boolean targetting;
     Gradient fullGradient;
+    Strange  strange;
+    PImage   currentStrange;
 
     int [][]messageCharIndex;
 
@@ -145,7 +146,6 @@ public class FreePac extends CanvasPattern2D {
 	super(lx);
 	addParameter(sizeKnob);
 	addParameter(speedKnob);
-	addParameter(styleKnob);
 	removeParameter(fpsKnob);
 
 	this.font = RainbowStudio.pApplet.createFont("fonts/Roboto/Roboto-Regular.ttf",
@@ -157,6 +157,7 @@ public class FreePac extends CanvasPattern2D {
 	this.nextShowEpoch = 0;
 	this.nextGoalEpoch = 0;
 	this.messageCharIndex = new int[messages.length][];
+	this.strange = new Strange(this, this, "Pulse");
 
 	out:
 	for (int l = 0; l < 26; l++) {
@@ -414,17 +415,8 @@ public class FreePac extends CanvasPattern2D {
 	    pg.translate(canvas.map.subXi((float)(this.P.X)),
 			 canvas.map.subYi((float)this.P.Y));
 
-	    int c;
 	    int a = 255;
-	    int style = styleKnob.getValue();
-
-		if (style == 0) {
-		    c = fullGradient.index(number);
-		} else if style == 1 {
-		    c = this.color;
-		    } else if style == 2 {
-			// @@@
-		    }
+	    int c = this.color;
 
 		if (goal == GoalState.UNINVOLVED) {
 		    if (epoch == nextShowEpoch) {
@@ -434,9 +426,13 @@ public class FreePac extends CanvasPattern2D {
 			double t = elapsed % 1.;
 			a = (int)(255 * t);
 		    }
+		} else {
+		    // targetTheta
+		    float f = (targetTheta - rainbowAngleStart) / rangeAngle;
+		    c = currentStrange.get((int)(420.*f), 0);
 		}
 
-		pg.fill(Colors.red(c), Colors.green(c), Colors.blue(c), a);
+	    pg.fill(Colors.red(c), Colors.green(c), Colors.blue(c), a);
 
 	    pg.rotate((float)(this.H.heading() + PI/2));
 
@@ -584,6 +580,7 @@ public class FreePac extends CanvasPattern2D {
     }
 
     public void draw(double deltaMs) {
+	currentStrange = strange.update(deltaMs);
 	elapsed += deltaMs * speedKnob.getValue() / HZ;
 
 	if (!init) {
@@ -629,4 +626,16 @@ public class FreePac extends CanvasPattern2D {
 	    l.draw();
 	}
     }
+
+  // From EpilepticWarning.java
+  int patterns[][] = {
+    {0, 1, 2, 3},
+    {4, 5, 6, 7},
+    {8, 1, 9, 6, 8, 6, 9, 1},
+  };
+
+  public int[] getPositions(int period) {
+    int idx = period % patterns.length;
+    return patterns[idx];
+  }
 }

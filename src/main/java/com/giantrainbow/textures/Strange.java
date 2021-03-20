@@ -44,7 +44,6 @@ public class Strange {
     pattern.addParameter(periodKnob);
 
     textures = new PImage[inputs.length];
-    rnd = new Random();
 
     new Thread(
             new Runnable() {
@@ -67,7 +66,6 @@ public class Strange {
 
   double elapsed;
   double pelapsed;
-  final Random rnd;
   final Positioner positioner;
 
   final float MSHZ = 1f / 10000f;
