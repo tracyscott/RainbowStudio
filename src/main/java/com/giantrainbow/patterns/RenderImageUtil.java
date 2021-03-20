@@ -50,17 +50,17 @@ class RenderImageUtil {
     lgbtFlag[5] = LXColor.rgb(228, 3, 3);
      */
     rainbow.fill(228, 3, 3);
-    rainbow.rect(0, 0, width, height/6);
+    rainbow.rect(0, 0, width, height / 6);
     rainbow.fill(225, 140, 0);
-    rainbow.rect(0, height/6, width, 2 * height/6);
+    rainbow.rect(0, height / 6, width, 2 * height / 6);
     rainbow.fill(255, 237, 0);
-    rainbow.rect(0, 2 * height/6, width, 3 * height/6);
+    rainbow.rect(0, 2 * height / 6, width, 3 * height / 6);
     rainbow.fill(0, 128, 38);
-    rainbow.rect(0, 3 * height/6, width, 4 * height/6);
+    rainbow.rect(0, 3 * height / 6, width, 4 * height / 6);
     rainbow.fill(0, 77, 255);
-    rainbow.rect(0, 4 * height/6, width, 5 * height/6);
+    rainbow.rect(0, 4 * height / 6, width, 5 * height / 6);
     rainbow.fill(177, 7, 135);
-    rainbow.rect(0, 5 * height/6, width, 6 * height/6);
+    rainbow.rect(0, 5 * height / 6, width, 6 * height / 6);
     rainbow.endDraw();
     return rainbow;
   }
@@ -75,20 +75,13 @@ class RenderImageUtil {
     int red = (clr >> 16) & 0xff;
     int green = (clr >> 8) & 0xff;
     int blue = clr & 0xff;
-    int alpha = (clr >> 24) & 0xff;
-
 
     // Weight all the components
     red = (int) ((float) red * weight);
     green = (int) ((float) green * weight);
     blue = (int) ((float) blue * weight);
-    alpha = (int) ((float) alpha * weight);
 
-    // NOTE(tracy): Hack to test alpha compositing for Normal mode channel mixing.  Doesn't work
-    // as expected.
-    // alpha = 0;
-
-    return  (alpha << 24) | (red << 16) | (green << 8) | blue;
+    return  (0xFF << 24) | (red << 16) | (green << 8) | blue;
   }
 
   /**
@@ -280,9 +273,8 @@ class RenderImageUtil {
             image.pixels[imgIndexAbove] = renderMaskColor;
         }
 
-        // TODO(tracy): Change this weight when combining top and bottom colors.
-        int horizontalColor = RenderImageUtil.getWeightedColor(LXColor.add(leftColor, rightColor), 0.5f);
-        int verticalColor = RenderImageUtil.getWeightedColor(LXColor.add(belowColor, aboveColor), 0.5f);
+        int horizontalColor = getWeightedColor(LXColor.add(leftColor, rightColor), 0.5f);
+        int verticalColor = getWeightedColor(LXColor.add(belowColor, aboveColor), 0.5f);
         int totalColor = LXColor.add(horizontalColor, verticalColor);
         colors[p.index] = totalColor;
       }
