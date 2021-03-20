@@ -95,10 +95,10 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
       // Tile the image to fill the space horizontally.  Scale the image vertically
       // to fit.
       float yScale = imageHeight / tileImage.height;
-      tileImage.resize((int)(tileImage.width * yScale), imageHeight);
+      //tileImage.resize((int)(tileImage.width * yScale), imageHeight);
       tileImage.loadPixels();
       logger.info("tileImage.width=" + tileImage.width + " tileImage.height=" + tileImage.height);
-      numTiles = imageWidth  / tileImage.width;
+      numTiles = (int)Math.ceil((float)imageWidth  / (float)tileImage.width);
       int remainderPixelsX = imageWidth - (numTiles * tileImage.width);
       // No vertical padding right now int paddingY = imageHeight - image.height;
       paddingX = remainderPixelsX / (numTiles+1);
