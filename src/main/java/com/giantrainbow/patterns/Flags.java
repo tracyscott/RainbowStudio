@@ -33,7 +33,7 @@ public class Flags extends LXPattern {
           .setDescription("Maxium x value to render to.");
 
   public final BooleanParameter once =
-      new BooleanParameter("once", true)
+      new BooleanParameter("once", false)
       .setDescription("Auto-swipe then stop");
 
   public CompoundParameter speed =
