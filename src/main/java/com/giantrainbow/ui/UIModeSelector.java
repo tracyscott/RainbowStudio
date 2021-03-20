@@ -528,7 +528,7 @@ public class UIModeSelector extends UICollapsibleSection {
      */
     public boolean initializeChannel() {
       isInitialized = true;
-      int okChannel = 0;
+      int okChannel = -1;
       LXChannelBus okChannelBus = null;
       // Go through all channels and disable them.  Enable the first channel that is eligible to play in this
       // timeslot.
@@ -538,7 +538,7 @@ public class UIModeSelector extends UICollapsibleSection {
         if (currentChannel != null) {
           logger.info("Checking channel: " + currentChannel.getLabel());
           currentChannel.enabled.setValue(false);
-          if (channelIsEligibleByTime(currentChannel)) {
+          if (channelIsEligibleByTime(currentChannel) && okChannel == -1) {
             currentChannel.enabled.setValue(true);
             noEligibleChannels = false;
             okChannel = i;
