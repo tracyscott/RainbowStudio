@@ -579,6 +579,10 @@ public class UIModeSelector extends UICollapsibleSection {
       if (noEligibleChannels)
         return;
 
+      fadeTime = UIModeSelector.fadeTimeP.getValue() * 1000f;
+      // UI is in seconds.  Convert to milliseconds.
+      timePerChannel = UIModeSelector.timesPerChannel.get(currentPlayingChannel).getValuef() * 1000f;
+
       // Disable Standard-mode channel switching for AnimatedTextPP/TextFX patterns to prevent
       // fading in the middle of text.  We achieve this by effectively stalling the
       // currentChannelPlayTime until the current channel is no longer an
@@ -589,7 +593,10 @@ public class UIModeSelector extends UICollapsibleSection {
         if (c.patterns.size() > 0) {
           LXPattern p = c.getActivePattern();
           if (p instanceof AnimatedTextPP || p instanceof TextFx) {
-            currentChannelPlayTime = 0.0;
+            // Let's always set it at 5 seconds until transition so that if we have something like
+            // a Flags pattern have a series of text patterns then the scheduler can change channels
+            // while the Flags pattern is playing.
+            currentChannelPlayTime = timePerChannel - 5000f;
           }
         }
       } else if (channelBus instanceof LXGroup) {
@@ -599,16 +606,12 @@ public class UIModeSelector extends UICollapsibleSection {
             if (c.patterns.size() > 0) {
               LXPattern p = c.getActivePattern();
               if (p instanceof AnimatedTextPP || p instanceof TextFx) {
-                currentChannelPlayTime = 0.0;
+                currentChannelPlayTime = timePerChannel - 5000f;
               }
             }
           }
         }
       }
-
-      fadeTime = UIModeSelector.fadeTimeP.getValue() * 1000f;
-      // UI is in seconds.  Convert to milliseconds.
-      timePerChannel = UIModeSelector.timesPerChannel.get(currentPlayingChannel).getValuef() * 1000f;
 
       // If our current configuration doesn't have multiple standard channel names, just no-op.
       if (standardModeChannels.size() < 2) {
