@@ -3,6 +3,7 @@ package com.giantrainbow.patterns;
 import static processing.core.PApplet.ceil;
 import static processing.core.PApplet.round;
 
+import com.giantrainbow.FontUtil;
 import com.giantrainbow.RainbowOSC;
 import com.giantrainbow.RainbowStudio;
 import heronarts.lx.LX;
@@ -15,6 +16,9 @@ import heronarts.p3lx.ui.UI2dContainer;
 import heronarts.p3lx.ui.component.*;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -31,9 +35,9 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
 
   List<TextItem> textItems = new ArrayList<>();
   UIItemList.ScrollList textItemList;
-  private static final int CONTROLS_MIN_WIDTH = 180;
+  private static final int CONTROLS_MIN_WIDTH = 320;
   public final CompoundParameter xSpeed =
-      new CompoundParameter("XSpd", 0, 20).setDescription("X speed in pixels per frame");
+      new CompoundParameter("XSpd", 1.0, 0, 20).setDescription("X speed in pixels per frame");
   public final CompoundParameter fadeTime =
       new CompoundParameter("fade", 1.0, 0.0, 10.0);
   public final BooleanParameter clockwise = new BooleanParameter("clockwise", false);
@@ -44,15 +48,18 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   public final BooleanParameter osc = new BooleanParameter("osc", false);
   public final BooleanParameter centered = new BooleanParameter("centr", false);
 
-  public final String[] fontNames = {"04b 30", "Press Start Regular", "AvantGarde-Medium", "AvantGarde-Bold"};
-  public final DiscreteParameter fontKnob = new DiscreteParameter("font", 0, fontNames.length);
-  public final DiscreteParameter fontSizeKnob = new DiscreteParameter("fontsize", 24, 10, 32);
-
+  public final DiscreteParameter fontKnob = new DiscreteParameter("font", 0, FontUtil.names().length);
+  public final DiscreteParameter fontSizeKnob = new DiscreteParameter("fontsize", 24, 8, 32);
+  public final DiscreteParameter txtsKnob = new DiscreteParameter("txts", 0, 0, 41)
+      .setDescription("Which AnimatedText#.txts file to use for text input");
+  public final CompoundParameter yAdjust = new CompoundParameter("yAdj", 0f, -30f, 30f)
+      .setDescription("Adjusts y position of text");
 
   String[] defaultTexts = {
       "RAINBOW BRIDGE"
   };
-  public final DiscreteParameter  whichText = new DiscreteParameter("which", -1, 0, defaultTexts.length);
+
+  public final DiscreteParameter  whichText = new DiscreteParameter("which", -1, 0, 1000);
 
 
   PGraphics textImage;
@@ -70,11 +77,13 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   private double fullAlphaMs = 5000.0;
   private boolean fadeIn = true;
   private boolean fadeOut = false;
+  protected boolean needTextsReload = true;
+  protected boolean imageNeedsRerender = true;
 
   int currIndex;
   UIItemList.Item currItem;
 
-  int textGapPixels = 10;
+  int textGapPixels = 30;
   PFont font;
   int fontSize = pg.height;
 
@@ -87,7 +96,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
         // TODO(tracy): Change this to loadNewTextItem() to properly
         // account for OSC updates.
         currItem = textItemList.getFocusedItem();
-        redrawTextBuffer(deltaDrawMs);
+        redrawTextBuffer();
         BooleanParameter b = (BooleanParameter)p;
         if (b.isOn()) {
           b.setValue(false);
@@ -107,24 +116,60 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     addParameter(centered);
     addParameter(fadeTime);
     addParameter(whichText);
+    addParameter(txtsKnob);
+    addParameter(yAdjust);
+    addParameter(hue);
+    addParameter(bright);
+    addParameter(saturation);
+    randomPaletteKnob.setValue(false);
 
+
+    txtsKnob.addListener(new LXParameterListener() {
+      @Override
+      public void onParameterChanged(LXParameter p) {
+        needTextsReload = true;
+        imageNeedsRerender = true;
+      }
+    });
 
     logger.info("listing fonts");
     String[] fontNames = PFont.list();
     for (String fontName : fontNames) {
       logger.info("Font: " + fontName);
     }
-    //font = RainbowStudio.pApplet.createFont("04b", fontSize, true);
-    font = RainbowStudio.pApplet.createFont("PressStart2P", 24, false);
+
+    font = FontUtil.getCachedFont("PressStart2P", 24);
+
     /* Emoji smiley, left for reference.  Need to revert to java.awt.Font and Java2D
        to render emoji's. Processing PFont does not support surrogate pairs.
     char[] ch = Character.toChars(0x1F601);
     */
 
+    fontKnob.addListener(new LXParameterListener () {
+      @Override
+      public void onParameterChanged(LXParameter p) {
+        font = FontUtil.getCachedFont(FontUtil.names()[fontKnob.getValuei()], fontSizeKnob.getValuei());
+        imageNeedsRerender = true;
+      }
+    });
+
+    fontSizeKnob.addListener(new LXParameterListener() {
+      @Override
+      public void onParameterChanged(LXParameter p) {
+        font = FontUtil.getCachedFont(FontUtil.names()[fontKnob.getValuei()], fontSizeKnob.getValuei());
+        imageNeedsRerender = true;
+      }
+    });
+
+    whichText.addListener(new LXParameterListener() {
+      @Override
+      public void onParameterChanged(LXParameter p) { imageNeedsRerender = true; }
+    });
+
     for (int i = 0; i < defaultTexts.length; i++) {
       textItems.add(new TextItem(defaultTexts[i]));
     }
-    xSpeed.setValue(5);
+    xSpeed.setValue(1);
 
     currIndex = -1;
     if (textItems.size() > 0) {
@@ -167,25 +212,37 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     blankUntilReactivated = false;
     autoCycleWasEnabled = getChannel().autoCycleEnabled.getValueb();
     getChannel().autoCycleEnabled.setValue(false);
-    String fontName = getPlatformIndependentFontName(fontNames[fontKnob.getValuei()]);
-    logger.info("Using font = " + fontName);
-    font = RainbowStudio.pApplet.createFont(fontName, fontSizeKnob.getValuei(), false);
-    // Reset the font based on the font dropdown.
-
   }
 
-  public String getPlatformIndependentFontName(String fname) {
-    if (RainbowStudio.pApplet.platform == PConstants.MACOSX) {
-      //04b 30", "Press Start Regular"
-      if (fname.equals("04b 30")) return "04b";
-      if (fname.equals("Press Start Regular")) return "PressStart2P";
-    }
-    return fname;
-  }
-
-  public void redrawTextBuffer(double deltaDrawMs) {
-
+  /**
+   * Redraws the Text image that we use to scroll across the screen.
+   */
+  public void redrawTextBuffer() {
+    imageNeedsRerender = false;
     String label;
+
+    // If needTextsReload, reload the file containing the list of texts to display.  We also should reset currIndex=0
+    if (needTextsReload) {
+      needTextsReload = false;
+      // logger.info("Reloading texts file AnimatedText" + txtsKnob.getValuei() + ".txts");
+      currIndex = 0;
+      try {
+        String contents = new String(Files.readAllBytes(Paths.get("AnimatedText" + txtsKnob.getValuei() + ".txts")));
+        String[] splitContents = contents.split("\\{");
+        textItems.clear();
+        for (int i = 0; i < splitContents.length; i++) {
+          splitContents[i] = splitContents[i].trim();
+          // logger.info("Text item: " + splitContents[i]);
+          textItems.add(new TextItem(splitContents[i]));
+        }
+        textItemList.setItems(textItems);
+        whichText.setRange(-1, textItems.size());
+        textItemList.setFocusIndex(currIndex);
+      } catch (IOException ioex) {
+        logger.info("Reading TextFx texts: IOException: " + ioex.getMessage());
+      }
+      needTextsReload = false;
+    }
 
     if (osc.getValueb()) {
       label = RainbowOSC.getTextUpdateMessage();
@@ -207,7 +264,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
       // Allow for whichText to override auto-iteration over the list of texts.  Each text item
       // will be displayed by independent patterns in the channel.
       if (whichText.getValuei() != -1) {
-        label = defaultTexts[whichText.getValuei()];
+        label = textItems.get(whichText.getValuei()).text;
       }
     }
 
@@ -223,10 +280,18 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
       }
     }
     textImage = RainbowStudio.pApplet.createGraphics(ceil(pg.textWidth(label)), pg.height);
-    textImage.noSmooth();
+    //textImage.noSmooth();
     textImage.beginDraw();
     textImage.background(0, 0);
-    textImage.stroke(255);
+
+    if (!multiply.isOn()) {
+      // Pick a random index for the entire text string.
+      int rgb = getNewRGB(-1);
+      textImage.fill(rgb);
+    } else {
+      textImage.fill(255);
+    }
+
     // Reset the font based on the font dropdown.
     if (font != null) {
       textImage.textFont(font);
@@ -273,9 +338,8 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
             */
       }
     }
-    textImage.updatePixels();
     currentPos = clockwise.getValueb()
-        ? -textImage.width + textGapPixels
+        ? -textImage.width - textGapPixels
         : pg.width + 1;
     lastPos = Integer.MIN_VALUE;
 
@@ -285,10 +349,13 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   public void draw(double deltaDrawMs) {
     // If no new textupdate is available via OSC input, just return (stay empty).
 
+    if (imageNeedsRerender)
+      redrawTextBuffer();
+
     if (noTextUpdateAvailable && osc.getValueb()) {
       // redrawTextBuffer() might do nothing in OSC input mode.  If there is no text available,
       // it will just return.  Effectively waiting until the next frame to check for an update.
-      redrawTextBuffer(deltaDrawMs); // Check for an update.
+      redrawTextBuffer(); // Check for an update.
       return;
     }
 
@@ -339,7 +406,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
         currItem = textItemList.getFocusedItem();
         currIndex = textItemList.getFocusedIndex();
         if (currIndex >= 0) {
-          redrawTextBuffer(deltaDrawMs);
+          redrawTextBuffer();
         }
       }
     } else {
@@ -348,10 +415,10 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     }
 
     // Optimization to not re-render if we haven't moved far enough since last frame.
-    if (textImage != null && round(currentPos) != lastPos) {
+    if (textImage != null) {
       pg.background(0, 0);
-      pg.image(textImage, round(currentPos), 0);
-      lastPos = round(currentPos);
+      pg.image(textImage, round(currentPos), (30f - textImage.height)/2f + yAdjust.getValuef());
+      //lastPos = round(currentPos);
     }
     currentPos += xSpeed.getValue() * (clockwise.getValueb() ? 1 : -1);
   }
@@ -366,6 +433,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     device.setLayout(UI2dContainer.Layout.VERTICAL);
     device.setPadding(0, 0, 0, 0);
 
+    int knobWidth = 35;
     UI2dContainer knobsContainer = new UI2dContainer(0, 30, device.getWidth(), 45);
     knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
     knobsContainer.setPadding(0, 0, 0, 0);
@@ -378,8 +446,11 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
         .setWidth(24)
         .setHeight(16)
         .addToContainer(knobsContainer);
-    new UIKnob(fontSizeKnob).addToContainer(knobsContainer);
-    new UIKnob(whichText).addToContainer(knobsContainer);
+    new UIKnob(fontSizeKnob).setWidth(knobWidth).addToContainer(knobsContainer);
+    new UIKnob(whichText).setWidth(knobWidth).addToContainer(knobsContainer);
+    new UIKnob(txtsKnob).setWidth(knobWidth).addToContainer(knobsContainer);
+    new UIKnob(yAdjust).setWidth(knobWidth).addToContainer(knobsContainer);
+
     knobsContainer.addToContainer(device);
     knobsContainer = new UI2dContainer(0, 30, device.getWidth(), 35);
     knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
@@ -420,26 +491,35 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
         .setHeight(16)
         .addToContainer(knobsContainer);
 
+    new UIDropMenu(0f, 0f, 170f, 20f, fontKnob).setOptions(FontUtil.names()).setDirection(UIDropMenu.Direction.UP).addToContainer(knobsContainer);
+
     knobsContainer.addToContainer(device);
-    new UIDropMenu(0f, 0f, device.getWidth() - 30f, 20f, fontKnob) {
-      public void onParameterChanged(LXParameter p) {
-        DiscreteParameter dp = (DiscreteParameter)p;
-        String fontName = fontNames[dp.getValuei()];
 
-      }
-    }.setOptions(fontNames).setDirection(UIDropMenu.Direction.UP).addToContainer(device);
+    UI2dContainer bottomHalf = new UI2dContainer(0, 45, device.getWidth() - 30, device.getHeight() - 90);
+    bottomHalf.setLayout(UI2dContainer.Layout.HORIZONTAL);
+    bottomHalf.setPadding(0);
 
-    UI2dContainer textEntryLine = new UI2dContainer(0, 0, device.getWidth(), 25);
+    UI2dContainer leftPanel = new UI2dContainer(0, 0, device.getWidth()/2 - 15, device.getHeight() - 45);
+    leftPanel.setLayout(UI2dContainer.Layout.VERTICAL);
+    leftPanel.addToContainer(bottomHalf);
+    leftPanel.setPadding(0);
+
+    UI2dContainer rightPanel = new UI2dContainer(0, 0, device.getWidth()/2 - 15, device.getHeight() - 45);
+    rightPanel.setLayout(UI2dContainer.Layout.VERTICAL);
+    rightPanel.addToContainer(bottomHalf);
+    rightPanel.setPadding(0);
+
+    UI2dContainer textEntryLine = new UI2dContainer(0, 0, leftPanel.getWidth(), 25);
     textEntryLine.setLayout(UI2dContainer.Layout.HORIZONTAL);
 
-    new UITextBox(0, 0, device.getContentWidth() - 22, 20)
+    new UITextBox(0, 0, device.getWidth() - 42, 20)
         .setParameter(textKnob)
         .setTextAlignment(PConstants.LEFT)
         .addToContainer(textEntryLine);
 
-    textItemList =  new UIItemList.ScrollList(ui, 0, 5, CONTROLS_MIN_WIDTH, 60);
+    textItemList =  new UIItemList.ScrollList(ui, 0, 5, leftPanel.getWidth(), 60);
 
-    new UIButton(device.getContentWidth() - 20, 0, 20, 20) {
+    new UIButton(device.getWidth() - 5, 0, 20, 20) {
       @Override
         public void onToggle(boolean on) {
         if (on && !textKnob.getString().isEmpty()) {
@@ -452,11 +532,22 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
         .setMomentary(true)
         .addToContainer(textEntryLine);
 
+    // Allow the text entry line to have the full width of the device UI.
     textEntryLine.addToContainer(device);
+    bottomHalf.addToContainer(device);
 
     textItemList.setShowCheckboxes(false);
     textItemList.setItems(textItems);
-    textItemList.addToContainer(device);
+    textItemList.addToContainer(leftPanel);
+
+    UI2dContainer colorArea = new UI2dContainer(0, 0, rightPanel.getWidth(), 40);
+    colorArea.setLayout(UI2dContainer.Layout.HORIZONTAL);
+    colorArea.setPadding(0);
+    colorArea.addToContainer(rightPanel);
+    new UIKnob(paletteKnob).setWidth(knobWidth).addToContainer(colorArea);
+    new UIKnob(hue).setWidth(knobWidth).addToContainer(colorArea);
+    new UIKnob(saturation).setWidth(knobWidth).addToContainer(colorArea);
+    new UIKnob(bright).setWidth(knobWidth).addToContainer(colorArea);
   }
 
   public class TextItem extends UIItemList.Item {
