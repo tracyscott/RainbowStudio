@@ -544,6 +544,23 @@ public class UIModeSelector extends UICollapsibleSection {
             okChannel = i;
             okChannelBus = currentChannel;
           }
+          // TODO(tracy): This is an emergency hack.  If the file was saved while
+          // a message text pattern was playing, then the file will be saved with
+          // the channel autoCycleEnabled set to false.  Typically, a text pattern
+          // will re-enable autoCycleEnabled after it finishes one message and goes
+          // to advance the pattern.  This ensures that even if somebody happens to
+          // save the show file under that scenario, when we reload the show file
+          // later, autoCycleEnabled will be re-initialized to true.
+          if (currentChannel instanceof LXGroup) {
+            LXGroup g = (LXGroup) currentChannel;
+            if (g.channels.size() > 0) {
+              for (LXChannel c : g.channels) {
+                if ("MSGTXT".equals(c.getLabel())) {
+                  c.autoCycleEnabled.setValue(true);
+                }
+              }
+            }
+          }
         }
       }
       currentPlayingChannel = okChannel;
