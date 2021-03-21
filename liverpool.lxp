@@ -1,6 +1,6 @@
 {
   "version": "0.1",
-  "timestamp": 1616232037099,
+  "timestamp": 1616313269178,
   "engine": {
     "id": 1,
     "class": "heronarts.lx.LXEngine",
@@ -15,7 +15,7 @@
       "crossfader": 0.4655172396451235,
       "crossfaderBlendMode": 0,
       "speed": 1.0,
-      "focusedChannel": 4,
+      "focusedChannel": 5,
       "cueA": false,
       "cueB": false,
       "multithreaded": false,
@@ -48,7 +48,7 @@
           "selected": false,
           "enabled": false,
           "cue": false,
-          "fader": 0.001818362335249278,
+          "fader": 0.0,
           "crossfadeGroup": 0,
           "blendMode": 0
         },
@@ -390,7 +390,7 @@
             "parameters": {
               "label": "Flags",
               "Flag": 1,
-              "MaxX": 421.0,
+              "MaxX": 0.0,
               "once": true,
               "speed": 1.0
             },
@@ -494,7 +494,7 @@
           "selected": false,
           "enabled": false,
           "cue": false,
-          "fader": 9.092715905637126E-4,
+          "fader": 0.0,
           "crossfadeGroup": 0,
           "blendMode": 0,
           "midiMonitor": false,
@@ -774,10 +774,10 @@
         "parameters": {
           "label": "SPECIAL",
           "arm": false,
-          "selected": true,
+          "selected": false,
           "enabled": false,
           "cue": false,
-          "fader": 0.09272743680380581,
+          "fader": 0.0,
           "crossfadeGroup": 0,
           "blendMode": 0,
           "midiMonitor": false,
@@ -1481,7 +1481,7 @@
         "parameters": {
           "label": "RBW",
           "arm": false,
-          "selected": false,
+          "selected": true,
           "enabled": true,
           "cue": false,
           "fader": 1.0,
@@ -1498,7 +1498,7 @@
         },
         "effects": [],
         "clips": [],
-        "patternIndex": 2,
+        "patternIndex": 3,
         "patterns": [
           {
             "id": 2075,
@@ -1570,7 +1570,7 @@
               "modulations": [],
               "triggers": []
             },
-            "autoCycleEnabled": true
+            "autoCycleEnabled": false
           },
           {
             "id": 11878,
@@ -1606,7 +1606,7 @@
               "modulations": [],
               "triggers": []
             },
-            "autoCycleEnabled": true
+            "autoCycleEnabled": false
           },
           {
             "id": 11880,
@@ -2579,16 +2579,16 @@
           "release": 18.5580048226244,
           "slope": 2.2499998826533556,
           "Band-1": 0.0,
-          "Band-2": 0.0,
-          "Band-3": 0.044025320427348746,
-          "Band-4": 0.12181813417815024,
-          "Band-5": 0.29176592115063094,
-          "Band-6": 0.3167225832038284,
-          "Band-7": 0.22687654549832792,
-          "Band-8": 0.21554098423285561,
-          "Band-9": 0.21696301994131295,
-          "Band-10": 0.1491091626121125,
-          "Band-11": 0.05512934722643592,
+          "Band-2": 0.01663193645849015,
+          "Band-3": 0.09170168542015733,
+          "Band-4": 0.1582057337072882,
+          "Band-5": 0.18515437358200149,
+          "Band-6": 0.20752799074585726,
+          "Band-7": 0.24292162303895937,
+          "Band-8": 0.260042371377166,
+          "Band-9": 0.12202038556647898,
+          "Band-10": 0.13209856091452654,
+          "Band-11": 0.03102036444202838,
           "Band-12": 0.0,
           "Band-13": 0.0,
           "Band-14": 0.0,
