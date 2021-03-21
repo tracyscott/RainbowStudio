@@ -33,13 +33,11 @@ import java.util.Collections;
 @LXCategory(LXCategory.FORM)
 public class FreePac extends CanvasPattern2D implements Positioner {
     public final static String[] messages = {
-	"Hello World",
-	"Stay Strong",
-	"Mask Up",
-	"Beat Covid",
+	"Hello Liverpool",
+	"Goodbye Covid",
+	"Keep Calm And Shine On",
 	"Black Lives Matter",
-	"Fight Racism",
-	"Trump Is A Loser",
+	"Peace Hope Love",
     };
 
     public final static int letterFreqs[] = {
@@ -94,15 +92,10 @@ public class FreePac extends CanvasPattern2D implements Positioner {
 
     public static final int MAX_FONT_SIZE = 120;
 
-    public static final float TOO_CLOSE = rangeRadius / 6;
-
     public static final double HZ = 7000;
 
-    // @@@
-    // public static final long MIN_PERIOD = 5; 
-    // public static final long MAX_PERIOD = 15;
-    public static final long MIN_PERIOD = 2;
-    public static final long MAX_PERIOD = 3;
+    public static final long MIN_PERIOD = 10;
+    public static final long MAX_PERIOD = 20;
 
     // STRIDE is a full step P1..P3
     public static final float STRIDE = rangeRadius * 0.9f;
@@ -112,7 +105,7 @@ public class FreePac extends CanvasPattern2D implements Positioner {
 
     public final CompoundParameter speedKnob =
 	new CompoundParameter("Speed", 5, 0, 10).setDescription("Speed");
-    
+
     PFont font;
     PImage colorPlane;
     Letter [][]letters;
@@ -123,7 +116,7 @@ public class FreePac extends CanvasPattern2D implements Positioner {
     PImage currentStrange;
 
     int [][]messageCharIndex;
-    
+
     ShowState showState;
     double elapsed;
     long epoch;
@@ -153,7 +146,7 @@ public class FreePac extends CanvasPattern2D implements Positioner {
 	    messages[i] = messages[i].toUpperCase();
 	}
     }
-    
+
     public FreePac(LX lx) {
 	super(lx);
 	addParameter(sizeKnob);
@@ -205,7 +198,7 @@ public class FreePac extends CanvasPattern2D implements Positioner {
 
 	    for (int j = 0; j < 26; j++) {
 		int avail = letterFreqs[j];
-		
+
 		int want = m.getOrDefault(j, 0);
 		if (want > avail) {
 		    // Just add to letterFreqs
@@ -215,7 +208,7 @@ public class FreePac extends CanvasPattern2D implements Positioner {
 
 	    messageCharIndex[i] = positions;
 	}
-	setNextMessage(0);	
+	setNextMessage(0);
     }
 
     void setNextMessage(int g) {
@@ -223,7 +216,7 @@ public class FreePac extends CanvasPattern2D implements Positioner {
 	    this.epoch +
 	    MIN_PERIOD +
 	    (long)(rnd.nextDouble() * (MAX_PERIOD - MIN_PERIOD + 0.5));
-	
+
 	nextGoalMsgIndex = g;
 
 	for (Letter l : depth) {
@@ -247,7 +240,7 @@ public class FreePac extends CanvasPattern2D implements Positioner {
 
 	    depth.remove(l);
 	    depth.add(l);
-	    
+
 	    l.goal = GoalState.ATTRACTED;
 	    l.targetTheta = messageAngleStart + (float)(p * interval);
 	}
@@ -259,7 +252,7 @@ public class FreePac extends CanvasPattern2D implements Positioner {
 	double Y;
 
 	private Point() {}
-	
+
 	void setAngular(double theta, double radius) {
 	    this.X = Math.cos(theta) * radius;
 	    this.Y = Math.sin(theta) * radius;
@@ -331,7 +324,7 @@ public class FreePac extends CanvasPattern2D implements Positioner {
 	// H is the derivative (heading)
 	// P is the current position in t=(elapsed%1) from P0 to P2.
 	Point P, H, P0, P1, P2, P3;
-	
+
 	Letter(char ch, int number) {
 	    this.ch = String.format("%s", ch);
 	    this.P0 = randPos();
@@ -357,7 +350,7 @@ public class FreePac extends CanvasPattern2D implements Positioner {
 
 		// Gap is the mid-point
 		double legLen = Math.sqrt(STRIDE*STRIDE - gap.lengthSquared());
-		    
+
 		// Choose an arbitrary norm, TODO could choose the better one.
 		Point norm = gap.norm1();
 		Point leg = gap.add(norm.scale(legLen));
@@ -371,7 +364,7 @@ public class FreePac extends CanvasPattern2D implements Positioner {
 		Point v = P3.sub(P1);
 		P2 = P1.add(v.scale(0.5));
 		this.goal = GoalState.SHOWING;
-	    
+
 	    } else if (goal == GoalState.SHOWING) {
 
 		P3 = postTargetPos();
@@ -389,12 +382,12 @@ public class FreePac extends CanvasPattern2D implements Positioner {
 	    } else {
 
 		P3 = randPosNear(this.P1, this.P0, STRIDE, P2, this);
-	    }		
+	    }
 	}
 
 	void advance() {
 	    double t = elapsed % 1.;
-	    
+
 	    double tt1 = (1 - t)*(1 - t);
 	    double tt0 = t*t;
 
@@ -410,16 +403,16 @@ public class FreePac extends CanvasPattern2D implements Positioner {
 	    Point p = new Point();
 	    p.X = (float)Math.cos(targetTheta) * (centerRadius - STRIDE/2);
 	    p.Y = (float)Math.sin(targetTheta) * (centerRadius - STRIDE/2);
-	    return p;				 
+	    return p;
 	}
 
 	Point postTargetPos() {
 	    Point p = new Point();
 	    p.X = (float)Math.cos(targetTheta) * (centerRadius + STRIDE/2);
 	    p.Y = (float)Math.sin(targetTheta) * (centerRadius + STRIDE/2);
-	    return p;				 
+	    return p;
 	}
-	
+
 	void draw() {
 	    pg.pushMatrix();
 	    pg.translate(canvas.map.subXi((float)(this.P.X)),
@@ -473,6 +466,7 @@ public class FreePac extends CanvasPattern2D implements Positioner {
     public Point randPosNear(Point near, Point far, float dist, Point mid, Letter l) {
 	for (int loop = 0; ; loop++) {
 	    double rot = rnd.nextDouble() * 2 * Math.PI;
+
 	    double dx = dist * Math.cos(rot);
 	    double dy = dist * Math.sin(rot);
 
@@ -484,9 +478,9 @@ public class FreePac extends CanvasPattern2D implements Positioner {
 		double sy = far.Y - midy;
 		double farDist = Math.sqrt(sx * sx + sy * sy);
 
-		if (farDist < TOO_CLOSE) {
+		if (farDist < dist/4) {
 		    continue;
-		}			
+		}
 	    }
 
 	    double midTheta = Math.atan2(midy, midx);
@@ -515,6 +509,7 @@ public class FreePac extends CanvasPattern2D implements Positioner {
 		}
 	    }
 
+
 	    if (mid != null) {
 		mid.X = midx;
 		mid.Y = midy;
@@ -540,9 +535,9 @@ public class FreePac extends CanvasPattern2D implements Positioner {
 	    if (ch == ' ') {
 		continue;
 	    }
-	    
+
 	    Letter l = letters[(int)(ch - 'A')][messageCharIndex[nextGoalMsgIndex][p]];
-	    
+
 	    maxd = Math.max(maxd, (float)l.P3.sub(l.targetPos()).length());
 	}
 
@@ -584,7 +579,7 @@ public class FreePac extends CanvasPattern2D implements Positioner {
 	if (newEpoch == epoch) {
 	    return;
 	}
-	    
+
 	epoch = newEpoch;
 
 	switch (showState) {
@@ -631,7 +626,7 @@ public class FreePac extends CanvasPattern2D implements Positioner {
 	    showState = ShowState.RESTARTING1;
 	    break;
 	}
-	
+
 	for (Letter l : depth) {
 	    l.update();
 	}
