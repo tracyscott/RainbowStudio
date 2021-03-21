@@ -1,19 +1,24 @@
 package com.giantrainbow.ui;
 
+import com.giantrainbow.ParameterFile;
+import com.giantrainbow.PropertyFile;
+import com.giantrainbow.RainbowStudio;
 import com.giantrainbow.UtilsForLX;
 import com.giantrainbow.patterns.AnimatedTextPP;
 import com.giantrainbow.patterns.TextFx;
 import heronarts.lx.*;
-import heronarts.lx.parameter.BooleanParameter;
-import heronarts.lx.parameter.BoundedParameter;
+import heronarts.lx.parameter.*;
 import heronarts.lx.studio.LXStudio;
 import heronarts.p3lx.ui.UI2dContainer;
 import heronarts.p3lx.ui.component.UIButton;
 import heronarts.p3lx.ui.component.UICollapsibleSection;
 import heronarts.p3lx.ui.component.UIKnob;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public class UIModeSelector extends UICollapsibleSection {
@@ -28,33 +33,24 @@ public class UIModeSelector extends UICollapsibleSection {
 
   protected LX lx;
   protected LXStudio.UI ui;
-  public BooleanParameter autoAudioModeP = new BooleanParameter("autoaudio", false);
+  public BooleanParameter autoAudioModeP; // = new BooleanParameter("autoaudio", false);
   public BooleanParameter audioModeP = new BooleanParameter("audio", false);
   public BooleanParameter standardModeP = new BooleanParameter("standard", false);
   public BooleanParameter interactiveModeP = new BooleanParameter("interactive", false);
   public BooleanParameter instrumentModeP = new BooleanParameter("instrument", false);
   public BooleanParameter textModeP = new BooleanParameter("text", false);
 
-  static public BoundedParameter timePerChannelP = new BoundedParameter("Multi", 60000.0, 2000.0, 360000.0);
-  static public BoundedParameter timePerChannelP2 = new BoundedParameter("Gif", 60000.0, 2000.0, 360000.0);
-  static public BoundedParameter timePerChannelP3 = new BoundedParameter("Special", 60000.0, 2000.0, 360000.0);
-  static public BoundedParameter timePerChannelP4 = new BoundedParameter("Rbw", 60000.0, 2000.0, 360000.0);
+  static public List<CompoundParameter> timesPerChannel = new ArrayList<CompoundParameter>();
+  static public CompoundParameter timePerAudioChannelP1;
+  static public CompoundParameter timePerAudioChannelP2;
 
-  static public BoundedParameter timePerAudioChannelP1 = new BoundedParameter("Aud-1", 60000.0, 2000.0, 360000.0);
-  static public BoundedParameter timePerAudioChannelP2 = new BoundedParameter("Aud-Multi", 60000.0, 2000.0, 360000.0);
-
-  static public BoundedParameter fadeTimeP = new BoundedParameter("FadeT", 1000.0, 0.000, 10000.0);
-  public final UIKnob timePerChannel;
-  public final UIKnob timePerChannel2;
-  public final UIKnob timePerChannel3;
-  public final UIKnob timePerChannel4;
+  static public CompoundParameter fadeTimeP;
   public final UIKnob fadeTime;
   public final UIKnob timePerAudioChannel1;
   public final UIKnob timePerAudioChannel2;
 
-  public String[] standardModeChannelNames = { "MULTI", "GIF", "SPECIAL", "RBW" };
-  public List<LXChannelBus> standardModeChannels = new ArrayList<LXChannelBus>(standardModeChannelNames.length);
-
+  public static String[] standardModeChannelNames;
+  public List<LXChannelBus> standardModeChannels;
   public String[] audioModeChannelNames = { "AUDIO-1", "AUDIO-MULTI" };
   public List<LXChannelBus> audioModeChannels = new ArrayList<LXChannelBus>(audioModeChannelNames.length);
 
@@ -64,6 +60,15 @@ public class UIModeSelector extends UICollapsibleSection {
   public int previousPlayingAudioChannel = 0;
   public UIAudioMonitorLevels audioMonitorLevels;
 
+  // Items related to loading and saving parameter values.  Typical UIConfig classes inherit all this
+  // infrastructure but this class predates that model so some of the functionality has just been
+  // copied over.
+  public ParameterFile paramFile;
+  public List<LXParameter> parameters = new ArrayList<LXParameter>();
+  public Map<String, LXParameter> paramLookup = new HashMap<String, LXParameter>();
+  static public final String filename = "modeselector.json";
+  static public StandardModeCycle standardModeCycle;
+
   public UIModeSelector(final LXStudio.UI ui, LX lx, UIAudioMonitorLevels audioMonitor) {
     super(ui, 0, 0, ui.leftPane.global.getContentWidth(), 200);
     setTitle("MODE");
@@ -71,6 +76,20 @@ public class UIModeSelector extends UICollapsibleSection {
     setChildMargin(2);
     this.lx = lx;
     this.ui = ui;
+    standardModeChannelNames = RainbowStudio.stdChConfig.getStandardChannels();
+    standardModeChannels = new ArrayList<LXChannelBus>(standardModeChannelNames.length);
+
+    load();
+    autoAudioModeP = registerBooleanParameter("autoaudio", false);
+    // For each of the standard channels, add the time per channel parameter.
+    for (int i = 0; i < standardModeChannelNames.length; i++) {
+      timesPerChannel.add(registerCompoundParameter("T" + standardModeChannelNames[i],
+          60 * 5, 2, 60 * 60));
+    }
+    fadeTimeP = registerCompoundParameter("FadeT", 1.0, 0.0, 10.0);
+    timePerAudioChannelP1 = registerCompoundParameter("Aud-1", 60, 2, 360);
+    timePerAudioChannelP2 = registerCompoundParameter("Aud-Multi", 60, 2, 360);
+    save();
 
     audioMonitorLevels = audioMonitor;
     // When enabled, audio monitoring can trigger automatic channel switching.
@@ -210,9 +229,19 @@ public class UIModeSelector extends UICollapsibleSection {
     section.setBackgroundColor(0xFF222222);
     section.addToContainer(this);
 
-    knobsContainer = new UI2dContainer(0, 30, getContentWidth(), 45);
-    knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
-    knobsContainer.setPadding(0, 0, 0, 0);
+    //knobsContainer = new UI2dContainer(0, 30, getContentWidth(), 45);
+    //knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
+    //knobsContainer.setPadding(0, 0, 0, 0);
+    for (int i = 0; i < timesPerChannel.size(); i++) {
+      if (i % 4 == 0) {
+        knobsContainer = new UI2dContainer(0, 30, getContentWidth(), 45);
+        knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
+        knobsContainer.setPadding(0, 0, 0, 0);
+        knobsContainer.addToContainer(section);
+      }
+      new UIKnob(timesPerChannel.get(i)).addToContainer(knobsContainer);
+    }
+    /*
     timePerChannel = new UIKnob(timePerChannelP);
     timePerChannel.addToContainer(knobsContainer);
     timePerChannel2 = new UIKnob(timePerChannelP2);
@@ -221,7 +250,8 @@ public class UIModeSelector extends UICollapsibleSection {
     timePerChannel3.addToContainer(knobsContainer);
     timePerChannel4 = new UIKnob(timePerChannelP4);
     timePerChannel4.addToContainer(knobsContainer);
-    knobsContainer.addToContainer(section);
+    */
+    //knobsContainer.addToContainer(section);
 
     section = new UICollapsibleSection(this.ui, 0, 0, getContentWidth(), 30);
     section.setTitle("Audio Channel Timing");
@@ -239,6 +269,16 @@ public class UIModeSelector extends UICollapsibleSection {
     timePerAudioChannel2.addToContainer(knobsContainer);
     knobsContainer.addToContainer(section);
 
+    // Button saving config.
+    new UIButton(10, 7, 40, 20) {
+      @Override
+      public void onToggle(boolean on) {
+        if (on) {
+          save();
+        }
+      }
+    }.setLabel("save").setMomentary(true).addToContainer(this);
+
     if (lx.engine.audio.input != null) {
       if (lx.engine.audio.input.device.getObject().isAvailable()) {
         this.standardMode.setActive(true);
@@ -251,8 +291,56 @@ public class UIModeSelector extends UICollapsibleSection {
       logger.warning("Audio Input is null.");
     }
 
+    standardModeCycle = new StandardModeCycle();
     lx.engine.addLoopTask(new StandardModeCycle());
     lx.engine.addLoopTask(new AudioModeCycle());
+  }
+
+  public void load() {
+    paramFile = new ParameterFile(filename);
+    try {
+      paramFile.load();
+    } catch (PropertyFile.NotFound nfex) {
+      System.out.println(filename + ", property not found.");
+    } catch (IOException ioex) {
+      System.err.println(filename + " not found, will be created.");
+    }
+  }
+
+  public void save() {
+    try {
+      paramFile.save();
+    } catch (IOException ioex) {
+      System.err.println("Error saving " + filename + " " + ioex.getMessage());
+    }
+  }
+
+  public StringParameter registerStringParameter(String label, String value) {
+    StringParameter sp = paramFile.getStringParameter(label, value);
+    parameters.add(sp);
+    paramLookup.put(label, sp);
+    return sp;
+  }
+
+  public CompoundParameter registerCompoundParameter(String label, double value, double base, double range) {
+    CompoundParameter cp = paramFile.getCompoundParameter(label, value, base, range);
+    parameters.add(cp);
+    paramLookup.put(label, cp);
+    return cp;
+  }
+
+  public DiscreteParameter registerDiscreteParameter(String label, int value, int min, int max) {
+    DiscreteParameter dp = paramFile.getDiscreteParameter(label, value, min, max);
+    parameters.add(dp);
+    paramLookup.put(label, dp);
+    return dp;
+  }
+
+  public BooleanParameter registerBooleanParameter(String label, boolean value) {
+    BooleanParameter bp = paramFile.getBooleanParameter(label, value);
+    parameters.add(bp);
+    paramLookup.put(label, bp);
+    return bp;
   }
 
   /**
@@ -424,11 +512,50 @@ public class UIModeSelector extends UICollapsibleSection {
 
   public class StandardModeCycle implements LXLoopTask {
     public double currentChannelPlayTime = 0.0;
-    public double timePerChannel = 5000.0;  // This is settable in the UI.
-    public double fadeTime = 1000.0;  // This is settable in the UI.
+    public double timePerChannel = 5000.0;  // Default. This is settable in the UI. milliseconds.
+    public double fadeTime = 1000.0;  // This is settable in the UI. milliseconds
     public double prevChannelDisableThreshold = 0.1;  // Settable in UI? How low slider goes before full disable.
     public double channelFadeFullThreshold = 0.1; // At this value just set it to 1.  Deals with chunkiness around time.
     public double fadeTimeRemaining = 0.0;
+    public boolean noEligibleChannels = true;
+    public boolean isInitialized = false;
+
+    /**
+     * With the program scheduling feature, it is possible that somebody configured things such that there
+     * are no eligible channels to play.  In that case return false and set the noEligibleChannels flag so
+     * that our loop doesn't attempt to do anything.
+     * @return
+     */
+    public boolean initializeChannel() {
+      isInitialized = true;
+      int okChannel = -1;
+      LXChannelBus okChannelBus = null;
+      // Go through all channels and disable them.  Enable the first channel that is eligible to play in this
+      // timeslot.
+      logger.info("Initializing STD mode");
+      for (int i = 0; i < standardModeChannels.size(); i++) {
+        LXChannelBus currentChannel = standardModeChannels.get(i);
+        if (currentChannel != null) {
+          logger.info("Checking channel: " + currentChannel.getLabel());
+          currentChannel.enabled.setValue(false);
+          if (channelIsEligibleByTime(currentChannel) && okChannel == -1) {
+            currentChannel.enabled.setValue(true);
+            noEligibleChannels = false;
+            okChannel = i;
+            okChannelBus = currentChannel;
+          }
+        }
+      }
+      currentPlayingChannel = okChannel;
+      currentChannelPlayTime = 0.0;
+      if (okChannelBus != null) {
+        okChannelBus.fader.setValue(1.0);
+      }
+      fadeTimeRemaining = 0.0;
+      if (noEligibleChannels)
+        logger.info("WARNING! No eligible channel time-slots at startup, disabling standard mode!");
+      return !noEligibleChannels;
+    }
 
     // TODO(tracy): Audio-Standard mode switching with faders.
     // When auto audio detection is fading in, we want to fade any active standard channels to 0
@@ -445,6 +572,17 @@ public class UIModeSelector extends UICollapsibleSection {
       if (!UIModeSelector.this.standardModeP.getValueb())
         return;
 
+      if (!isInitialized) {
+        initializeChannel();
+      }
+
+      if (noEligibleChannels)
+        return;
+
+      fadeTime = UIModeSelector.fadeTimeP.getValue() * 1000f;
+      // UI is in seconds.  Convert to milliseconds.
+      timePerChannel = UIModeSelector.timesPerChannel.get(currentPlayingChannel).getValuef() * 1000f;
+
       // Disable Standard-mode channel switching for AnimatedTextPP/TextFX patterns to prevent
       // fading in the middle of text.  We achieve this by effectively stalling the
       // currentChannelPlayTime until the current channel is no longer an
@@ -455,7 +593,10 @@ public class UIModeSelector extends UICollapsibleSection {
         if (c.patterns.size() > 0) {
           LXPattern p = c.getActivePattern();
           if (p instanceof AnimatedTextPP || p instanceof TextFx) {
-            currentChannelPlayTime = 0.0;
+            // Let's always set it at 5 seconds until transition so that if we have something like
+            // a Flags pattern have a series of text patterns then the scheduler can change channels
+            // while the Flags pattern is playing.
+            currentChannelPlayTime = timePerChannel - 5000f;
           }
         }
       } else if (channelBus instanceof LXGroup) {
@@ -465,25 +606,11 @@ public class UIModeSelector extends UICollapsibleSection {
             if (c.patterns.size() > 0) {
               LXPattern p = c.getActivePattern();
               if (p instanceof AnimatedTextPP || p instanceof TextFx) {
-                currentChannelPlayTime = 0.0;
+                currentChannelPlayTime = timePerChannel - 5000f;
               }
             }
           }
         }
-      }
-
-      fadeTime = UIModeSelector.fadeTimeP.getValue();
-      // TODO(tracy): This should be settable by Channel so that we can adjust
-      // it for more fair scheduling.
-      timePerChannel = UIModeSelector.timePerChannelP.getValue();
-      if (currentPlayingChannel == 0) {
-        timePerChannel = UIModeSelector.timePerChannelP.getValue();
-      } else if (currentPlayingChannel == 1) {
-        timePerChannel = UIModeSelector.timePerChannelP2.getValue();
-      } else if (currentPlayingChannel == 2) {
-        timePerChannel = UIModeSelector.timePerChannelP3.getValue();
-      } else if (currentPlayingChannel == 3) {
-        timePerChannel = UIModeSelector.timePerChannelP4.getValue();
       }
 
       // If our current configuration doesn't have multiple standard channel names, just no-op.
@@ -513,25 +640,71 @@ public class UIModeSelector extends UICollapsibleSection {
       }
 
       currentChannelPlayTime += deltaMs;
-      // Exceeded our per-channel time, begin to fade.
+      // Exceeded our per-channel time, select new channel and begin to fade.
+      // We will keep looking for a new channel until we find something that is
+      // eligible for the current time window.  If we can't find an additional
+      // channel, we will just stick to the current channel.  If even the
+      // current channel has become ineligible due to time constraints (past it's
+      // window) then we will still stick with the current channel.
       if (currentChannelPlayTime + deltaMs > timePerChannel) {
-        LXChannelBus currentChannel = standardModeChannels.get(currentPlayingChannel);
-        //currentChannel.enabled.setValue(false);
+        LXChannelBus currentChannel;
         previousPlayingChannel = currentPlayingChannel;
-        ++currentPlayingChannel;
-        if (currentPlayingChannel >= standardModeChannels.size()) {
-          currentPlayingChannel = 0;
+        int loopCount = 0;
+        do {
+          // Next channel index, loop if that the end.
+          ++currentPlayingChannel;
+          if (currentPlayingChannel >= standardModeChannels.size()) {
+            currentPlayingChannel = 0;
+          }
+          // It is possible that we have only one eligible channel and that it is no longer eligible.  In which case,
+          // we should just stick with the current channel and keep trying until maybe we get some other eligible
+          // channels.  This is an abnormal case, but we want to do something reasonable in the face of user error.
+          // This scenario will be indicated by multiple passes through this loop.
+          if (currentPlayingChannel == previousPlayingChannel) {
+            loopCount++;
+          }
+          // if (currentChannel != null)
+          //   logger.info("previous: " + currentChannel.getLabel());
+          currentChannel = standardModeChannels.get(currentPlayingChannel);
+        } while (!channelIsEligibleByTime(currentChannel) && loopCount < 2);
+
+        // If there is only one eligible channel then the currentChannel will
+        // equal to the previous channel, so in that case, just reset the
+        // currentChannelPlayTime to 0.0
+        if (previousPlayingChannel != currentPlayingChannel) {
+          // If a standard channel was not in the project file, currentChannel can be null
+          // here.
+          if (currentChannel != null) {
+            //logger.info("current: " + currentChannel.getLabel());
+            currentChannel.enabled.setValue(true);
+            currentChannelPlayTime = 0.0; // Reset play time counter.
+            fadeTimeRemaining = fadeTime;
+          }
+        } else {
+          currentChannelPlayTime = 0.0;
         }
-        // logger.info("previous: " + currentChannel.getLabel());
-        currentChannel = standardModeChannels.get(currentPlayingChannel);
-        // logger.info("current: " + currentChannel.getLabel());
-        if (currentChannel != null) {
-          currentChannel.enabled.setValue(true);
-          currentChannelPlayTime = 0.0; // Reset play time counter.
-        }
-        fadeTimeRemaining = fadeTime;
         // logger.info("Switching channels:" + currentPlayingChannel);
       }
+    }
+  }
+
+  /**
+   * Determine if this channel is eligible to be played at this time.  This allows us
+   * to assign channels to blocks of time which opens up more program scheduling options.
+   * @param channel
+   * @return
+   */
+  public boolean channelIsEligibleByTime(LXChannelBus channel) {
+    if (channel == null) return false;
+    int startMinutes = RainbowStudio.programConfig.getChannelStart(channel.getLabel());
+    int endMinutes = RainbowStudio.programConfig.getChannelEnd(channel.getLabel());
+    int now = LXTime.hour() * 60 + LXTime.minute();
+    if (startMinutes < endMinutes) {
+      // Normal daytime interval
+      return (now >= startMinutes) && (now < endMinutes);
+    } else {
+      // Wrapping around midnight
+      return (now >= startMinutes) || (now < endMinutes);
     }
   }
 
@@ -549,10 +722,11 @@ public class UIModeSelector extends UICollapsibleSection {
 
       fadeTime = UIModeSelector.fadeTimeP.getValue();
 
+      // UI is in seconds.  Convert to milliseconds.
       if (currentPlayingAudioChannel == 0) {
-        timePerChannel = UIModeSelector.timePerAudioChannelP1.getValue();
+        timePerChannel = UIModeSelector.timePerAudioChannelP1.getValue() * 1000f;
       } else if (currentPlayingChannel == 1) {
-        timePerChannel = UIModeSelector.timePerAudioChannelP2.getValue();
+        timePerChannel = UIModeSelector.timePerAudioChannelP2.getValue() * 1000f;
       }
 
       // If our current configuration doesn't have multiple standard channel names, just no-op.

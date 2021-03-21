@@ -141,6 +141,7 @@ public class RainbowStudio extends PApplet {
   public static boolean fullscreenMode = false;
   public static UI3dContext fullscreenContext;
   public static UIGammaSelector gammaControls;
+  public static UIStdChConfig stdChConfig;
   public static UIModeSelector modeSelector;
   public static UIAudioMonitorLevels audioMonitorLevels;
   public static UIPixliteConfig pixliteConfig;
@@ -150,6 +151,7 @@ public class RainbowStudio extends PApplet {
   public static UIPanelConfig panel12Config;
   public static OSCSensor oscSensor;
   public static OSCSensorUI oscSensorUI;
+  public static UIProgramConfig programConfig;
 
   @Override
   public void settings() {
@@ -221,6 +223,7 @@ public class RainbowStudio extends PApplet {
         // Force Standard mode after opening a file.
         if (change == LX.ProjectListener.Change.OPEN) {
           modeSelector.initMode();
+          UIModeSelector.standardModeCycle.isInitialized = false;
         }
       }
     });
@@ -234,7 +237,9 @@ public class RainbowStudio extends PApplet {
 
     gammaControls = (UIGammaSelector) new UIGammaSelector(lx.ui).setExpanded(false).addToContainer(lx.ui.leftPane.global);
     audioMonitorLevels = (UIAudioMonitorLevels) new UIAudioMonitorLevels(lx.ui).setExpanded(false).addToContainer(lx.ui.leftPane.global);
+    stdChConfig = (UIStdChConfig) new UIStdChConfig(lx.ui, lx).setExpanded(false).addToContainer(lx.ui.leftPane.global);
     modeSelector = (UIModeSelector) new UIModeSelector(lx.ui, lx, audioMonitorLevels).setExpanded(true).addToContainer(lx.ui.leftPane.global);
+    programConfig = (UIProgramConfig) new UIProgramConfig(lx.ui, lx).setExpanded(false).addToContainer(lx.ui.leftPane.global);
     uiMidiControl = (UIMidiControl) new UIMidiControl(lx.ui, lx, modeSelector).setExpanded(false).addToContainer(lx.ui.leftPane.global);
     pixliteConfig = (UIPixliteConfig) new UIPixliteConfig(lx.ui, lx).setExpanded(false).addToContainer(lx.ui.leftPane.global);
     panel16Config = (UIPanelConfig) UIPanelConfig.newPanelConfig16(lx.ui, lx).setExpanded(false).addToContainer(lx.ui.leftPane.global);
@@ -387,8 +392,11 @@ public class RainbowStudio extends PApplet {
     }
   }
 
+  /**
+   * Old-style LXComponent based settings object.  Left for reference.  Currently using
+   * UIConfig.java with ParameterFile/PropertyFile for stored parameters now.
+   */
   private class Settings extends LXComponent {
-
     private final LXStudio.UI ui;
 
     private Settings(LX lx, LXStudio.UI ui) {
@@ -396,51 +404,12 @@ public class RainbowStudio extends PApplet {
       this.ui = ui;
     }
 
-    private static final String KEY_STDMODE_TIME = "stdModeTime";
-    private static final String KEY_STDMODE_TIME2 = "stdModeTime2";
-    private static final String KEY_STDMODE_TIME3 = "stdModeTime3";
-    private static final String KEY_STDMODE_TIME4 = "stdModeTime4";
-
-    private static final String KEY_AUDIOMODE_TIME = "audioModeTime";
-    private static final String KEY_AUDIOMODE_TIME2 = "audioModeTime2";
-
-    private static final String KEY_STDMODE_FADETIME = "stdModeFadeTime";
-
     @Override
     public void save(LX lx, JsonObject obj) {
-      obj.addProperty(KEY_STDMODE_TIME, UIModeSelector.timePerChannelP.getValue());
-      obj.addProperty(KEY_STDMODE_TIME2, UIModeSelector.timePerChannelP2.getValue());
-      obj.addProperty(KEY_STDMODE_TIME3, UIModeSelector.timePerChannelP3.getValue());
-      obj.addProperty(KEY_STDMODE_TIME4, UIModeSelector.timePerChannelP4.getValue());
-      obj.addProperty(KEY_AUDIOMODE_TIME, UIModeSelector.timePerAudioChannelP1.getValue());
-      obj.addProperty(KEY_AUDIOMODE_TIME2, UIModeSelector.timePerAudioChannelP2.getValue());
-      obj.addProperty(KEY_STDMODE_FADETIME, UIModeSelector.fadeTimeP.getValue());
     }
 
     @Override
     public void load(LX lx, JsonObject obj) {
-      logger.info("Loading settings....");
-      if (obj.has(KEY_STDMODE_TIME)) {
-        UIModeSelector.timePerChannelP.setValue(obj.get(KEY_STDMODE_TIME).getAsDouble());
-      }
-      if (obj.has(KEY_STDMODE_TIME2)) {
-        UIModeSelector.timePerChannelP2.setValue(obj.get(KEY_STDMODE_TIME2).getAsDouble());
-      }
-      if (obj.has(KEY_STDMODE_TIME3)) {
-        UIModeSelector.timePerChannelP3.setValue(obj.get(KEY_STDMODE_TIME3).getAsDouble());
-      }
-      if (obj.has(KEY_STDMODE_TIME4)) {
-        UIModeSelector.timePerChannelP4.setValue(obj.get(KEY_STDMODE_TIME4).getAsDouble());
-      }
-      if (obj.has(KEY_AUDIOMODE_TIME)) {
-        UIModeSelector.timePerAudioChannelP1.setValue(obj.get(KEY_AUDIOMODE_TIME).getAsDouble());
-      }
-      if (obj.has(KEY_AUDIOMODE_TIME2)) {
-        UIModeSelector.timePerAudioChannelP2.setValue(obj.get(KEY_AUDIOMODE_TIME2).getAsDouble());
-      }
-      if (obj.has(KEY_STDMODE_FADETIME)) {
-        UIModeSelector.fadeTimeP.setValue(obj.get(KEY_STDMODE_FADETIME).getAsDouble());
-      }
     }
   }
 

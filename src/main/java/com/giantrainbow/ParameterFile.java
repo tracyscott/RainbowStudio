@@ -1,10 +1,7 @@
 package com.giantrainbow;
 
 import com.google.gson.JsonObject;
-import heronarts.lx.parameter.CompoundParameter;
-import heronarts.lx.parameter.DiscreteParameter;
-import heronarts.lx.parameter.LXParameter;
-import heronarts.lx.parameter.StringParameter;
+import heronarts.lx.parameter.*;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -27,6 +24,7 @@ public class ParameterFile {
   public static final int TYPE_INT = 1;
   public static final int TYPE_FLOAT = 2;
   public static final int TYPE_DOUBLE = 3;
+  public static final int TYPE_BOOLEAN = 4;
 
   public ParameterFile(String filename) {
     props = new PropertyFile(filename);
@@ -67,6 +65,10 @@ public class ParameterFile {
         double v = param.get("v").getAsDouble();
         // System.out.println("Loading " + key + " double: " + v + " base: " + base + " range:" + range);
         CompoundParameter p = new CompoundParameter(key, v, base, range);
+        params.put(key, p);
+      } else if (type == PropertyFile.TYPE_BOOLEAN) {
+        boolean v = param.get("v").getAsBoolean();
+        BooleanParameter p = new BooleanParameter(key, v);
         params.put(key, p);
       }
     }
@@ -199,6 +201,20 @@ public class ParameterFile {
       //System.out.println("Founding existing compound parameter");
     }
     return cp;
+  }
+
+  public BooleanParameter newBooleanParameter(String name, boolean value) {
+    BooleanParameter bp = new BooleanParameter(name, value);
+    params.put(name, bp);
+    return bp;
+  }
+
+  public BooleanParameter getBooleanParameter(String name, boolean value) {
+    BooleanParameter bp = (BooleanParameter) params.get(name);
+    if (bp == null) {
+      bp = newBooleanParameter(name, value);
+    }
+    return bp;
   }
 
 }
