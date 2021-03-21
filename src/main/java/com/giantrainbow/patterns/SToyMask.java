@@ -27,6 +27,7 @@ public class SToyMask extends ShaderToy {
         loadMask();
       }
     });
+    loadMask();
   }
 
   protected void loadMask() {
