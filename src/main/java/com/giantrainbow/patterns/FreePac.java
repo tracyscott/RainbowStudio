@@ -33,10 +33,11 @@ import java.util.Collections;
 @LXCategory(LXCategory.FORM)
 public class FreePac extends CanvasPattern2D implements Positioner {
     public final static String[] messages = {
+	"Hello World",
 	"Stay Strong",
 	"Mask Up",
 	"Beat Covid",
-	"Black Lives Matters",
+	"Black Lives Matter",
 	"Fight Racism",
 	"Trump Is A Loser",
     };
@@ -97,8 +98,11 @@ public class FreePac extends CanvasPattern2D implements Positioner {
 
     public static final double HZ = 7000;
 
-    public static final long MIN_PERIOD = 5;
-    public static final long MAX_PERIOD = 15;
+    // @@@
+    // public static final long MIN_PERIOD = 5; 
+    // public static final long MAX_PERIOD = 15;
+    public static final long MIN_PERIOD = 2;
+    public static final long MAX_PERIOD = 3;
 
     // STRIDE is a full step P1..P3
     public static final float STRIDE = rangeRadius * 0.9f;
@@ -114,19 +118,27 @@ public class FreePac extends CanvasPattern2D implements Positioner {
     Letter [][]letters;
     ArrayList<Letter> depth;
     Random rnd = new Random();
-    double elapsed;
-    boolean init;
-    Gradient fullGradient;
-    Strange  strange;
-    PImage   currentStrange;
+
+    Strange strange;
+    PImage currentStrange;
 
     int [][]messageCharIndex;
-
+    
+    ShowState showState;
+    double elapsed;
     long epoch;
-    boolean targetting;
-    long nextGoalEpoch;
-    long nextShowEpoch;
+    long wanderUntil;
     int nextGoalMsgIndex;
+
+    enum ShowState {
+	WANDERING,
+	APPROACHING,
+	ARRIVING,
+	MESSAGING,
+	DEPARTING,
+	RESTARTING1,
+	RESTARTING2,
+    };
 
     enum GoalState {
 	UNINVOLVED,
@@ -153,9 +165,11 @@ public class FreePac extends CanvasPattern2D implements Positioner {
 	this.colorPlane = RainbowStudio.pApplet.loadImage("images/lab-square-lookup.png");
 	this.letters = new Letter[26][];
 	this.depth = new ArrayList<Letter>();
+
+	this.showState = ShowState.WANDERING;
+	this.elapsed = 0;
 	this.epoch = 0;
-	this.nextShowEpoch = 0;
-	this.nextGoalEpoch = 0;
+
 	this.messageCharIndex = new int[messages.length][];
 	this.strange = new Strange(this, this, "Pulse");
 
@@ -201,14 +215,14 @@ public class FreePac extends CanvasPattern2D implements Positioner {
 
 	    messageCharIndex[i] = positions;
 	}
-	setGoal(0);	
+	setNextMessage(0);	
     }
 
-    void setGoal(int g) {
-	this.nextGoalEpoch =
+    void setNextMessage(int g) {
+	this.wanderUntil =
 	    this.epoch +
 	    MIN_PERIOD +
-	    (long)(rnd.nextDouble() * (MAX_PERIOD - MIN_PERIOD));
+	    (long)(rnd.nextDouble() * (MAX_PERIOD - MIN_PERIOD + 0.5));
 	
 	nextGoalMsgIndex = g;
 
@@ -229,9 +243,6 @@ public class FreePac extends CanvasPattern2D implements Positioner {
 	    }
 	    int idx = messageCharIndex[g][p];
 
-	    // System.err.println("CH is " + ch);
-	    // System.err.println("IDX is " + idx + ":" + letters[(int)(ch - 'A')]);
-
 	    Letter l = letters[(int)(ch - 'A')][messageCharIndex[g][p]];
 
 	    depth.remove(l);
@@ -239,16 +250,11 @@ public class FreePac extends CanvasPattern2D implements Positioner {
 	    
 	    l.goal = GoalState.ATTRACTED;
 	    l.targetTheta = messageAngleStart + (float)(p * interval);
-	    
-	    // System.err.println("Goal " + g + " letter " + p + " is " + l + " " + messageCharIndex[g][p] + " at " + l.targetTheta);
 	}
     }
 
     class Point {
 	// World-space coords
-
-	// double theta;
-	// double radius;
 	double X;
 	double Y;
 
@@ -341,50 +347,46 @@ public class FreePac extends CanvasPattern2D implements Positioner {
 	    P0.set(P2);
 	    P1.set(P3);
 
-	    if (goal == GoalState.ATTRACTED && targetting) {
-		System.err.println("ATTRACTED TARGETTING");
+	    if (goal == GoalState.ATTRACTED && showState == ShowState.ARRIVING) {
+		// Set P2 and P3 intentionally: step 1.
+		// P1 is the former P3 and we know it's < 2*STRIDE
+		// distance to the target.
+		Point tgt = targetPos();
+		Point gap = P1.sub(tgt);
+		gap.scale(0.5);
 
-		    // Set P2 and P3 intentionally: step 1.
-		    // P1 is the former P3 and we know it's < 2*STRIDE
-		    // distance to the target.
-		    Point tgt = targetPos();
-		    Point gap = P1.sub(tgt);
-		    gap.scale(0.5);
-
-		    // Gap is the mid-point
-		    double legLen = Math.sqrt(STRIDE*STRIDE - gap.lengthSquared());
+		// Gap is the mid-point
+		double legLen = Math.sqrt(STRIDE*STRIDE - gap.lengthSquared());
 		    
-		    // Choose an arbitrary norm, TODO could choose the better one.
-		    Point norm = gap.norm1();
-		    Point leg = gap.add(norm.scale(legLen));
-		    P3.set(P1.add(leg));
-		    P2.set(P1.add(leg.scale(0.5)));
-		    this.goal = GoalState.LOCKEDIN;
+		// Choose an arbitrary norm, TODO could choose the better one.
+		Point norm = gap.norm1();
+		Point leg = gap.add(norm.scale(legLen));
+		P3.set(P1.add(leg));
+		P2.set(P1.add(leg.scale(0.5)));
+		this.goal = GoalState.LOCKEDIN;
 
 	    } else if (goal == GoalState.LOCKEDIN) {
-		System.err.println("LOCKEDIN");
+
 		P3 = targetPos();
 		Point v = P3.sub(P1);
 		P2 = P1.add(v.scale(0.5));
 		this.goal = GoalState.SHOWING;
 	    
 	    } else if (goal == GoalState.SHOWING) {
-		System.err.println("SHOWING!!!");
+
 		P3 = postTargetPos();
 		P2 = P1.add(P3.sub(P1).scale(0.5));
 		this.goal = GoalState.MOVINGON;
 
 	    } else if (goal == GoalState.MOVINGON) {
-		System.err.println("MOVINGON");
 
 		P3 = randPosNear(this.P1, this.P0, STRIDE, P2, this);
+
 	    } else if (goal == GoalState.UNINVOLVED) {
-		//System.err.println("UNINVOLVED");
 
 		P3 = randPosNear(this.P1, this.P0, STRIDE, P2, this);
+
 	    } else {
-		// Seeing attracted state here!!, meaning attrached and !targetting
-		System.err.println("NOT TARGETTING: " + goal);
 
 		P3 = randPosNear(this.P1, this.P0, STRIDE, P2, this);
 	    }		
@@ -426,18 +428,20 @@ public class FreePac extends CanvasPattern2D implements Positioner {
 	    int a = 255;
 	    int c = this.color;
 
-		if (goal == GoalState.UNINVOLVED) {
-		    if (epoch == nextShowEpoch) {
-			double t = elapsed % 1.;
-			a = (int)(255 * (1-t));
-		    } else if (epoch-1 == nextShowEpoch) {
-			double t = elapsed % 1.;
-			a = (int)(255 * t);
-		    }
-		} else {
-		    float f = (targetTheta - rainbowAngleStart) / rangeAngle;
-		    c = currentStrange.get((int)(420.*f), 0);
+	    if (goal == GoalState.UNINVOLVED) {
+		if (showState == ShowState.DEPARTING) {
+		    double t = elapsed % 1.;
+		    a = (int)(255 * (1-t));
+		} else if (showState == ShowState.RESTARTING1) {
+		    c = 0;
+		} else if (showState == ShowState.RESTARTING2) {
+		    double t = elapsed % 1.;
+		    a = (int)(255 * t);
 		}
+	    } else {
+		float f = (targetTheta - rainbowAngleStart) / rangeAngle;
+		c = currentStrange.get((int)(420.*f), 0);
+	    }
 
 	    pg.fill(Colors.red(c), Colors.green(c), Colors.blue(c), a);
 
@@ -449,44 +453,6 @@ public class FreePac extends CanvasPattern2D implements Positioner {
 	    pg.popMatrix();
 
 	    pg.popMatrix();
-
-	    // Draw the message (test)
-	    // if (goal != GoalState.UNINVOLVED) {
-	    // 	pg.pushMatrix();
-	    // 	Point tpos = this.targetPos();
-	    // 	// System.err.println("Target at " + tpos.X + ":" + tpos.Y +
-	    // 	//     " with " + targetTheta + " and letter " + ch);
-	    // 	pg.translate(canvas.map.subXi((float)(tpos.X)),
-	    // 		     canvas.map.subYi((float)tpos.Y));
-	    // 	pg.fill(255, 0, 0);
-	    // 	pg.noStroke();
-	    // 	pg.ellipse(0, 0, 5, 5);
-	    // 	pg.popMatrix();
-	    // }
-
-	    // Draw the Bezier curve
-	    // if (goal != GoalState.UNINVOLVED) {
-	    // 	pg.noStroke();
-	    // 	pg.fill(255, 0, 0);
-	    // 	pg.ellipse(canvas.map.subXi((float)P.X), canvas.map.subYi((float)P.Y), 5, 5);
-
-	    // 	pg.fill(255);
-	    // 	pg.ellipse(canvas.map.subXi((float)P0.X), canvas.map.subYi((float)P0.Y), 5, 5);
-	    // 	pg.ellipse(canvas.map.subXi((float)P1.X), canvas.map.subYi((float)P1.Y), 5, 5);
-	    // 	pg.ellipse(canvas.map.subXi((float)P2.X), canvas.map.subYi((float)P2.Y), 5, 5);
-
-	    // 	pg.stroke(255);
-	    // 	pg.strokeWeight(3);
-	    // 	pg.line(canvas.map.subXi((float)P0.X), canvas.map.subYi((float)P0.Y),
-	    // 		canvas.map.subXi((float)P1.X), canvas.map.subYi((float)P1.Y));
-	    // 	pg.line(canvas.map.subXi((float)P1.X), canvas.map.subYi((float)P1.Y),
-	    // 		canvas.map.subXi((float)P2.X), canvas.map.subYi((float)P2.Y));
-	    // 	pg.line(canvas.map.subXi((float)P2.X), canvas.map.subYi((float)P2.Y),
-	    // 		canvas.map.subXi((float)P3.X), canvas.map.subYi((float)P3.Y));
-	    // }
-
-	    // Draw the message
-	    
 	}
     };
 
@@ -538,8 +504,6 @@ public class FreePac extends CanvasPattern2D implements Positioner {
 	    double y = near.Y + dy;
 
 	    if (l != null && l.goal != GoalState.UNINVOLVED && loop < 10) {
-		long remainEpochs = nextGoalEpoch - epoch;
-
 		double theta = Math.atan2(y, x);
 
 		double dTheta = Math.abs(theta - l.targetTheta);
@@ -549,7 +513,6 @@ public class FreePac extends CanvasPattern2D implements Positioner {
 		if (dTheta > curDTheta) {
 		    continue;
 		}
-		// System.err.println("remainEpochs = " + remainEpochs);
 	    }
 
 	    if (mid != null) {
@@ -587,44 +550,18 @@ public class FreePac extends CanvasPattern2D implements Positioner {
     }
 
     public void draw(double deltaMs) {
+	double changeBy = deltaMs * speedKnob.getValue() / HZ;
+
+	if (changeBy > 1) {
+	    // This logic breaks badly if elapsed starts to jump by
+	    // more than 1. Clamp it.
+	    changeBy = 1;
+	}
+	elapsed += changeBy;
+
 	currentStrange = strange.update(deltaMs);
-	elapsed += deltaMs * speedKnob.getValue() / HZ;
 
-	if (!init) {
-	    this.init = true;
-	    this.fullGradient = Gradient.compute(pg, depth.size());
-	}
-
-	long newEpoch = (long)elapsed;
-	if (newEpoch > epoch) {
-
-	    if (inRange() && newEpoch >= nextGoalEpoch && nextShowEpoch < nextGoalEpoch) {
-		targetting = true;
-		nextShowEpoch = newEpoch + 2;
-		// System.err.println("Next show epoch " + nextShowEpoch);
-	    }
-	    
-	    epoch = newEpoch;
-	    // System.err.println("Epoch is " + epoch);
-
-	    for (Letter l : depth) {
-		l.update();
-	    }
-
-	    targetting = false;
-
-	    if (nextShowEpoch != 0 && nextShowEpoch < (epoch-1)) {
-		System.err.println("UPDATE GOAL");
-
-		while (true) {
-		    int next = rnd.nextInt(messages.length);
-		    if (next != nextGoalMsgIndex) {
-			setGoal(next);
-			break;
-		    }
-		}
-	    }
-	}
+	updateEpoch((long)elapsed);
 
 	pg.background(0);
 
@@ -640,15 +577,75 @@ public class FreePac extends CanvasPattern2D implements Positioner {
 	}
     }
 
-  // From EpilepticWarning.java
-  int patterns[][] = {
-    {0, 1, 2, 3},
-    {4, 5, 6, 7},
-    {8, 1, 9, 6, 8, 6, 9, 1},
-  };
+    void updateEpoch(long newEpoch) {
+	if (newEpoch < epoch) {
+	    throw new RuntimeException("invalid epoch " + newEpoch);
+	}
+	if (newEpoch == epoch) {
+	    return;
+	}
+	    
+	epoch = newEpoch;
 
-  public int[] getPositions(int period) {
-    int idx = period % patterns.length;
-    return patterns[idx];
-  }
+	switch (showState) {
+	case RESTARTING1:
+	    showState = ShowState.RESTARTING2;
+	    break;
+
+	case RESTARTING2:
+
+	    while (true) {
+		int next = rnd.nextInt(messages.length);
+		if (next != nextGoalMsgIndex) {
+		    setNextMessage(next);
+		    break;
+		}
+	    }
+	    showState = ShowState.WANDERING;
+
+	case WANDERING:
+
+	    if (newEpoch >= wanderUntil) {
+		showState = ShowState.APPROACHING;
+	    }
+	    break;
+
+	case APPROACHING:
+	    if (inRange()) {
+		showState = ShowState.ARRIVING;
+	    }
+
+	    break;
+	case ARRIVING:
+
+	    showState = ShowState.MESSAGING;
+	    break;
+
+	case MESSAGING:
+
+	    showState = ShowState.DEPARTING;
+	    break;
+
+	case DEPARTING:
+
+	    showState = ShowState.RESTARTING1;
+	    break;
+	}
+	
+	for (Letter l : depth) {
+	    l.update();
+	}
+    }
+
+    // From EpilepticWarning.java
+    int patterns[][] = {
+	{0, 1, 2, 3},
+	{4, 5, 6, 7},
+	{8, 1, 9, 6, 8, 6, 9, 1},
+    };
+
+    public int[] getPositions(int period) {
+	int idx = period % patterns.length;
+	return patterns[idx];
+    }
 }
