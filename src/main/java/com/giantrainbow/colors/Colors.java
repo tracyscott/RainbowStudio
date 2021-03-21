@@ -269,6 +269,10 @@ public final class Colors {
     return 0xff000000 | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff);
   }
 
+  public static int argb(int a, int r, int g, int b) {
+    return ((a & 0xff) << 24) | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff);
+  }
+
   /**
    * Returns a color constructed from the three components. The alpha component is set to 255.
    */

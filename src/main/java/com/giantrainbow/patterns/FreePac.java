@@ -558,7 +558,7 @@ public class FreePac extends CanvasPattern2D implements Positioner {
 
 	updateEpoch((long)elapsed);
 
-	pg.background(0);
+	pg.background(0, 0);
 
 	if (font != null) {
 	    pg.textFont(font);

@@ -1,10 +1,5 @@
 package com.giantrainbow.canvas;
 
-import static com.giantrainbow.colors.Colors.blue;
-import static com.giantrainbow.colors.Colors.green;
-import static com.giantrainbow.colors.Colors.red;
-import static com.giantrainbow.colors.Colors.rgb;
-
 import com.github.davidmoten.rtree.Entry;
 import com.github.davidmoten.rtree.RTree;
 import com.github.davidmoten.rtree.geometry.Geometries;
@@ -14,6 +9,8 @@ import heronarts.lx.model.LXPoint;
 import java.util.ArrayList;
 import java.util.HashSet;
 import org.apache.commons.math3.distribution.TDistribution;
+
+import static com.giantrainbow.colors.Colors.*;
 
 /** Map constructs a mapping from sub-sampled pixel to true pixel in the rainbow canvas. */
 public class Map {
@@ -276,7 +273,7 @@ public class Map {
   }
 
   int computePoint(int idx, Buffer buf) {
-    float r = 0, g = 0, b = 0;
+    float r = 0, g = 0, b = 0, a = 0;
     int end = positions[idx + 1];
 
     for (int off = positions[idx]; off < end; off++) {
@@ -285,8 +282,9 @@ public class Map {
       r += w * (float) red(s);
       g += w * (float) green(s);
       b += w * (float) blue(s);
+      a += w * (float) alpha(s);
     }
-    return rgb((int) r, (int) g, (int) b);
+    return argb((int)a, (int) r, (int) g, (int) b);
   }
 
   // public void dumpMap(LXModel model) {
