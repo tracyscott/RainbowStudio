@@ -26,7 +26,7 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
   private static final Logger logger = Logger.getLogger(RainbowImageBase.class.getName());
 
   public final CompoundParameter fpsKnob =
-      new CompoundParameter("Fps", 1.0, 10.0)
+      new CompoundParameter("Fps", 1.0, 40.0)
           .setDescription("Controls the frames per second.");
   public final BooleanParameter antialiasKnob =
       new BooleanParameter("antialias", true);
@@ -34,16 +34,24 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
       new StringParameter("img", "")
           .setDescription("Texture image for rainbow.");
   public final BooleanParameter tileKnob = new BooleanParameter("tile", false);
+  public CompoundParameter xOff = new CompoundParameter("x", 0.0, -500.0, 500.0)
+    .setDescription("X offset");
+  public CompoundParameter yOff = new CompoundParameter("y", 0.0, -100.0, 100.0)
+      .setDescription("Y offset");
+  public CompoundParameter scale = new CompoundParameter("scale", 1.0, 0.01, 10.0)
+      .setDescription("Scale image");
+  public BooleanParameter spriteMode = new BooleanParameter("sprite", false);
 
   protected List<FileItem> fileItems = new ArrayList<FileItem>();
   protected UIItemList.ScrollList fileItemList;
   protected List<String> imgFiles;
-  private static final int CONTROLS_MIN_WIDTH = 160;
+  private static final int CONTROLS_MIN_WIDTH = 240;
 
   private static final List<String> IMG_EXTS = Arrays.asList(".gif", ".png", ".jpg");
 
   protected PImage image;
   protected PImage tileImage;
+  protected PImage originalImage;
   protected int imageWidth = 0;
   protected int imageHeight = 0;
   protected String filesDir;  // Must end in a '/'
@@ -78,10 +86,15 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
         loadImg(iKnob.getString());
       }
     });
+    addParameter(xOff);
+    addParameter(yOff);
+    addParameter(scale);
+
     imgKnob.setValue(defaultFile);
     loadImg(imgKnob.getString());
 
     addParameter(tileKnob);
+    addParameter(spriteMode);
 
   }
 
@@ -89,7 +102,7 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
     logger.info("Loading image: " + imgname);
     tileImage = RainbowStudio.pApplet.loadImage(filesDir + imgname);
     if (!tileKnob.getValueb()) {
-      tileImage.resize(imageWidth, imageHeight);
+      //tileImage.resize(imageWidth, imageHeight);
       image = tileImage;
     } else {
       // Tile the image to fill the space horizontally.  Scale the image vertically
@@ -118,6 +131,8 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
       pg.loadPixels();
       image = pg;
     }
+    // We need to save the original image for scaling.
+    originalImage = image.copy();
   }
 
   public void run(double deltaMs) {
@@ -162,10 +177,12 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
     device.setLayout(UI2dContainer.Layout.VERTICAL);
     device.setPadding(3, 3, 3, 3);
 
+    int knobWidth = 35;
+
     UI2dContainer knobsContainer = new UI2dContainer(0, 0, device.getWidth(), 45);
     knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
     knobsContainer.setPadding(3, 3, 3, 3);
-    new UIKnob(fpsKnob).addToContainer(knobsContainer);
+    new UIKnob(fpsKnob).setWidth(knobWidth).addToContainer(knobsContainer);
     if (includeAntialias) {
       UISwitch antialiasButton = new UISwitch(0, 0);
       antialiasButton.setParameter(antialiasKnob);
@@ -185,6 +202,7 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
     }.setParameter(tileKnob).setLabel("tile").setTextOffset(0, 20)
         .setWidth(28).setHeight(25).addToContainer(knobsContainer);
 
+    /*
     new UIButton() {
       @Override
       public void onToggle(boolean on) {
@@ -194,9 +212,20 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
       }
     }.setLabel("rescan dir")
         .setMomentary(true)
-        .setWidth(60)
+        .setWidth(50)
         .setHeight(25)
         .addToContainer(knobsContainer);
+        */
+    new UIButton()
+        .setParameter(spriteMode)
+        .setLabel("sprite")
+        .setTextOffset(0, 12)
+        .setWidth(24)
+        .setHeight(16)
+        .addToContainer(knobsContainer);
+    new UIKnob(xOff).setWidth(knobWidth).addToContainer(knobsContainer);
+    new UIKnob(yOff).setWidth(knobWidth).addToContainer(knobsContainer);
+    new UIKnob(scale).setWidth(knobWidth).addToContainer(knobsContainer);
 
     knobsContainer.addToContainer(device);
 
