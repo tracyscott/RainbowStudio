@@ -101,7 +101,7 @@ public class FreePac extends CanvasPattern2D implements Positioner {
     public static final float STRIDE = rangeRadius * 0.9f;
 
     public final CompoundParameter sizeKnob =
-	new CompoundParameter("FontSize", 48.20, 10, MAX_FONT_SIZE).setDescription("FontSize");
+	new CompoundParameter("FontSize", 60, 10, MAX_FONT_SIZE).setDescription("FontSize");
 
     public final CompoundParameter speedKnob =
 	new CompoundParameter("Speed", 5, 0, 10).setDescription("Speed");
