@@ -98,6 +98,7 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
   PGraphics toyGraphics;
   PImage textureImage;
   float[] u1, u2;
+  protected UI2dContainer bottomHalf, rightPanel, leftPanel;
 
   private static final int CONTROLS_MIN_WIDTH = 320;
 
@@ -300,6 +301,7 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
   }
 
   public void draw(double drawDeltaMs) {
+    preDraw(drawDeltaMs);
     GraphicMeter eq = lx.engine.audio.meter;
     byte[] fftAudioTex = new byte[1024];
     for (int i = 0; i < 256; i++) {
@@ -345,6 +347,25 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
     toyGraphics.updatePixels();
     pg.image(toyGraphics, 0, 0);
     texAudio.release();
+    postDraw(drawDeltaMs);
+  }
+
+  /**
+   * Pre-draw hook for child classes.
+   *
+   * @param drawDeltaMs
+   */
+  protected void preDraw(double drawDeltaMs) {
+
+  }
+
+  /**
+   * Post-draw hook for child classes.
+   *
+   * @param drawDeltaMs
+   */
+  protected void postDraw(double drawDeltaMs) {
+
   }
 
   static public void shaderApply(DwPixelFlow context, DwShadertoy toy, PGraphicsOpenGL pg_dst, float[] u1, float[] u2) {
@@ -392,6 +413,13 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
     return RainbowStudio.pApplet.createInput(this.shaderFileKnob.getString() + ".frag");
   }
 
+  /**
+   * Hook for subclasses to add additional UI.
+   */
+  protected void addUI() {
+
+  }
+
   //
   // Custom UI to allow for the selection of the shader file
   //
@@ -416,17 +444,17 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
     new UIKnob(U1w).setWidth(knobWidth).addToContainer(knobsContainer);
     knobsContainer.addToContainer(device);
 
-    UI2dContainer bottomHalf = new UI2dContainer(0, 45, device.getWidth() - 30, device.getHeight() - 45);
+    bottomHalf = new UI2dContainer(0, 45, device.getWidth() - 30, device.getHeight() - 45);
     bottomHalf.setLayout(UI2dContainer.Layout.HORIZONTAL);
     bottomHalf.addToContainer(device);
     bottomHalf.setPadding(0);
 
-    UI2dContainer leftPanel = new UI2dContainer(0, 0, device.getWidth()/2 - 15, device.getHeight() - 45);
+    leftPanel = new UI2dContainer(0, 0, device.getWidth()/2 - 15, device.getHeight() - 45);
     leftPanel.setLayout(UI2dContainer.Layout.VERTICAL);
     leftPanel.addToContainer(bottomHalf);
     leftPanel.setPadding(0);
 
-    UI2dContainer rightPanel = new UI2dContainer(0, 0, device.getWidth()/2 - 15, device.getHeight() - 45);
+    rightPanel = new UI2dContainer(0, 0, device.getWidth()/2 - 15, device.getHeight() - 45);
     rightPanel.setLayout(UI2dContainer.Layout.VERTICAL);
     rightPanel.addToContainer(bottomHalf);
     rightPanel.setPadding(0);
@@ -497,6 +525,9 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
     fileItemList.setShowCheckboxes(false);
     fileItemList.setItems(fileItems);
     fileItemList.addToContainer(leftPanel);
+
+    // Hook for subclasses.
+    addUI();
   }
 
   public class FileItem extends FileItemBase {
