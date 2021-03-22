@@ -401,15 +401,15 @@ public class FreePac extends CanvasPattern2D implements Positioner {
 	    // Target position is the P1 of the last Bezier curve before
 	    // reaching the display position (which is P2).
 	    Point p = new Point();
-	    p.X = (float)Math.cos(targetTheta) * (centerRadius - STRIDE/2);
-	    p.Y = (float)Math.sin(targetTheta) * (centerRadius - STRIDE/2);
+	    p.X = (float)Math.cos(targetTheta) * (centerRadius - STRIDE*5/8);
+	    p.Y = (float)Math.sin(targetTheta) * (centerRadius - STRIDE*5/8);
 	    return p;
 	}
 
 	Point postTargetPos() {
 	    Point p = new Point();
-	    p.X = (float)Math.cos(targetTheta) * (centerRadius + STRIDE/2);
-	    p.Y = (float)Math.sin(targetTheta) * (centerRadius + STRIDE/2);
+	    p.X = (float)Math.cos(targetTheta) * (centerRadius + STRIDE*3/8);
+	    p.Y = (float)Math.sin(targetTheta) * (centerRadius + STRIDE*3/8);
 	    return p;
 	}
 
