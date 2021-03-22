@@ -18,12 +18,17 @@ public class PowerLimiter extends LXEffect {
       new CompoundParameter("target", 1.0, 0.1, 1.0)
           .setDescription("Power target limiter");
 
+  public final CompoundParameter maxDetected =
+      new CompoundParameter("max", 0.0, 0.0, 420 * 30 * 3 * 255)
+      .setDescription("Maximum power use detected.");
+
   public final BooleanParameter clipDetect = new BooleanParameter("clip", false).setDescription("Clip detector");
 
   public PowerLimiter(LX lx) {
     super(lx);
     addParameter(maxPowerPercent);
     addParameter(clipDetect);
+    addParameter(maxDetected);
   }
 
   /**
@@ -64,6 +69,11 @@ public class PowerLimiter extends LXEffect {
       totalPower += Colors.red(colors[i]) + Colors.green(colors[i]) + Colors.blue(colors[i]);
     }
     long targetPower = (long)(maxTheoreticalPower * maxPowerPercent.getValuef());
+    if (totalPower > maxDetected.getValuef()) {
+      maxDetected.setValue(totalPower);
+      logger.info("New Max Power: " + maxDetected.getValuef()/(double)maxTheoreticalPower);
+      logActiveChannelNames();
+    }
     if (totalPower > targetPower) {
       if (!clipDetect.getValueb()) {
         logger.info("Clip detected!!!!!!!!");
