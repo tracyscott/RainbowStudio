@@ -94,8 +94,8 @@ public class FreePac extends CanvasPattern2D implements Positioner {
 
     public static final double HZ = 7000;
 
-    public static final long MIN_PERIOD = 10;
-    public static final long MAX_PERIOD = 20;
+    public static final long MIN_PERIOD = 1;
+    public static final long MAX_PERIOD = 2;
 
     // STRIDE is a full step P1..P3
     public static final float STRIDE = rangeRadius * 0.9f;
