@@ -94,8 +94,8 @@ public class FreePac extends CanvasPattern2D implements Positioner {
 
     public static final double HZ = 7000;
 
-    public static final long MIN_PERIOD = 10;
-    public static final long MAX_PERIOD = 20;
+    public static final long MIN_PERIOD = 1;
+    public static final long MAX_PERIOD = 2;
 
     // STRIDE is a full step P1..P3
     public static final float STRIDE = rangeRadius * 0.9f;
@@ -401,15 +401,15 @@ public class FreePac extends CanvasPattern2D implements Positioner {
 	    // Target position is the P1 of the last Bezier curve before
 	    // reaching the display position (which is P2).
 	    Point p = new Point();
-	    p.X = (float)Math.cos(targetTheta) * (centerRadius - STRIDE/2);
-	    p.Y = (float)Math.sin(targetTheta) * (centerRadius - STRIDE/2);
+	    p.X = (float)Math.cos(targetTheta) * (centerRadius - STRIDE*5/8);
+	    p.Y = (float)Math.sin(targetTheta) * (centerRadius - STRIDE*5/8);
 	    return p;
 	}
 
 	Point postTargetPos() {
 	    Point p = new Point();
-	    p.X = (float)Math.cos(targetTheta) * (centerRadius + STRIDE/2);
-	    p.Y = (float)Math.sin(targetTheta) * (centerRadius + STRIDE/2);
+	    p.X = (float)Math.cos(targetTheta) * (centerRadius + STRIDE*3/8);
+	    p.Y = (float)Math.sin(targetTheta) * (centerRadius + STRIDE*3/8);
 	    return p;
 	}
 
