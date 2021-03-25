@@ -19,7 +19,7 @@ public class FontUtil {
       "04b 30",
       "Press Start Regular",
       "NotoSansSC-Regular",
-      "NotoSansArabic-Regular",
+      "Noto Sans Arabic Regular",
       "3Dventure",
       "FTBlockbusta",
       "Lunch",
@@ -76,6 +76,7 @@ public class FontUtil {
     if (RainbowStudio.pApplet.platform == PConstants.MACOSX) {
       if (fname.equals("04b 30")) return "04b";
       if (fname.equals("Press Start Regular")) return "PressStart2P";
+      if (fname.equals("Noto Sans Arabic Regular")) return "NotoSansArabic-Regular";
     }
     return fname;
   }
