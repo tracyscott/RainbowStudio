@@ -167,12 +167,12 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
 	
     c += c1;
     
-    vec3 skycolour = mix(skycolour2, skycolour1, p.y);
+    vec3 skycolour = mix(skycolour2, skycolour1, 1.); //p.y);
     vec3 cloudcolour = vec3(1.1, 1.1, 0.9) * clamp((clouddark + cloudlight*c), 0.0, 1.0);
    
     f = cloudcover + cloudalpha*f*r;
     
     vec3 result = mix(skycolour, clamp(skytint * skycolour + cloudcolour, 0.0, 1.0), clamp(f + c, 0.0, 1.0));
-    vec3 sun = getSun(origUv);
+    vec4 sun = getSun(origUv);
 	fragColor = vec4( result, 1.0 ) + sun;
 }
