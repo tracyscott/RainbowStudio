@@ -5,6 +5,8 @@ import com.giantrainbow.PropertyFile;
 import com.giantrainbow.RainbowStudio;
 import com.giantrainbow.UtilsForLX;
 import com.giantrainbow.patterns.AnimatedTextPP;
+import com.giantrainbow.patterns.HereComesSun;
+import com.giantrainbow.patterns.OxNewYear;
 import com.giantrainbow.patterns.TextFx;
 import heronarts.lx.*;
 import heronarts.lx.parameter.*;
@@ -609,7 +611,8 @@ public class UIModeSelector extends UICollapsibleSection {
         LXChannel c = (LXChannel) channelBus;
         if (c.patterns.size() > 0) {
           LXPattern p = c.getActivePattern();
-          if (p instanceof AnimatedTextPP || p instanceof TextFx) {
+          if (p instanceof AnimatedTextPP || p instanceof TextFx || p instanceof OxNewYear
+          || p instanceof HereComesSun) {
             // Let's always set it at 5 seconds until transition so that if we have something like
             // a Flags pattern have a series of text patterns then the scheduler can change channels
             // while the Flags pattern is playing.
@@ -622,7 +625,8 @@ public class UIModeSelector extends UICollapsibleSection {
           for (LXChannel c : g.channels) {
             if (c.patterns.size() > 0) {
               LXPattern p = c.getActivePattern();
-              if (p instanceof AnimatedTextPP || p instanceof TextFx) {
+              if (p instanceof AnimatedTextPP || p instanceof TextFx || p instanceof OxNewYear
+              || p instanceof HereComesSun) {
                 currentChannelPlayTime = timePerChannel - 5000f;
               }
             }

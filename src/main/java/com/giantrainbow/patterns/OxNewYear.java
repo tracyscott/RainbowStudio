@@ -5,6 +5,7 @@ import com.giantrainbow.RainbowStudio;
 import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwShadertoy;
 import heronarts.lx.LX;
+import heronarts.lx.parameter.BooleanParameter;
 import heronarts.lx.parameter.CompoundParameter;
 import processing.core.PFont;
 import processing.core.PGraphics;
@@ -22,6 +23,11 @@ public class OxNewYear extends PGPixelPerfect {
   public CompoundParameter txtY = new CompoundParameter("txtY", 24, 0, 30);
   public CompoundParameter txtX = new CompoundParameter("txtX", 56, 0, 200);
   public CompoundParameter fireworksFps = new CompoundParameter("fwkFps", 8, .1, 40);
+  public BooleanParameter advP = new BooleanParameter("advP", true)
+      .setDescription("Advance to the next pattern when finished");
+  public BooleanParameter doBG = new BooleanParameter("bg", true)
+      .setDescription("Draw starry night background");
+
   public String happyNewYear = "恭禧發財";
   public int[][] oxFrames = new int[4][];
   public int[][] fireworksFrames = new int[4][];
@@ -29,6 +35,7 @@ public class OxNewYear extends PGPixelPerfect {
   PFont font;
   float txtPos = 0f;
   AnimSprite[] fireworks;
+  boolean autoCycleWasEnabled = true;
 
   private static final String LOCAL_SHADER_DIR = "shaders/";
   private static final String CLOUDS_SHADER = "stars.frag";
@@ -69,9 +76,12 @@ public class OxNewYear extends PGPixelPerfect {
     addParameter(oxFps);
     addParameter(txtY);
     addParameter(txtX);
+    addParameter(fireworksFps);
+    addParameter(advP);
+    addParameter(doBG);
+
     oxen[0].enable();
     oxen[1].enable();
-    float txtPos = oxen[0].xPos + txtX.getValuef();
     font = FontUtil.getCachedFont("NotoSansSC-Regular", 24);
     initShader();
   }
@@ -122,10 +132,23 @@ public class OxNewYear extends PGPixelPerfect {
     return toyGraphics;
   }
 
+  public void resetAnimation() {
+    oxen[0].xPos = 480f;
+    oxen[1].xPos = 650f;
+  }
+
+  @Override
+  public void onActive() {
+    autoCycleWasEnabled = getChannel().autoCycleEnabled.getValueb();
+    getChannel().autoCycleEnabled.setValue(false);
+    resetAnimation();
+  }
+
   @Override
   public void draw(double deltaDrawMs) {
     pg.background(0, 0);
-    pg.image(runShader(), 0, 0);
+    if (doBG.isOn())
+      pg.image(runShader(), 0, 0);
     pg.textFont(font);
     for (int i = 0; i < fireworks.length; i++) {
       PImage frame = fireworks[i].nextFrame(deltaDrawMs, fireworksFps.getValuef(), 0f);
@@ -135,14 +158,16 @@ public class OxNewYear extends PGPixelPerfect {
       PImage frame = oxen[i].nextFrame(deltaDrawMs, oxFps.getValuef(), speedKnob.getValuef());
       if (frame != null)
         pg.image(frame, oxen[i].xPos, oxen[i].yPos, frame.width, frame.height);
-      if (oxen[i].xPos < -240)
-        oxen[i].xPos = 420;
+      if (oxen[i].xPos < -60 && i == 1) {
+        resetAnimation();
+        if (advP.getValueb()) {
+          // advance pattern
+          getChannel().autoCycleEnabled.setValue(autoCycleWasEnabled);
+          getChannel().goNext();
+        }
+      }
     }
     pg.fill(200, 0, 0);
     pg.text(happyNewYear, oxen[0].xPos + txtX.getValuef(), txtY.getValuef());
-    txtPos -= speedKnob.getValuef();
-    if (txtPos < -240) {
-      txtPos = 420 + txtX.getValuef();
-    }
   }
 }

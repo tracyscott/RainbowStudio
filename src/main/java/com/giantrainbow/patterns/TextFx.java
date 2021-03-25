@@ -89,6 +89,15 @@ public class TextFx extends PGPixelPerfect implements CustomDeviceUI {
   float curHoldTime = 0.0f;
   boolean needTextsReload = true;
 
+  // Set this to false to prevent pre-rendering characters to image glyphs.  Pre-rendering is
+  // preferable for Rainbow image multiplying and small amounts of text.  For large amounts of scrolling
+  // text, it is probably better to just render the text directly so that we don't use too much
+  // memory.
+  protected boolean preRenderCh = true;
+  // Allow for overriding the space character width.  This is to squeeze as much horizontal width as is
+  // legible.
+  int spaceChWidth = -1;
+
   int textGapPixels = 10;
   PFont font;
   List<CharSprite> chSprites = new ArrayList<CharSprite>();
@@ -284,7 +293,6 @@ public class TextFx extends PGPixelPerfect implements CustomDeviceUI {
 
     taDetails = new TextAnimDetails();
     taDetails.fullText = label;
-    int paddingForRotate = 0;
     List<CharSprite> oldSprites = chSprites;
     chSprites = new ArrayList<CharSprite>();
     int curPos = 0;
@@ -306,6 +314,8 @@ public class TextFx extends PGPixelPerfect implements CustomDeviceUI {
       }
 
       float chWidth = pg.textWidth(chSprite.ch);
+      if (spaceChWidth != -1 && " ".equals(chSprite.ch))
+        chWidth = spaceChWidth;
       if (lineNumber == 1)
         xOffset = 0f; //130f;
       // Initial targetPosX is just 0 + character offset, i.e. relative to the start of the line.
@@ -319,36 +329,41 @@ public class TextFx extends PGPixelPerfect implements CustomDeviceUI {
         chWidth = chWidthNoCrash;
       }
 
-      chSprite.chImage = RainbowStudio.pApplet.createGraphics((int)chWidth, fontSizeKnob.getValuei() + spriteAdj.getValuei());
-      // chSprite.chImage.noSmooth();
-      chSprite.chImage.beginDraw();
-      chSprite.chImage.background(0, 0);
+      if (preRenderCh) {
+        chSprite.chImage = RainbowStudio.pApplet.createGraphics((int)chWidth, fontSizeKnob.getValuei() + spriteAdj.getValuei());
+        chSprite.chImage.beginDraw();
+        // chSprite.chImage.noSmooth();
+        chSprite.chImage.background(0, 0);
 
-      if (!multiply.isOn()) {
-        int rgb = getNewRGB(i);
-        chSprite.chImage.fill(rgb);
-      } else {
-        chSprite.chImage.fill(255);
-      }
-      if (font != null) {
-        chSprite.chImage.textFont(font);
-      } else {
-        chSprite.chImage.textSize(fontSizeKnob.getValuei());
-      }
-      chSprite.chImage.text(chSprite.ch, 0, chSprite.chImage.height - chSprite.chImage.textDescent());
-      chSprite.chImage.endDraw();
-
-      if (multiply.isOn()) {
-        PImage multiplyImage = RenderImageUtil.rainbowFlagAsPGraphics(chSprite.chImage.width, chSprite.chImage.height);
-        chSprite.chImage.blend(multiplyImage, 0, 0, chSprite.chImage.width, chSprite.chImage.height, 0, 0,
-            chSprite.chImage.width, chSprite.chImage.height, RainbowStudio.pApplet.MULTIPLY);
-
-        chSprite.chImage.loadPixels();
-        // This is probably pretty inefficient but blend() above is not respecting transparency as I would expect.
-        for (int i2 = 0; i2 < chSprite.chImage.width * chSprite.chImage.height; i2++) {
-          if (chSprite.chImage.pixels[i2] == 0xFF000000)
-            chSprite.chImage.pixels[i2] = 0x00000000;
+        if (!multiply.isOn()) {
+          int rgb = getNewRGB(i);
+          chSprite.color = rgb;
+          chSprite.chImage.fill(rgb);
+        } else {
+          chSprite.chImage.fill(255);
         }
+        if (font != null) {
+          chSprite.chImage.textFont(font);
+        } else {
+          chSprite.chImage.textSize(fontSizeKnob.getValuei());
+        }
+        chSprite.chImage.text(chSprite.ch, 0, chSprite.chImage.height - chSprite.chImage.textDescent());
+        chSprite.chImage.endDraw();
+
+        if (multiply.isOn()) {
+          PImage multiplyImage = RenderImageUtil.rainbowFlagAsPGraphics(chSprite.chImage.width, chSprite.chImage.height);
+          chSprite.chImage.blend(multiplyImage, 0, 0, chSprite.chImage.width, chSprite.chImage.height, 0, 0,
+              chSprite.chImage.width, chSprite.chImage.height, RainbowStudio.pApplet.MULTIPLY);
+
+          chSprite.chImage.loadPixels();
+          // This is probably pretty inefficient but blend() above is not respecting transparency as I would expect.
+          for (int i2 = 0; i2 < chSprite.chImage.width * chSprite.chImage.height; i2++) {
+            if (chSprite.chImage.pixels[i2] == 0xFF000000)
+              chSprite.chImage.pixels[i2] = 0x00000000;
+          }
+        }
+      } else {
+        chSprite.color = getNewRGB();
       }
 
       chSprites.add(chSprite);
@@ -377,7 +392,8 @@ public class TextFx extends PGPixelPerfect implements CustomDeviceUI {
 
     for (int i = 0; i < oldSprites.size(); i++) {
       CharSprite old = oldSprites.get(i);
-      old.chImage.dispose();
+      if (old.chImage != null)
+        old.chImage.dispose();
     }
     // Dump the line widths for debugging purposes.
     for (int i = 0; i < taDetails.lineWidths.size(); i++) {
@@ -722,6 +738,7 @@ public class TextFx extends PGPixelPerfect implements CustomDeviceUI {
     public float curPosX;
     public float curPosY;
     public float scale;
+    public int color;
     public PGraphics chImage;
   }
 

@@ -2,7 +2,6 @@ package com.giantrainbow.patterns;
 
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
-import processing.core.PConstants;
 
 import java.util.List;
 
