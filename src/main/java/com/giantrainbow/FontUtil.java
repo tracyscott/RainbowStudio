@@ -28,7 +28,8 @@ public class FontUtil {
       "AvantGarde-Medium",
       "AvantGarde-Bold",
       "Noto Sans SC",
-      "Noto Sans Malayalam"};
+      "Noto Sans Malayalam",
+      "Noto Nastaliq Urdu"};
 
   static public Map<String, PFont> fontCache = new HashMap<String, PFont>();
 
