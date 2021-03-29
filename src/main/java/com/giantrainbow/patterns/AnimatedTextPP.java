@@ -212,6 +212,9 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     blankUntilReactivated = false;
     autoCycleWasEnabled = getChannel().autoCycleEnabled.getValueb();
     getChannel().autoCycleEnabled.setValue(false);
+    if (font == null) {
+      logger.info("FONT NOT FOUND! " + FontUtil.names()[fontKnob.getValuei()]);
+    }
   }
 
   /**
