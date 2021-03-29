@@ -65,6 +65,37 @@ public class RenderImageUtil {
     return rainbow;
   }
 
+  public static PGraphics rainbowFlagAsPGraphics(int width, int height, int alpha) {
+    PGraphics rainbow = RainbowStudio.pApplet.createGraphics(width, height);
+    rainbow.noSmooth();
+    rainbow.beginDraw();
+    rainbow.background(0, 0);
+    rainbow.noStroke();
+    // Draw flag rectangles
+    /*
+        lgbtFlag[0] = LXColor.rgb(117, 7, 135);
+    lgbtFlag[1] = LXColor.rgb(0, 77, 255);
+    lgbtFlag[2] = LXColor.rgb(0, 128, 38);
+    lgbtFlag[3] = LXColor.rgb(255, 237, 0);
+    lgbtFlag[4] = LXColor.rgb(255, 140, 0);
+    lgbtFlag[5] = LXColor.rgb(228, 3, 3);
+     */
+    rainbow.fill(228, 3, 3, alpha);
+    rainbow.rect(0, 0, width, height / 6);
+    rainbow.fill(225, 140, 0, alpha);
+    rainbow.rect(0, height / 6, width, 2 * height / 6);
+    rainbow.fill(255, 237, 0, alpha);
+    rainbow.rect(0, 2 * height / 6, width, 3 * height / 6);
+    rainbow.fill(0, 128, 38, alpha);
+    rainbow.rect(0, 3 * height / 6, width, 4 * height / 6);
+    rainbow.fill(0, 77, 255, alpha);
+    rainbow.rect(0, 4 * height / 6, width, 5 * height / 6);
+    rainbow.fill(177, 7, 135, alpha);
+    rainbow.rect(0, 5 * height / 6, width, 6 * height / 6);
+    rainbow.endDraw();
+    return rainbow;
+  }
+
   /**
    * Compute a new RGB color based on a given weight.  Each
    * RGB component is multiplied by the weight (range 0.0-1.0)

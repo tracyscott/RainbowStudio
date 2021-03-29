@@ -47,6 +47,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   public final BooleanParameter multiply = new BooleanParameter("mult", true);
   public final BooleanParameter osc = new BooleanParameter("osc", false);
   public final BooleanParameter centered = new BooleanParameter("centr", false);
+  public final BooleanParameter rbbg = new BooleanParameter("rbbg", false);
 
   public final DiscreteParameter fontKnob = new DiscreteParameter("font", 0, FontUtil.names().length);
   public final DiscreteParameter fontSizeKnob = new DiscreteParameter("fontsize", 24, 8, 32);
@@ -54,6 +55,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
       .setDescription("Which AnimatedText#.txts file to use for text input");
   public final CompoundParameter yAdjust = new CompoundParameter("yAdj", 0f, -30f, 30f)
       .setDescription("Adjusts y position of text");
+  public final CompoundParameter rbBright = new CompoundParameter("rbbrt", 0.5f, 0.0f, 1.0f);
 
   String[] defaultTexts = {
       "RAINBOW BRIDGE"
@@ -122,6 +124,8 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     addParameter(hue);
     addParameter(bright);
     addParameter(saturation);
+    addParameter(rbbg);
+    addParameter(rbBright);
     randomPaletteKnob.setValue(false);
 
 
@@ -425,6 +429,9 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     // Optimization to not re-render if we haven't moved far enough since last frame.
     if (textImage != null) {
       pg.background(0, 0);
+      if (rbbg.isOn()) {
+        pg.image(RenderImageUtil.rainbowFlagAsPGraphics(pg.width, pg.height, (int)(rbBright.getValuef()*255f)), 0, 0);
+      }
       pg.image(textImage, round(currentPos), (30f - textImage.height)/2f + yAdjust.getValuef());
       //lastPos = round(currentPos);
     }
@@ -458,6 +465,14 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     new UIKnob(whichText).setWidth(knobWidth).addToContainer(knobsContainer);
     new UIKnob(txtsKnob).setWidth(knobWidth).addToContainer(knobsContainer);
     new UIKnob(yAdjust).setWidth(knobWidth).addToContainer(knobsContainer);
+    new UIButton()
+            .setParameter(rbbg)
+            .setLabel("rbbg")
+            .setTextOffset(0, 12)
+            .setWidth(24)
+            .setHeight(16)
+            .addToContainer(knobsContainer);
+    new UIKnob(rbBright).setWidth(knobWidth).addToContainer(knobsContainer);
 
     knobsContainer.addToContainer(device);
     knobsContainer = new UI2dContainer(0, 30, device.getWidth(), 35);
