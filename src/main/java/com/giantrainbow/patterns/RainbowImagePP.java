@@ -8,6 +8,8 @@ import processing.core.PImage;
 
 @LXCategory(LXCategory.FORM)
 public class RainbowImagePP extends RainbowImageBase {
+  float currentX = 430f;
+
   public RainbowImagePP(LX lx) {
     super(lx, ((RainbowBaseModel)lx.model).pointsWide, ((RainbowBaseModel)lx.model).pointsHigh,
         "imgpp/",
@@ -15,11 +17,22 @@ public class RainbowImagePP extends RainbowImageBase {
         false);
   }
 
+  @Override
+  public void onActive() {
+    currentX = 430f;
+  }
+
   protected void renderToPoints() {
     pg.beginDraw();
     pg.background(0, 0);
     if (spriteMode.isOn())
       pg.imageMode(PConstants.CENTER);
+    if (Math.abs(speed.getValuef()) > 0.1) {
+      if (currentX > 210 - image.width/2) {
+        currentX += speed.getValuef();
+        xOff.setValue(currentX);
+      }
+    }
     pg.image(image, xOff.getValuef(), yOff.getValuef(), image.width*scale.getValuef(),
           image.height*scale.getValuef());
     pg.endDraw();

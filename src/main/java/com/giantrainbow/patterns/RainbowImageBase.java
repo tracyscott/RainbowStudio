@@ -41,6 +41,8 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
   public CompoundParameter scale = new CompoundParameter("scale", 1.0, 0.01, 10.0)
       .setDescription("Scale image");
   public BooleanParameter spriteMode = new BooleanParameter("sprite", false);
+  public CompoundParameter speed = new CompoundParameter("speed", 0f, -20f, 20f)
+      .setDescription("Speed for image pan to center");
 
   protected List<FileItem> fileItems = new ArrayList<FileItem>();
   protected UIItemList.ScrollList fileItemList;
@@ -95,7 +97,7 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
 
     addParameter(tileKnob);
     addParameter(spriteMode);
-
+    addParameter(speed);
   }
 
   private void loadImg(String imgname) {
@@ -226,6 +228,7 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
     new UIKnob(xOff).setWidth(knobWidth).addToContainer(knobsContainer);
     new UIKnob(yOff).setWidth(knobWidth).addToContainer(knobsContainer);
     new UIKnob(scale).setWidth(knobWidth).addToContainer(knobsContainer);
+    new UIKnob(speed).setWidth(knobWidth).addToContainer(knobsContainer);
 
     knobsContainer.addToContainer(device);
 
