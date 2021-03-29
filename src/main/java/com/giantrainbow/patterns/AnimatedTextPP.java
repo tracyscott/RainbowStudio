@@ -138,7 +138,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
       logger.info("Font: " + fontName);
     }
 
-    font = FontUtil.getCachedFont("PressStart2P", 24);
+    font = FontUtil.getCachedFont("Noto Sans SC", 24);
 
     /* Emoji smiley, left for reference.  Need to revert to java.awt.Font and Java2D
        to render emoji's. Processing PFont does not support surrogate pairs.
@@ -209,6 +209,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   public void onActive() {
     // Reset the guard that prevents the next text item from starting to show
     // while we are performing our fade transition to the next pattern.
+    logger.info("onActive: font name=" + FontUtil.names()[fontKnob.getValuei()]);
     blankUntilReactivated = false;
     autoCycleWasEnabled = getChannel().autoCycleEnabled.getValueb();
     getChannel().autoCycleEnabled.setValue(false);
@@ -282,6 +283,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
         pg.textSize(fontSize);
       }
     }
+    logger.info("Creating text image with font: " + FontUtil.names()[fontKnob.getValuei()]);
     textImage = RainbowStudio.pApplet.createGraphics(ceil(pg.textWidth(label)), pg.height);
     //textImage.noSmooth();
     textImage.beginDraw();
