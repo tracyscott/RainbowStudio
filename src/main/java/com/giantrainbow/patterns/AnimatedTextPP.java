@@ -93,6 +93,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
       @Override
       public void onParameterChanged(LXParameter p) {
         blankUntilReactivated = false;
+        logger.info("Reset value changed");
         // TODO(tracy): Change this to loadNewTextItem() to properly
         // account for OSC updates.
         currItem = textItemList.getFocusedItem();
@@ -175,6 +176,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     if (textItems.size() > 0) {
       currIndex = 0;
     }
+    doRedraw = true;
   }
 
 
@@ -210,6 +212,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     // Reset the guard that prevents the next text item from starting to show
     // while we are performing our fade transition to the next pattern.
     logger.info("onActive: font name=" + FontUtil.names()[fontKnob.getValuei()]);
+    imageNeedsRerender = true;
     blankUntilReactivated = false;
     autoCycleWasEnabled = getChannel().autoCycleEnabled.getValueb();
     getChannel().autoCycleEnabled.setValue(false);
