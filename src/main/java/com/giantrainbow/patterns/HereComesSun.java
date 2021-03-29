@@ -77,7 +77,7 @@ public class HereComesSun extends TextFxVScroll {
    * @return
    */
   public float curT() {
-    float t =  (elapsedTime/1000f) / ((blurKnob.getValuef()/255f) * maxElapsedTime);
+    float t =  (elapsedTime/1000f) / ((rbBright.getValuef()/255f) * maxElapsedTime);
     if (t > 1.0f)
       t = 1.0f;
     return t;
