@@ -1,6 +1,6 @@
 {
   "version": "0.1",
-  "timestamp": 1617077040025,
+  "timestamp": 1617077920528,
   "engine": {
     "id": 1,
     "class": "heronarts.lx.LXEngine",
@@ -177,6 +177,59 @@
               "triggers": []
             },
             "autoCycleEnabled": true
+          },
+          {
+            "id": 1566,
+            "class": "com.giantrainbow.patterns.TextFxFade",
+            "modulationColor": -16711859,
+            "parameters": {
+              "label": "TextFxFade",
+              "Fps": 43.0,
+              "str": "",
+              "XSpd": 20.0,
+              "multi": false,
+              "LtR": true,
+              "oneShot": false,
+              "rbbg": true,
+              "advP": true,
+              "font": 14,
+              "osc": false,
+              "fontsize": 28,
+              "htOff": 0,
+              "sprSzAdj": 0,
+              "which": -1,
+              "rbbrt": 255.0,
+              "txts": 0,
+              "yAdj": -4.799999892711639,
+              "palette": 0,
+              "hue": 0.0,
+              "bright": 1.0,
+              "sat": 0.4900000113993883
+            },
+            "modulation": {
+              "modulators": [],
+              "modulations": [],
+              "triggers": []
+            },
+            "autoCycleEnabled": true
+          },
+          {
+            "id": 1610,
+            "class": "com.giantrainbow.patterns.Flags",
+            "modulationColor": -6488320,
+            "parameters": {
+              "label": "Flags",
+              "Flag": 0,
+              "MaxX": 420.0,
+              "once": false,
+              "speed": 1.0
+            },
+            "modulation": {
+              "modulators": [],
+              "modulations": [],
+              "triggers": []
+            },
+            "autoCycleEnabled": true
           }
         ]
       }
@@ -287,9 +340,9 @@
     },
     "components": {
       "oscsensor": {
-        "id": 1524,
+        "id": 1608,
         "class": "com.giantrainbow.OSCSensor",
-        "modulationColor": -16711922,
+        "modulationColor": -16743937,
         "parameters": {
           "label": "oscsensor",
           "accelx": 0.0,
