@@ -177,7 +177,7 @@ public class VideoUtil {
         // nextReorderBuffer, which represents wrapping around to the beginning of the video file.
         if (pmd == null) {
           endOfVideo = true;
-          logger.info("End of video: frameNumber=" + frameNumber);
+          // logger.info("End of video: frameNumber=" + frameNumber);
           frameNumber = 0;
           orderedFrameNumber = 0;
           try {
