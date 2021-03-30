@@ -45,11 +45,12 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
       .setDescription("Speed for image pan to center");
   public BooleanParameter rbbg = new BooleanParameter("rbbg", false);
   public CompoundParameter rbBright = new CompoundParameter("rbbrt", 0.5, 0.0, 1.0);
+  public BooleanParameter alpha = new BooleanParameter("alpha", true);
 
   protected List<FileItem> fileItems = new ArrayList<FileItem>();
   protected UIItemList.ScrollList fileItemList;
   protected List<String> imgFiles;
-  private static final int CONTROLS_MIN_WIDTH = 300;
+  private static final int CONTROLS_MIN_WIDTH = 320;
 
   private static final List<String> IMG_EXTS = Arrays.asList(".gif", ".png", ".jpg");
 
@@ -102,6 +103,7 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
     addParameter(speed);
     addParameter(rbbg);
     addParameter(rbBright);
+    addParameter(alpha);
   }
 
   private void loadImg(String imgname) {
@@ -232,6 +234,13 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
     new UIButton()
         .setParameter(rbbg)
         .setLabel("rbbg")
+        .setTextOffset(0, 12)
+        .setWidth(24)
+        .setHeight(16)
+        .addToContainer(knobsContainer);
+    new UIButton()
+        .setParameter(alpha)
+        .setLabel("alpha")
         .setTextOffset(0, 12)
         .setWidth(24)
         .setHeight(16)

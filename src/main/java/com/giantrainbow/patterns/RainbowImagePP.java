@@ -24,7 +24,10 @@ public class RainbowImagePP extends RainbowImageBase {
 
   protected void renderToPoints() {
     pg.beginDraw();
-    pg.background(0, 0);
+    if (alpha.isOn())
+      pg.background(0, 0);
+    else
+      pg.background(0);
     // Support Rainbow Flag background graphic
 
     if (rbbg.isOn()) {
