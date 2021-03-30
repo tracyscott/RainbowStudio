@@ -122,6 +122,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     addParameter(txtsKnob);
     addParameter(yAdjust);
     addParameter(hue);
+    addParameter(paletteKnob);
     addParameter(bright);
     addParameter(saturation);
     addParameter(rbbg);
@@ -430,7 +431,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     if (textImage != null) {
       pg.background(0, 0);
       if (rbbg.isOn()) {
-        pg.image(RenderImageUtil.rainbowFlagAsPGraphics(pg.width, pg.height, (int)(rbBright.getValuef()*255f)), 0, 0);
+        pg.image(RenderImageUtil.rainbowFlag(pg.width, pg.height,rbBright.getValuef()), 0, 0);
       }
       pg.image(textImage, round(currentPos), (30f - textImage.height)/2f + yAdjust.getValuef());
       //lastPos = round(currentPos);

@@ -82,6 +82,7 @@ public class FontUtil {
       if (fname.equals("Press Start Regular")) return "PressStart2P";
       if (fname.equals("Noto Sans Arabic Regular")) return "NotoSansArabic-Regular";
       if (fname.equals("Noto Sans SC")) return "NotoSansSC-Regular";
+      if (fname.equals("Arial Bold")) return "Arial-BoldMT";
     } else {
       if (fname.equals("NotoSansSC-Regular")) return "Noto Sans SC";
       if (fname.equals("NotoSansArabic-Regular")) return "Noto Sans Arabic Regular";

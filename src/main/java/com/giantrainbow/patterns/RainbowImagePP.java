@@ -25,6 +25,13 @@ public class RainbowImagePP extends RainbowImageBase {
   protected void renderToPoints() {
     pg.beginDraw();
     pg.background(0, 0);
+    // Support Rainbow Flag background graphic
+
+    if (rbbg.isOn()) {
+      pg.image(RenderImageUtil.rainbowFlag(pg.width, pg.height, rbBright.getValuef()),
+          0, 0, pg.width, pg.height);
+    }
+
     if (spriteMode.isOn())
       pg.imageMode(PConstants.CENTER);
     if (Math.abs(speed.getValuef()) > 0.1) {

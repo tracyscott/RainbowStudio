@@ -66,7 +66,7 @@ public class TextFx extends PGPixelPerfect implements CustomDeviceUI {
   // TODO(tracy): Need some way to render text with newlines.
   String[] defaultTexts = {
       "THANK YOU\nLIVERPOOL",
-      "Your Ad Here!\nCall 415-793-8032\nAsk for Sri!",
+      "Your Ad Here!\nCall 1-800-RAINBOW\nAsk for Sri!",
       "We only matter at all in so far as\nwe matter to each other", "A", "I"
   };
   public final DiscreteParameter whichText = new DiscreteParameter("which", -1, -1, 1000)
@@ -88,6 +88,7 @@ public class TextFx extends PGPixelPerfect implements CustomDeviceUI {
   float targetHoldTime = 5.0f;
   float curHoldTime = 0.0f;
   boolean needTextsReload = true;
+  boolean isDone = false;
 
   // Set this to false to prevent pre-rendering characters to image glyphs.  Pre-rendering is
   // preferable for Rainbow image multiplying and small amounts of text.  For large amounts of scrolling
@@ -214,6 +215,7 @@ public class TextFx extends PGPixelPerfect implements CustomDeviceUI {
     blankUntilReactivated = false;
     autoCycleWasEnabled = getChannel().autoCycleEnabled.getValueb();
     getChannel().autoCycleEnabled.setValue(false);
+    isDone = false;
   }
 
 
@@ -448,6 +450,10 @@ public class TextFx extends PGPixelPerfect implements CustomDeviceUI {
   }
 
   public void draw(double deltaMs) {
+    // When we are at the end of the animation, just hold the current frame
+    if (isDone)
+      return;
+
     if (needRerender)
       renderCharacters();
 
@@ -461,7 +467,7 @@ public class TextFx extends PGPixelPerfect implements CustomDeviceUI {
 
     if (rbbg.isOn()) {
       pg.imageMode(PConstants.CORNERS);
-      pg.image(RenderImageUtil.rainbowFlagAsPGraphics(420, 30, (int)rbBright.getValuef()),
+      pg.image(RenderImageUtil.rainbowFlag(420, 30, rbBright.getValuef()/255f),
               0, 0);
     }
     boolean areChDone = drawCharacters(deltaMs);
@@ -469,22 +475,21 @@ public class TextFx extends PGPixelPerfect implements CustomDeviceUI {
     if (areChDone) {
       curHoldTime += deltaMs/1000f;
       if (curHoldTime >= targetHoldTime) {
+        isDone = true;
         // Animation is done.  Advance pattern, reset animation and play again, or hold indefinitely if 'one-shot'
         // is enabled.
-        if (!oneShot.getValueb()) {
-          if (!textItems.isEmpty()) {
-            // Increment only if we're not starting fresh
-            currIndex = (currIndex + 1) % textItems.size();
-            textItemList.setFocusIndex(currIndex);
-            needRerender = true;
-          }
-          if (advancePattern.getValueb()) {
-            // advance pattern
-            getChannel().autoCycleEnabled.setValue(autoCycleWasEnabled);
-            getChannel().goNext();
-          } else {
-            resetAnimation();
-          }
+        if (!textItems.isEmpty()) {
+          // Increment only if we're not starting fresh
+          currIndex = (currIndex + 1) % textItems.size();
+          textItemList.setFocusIndex(currIndex);
+          needRerender = true;
+        }
+        if (advancePattern.getValueb()) {
+          // advance pattern
+          getChannel().autoCycleEnabled.setValue(autoCycleWasEnabled);
+          getChannel().goNext();
+        } else {
+          resetAnimation();
         }
         curHoldTime = 0.0f;
       }

@@ -96,6 +96,30 @@ public class RenderImageUtil {
     return rainbow;
   }
 
+  public static PGraphics rainbowFlag(int width, int height, float bright) {
+    PGraphics rainbow = RainbowStudio.pApplet.createGraphics(width, height);
+    rainbow.noSmooth();
+    rainbow.beginDraw();
+    rainbow.background(0, 0);
+    rainbow.noStroke();
+
+    rainbow.fill((int)(228f * bright), (int)(3f * bright), (int)(3f * bright));
+    rainbow.rect(0, 0, width, height / 6);
+    rainbow.fill((int)(225f * bright), (int)(140f * bright), 0);
+    rainbow.rect(0, height / 6, width, 2 * height / 6);
+    rainbow.fill((int)(255f * bright), (int)(237f * bright), 0);
+    rainbow.rect(0, 2 * height / 6, width, 3 * height / 6);
+    rainbow.fill(0, (int)(128f * bright), (int)(38f * bright));
+    rainbow.rect(0, 3 * height / 6, width, 4 * height / 6);
+    rainbow.fill(0, (int)(77f * bright), (int)(255f * bright));
+    rainbow.rect(0, 4 * height / 6, width, 5 * height / 6);
+    rainbow.fill((int)(177f * bright), (int)(7f * bright), (int)(135f * bright));
+    rainbow.rect(0, 5 * height / 6, width, 6 * height / 6);
+    rainbow.endDraw();
+    return rainbow;
+  }
+
+
   /**
    * Compute a new RGB color based on a given weight.  Each
    * RGB component is multiplied by the weight (range 0.0-1.0)
