@@ -1,6 +1,6 @@
 {
   "version": "0.1",
-  "timestamp": 1617066281124,
+  "timestamp": 1617067202444,
   "engine": {
     "id": 1,
     "class": "heronarts.lx.LXEngine",
@@ -15,7 +15,7 @@
       "crossfader": 0.5,
       "crossfaderBlendMode": 0,
       "speed": 1.0,
-      "focusedChannel": 1,
+      "focusedChannel": 0,
       "cueA": false,
       "cueB": false,
       "multithreaded": false,
@@ -62,7 +62,7 @@
         },
         "effects": [],
         "clips": [],
-        "patternIndex": 13,
+        "patternIndex": 0,
         "patterns": [
           {
             "id": 81,
@@ -447,7 +447,7 @@
               "label": "RainbowImagePP",
               "Fps": 1.0,
               "img": "nmlwave(1).png",
-              "x": 80.4019775390625,
+              "x": -0.3980402946472168,
               "y": 0.0,
               "scale": 1.0,
               "tile": false,
@@ -619,65 +619,6 @@
             "autoCycleEnabled": true
           }
         ]
-      },
-      {
-        "id": 679,
-        "class": "heronarts.lx.LXChannel",
-        "modulationColor": -11796736,
-        "parameters": {
-          "label": "Channel-2",
-          "arm": false,
-          "selected": false,
-          "enabled": true,
-          "cue": false,
-          "fader": 0.0,
-          "crossfadeGroup": 0,
-          "blendMode": 0,
-          "midiMonitor": false,
-          "midiChannel": 16,
-          "autoCycleEnabled": false,
-          "autoCycleMode": 0,
-          "autoCycleTimeSecs": 60.0,
-          "transitionEnabled": false,
-          "transitionTimeSecs": 5.0,
-          "transitionBlendMode": 0
-        },
-        "effects": [],
-        "clips": [],
-        "patternIndex": 1,
-        "patterns": [
-          {
-            "id": 676,
-            "class": "heronarts.lx.pattern.IteratorPattern",
-            "modulationColor": -10752,
-            "parameters": {
-              "label": "Iterator",
-              "speed": 10.0
-            },
-            "modulation": {
-              "modulators": [],
-              "modulations": [],
-              "triggers": []
-            },
-            "autoCycleEnabled": false
-          },
-          {
-            "id": 691,
-            "class": "com.giantrainbow.patterns.Video",
-            "modulationColor": -16056576,
-            "parameters": {
-              "label": "Video",
-              "Fps": 43.0,
-              "video": "video.mp4"
-            },
-            "modulation": {
-              "modulators": [],
-              "modulations": [],
-              "triggers": []
-            },
-            "autoCycleEnabled": true
-          }
-        ]
       }
     ],
     "master": {
@@ -821,7 +762,7 @@
             "phase": 0.0,
             "exp": 0.0
           },
-          "basis": 0.4404999999990345
+          "basis": 0.17379999999903567
         }
       ],
       "modulations": [],
