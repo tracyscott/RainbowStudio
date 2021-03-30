@@ -216,6 +216,7 @@ public class TextFx extends PGPixelPerfect implements CustomDeviceUI {
     autoCycleWasEnabled = getChannel().autoCycleEnabled.getValueb();
     getChannel().autoCycleEnabled.setValue(false);
     isDone = false;
+    resetAnimation();
   }
 
 
@@ -311,6 +312,7 @@ public class TextFx extends PGPixelPerfect implements CustomDeviceUI {
       // the line.  We also wait to initialize Y values until we know how many lines of text we have.
       chSprite.targetPosX = curPos + xOffset; //i * perChWidth + 80f;
       curPos += chWidth;
+      chSprite.chWidth = chWidth;
       chSprite.scale = 1f;
       int chWidthNoCrash = 8;
       if (chWidth == 0) {
@@ -728,13 +730,15 @@ public class TextFx extends PGPixelPerfect implements CustomDeviceUI {
    */
   static public class CharSprite {
     public String ch;
-    public float angle;
+    public float angle = 0f;
     public float targetPosX;
     public float targetPosY;
     public float curPosX;
     public float curPosY;
-    public float scale;
+    public float chWidth = 1.0f;
+    public float scale = 1.0f;
     public int color;
+    public float alpha = 1.0f;
     public PGraphics chImage;
   }
 

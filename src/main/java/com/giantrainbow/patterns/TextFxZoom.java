@@ -1,17 +1,30 @@
 package com.giantrainbow.patterns;
 
+import com.giantrainbow.EaseUtil;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 @LXCategory(LXCategory.FORM)
-public class TextFxVScroll extends TextFx {
+public class TextFxZoom extends TextFx {
+  private static final Logger logger = Logger.getLogger(TextFxZoom.class.getName());
 
-  public TextFxVScroll(LX lx) {
+  protected int currentLine = 0;
+  float scaleElapsed = 0f;
+  float scaleDuration = 2f;
+
+  public TextFxZoom(LX lx) {
     super(lx);
     preRenderCh = false;
     spaceChWidth = 4;
+  }
+
+  @Override
+  public void onActive() {
+    super.onActive();
+    resetAnimation();
   }
 
   /**
@@ -25,9 +38,10 @@ public class TextFxVScroll extends TextFx {
         CharSprite chSprite = thisLineSprites.get(i);
         // During initialization, the target positions are centered horizontally and vertically
         chSprite.curPosX = chSprite.targetPosX;
-        chSprite.curPosY = 40 + j * (fontSizeKnob.getValuei() + fontHtOffset.getValuei() + 2);
+        chSprite.curPosY = chSprite.targetPosY;
       }
     }
+    scaleElapsed = 0f;
   }
 
   /**
@@ -38,19 +52,33 @@ public class TextFxVScroll extends TextFx {
    */
   @Override
   public boolean drawCharacters(double deltaMs) {
-    boolean areChDone = true;
+    float currentScale = EaseUtil.ease(scaleElapsed / (scaleDuration * 1000f), 4);
     for (int j = 0; j < taDetails.spritesPerLine.size(); j++) {
       List<CharSprite> thisLineSprites = taDetails.spritesPerLine.get(j);
       for (int i = 0; i < thisLineSprites.size(); i++) {
         CharSprite ch = thisLineSprites.get(i);
-        ch.curPosY = ch.curPosY - xSpeed.getValuef() / 10f;
-        if (ch.curPosY > -fontSizeKnob.getValuef() * 2.0f)
-          areChDone = false;
-
+        if (leftToRight.isOn()) {
+          pg.pushMatrix();
+          pg.translate(ch.curPosX, ch.curPosY + fontSizeKnob.getValuef());
+          pg.scale(currentScale + 0.1f);
+          pg.fill(0);
+          pg.text(ch.ch, 0, yAdj.getValuef());
+          pg.popMatrix();
+        }
+        pg.pushMatrix();
+        pg.translate(ch.curPosX, ch.curPosY + fontSizeKnob.getValuef());
+        pg.scale(currentScale);
         pg.fill(ch.color);
-        pg.text(ch.ch, ch.curPosX, Math.round(ch.curPosY));
+        pg.text(ch.ch, 0, yAdj.getValuef());
+        pg.popMatrix();
       }
     }
-    return areChDone;
+    scaleElapsed += deltaMs;
+    if (scaleElapsed > (scaleDuration * 1000f)) {
+      scaleElapsed = scaleDuration * 1000f;
+      return true;
+    }
+
+    return false;
   }
 }
