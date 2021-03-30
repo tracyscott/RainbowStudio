@@ -20,7 +20,7 @@ cmd
 .classpath
 .settings/
 *.class
-videos/
+/videos/
 videotmp.mp4
 
 
