@@ -43,8 +43,8 @@ public class TextFx extends PGPixelPerfect implements CustomDeviceUI {
       .setDescription("Is language read left to right?");
   public final BooleanParameter oneShot = new BooleanParameter("oneShot", false)
       .setDescription("Animation will play once and hold");
-  public final BooleanParameter reset = new BooleanParameter("reset", false)
-      .setDescription("Resets the animation");
+  public final BooleanParameter rbbg = new BooleanParameter("rbbg", false)
+      .setDescription("Rainbow backbround");
   public final BooleanParameter advancePattern = new BooleanParameter("advP", true)
       .setDescription("Advances to next pattern in channel when animation is finished");
   public final DiscreteParameter fontKnob = new DiscreteParameter("font", 0, FontUtil.names().length);
@@ -56,7 +56,7 @@ public class TextFx extends PGPixelPerfect implements CustomDeviceUI {
   public final StringParameter textKnob = new StringParameter("str", "");
   public final CompoundParameter xSpeed =
       new CompoundParameter("XSpd", 20, 0, 100).setDescription("X speed in pixels per frame");
-  public CompoundParameter blurKnob = new CompoundParameter("blur", 0f, 0.0, 255f);
+  public CompoundParameter rbBright = new CompoundParameter("rbbrt", 0f, 0.0, 255f);
   public final DiscreteParameter txtsKnob = new DiscreteParameter("txts", 0, 0, 41)
       .setDescription("Which TextFx#.txts file to use for text input");
   public final CompoundParameter yAdj =
@@ -66,7 +66,7 @@ public class TextFx extends PGPixelPerfect implements CustomDeviceUI {
   // TODO(tracy): Need some way to render text with newlines.
   String[] defaultTexts = {
       "THANK YOU\nLIVERPOOL",
-      "Your Ad Here!\nCall 415-793-8032\nAsk for Sri!",
+      "Your Ad Here!\nCall 1-800-RAINBOW\nAsk for Sri!",
       "We only matter at all in so far as\nwe matter to each other", "A", "I"
   };
   public final DiscreteParameter whichText = new DiscreteParameter("which", -1, -1, 1000)
@@ -88,6 +88,7 @@ public class TextFx extends PGPixelPerfect implements CustomDeviceUI {
   float targetHoldTime = 5.0f;
   float curHoldTime = 0.0f;
   boolean needTextsReload = true;
+  boolean isDone = false;
 
   // Set this to false to prevent pre-rendering characters to image glyphs.  Pre-rendering is
   // preferable for Rainbow image multiplying and small amounts of text.  For large amounts of scrolling
@@ -111,7 +112,7 @@ public class TextFx extends PGPixelPerfect implements CustomDeviceUI {
     addParameter(multiply);
     addParameter(leftToRight);
     addParameter(oneShot);
-    addParameter(reset);
+    addParameter(rbbg);
     addParameter(advancePattern);
     addParameter(fontKnob);
     addParameter(osc);
@@ -119,7 +120,7 @@ public class TextFx extends PGPixelPerfect implements CustomDeviceUI {
     addParameter(fontHtOffset);
     addParameter(spriteAdj);
     addParameter(whichText);
-    addParameter(blurKnob);
+    addParameter(rbBright);
     addParameter(txtsKnob);
     addParameter(yAdj);
     addParameter(paletteKnob);
@@ -135,20 +136,6 @@ public class TextFx extends PGPixelPerfect implements CustomDeviceUI {
       @Override
       public void onParameterChanged(LXParameter p) {
         needTextsReload = true;
-      }
-    });
-    reset.addListener(new LXParameterListener() {
-      @Override
-      public void onParameterChanged(LXParameter p) {
-        blankUntilReactivated = false;
-        // TODO(tracy): Change this to loadNewTextItem() to properly
-        // account for OSC updates.
-        currItem = textItemList.getFocusedItem();
-        renderCharacters();
-        BooleanParameter b = (BooleanParameter)p;
-        if (b.isOn()) {
-          b.setValue(false);
-        }
       }
     });
 
@@ -228,6 +215,8 @@ public class TextFx extends PGPixelPerfect implements CustomDeviceUI {
     blankUntilReactivated = false;
     autoCycleWasEnabled = getChannel().autoCycleEnabled.getValueb();
     getChannel().autoCycleEnabled.setValue(false);
+    isDone = false;
+    resetAnimation();
   }
 
 
@@ -323,6 +312,7 @@ public class TextFx extends PGPixelPerfect implements CustomDeviceUI {
       // the line.  We also wait to initialize Y values until we know how many lines of text we have.
       chSprite.targetPosX = curPos + xOffset; //i * perChWidth + 80f;
       curPos += chWidth;
+      chSprite.chWidth = chWidth;
       chSprite.scale = 1f;
       int chWidthNoCrash = 8;
       if (chWidth == 0) {
@@ -462,6 +452,10 @@ public class TextFx extends PGPixelPerfect implements CustomDeviceUI {
   }
 
   public void draw(double deltaMs) {
+    // When we are at the end of the animation, just hold the current frame
+    if (isDone)
+      return;
+
     if (needRerender)
       renderCharacters();
 
@@ -473,27 +467,31 @@ public class TextFx extends PGPixelPerfect implements CustomDeviceUI {
     */
     pg.background(0, 0);
 
+    if (rbbg.isOn()) {
+      pg.imageMode(PConstants.CORNERS);
+      pg.image(RenderImageUtil.rainbowFlag(420, 30, rbBright.getValuef()/255f),
+              0, 0);
+    }
     boolean areChDone = drawCharacters(deltaMs);
 
     if (areChDone) {
       curHoldTime += deltaMs/1000f;
       if (curHoldTime >= targetHoldTime) {
+        isDone = true;
         // Animation is done.  Advance pattern, reset animation and play again, or hold indefinitely if 'one-shot'
         // is enabled.
-        if (!oneShot.getValueb()) {
-          if (!textItems.isEmpty()) {
-            // Increment only if we're not starting fresh
-            currIndex = (currIndex + 1) % textItems.size();
-            textItemList.setFocusIndex(currIndex);
-            needRerender = true;
-          }
-          if (advancePattern.getValueb()) {
-            // advance pattern
-            getChannel().autoCycleEnabled.setValue(autoCycleWasEnabled);
-            getChannel().goNext();
-          } else {
-            resetAnimation();
-          }
+        if (!textItems.isEmpty()) {
+          // Increment only if we're not starting fresh
+          currIndex = (currIndex + 1) % textItems.size();
+          textItemList.setFocusIndex(currIndex);
+          needRerender = true;
+        }
+        if (advancePattern.getValueb()) {
+          // advance pattern
+          getChannel().autoCycleEnabled.setValue(autoCycleWasEnabled);
+          getChannel().goNext();
+        } else {
+          resetAnimation();
         }
         curHoldTime = 0.0f;
       }
@@ -518,7 +516,7 @@ public class TextFx extends PGPixelPerfect implements CustomDeviceUI {
     knobsContainer.setPadding(0, 0, 0, 0);
     new UIKnob(xSpeed).setWidth(knobWidth).addToContainer(knobsContainer);
     new UIKnob(fpsKnob).setWidth(knobWidth).addToContainer(knobsContainer);
-    new UIKnob(blurKnob).setWidth(knobWidth).addToContainer(knobsContainer);
+    new UIKnob(rbBright).setWidth(knobWidth).addToContainer(knobsContainer);
 
     // When we change the font size, we need to reload the 'font' object with the new size setting.
     new UIKnob(fontSizeKnob).setWidth(knobWidth).addToContainer(knobsContainer);
@@ -540,8 +538,8 @@ public class TextFx extends PGPixelPerfect implements CustomDeviceUI {
         .setHeight(16)
         .addToContainer(knobsContainer);
     new UIButton()
-        .setParameter(reset)
-        .setLabel("reset")
+        .setParameter(rbbg)
+        .setLabel("rbbg")
         .setTextOffset(0, 12)
         .setWidth(24)
         .setHeight(16)
@@ -732,13 +730,15 @@ public class TextFx extends PGPixelPerfect implements CustomDeviceUI {
    */
   static public class CharSprite {
     public String ch;
-    public float angle;
+    public float angle = 0f;
     public float targetPosX;
     public float targetPosY;
     public float curPosX;
     public float curPosY;
-    public float scale;
+    public float chWidth = 1.0f;
+    public float scale = 1.0f;
     public int color;
+    public float alpha = 1.0f;
     public PGraphics chImage;
   }
 

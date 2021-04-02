@@ -47,6 +47,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   public final BooleanParameter multiply = new BooleanParameter("mult", true);
   public final BooleanParameter osc = new BooleanParameter("osc", false);
   public final BooleanParameter centered = new BooleanParameter("centr", false);
+  public final BooleanParameter rbbg = new BooleanParameter("rbbg", false);
 
   public final DiscreteParameter fontKnob = new DiscreteParameter("font", 0, FontUtil.names().length);
   public final DiscreteParameter fontSizeKnob = new DiscreteParameter("fontsize", 24, 8, 32);
@@ -54,6 +55,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
       .setDescription("Which AnimatedText#.txts file to use for text input");
   public final CompoundParameter yAdjust = new CompoundParameter("yAdj", 0f, -30f, 30f)
       .setDescription("Adjusts y position of text");
+  public final CompoundParameter rbBright = new CompoundParameter("rbbrt", 0.5f, 0.0f, 1.0f);
 
   String[] defaultTexts = {
       "RAINBOW BRIDGE"
@@ -93,6 +95,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
       @Override
       public void onParameterChanged(LXParameter p) {
         blankUntilReactivated = false;
+        logger.info("Reset value changed");
         // TODO(tracy): Change this to loadNewTextItem() to properly
         // account for OSC updates.
         currItem = textItemList.getFocusedItem();
@@ -119,8 +122,11 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     addParameter(txtsKnob);
     addParameter(yAdjust);
     addParameter(hue);
+    addParameter(paletteKnob);
     addParameter(bright);
     addParameter(saturation);
+    addParameter(rbbg);
+    addParameter(rbBright);
     randomPaletteKnob.setValue(false);
 
 
@@ -138,7 +144,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
       logger.info("Font: " + fontName);
     }
 
-    font = FontUtil.getCachedFont("PressStart2P", 24);
+    font = FontUtil.getCachedFont("Noto Sans SC", 24);
 
     /* Emoji smiley, left for reference.  Need to revert to java.awt.Font and Java2D
        to render emoji's. Processing PFont does not support surrogate pairs.
@@ -175,6 +181,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     if (textItems.size() > 0) {
       currIndex = 0;
     }
+    doRedraw = true;
   }
 
 
@@ -209,9 +216,14 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
   public void onActive() {
     // Reset the guard that prevents the next text item from starting to show
     // while we are performing our fade transition to the next pattern.
+    logger.info("onActive: font name=" + FontUtil.names()[fontKnob.getValuei()]);
+    imageNeedsRerender = true;
     blankUntilReactivated = false;
     autoCycleWasEnabled = getChannel().autoCycleEnabled.getValueb();
     getChannel().autoCycleEnabled.setValue(false);
+    if (font == null) {
+      logger.info("FONT NOT FOUND! " + FontUtil.names()[fontKnob.getValuei()]);
+    }
   }
 
   /**
@@ -279,6 +291,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
         pg.textSize(fontSize);
       }
     }
+    logger.info("Creating text image with font: " + FontUtil.names()[fontKnob.getValuei()]);
     textImage = RainbowStudio.pApplet.createGraphics(ceil(pg.textWidth(label)), pg.height);
     //textImage.noSmooth();
     textImage.beginDraw();
@@ -417,6 +430,9 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     // Optimization to not re-render if we haven't moved far enough since last frame.
     if (textImage != null) {
       pg.background(0, 0);
+      if (rbbg.isOn()) {
+        pg.image(RenderImageUtil.rainbowFlag(pg.width, pg.height,rbBright.getValuef()), 0, 0);
+      }
       pg.image(textImage, round(currentPos), (30f - textImage.height)/2f + yAdjust.getValuef());
       //lastPos = round(currentPos);
     }
@@ -450,6 +466,14 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
     new UIKnob(whichText).setWidth(knobWidth).addToContainer(knobsContainer);
     new UIKnob(txtsKnob).setWidth(knobWidth).addToContainer(knobsContainer);
     new UIKnob(yAdjust).setWidth(knobWidth).addToContainer(knobsContainer);
+    new UIButton()
+            .setParameter(rbbg)
+            .setLabel("rbbg")
+            .setTextOffset(0, 12)
+            .setWidth(24)
+            .setHeight(16)
+            .addToContainer(knobsContainer);
+    new UIKnob(rbBright).setWidth(knobWidth).addToContainer(knobsContainer);
 
     knobsContainer.addToContainer(device);
     knobsContainer = new UI2dContainer(0, 30, device.getWidth(), 35);

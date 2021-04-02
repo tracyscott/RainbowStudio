@@ -43,11 +43,14 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
   public BooleanParameter spriteMode = new BooleanParameter("sprite", false);
   public CompoundParameter speed = new CompoundParameter("speed", 0f, -20f, 20f)
       .setDescription("Speed for image pan to center");
+  public BooleanParameter rbbg = new BooleanParameter("rbbg", false);
+  public CompoundParameter rbBright = new CompoundParameter("rbbrt", 0.5, 0.0, 1.0);
+  public BooleanParameter alpha = new BooleanParameter("alpha", true);
 
   protected List<FileItem> fileItems = new ArrayList<FileItem>();
   protected UIItemList.ScrollList fileItemList;
   protected List<String> imgFiles;
-  private static final int CONTROLS_MIN_WIDTH = 240;
+  private static final int CONTROLS_MIN_WIDTH = 320;
 
   private static final List<String> IMG_EXTS = Arrays.asList(".gif", ".png", ".jpg");
 
@@ -98,6 +101,9 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
     addParameter(tileKnob);
     addParameter(spriteMode);
     addParameter(speed);
+    addParameter(rbbg);
+    addParameter(rbBright);
+    addParameter(alpha);
   }
 
   private void loadImg(String imgname) {
@@ -120,7 +126,7 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
       logger.info("Tiling image: " + imgname + " numTiles=" + numTiles + " paddingX=" + paddingX);
       pg.beginDraw();
 
-      // NOTE(tracy): This is commented out so that we don't fully black out our frame, which we don't
+     // NOTE(tracy): This is commented out so that we don't fully black out our frame, which we don't
       // want to do if we want to layer multiple channels using partially transparent images.
       // pg.background(0);
 
@@ -225,10 +231,26 @@ abstract class RainbowImageBase extends LXPattern implements CustomDeviceUI {
         .setWidth(24)
         .setHeight(16)
         .addToContainer(knobsContainer);
+    new UIButton()
+        .setParameter(rbbg)
+        .setLabel("rbbg")
+        .setTextOffset(0, 12)
+        .setWidth(24)
+        .setHeight(16)
+        .addToContainer(knobsContainer);
+    new UIButton()
+        .setParameter(alpha)
+        .setLabel("alpha")
+        .setTextOffset(0, 12)
+        .setWidth(24)
+        .setHeight(16)
+        .addToContainer(knobsContainer);
+
     new UIKnob(xOff).setWidth(knobWidth).addToContainer(knobsContainer);
     new UIKnob(yOff).setWidth(knobWidth).addToContainer(knobsContainer);
     new UIKnob(scale).setWidth(knobWidth).addToContainer(knobsContainer);
     new UIKnob(speed).setWidth(knobWidth).addToContainer(knobsContainer);
+    new UIKnob(rbBright).setWidth(knobWidth).addToContainer(knobsContainer);
 
     knobsContainer.addToContainer(device);
 

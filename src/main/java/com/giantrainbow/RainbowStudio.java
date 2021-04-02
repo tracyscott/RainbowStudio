@@ -29,17 +29,17 @@ import com.giantrainbow.model.SimplePanel;
 import com.giantrainbow.ui.*;
 import com.google.common.reflect.ClassPath;
 import com.google.gson.JsonObject;
-import heronarts.lx.LX;
-import heronarts.lx.LXComponent;
-import heronarts.lx.LXEffect;
-import heronarts.lx.LXPattern;
+import heronarts.lx.*;
 import heronarts.lx.midi.LXMidiEngine;
 import heronarts.lx.midi.LXMidiOutput;
 import heronarts.lx.model.LXModel;
 import heronarts.lx.osc.LXOscEngine;
 import heronarts.lx.studio.LXStudio;
+import heronarts.lx.studio.ui.mixer.UIMixerStrip;
+import heronarts.p3lx.ui.UI2dContainer;
 import heronarts.p3lx.ui.UI3dContext;
 import heronarts.p3lx.ui.UIEventHandler;
+import heronarts.p3lx.ui.UIObject;
 import heronarts.p3lx.ui.component.UIGLPointCloud;
 
 import java.io.File;
@@ -52,6 +52,7 @@ import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -348,13 +349,17 @@ public class RainbowStudio extends PApplet {
     fullscreenContext.addComponent(fullScreenPointCloud);
     lx.ui.addLayer(fullscreenContext);
     fullscreenContext.setVisible(false);
+    */
 
     lx.ui.setTopLevelKeyEventHandler(new TopLevelKeyEventHandler());
-    */
+
     frameRate(GLOBAL_FRAME_RATE);
   }
 
   public class TopLevelKeyEventHandler extends UIEventHandler {
+    int originalStripWidth = 72;
+    int collapsedStripWidth = 20;
+
     TopLevelKeyEventHandler() {
       super();
     }
@@ -362,8 +367,25 @@ public class RainbowStudio extends PApplet {
     @Override
     protected void onKeyPressed(KeyEvent keyEvent, char keyChar, int keyCode) {
       super.onKeyPressed(keyEvent, keyChar, keyCode);
-      if (keyCode == 70) {
-        toggleFullscreen();
+      if (keyChar == '`') {
+        Map<LXChannelBus, UIMixerStrip> channelStrips = lx.ui.bottomTray.mixer.channelStrips;
+        for (LXChannelBus channelBus : channelStrips.keySet()) {
+          UIMixerStrip strip = channelStrips.get(channelBus);
+          if ((int)strip.getContentWidth() != collapsedStripWidth) {
+            originalStripWidth = (int)strip.getContentWidth();
+          }
+          if (!strip.hasFocus()) {
+            strip.setContentWidth(collapsedStripWidth);
+          } else {
+            strip.setContentWidth(originalStripWidth);
+          }
+        }
+      } else if (keyChar == '~') {
+        Map<LXChannelBus, UIMixerStrip> channelStrips = lx.ui.bottomTray.mixer.channelStrips;
+        for (LXChannelBus channelBus : channelStrips.keySet()) {
+          UIMixerStrip strip = channelStrips.get(channelBus);
+          strip.setContentWidth(originalStripWidth);
+        }
       }
     }
   }
