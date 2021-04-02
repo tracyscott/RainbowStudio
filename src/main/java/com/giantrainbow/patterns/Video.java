@@ -54,7 +54,6 @@ public class Video extends PGPixelPerfect implements CustomDeviceUI {
 
   public Video(LX lx) {
     super(lx, null);
-    reloadFileList();
     addParameter(videoKnob);
     videoKnob.addListener(new LXParameterListener() {
       @Override
@@ -64,6 +63,7 @@ public class Video extends PGPixelPerfect implements CustomDeviceUI {
       }
     });
     installVideoFiles();
+    reloadFileList();
     videoKnob.setValue(defaultVideoFilename);
     loadVideo(videoKnob.getString());
   }
@@ -86,7 +86,7 @@ public class Video extends PGPixelPerfect implements CustomDeviceUI {
   }
 
   protected void reloadFileList() {
-    videoFiles = PathUtils.findDataFiles(VIDEOS_WORKING_DIR, VIDEO_EXTS);
+    videoFiles = PathUtils.findVideoFiles(VIDEOS_WORKING_DIR);
     fileItems.clear();
     for (String filename : videoFiles) {
       // Use a name that's suitable for the knob
