@@ -33,7 +33,7 @@ public class UIModeSelector extends UICollapsibleSection {
   public final UIButton instrumentMode;
   public final UIButton textMode;
 
-  protected LX lx;
+  public LX lx;
   protected LXStudio.UI ui;
   public BooleanParameter autoAudioModeP; // = new BooleanParameter("autoaudio", false);
   public BooleanParameter audioModeP = new BooleanParameter("audio", false);
@@ -70,6 +70,9 @@ public class UIModeSelector extends UICollapsibleSection {
   public Map<String, LXParameter> paramLookup = new HashMap<String, LXParameter>();
   static public final String filename = "modeselector.json";
   static public StandardModeCycle standardModeCycle;
+
+  static public boolean noEligibleChannels = true;
+  static public boolean isInitialized = false;
 
   public UIModeSelector(final LXStudio.UI ui, LX lx, UIAudioMonitorLevels audioMonitor) {
     super(ui, 0, 0, ui.leftPane.global.getContentWidth(), 200);
@@ -143,6 +146,15 @@ public class UIModeSelector extends UICollapsibleSection {
             LXChannelBus ch = UtilsForLX.getChannelByLabel(lx, channelName);
             standardModeChannels.add(ch);
           }
+          // If we are loading a new project, we will already have a standardModeCycle
+          // loop task.  But since we have a new project with new channels, re-run the
+          // channel selection initialization.
+          if (standardModeCycle != null) {
+            logger.info("Resetting isInitialized");
+            isInitialized = false;
+            standardModeCycle.initializeChannel();
+          }
+          currentPlayingChannel = 0;
           setStandardChannelsEnabled(true);
         } else {
           logger.info("Disabling standard mode.");
@@ -365,7 +377,7 @@ public class UIModeSelector extends UICollapsibleSection {
     instrumentMode.setActive(false);
     textMode.setActive(true);
     textMode.setActive(false);
-    currentPlayingChannel = 3;
+    // currentPlayingChannel = 3;
     standardMode.setActive(true);
   }
 
@@ -516,11 +528,9 @@ public class UIModeSelector extends UICollapsibleSection {
     public double currentChannelPlayTime = 0.0;
     public double timePerChannel = 5000.0;  // Default. This is settable in the UI. milliseconds.
     public double fadeTime = 1000.0;  // This is settable in the UI. milliseconds
-    public double prevChannelDisableThreshold = 0.1;  // Settable in UI? How low slider goes before full disable.
-    public double channelFadeFullThreshold = 0.1; // At this value just set it to 1.  Deals with chunkiness around time.
+    public double prevChannelDisableThreshold = 0.05;  // Settable in UI? How low slider goes before full disable.
+    public double channelFadeFullThreshold = 0.05; // At this value just set it to 1.  Deals with chunkiness around time.
     public double fadeTimeRemaining = 0.0;
-    public boolean noEligibleChannels = true;
-    public boolean isInitialized = false;
 
     /**
      * With the program scheduling feature, it is possible that somebody configured things such that there
@@ -530,6 +540,7 @@ public class UIModeSelector extends UICollapsibleSection {
      */
     public boolean initializeChannel() {
       isInitialized = true;
+      noEligibleChannels = true;
       int okChannel = -1;
       LXChannelBus okChannelBus = null;
       // Go through all channels and disable them.  Enable the first channel that is eligible to play in this
@@ -541,6 +552,7 @@ public class UIModeSelector extends UICollapsibleSection {
           logger.info("Checking channel: " + currentChannel.getLabel());
           currentChannel.enabled.setValue(false);
           if (channelIsEligibleByTime(currentChannel) && okChannel == -1) {
+            logger.info("Found channel: " + currentChannel.getLabel());
             currentChannel.enabled.setValue(true);
             noEligibleChannels = false;
             okChannel = i;
@@ -595,8 +607,18 @@ public class UIModeSelector extends UICollapsibleSection {
         initializeChannel();
       }
 
-      if (noEligibleChannels)
+      if (noEligibleChannels) {
+        // Force the enabled value to be false for channels with a very low enabled value.  Otherwise, set
+        // enabled to true.
+        for (LXChannelBus channelBus : lx.engine.channels) {
+          if (channelBus.fader.getValuef() <= prevChannelDisableThreshold) {
+            channelBus.enabled.setValue(false);
+          } else {
+            channelBus.enabled.setValue(true);
+          }
+        }
         return;
+      }
 
       fadeTime = UIModeSelector.fadeTimeP.getValue() * 1000f;
       // UI is in seconds.  Convert to milliseconds.
@@ -651,8 +673,10 @@ public class UIModeSelector extends UICollapsibleSection {
         LXChannelBus currentChannel = standardModeChannels.get(currentPlayingChannel);
         if (previousChannel != null) {
           previousChannel.fader.setValue(previousChannelPercent);
-          if (previousChannelPercent < prevChannelDisableThreshold)
+          if (previousChannelPercent < prevChannelDisableThreshold) {
             previousChannel.enabled.setValue(false);
+            previousChannel.fader.setValue(0f);
+          }
         }
         if (currentChannel != null) currentChannel.fader.setValue(percentDone);
         // When this goes below zero we are done fading until the timePerChannel time

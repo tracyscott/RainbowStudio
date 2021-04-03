@@ -223,8 +223,10 @@ public class RainbowStudio extends PApplet {
       public void projectChanged(File f, LX.ProjectListener.Change change) {
         // Force Standard mode after opening a file.
         if (change == LX.ProjectListener.Change.OPEN) {
+          logger.info("Resetting Standard Mode on project open");
+          UIModeSelector.isInitialized = false;
+          UIModeSelector.noEligibleChannels = true;
           modeSelector.initMode();
-          UIModeSelector.standardModeCycle.isInitialized = false;
         }
       }
     });
