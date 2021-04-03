@@ -23,9 +23,18 @@ uniform vec3  iChannelResolution[4]; // image/buffer/sound    Input texture reso
 
 // iMouse.x = 0.2 nominal.  This is vertical displacement multiplier.  It is
 // multiplied times 5. so above .2 and it starts tiling the texture.
+// iMouse.y Non-displacement threshold.  If the displacement value is below this
+// then don't displace.  This can be used to prevent the image from twitching when
+// nothing is happening.  But it can also produce a little bit of visual tearing
+// at the threshold value.
+// iMouse.z If this is > 0.5 we will use the whole texture.  If it is less
+// than or equal to, then we will use the left side of texture mirrored.  This
+// mode is helpful for non-symmetric images since it makes them symmetric.
+
 void mainImage( out vec4 fragColor, in vec2 pt )
 {
     vec2 position = pt/iResolution.xy;
+    vec2 originalPos = position;
     // move image right, flip left horizontally
     if (position.x < .5) {
       position.x = -position.x+.5;
@@ -39,7 +48,9 @@ void mainImage( out vec4 fragColor, in vec2 pt )
     if (mag < iMouse.y) {
     	mag = 0.;
     }
-    position.x = position.x;
+    if (iMouse.z > 0.5) {
+    	position.x = originalPos.x; 
+    } 
     position.y = position.y + mag * 5.0 * iMouse.x;
     fragColor = texture(iChannel1, position);
     fragColor *= fragColor;
