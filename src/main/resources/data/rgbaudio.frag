@@ -49,7 +49,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
                    iMouse.z);
 
     // Apply FFT
-    float s = texture(iChannel0, (uv.xy*.06)).r;
+    float s = texture(iChannel3, (uv.xy*.06)).r;
     col *= s/(iMouse.w * distFromMiddle(uv.y));
     col *= U1.x;
 
