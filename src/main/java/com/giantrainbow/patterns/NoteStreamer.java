@@ -4,6 +4,7 @@ import com.giantrainbow.model.RainbowBaseModel;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.midi.*;
+import heronarts.lx.parameter.BooleanParameter;
 import heronarts.lx.parameter.CompoundParameter;
 import heronarts.lx.parameter.DiscreteParameter;
 import processing.core.PConstants;
@@ -27,6 +28,10 @@ public class NoteStreamer extends MidiBasePP {
 
   public final CompoundParameter speedKnob =
       new CompoundParameter("noteSpd", 1f, 0.1f, 20f);
+
+  public final BooleanParameter allOff =
+          new BooleanParameter("AllOff", false)
+                  .setDescription("Turns Off All Midi Notes");
 
   static private final int MIDDLEC = 60;
 
@@ -59,6 +64,8 @@ public class NoteStreamer extends MidiBasePP {
     addParameter(saturation);
     addParameter(hue);
     addParameter(bright);
+    addParameter(allOff);
+    allOff.setMode(BooleanParameter.Mode.MOMENTARY);
   }
 
   public void draw(double drawDeltaMs) {
@@ -71,7 +78,7 @@ public class NoteStreamer extends MidiBasePP {
       float percentFaded = 0f;
       if (note.endTimeMs > 0)
         percentFaded = (System.currentTimeMillis() - note.endTimeMs)/fadeTime.getValuef();
-      if (percentFaded > 1.0f) {
+      if (percentFaded > 1.0f || allOff.getValueb()) {
         note.done = true;
       } else {
         drawNote(note, (1f - percentFaded));
