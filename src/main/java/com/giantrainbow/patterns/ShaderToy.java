@@ -320,12 +320,24 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
     DwGLTexture texAudio = new DwGLTexture();
     texAudio.resize(context, GL2.GL_R8, 512, 2, GL2.GL_RED, GL2.GL_UNSIGNED_BYTE,
         GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 1, 1, audioTexBuf);
+
+    byte[] eqBands = new byte[1024];
+    for (int i = 0; i < 1024; i++) {
+      int bandVal = (int)(eq.getBandf(i%16) * 255.0);
+      eqBands[i++] = (byte)(bandVal);
+    }
+    ByteBuffer eqBuf = ByteBuffer.wrap(eqBands);
+    DwGLTexture eqBandTex = new DwGLTexture();
+    eqBandTex.resize(context, GL2.GL_R8, 512, 2, GL2.GL_RED, GL2.GL_UNSIGNED_BYTE,
+        GL2.GL_LINEAR, GL2.GL_MIRRORED_REPEAT, 1, 1, eqBuf);
+
     // Allow for dynamic texture reloading via the UI.
     synchronized (toy) {
       toy.set_iChannel(0, texAudio);
       toy.set_iChannel(2, texNoise);
       if (texImage != null)
         toy.set_iChannel(1, texImage);
+      toy.set_iChannel(3, eqBandTex);
     }
     pg.background(0, 0);
     if (toy == null) {
