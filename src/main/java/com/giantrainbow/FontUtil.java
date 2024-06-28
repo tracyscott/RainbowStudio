@@ -30,6 +30,9 @@ public class FontUtil {
       "Noto Sans SC",
       "Noto Sans Malayalam",
       "Noto Nastaliq Urdu",
+      "Gilroy-Black",
+      "Lato Medium",
+      "Zen Kaku Gothic New Regular",
       "Arial Bold"};
 
   static public Map<String, PFont> fontCache = new HashMap<String, PFont>();
